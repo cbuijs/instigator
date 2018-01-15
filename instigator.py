@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 =========================================================================================
- instigator.py: v0.1-20180115 Copyright (C) 2017 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.2-20180115 Copyright (C) 2017 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
  Python DNS Server with security and filtering features
@@ -22,21 +22,27 @@ from dnslib import RR, A, CNAME, MX, PTR, SRV, RCODE
 from dnslib.proxy import ProxyResolver
 from dnslib.server import DNSServer
 
+# Blacklist
 blacklist = dict()
 blacklist['doubleclick.net'] = True
+blacklist['google-analytics.com'] = True
+blacklist['google-analytics.com'] = True
 
+# Timeout on forwarding
 timeout = 20
 
+# Listen on
 listen = '127.0.0.1'
 listen_port = 5053
 
-forward_dns = '9.9.9.9'
+# Forwarding queries to
+forward_dns = '9.9.9.9' # Quad9
 forward_port = 53
 
+# Redirect when blacklisted, leave empty for "Refused"
 #redirect_address = '192.168.1.250'
 redirect_address = ''
 redirect_host = 'dummy'
-
 
 class SubProxy(ProxyResolver):
     def __init__(self, address, port, timeout, answer, host):
@@ -46,7 +52,6 @@ class SubProxy(ProxyResolver):
 
     def resolve(self, request, handler):
         if in_list('black', request.q.qname):
-            # print(request.q.qname)
             reply = request.reply()
 
             if len(self.host) == 0:
@@ -57,8 +62,6 @@ class SubProxy(ProxyResolver):
                 reply.add_answer(answer)
                 reply.header.rcode = getattr(RCODE,'NOERROR')
 
-            # print(reply)
-            # print('-' * 200)
             return reply
         else:
             return ProxyResolver.resolve(self, request, handler)
