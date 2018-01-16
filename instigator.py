@@ -1,11 +1,19 @@
 #!/usr/bin/env python
 '''
 =========================================================================================
- instigator.py: v0.5-20180116 Copyright (C) 2017 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.6-20180116 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
- Python DNS Server with security and filtering features
+Python DNS Server with security and filtering features
 
+This is a little study to build a DNS server in Python including some features:
+
+- Blacklist/Whitelist DNS queries and responses based on domain, ip or regex
+- Blacklisted DNS queries never leave the building
+
+... to be elaborated
+
+TODO:
 - Better Documentation / Remarks / Comments
 
 =========================================================================================
@@ -26,11 +34,11 @@ from dnslib.server import DNSServer
 import regex
 
 # Use module pysubnettree
-import SubnetTree
+#import SubnetTree
 
 # Listen for queries
-listen_address = '127.0.0.1'
-listen_port = 5053
+listen_address = '192.168.1.250'
+listen_port = 53
 
 # Forwarding queries to
 forward_address = '9.9.9.9' # Quad9
@@ -40,13 +48,19 @@ forward_timeout = 20 # Seconds
 # Redirect when blacklisted, leave empty for "Refused"
 redirect_address = '192.168.1.250'
 #redirect_address = ''
-redirect_host = 'sinkhole' # For CNAME, MX, PTR, SRV
+redirect_host = 'sinkhole' # TODO: For CNAME, MX, PTR, SRV
 
-# Blacklist
-blacklist = dict()
-blacklist['doubleclick.net'] = True
-blacklist['google-analytics.com'] = True
-blacklist['google-analytics.com'] = True
+# Dictionaries
+bl_dom = dict()
+#wl_dom = dict()
+#bl_ip = dict()
+#wl_ip = dict()
+#bl_reg = dict()
+#wl_reg = dict()
+
+# Test
+bl_dom['doubleclick.net'] = True
+bl_dom['google-analytics.com'] = True
 
 # Cache
 cachesize = 2500
@@ -54,8 +68,15 @@ cachettl = 1800
 cache = dict()
 cacheindex = dict()
 
+# Regex to filter regexes out
+#isregex = regex.compile('^/.*/$')
+
 # Regex to filter IP's out
 ipregex = regex.compile('^(([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})*|([0-9a-f]{1,4}|:)(:([0-9a-f]{0,4})){1,7}(/[0-9]{1,3})*)$', regex.I)
+
+# Regex to match domains/hosts in lists
+#isdomain = regex.compile('^[a-z0-9\.\-]+$', regex.I) # According RFC, Internet only
+
 
 # Check if entry matches a list
 def in_list(type, bw, name):
@@ -65,7 +86,7 @@ def in_list(type, bw, name):
         print ('Skipping IP ' + testname)
     else:
         while True:
-            if testname in blacklist:
+            if testname in bl_dom:
                 blacklisted = True
                 print ('HIT: \"' + name + '\" matched against \"' + testname + '\"')
                 break
