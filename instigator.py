@@ -14,6 +14,7 @@ This is a little study to build a DNS server in Python including some features:
 ... to be elaborated
 
 TODO:
+- Loads ...
 - Better Documentation / Remarks / Comments
 
 =========================================================================================
