@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 =========================================================================================
- instigator.py: v0.6-20180116 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.61-20180116 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -141,8 +141,6 @@ def update_cache(msg):
 class DNS_Instigator(ProxyResolver):
     def __init__(self, forward_address, forward_port, forward_timeout, redirect_host, redirect_address):
         ProxyResolver.__init__(self, forward_address, forward_port, forward_timeout)
-        self.redirect_host = redirect_host
-        self.redirect_address = redirect_address
 
     def resolve(self, request, handler):
         qname = str(request.q.qname).rstrip('.').lower()
