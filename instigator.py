@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 =========================================================================================
- instigator.py: v0.61-20180116 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.62-20180221 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -27,7 +27,7 @@ import sys, time, datetime
 sys.path.append("/usr/local/lib/python2.7/dist-packages/")
 
 # DNSLib module
-from dnslib import RCODE, QTYPE, RR, A, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord
+from dnslib import RCODE, QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord
 from dnslib.proxy import ProxyResolver
 from dnslib.server import DNSServer
 
@@ -84,18 +84,17 @@ def in_list(type, bw, name):
     testname = name
     blacklisted = False
     if ipregex.match(testname):
-        print ('Skipping IP ' + testname)
+        print ('Skipping ' + type + ' IP ' + testname)
     else:
         while True:
             if testname in bl_dom:
                 blacklisted = True
-                print ('HIT: \"' + name + '\" matched against \"' + testname + '\"')
+                print ('HIT: ' + type + ' \"' + name + '\" matched against \"' + testname + '\"')
                 break
             elif testname.find('.') == -1:
                 break
             else:
                 testname = testname[testname.find('.') + 1:]
-                #print ('Checking \"' + type + ' ' + name + '\" against \"' + testname + '\"')
 
     return blacklisted
        
@@ -193,7 +192,6 @@ class DNS_Instigator(ProxyResolver):
             expire = now + ttl
             cacheindex[query] = expire
             print('STORED \"' + qname + '/' + qtype + '\" INTO CACHE WITH TTL OF ' + str(ttl) + ' SECONDS')
-            #update_cache('END OF QUERY')
 
         return reply
 
