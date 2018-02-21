@@ -34,8 +34,8 @@ from dnslib.server import DNSServer
 # Regex module
 import regex
 
-# Use module pysubnettree
-#import SubnetTree
+# Use module PyTricia for CIDR/Subnet stuff
+#import pytricia
 
 # Listen for queries
 listen_address = '192.168.1.250'
@@ -84,6 +84,7 @@ def in_list(type, bw, name):
     testname = name
     blacklisted = False
     if ipregex.match(testname):
+        # !!! Put IP check here using PyTricia !!!
         print ('Skipping ' + type + ' IP ' + testname)
     else:
         while True:
