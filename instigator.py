@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 =========================================================================================
- instigator.py: v0.62-20180221 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.65-20180424 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -35,33 +35,25 @@ from dnslib.server import DNSServer
 import regex
 
 # Use module PyTricia for CIDR/Subnet stuff
-#import pytricia
+import pytricia
 
 # Listen for queries
 listen_address = '192.168.1.250'
-listen_port = 53
+listen_port = 53053
 
 # Forwarding queries to
-forward_address = '9.9.9.9' # Quad9
+forward_address = '1.1.1.1' # CloudFlare
 forward_port = 53
 forward_timeout = 20 # Seconds
 
-# Redirect when blacklisted, leave empty for "Refused"
-redirect_address = '192.168.1.250'
-#redirect_address = ''
-redirect_host = 'sinkhole' # TODO: For CNAME, MX, PTR, SRV
+# Redirect Address, leave empty to generete REFUSED
+redirect_address = ''
+#redirect_address = '192.168.1.250' # IPv4 only
+redirect_host = 'sinkhole'
 
-# Dictionaries
-bl_dom = dict()
-#wl_dom = dict()
-#bl_ip = dict()
-#wl_ip = dict()
-#bl_reg = dict()
-#wl_reg = dict()
-
-# Test
-bl_dom['doubleclick.net'] = True
-bl_dom['google-analytics.com'] = True
+# TTL settings
+minttl = 120
+maxttl = 3600
 
 # Cache
 cachesize = 2500
@@ -69,35 +61,98 @@ cachettl = 1800
 cache = dict()
 cacheindex = dict()
 
-# Regex to filter regexes out
-#isregex = regex.compile('^/.*/$')
+# List Dictionaries
+bl_dom = dict()
+wl_dom = dict()
+bl_ip4 = pytricia.PyTricia(32)
+bl_ip6 = pytricia.PyTricia(128)
+wl_ip4 = pytricia.PyTricia(32)
+wl_ip6 = pytricia.PyTricia(128)
+#bl_reg = dict()
+#wl_reg = dict()
+
+# Cache Dictionaries
+bl_cache = dict()
+wl_cache = dict()
+
+# Test
+wl_dom['chrisbuijs.com'] = True
+bl_dom['doubleclick.net'] = True
+bl_dom['google-analytics.com'] = True
+bl_dom['googleadapis.l.google.com'] = True
+bl_ip4['127.0.0.1'] = True # Test with "localhost"
+bl_ip4['194.109.6.0/25'] = True # Test with "www.xs4all.nl"
 
 # Regex to filter IP's out
-ipregex = regex.compile('^(([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})*|([0-9a-f]{1,4}|:)(:([0-9a-f]{0,4})){1,7}(/[0-9]{1,3})*)$', regex.I)
+ip4regex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(/(3[0-2]|[12]?[0-9]))*)'
+ip6regex_text = '(((:(:[0-9a-f]{1,4}){1,7}|::|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,6}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,5}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,4}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,3}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,2}|::|:[0-9a-f]{1,4}(::[0-9a-f]{1,4}|::|:[0-9a-f]{1,4}(::|:[0-9a-f]{1,4}))))))))|(:(:[0-9a-f]{1,4}){0,5}|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,4}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,3}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,2}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4})?|:[0-9a-f]{1,4}(:|:[0-9a-f]{1,4})))))):(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3})(/(12[0-8]|1[01][0-9]|[1-9]?[0-9]))*)'
+ipregex4 = regex.compile('^' + ip4regex_text + '$', regex.I)
+ipregex6 = regex.compile('^' + ip6regex_text + '$', regex.I)
+ipregex = regex.compile('^(' + ip4regex_text + '|' + ip6regex_text +')$', regex.I)
+#ipregex = regex.compile('^(([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})*|([0-9a-f]{1,4}|:)(:([0-9a-f]{0,4})){1,7}(/[0-9]{1,3})*)$', regex.I)
 
 # Regex to match domains/hosts in lists
 #isdomain = regex.compile('^[a-z0-9\.\-]+$', regex.I) # According RFC, Internet only
 
+# Regex to filter regexes out
+#isregex = regex.compile('^/.*/$')
+
 
 # Check if entry matches a list
-def in_list(type, bw, name):
+def in_blacklist(type, name):
     testname = name
-    blacklisted = False
-    if ipregex.match(testname):
-        # !!! Put IP check here using PyTricia !!!
-        print ('Skipping ' + type + ' IP ' + testname)
+
+    if (testname in wl_cache) or (testname in wl_dom):
+        print ('WHITELIST-HIT: ' + type + ' \"' + name + '\" (Stage 1)')
+        return False
+
+    if (testname in bl_cache) or (testname in bl_dom):
+        print ('BLACKLIST-HIT: ' + type + ' \"' + name + '\" (Stage 1)')
+        return True
+
+    if type == 'RESPONSE' and ipregex.match(testname):
+        found = False
+        prefix = False
+        if ipregex4.match(testname):
+            wip = wl_ip4
+            bip = bl_ip4
+        else:
+            wip = wl_ip6
+            bip = bl_ip6
+
+        if not testname in wip:
+            if testname in bip:
+                prefix = bip.get_key(testname)
+                found = True
+        else:
+            prefix = wip.get_key(testname)
+
+        if found:
+            print ('BLACKLIST-IP-HIT: ' + type + ' ' + name + ' matched against ' + prefix)
+            bl_cache[name] = True
+            return True
+        elif prefix:
+            print ('WHITELIST-IP-HIT: ' + type + ' ' + name + ' matched against ' + prefix)
+            return False
+
     else:
         while True:
+            if testname in wl_dom:
+                wl_cache[name] = True
+                print ('WHITELIST-HIT: ' + type + ' \"' + name + '\" matched against \"' + testname + '\" (Stage 2)')
+                return False
             if testname in bl_dom:
-                blacklisted = True
-                print ('HIT: ' + type + ' \"' + name + '\" matched against \"' + testname + '\"')
-                break
+                bl_cache[name] = True
+                print ('BLACKLIST-HIT: ' + type + ' \"' + name + '\" matched against \"' + testname + '\" (Stage 2)')
+                return False
             elif testname.find('.') == -1:
                 break
             else:
                 testname = testname[testname.find('.') + 1:]
 
-    return blacklisted
+    # Do regex here
+
+    return False
        
 
 # Generate response
@@ -135,7 +190,7 @@ def update_cache(msg):
            print('CACHE EXPIRATION: ' + str(cache[query].q.qname))
            del cache[query]
            del cacheindex[query]
-           
+
     return True
 
 class DNS_Instigator(ProxyResolver):
@@ -168,7 +223,7 @@ class DNS_Instigator(ProxyResolver):
 
         if not fromcache:
             ttl = cachettl
-            if in_list('QUERY', 'black', qname):
+            if in_blacklist('QUERY', qname):
                 reply = generate_response(request, qname, qtype, redirect_address)
             else:
                 reply = ProxyResolver.resolve(self, request, handler)
@@ -177,22 +232,30 @@ class DNS_Instigator(ProxyResolver):
                     query = str(reply.q)
                     if reply.rr:
                         ttl = min(x.ttl for x in reply.rr)
+
+                        if ttl < minttl:
+                            ttl = minttl
+                        elif ttl > maxttl:
+                            ttl = maxttl
+
                         for record in reply.rr:
                             record.ttl = ttl
                             rqname = str(record.rname).rstrip('.').lower()
                             rqtype = QTYPE[record.rtype]
                             data = str(record.rdata).rstrip('.').lower()
-                            if in_list('QUERY', 'black', rqname) or in_list('RESPONSE', 'black', data):
+                            if in_blacklist('QUERY', rqname) or in_blacklist('RESPONSE', data):
                                 reply = generate_response(request, qname, qtype, redirect_address)
                                 break
                 else:
                     return reply
             
-            cache[query] = reply
-            now = int(datetime.datetime.now().strftime("%s"))
-            expire = now + ttl
-            cacheindex[query] = expire
-            print('STORED \"' + qname + '/' + qtype + '\" INTO CACHE WITH TTL OF ' + str(ttl) + ' SECONDS')
+           
+            if (RCODE[reply.header.rcode] == 'NOERROR'):
+                cache[query] = reply
+                now = int(datetime.datetime.now().strftime("%s"))
+                expire = now + ttl
+                cacheindex[query] = expire
+                print('STORED \"' + qname + '/' + qtype + '\" INTO CACHE WITH TTL OF ' + str(ttl) + ' SECONDS')
 
         return reply
 
