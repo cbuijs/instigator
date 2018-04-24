@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 =========================================================================================
- instigator.py: v0.75-20180424 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.80-20180424 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -37,6 +37,9 @@ import regex
 # Use module PyTricia for CIDR/Subnet stuff
 import pytricia
 
+# Use CacheTools TTLCache for cache
+from cachetools import TTLCache
+
 # Listen for queries
 listen_address = '192.168.1.250'
 listen_port = 53
@@ -49,7 +52,7 @@ forward_timeout = 20 # Seconds
 # Redirect Address, leave empty to generete REFUSED
 #redirect_address = ''
 redirect_address = '192.168.1.250' # IPv4 only
-redirect_host = 'sinkhole'
+redirect_host = 'sinkhole' ### !!! TO BE DONE FOR CNAME, MX, SRV, etc... E.G. Records that point to a domainname.
 
 # TTL settings
 minttl = 120
@@ -60,24 +63,22 @@ blacklist = '/opt/instigator/black.list'
 whitelist = '/opt/instigator/white.list'
 
 # Cache
-cachesize = 2500
-cachettl = 1800
-cache = dict()
-cacheindex = dict()
+cachesize = 2500 # Entries
+cachettl = 1800 # Seconds
 
 # List Dictionaries
-bl_dom = dict()
-wl_dom = dict()
-bl_ip4 = pytricia.PyTricia(32)
-bl_ip6 = pytricia.PyTricia(128)
-wl_ip4 = pytricia.PyTricia(32)
-wl_ip6 = pytricia.PyTricia(128)
-bl_rx = dict()
-wl_rx = dict()
+wl_dom = dict() # Domain whitelist
+bl_dom = dict() # Domain blacklist
+wl_ip4 = pytricia.PyTricia(32) # IPv4 Whitelist
+bl_ip4 = pytricia.PyTricia(32) # IPv4 Blacklist
+wl_ip6 = pytricia.PyTricia(128) # IPv6 Whitelist
+bl_ip6 = pytricia.PyTricia(128) # IPv6 Blacklist
+wl_rx = dict() # Regex Whitelist
+bl_rx = dict() # Regex Blacklist
 
 # Cache Dictionaries
-bl_cache = dict()
-wl_cache = dict()
+wl_cache = TTLCache(cachesize, cachettl) # Whitelist hit cache
+bl_cache = TTLCache(cachesize, cachettl) # Blacklist hit cache
 
 # Regex to filter IP's out
 ip4regex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(/(3[0-2]|[12]?[0-9]))*)'
@@ -85,7 +86,6 @@ ip6regex_text = '(((:(:[0-9a-f]{1,4}){1,7}|::|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,
 ipregex4 = regex.compile('^' + ip4regex_text + '$', regex.I)
 ipregex6 = regex.compile('^' + ip6regex_text + '$', regex.I)
 ipregex = regex.compile('^(' + ip4regex_text + '|' + ip6regex_text +')$', regex.I)
-#ipregex = regex.compile('^(([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})*|([0-9a-f]{1,4}|:)(:([0-9a-f]{0,4})){1,7}(/[0-9]{1,3})*)$', regex.I)
 
 # Regex to match domains/hosts in lists
 isdomain = regex.compile('^[a-z0-9\.\-]+$', regex.I) # According RFC, Internet only
@@ -102,7 +102,7 @@ def in_blacklist(type, name):
     if (testname in wl_cache):
         print('WHITELIST-CACHE-HIT: ' + type + ' \"' + name + '\"')
         return False
-    elif (testname in wl_dom):
+    elif isdomain.match(testname) and (testname in wl_dom):
         wl_cache[name] = True
         print('WHITELIST-HIT: ' + type + ' \"' + name + '\" matched against \"' + testname + '\"')
         return False
@@ -110,7 +110,7 @@ def in_blacklist(type, name):
     if (testname in bl_cache):
         print('BLACKLIST-CACHE-HIT: ' + type + ' \"' + name + '\"')
         return True
-    elif (testname in bl_dom):
+    elif isdomain.match(testname) and (testname in bl_dom):
         bl_cache[name] = True
         print('BLACKLIST-HIT: ' + type + ' \"' + name + '\" matched against \"' + testname + '\"')
         return True
@@ -192,28 +192,7 @@ def generate_response(request, qname, qtype, redirect_address):
     return reply
 
 
-def update_cache(msg):
-    print('UPDATING CACHE FROM ' + msg)
-    size = len(cacheindex)
-    if (size > cachesize):
-        index = sorted(cacheindex.keys())[0:size-cachesize]
-        for i in index:
-            print('CACHE EXPULSION: ' + str(cache[i].q.qname))
-            del cache[i]
-            del cacheindex[i]
-
-    now = int(datetime.datetime.now().strftime("%s"))
-    for query in cache.keys():
-       expire = cacheindex[query]
-       if expire - now < 0:
-           print('CACHE EXPIRATION: ' + str(cache[query].q.qname))
-           del cache[query]
-           del cacheindex[query]
-
-    return True
-
 def read_list(file, listname, domlist, iplist4, iplist6, rxlist):
-
     print('Reading \"' + listname + '\" (' + file + ')')
 
     count = 0
@@ -243,6 +222,16 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist):
     return True
 
 
+def normalize_ttl(reply):
+    ttl = min(x.ttl for x in reply)
+    if ttl < minttl:
+        ttl = minttl
+    elif ttl > maxttl:
+        ttl = maxttl
+
+    return ttl
+
+
 class DNS_Instigator(ProxyResolver):
     def __init__(self, forward_address, forward_port, forward_timeout, redirect_host, redirect_address):
         ProxyResolver.__init__(self, forward_address, forward_port, forward_timeout)
@@ -251,64 +240,28 @@ class DNS_Instigator(ProxyResolver):
         qname = str(request.q.qname).rstrip('.').lower()
         qtype = QTYPE[request.q.qtype]
         query = str(request.q)
-        fromcache = False
-        if query in cache:
-            expire = cacheindex[query]
-            now = int(datetime.datetime.now().strftime("%s"))
-            ttl = expire - now
-            if ttl < 0:
-                print('TTL EXPIRED FOR \"' + qname + '\"')
-                ttl = 0
-                del cache[query]
-                del cacheindex[query]
-            else:
-                reply = cache[query]
-                if (RCODE[reply.header.rcode] == 'NOERROR'):
-                    id = request.header.id
-                    reply.header.id = id
+
+        if in_blacklist('QUERY', qname):
+            reply = generate_response(request, qname, qtype, redirect_address)
+        else:
+            reply = ProxyResolver.resolve(self, request, handler)
+            if (RCODE[reply.header.rcode] == 'NOERROR'):
+                qtype = QTYPE[reply.q.qtype]
+                query = str(reply.q)
+                if reply.rr:
+                    ttl = normalize_ttl(reply.rr)
                     for record in reply.rr:
                         record.ttl = ttl
-                    print('RETRIEVED \"' + qname + '/' + qtype + '\" FROM CACHE (TTL = ' + str(ttl) + ')')
-                    fromcache = True
+                        rqname = str(record.rname).rstrip('.').lower()
+                        rqtype = QTYPE[record.rtype]
+                        data = str(record.rdata).rstrip('.').lower()
+                        if in_blacklist('QUERY', rqname) or in_blacklist('RESPONSE', data):
+                            reply = generate_response(request, qname, qtype, redirect_address)
+                            break
 
-        if not fromcache:
-            ttl = cachettl
-            if in_blacklist('QUERY', qname):
-                reply = generate_response(request, qname, qtype, redirect_address)
             else:
-                reply = ProxyResolver.resolve(self, request, handler)
-                if (RCODE[reply.header.rcode] == 'NOERROR'):
-                    qtype = QTYPE[reply.q.qtype]
-                    query = str(reply.q)
-                    if reply.rr:
-                        ttl = min(x.ttl for x in reply.rr)
-
-                        if ttl < minttl:
-                            ttl = minttl
-                        elif ttl > maxttl:
-                            ttl = maxttl
-
-                        count = 0
-                        for record in reply.rr:
-                            count += 1
-                            record.ttl = ttl
-                            rqname = str(record.rname).rstrip('.').lower()
-                            rqtype = QTYPE[record.rtype]
-                            data = str(record.rdata).rstrip('.').lower()
-                            if in_blacklist('QUERY', rqname) or in_blacklist('RESPONSE', data):
-                                reply = generate_response(request, qname, qtype, redirect_address)
-                                break
-                else:
-                    return reply
-            
+                return reply
            
-            if (RCODE[reply.header.rcode] == 'NOERROR'):
-                cache[query] = reply
-                now = int(datetime.datetime.now().strftime("%s"))
-                expire = now + ttl
-                cacheindex[query] = expire
-                print('STORED \"' + qname + '/' + qtype + '\" INTO CACHE WITH TTL OF ' + str(ttl) + ' SECONDS')
-
         return reply
 
 
@@ -335,10 +288,13 @@ if __name__ == '__main__':
     count = 0
     while dns_server.isAlive():
         count += 1
-        if count > 5:
+        if count > 30:
            count = 0
-           update_cache('5 SECOND LOOP')
+           wl_cache.expire()
+           bl_cache.expire()
         else:
            time.sleep(1)
          
     quit()
+
+# <EOF>
