@@ -94,6 +94,7 @@ isdomain = regex.compile('^[a-z0-9\.\-]+$', regex.I) # According RFC, Internet o
 # Regex to filter regexes out
 isregex = regex.compile('^/.*/$')
 
+##############################################################
 
 # Check if entry matches a list
 def in_blacklist(type, name):
@@ -105,6 +106,7 @@ def in_blacklist(type, name):
     elif (testname in wl_dom):
         wl_cache[name] = True
         print('WHITELIST-HIT: ' + type + ' \"' + name + '\" matched against \"' + testname + '\"')
+        return False
 
     if (testname in bl_cache):
         print('BLACKLIST-CACHE-HIT: ' + type + ' \"' + name + '\"')
@@ -218,7 +220,7 @@ def read_list(file, listname, domlist, iplist4, iplist6):
                         domlist[entry] = True
 
     except BaseException as err:
-             print ('ERROR: Unable to open/read/process file \"' + file + ' - ' + str(err))
+             print('ERROR: Unable to open/read/process file \"' + file + ' - ' + str(err))
 
     print(listname + ': ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs and ' + str(len(domlist)) + ' DOMAINS')
 
@@ -270,7 +272,9 @@ class DNS_Instigator(ProxyResolver):
                         elif ttl > maxttl:
                             ttl = maxttl
 
+                        count = 0
                         for record in reply.rr:
+                            count += 1
                             record.ttl = ttl
                             rqname = str(record.rname).rstrip('.').lower()
                             rqtype = QTYPE[record.rtype]
@@ -315,9 +319,9 @@ if __name__ == '__main__':
     count = 0
     while dns_server.isAlive():
         count += 1
-        if count > 60:
+        if count > 5:
            count = 0
-           update_cache('60 SECOND LOOP')
+           update_cache('5 SECOND LOOP')
         else:
            time.sleep(1)
          
