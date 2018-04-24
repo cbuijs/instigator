@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 =========================================================================================
- instigator.py: v0.70-20180424 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.75-20180424 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -29,8 +29,7 @@ sys.path.append("/usr/local/lib/python2.7/dist-packages/")
 # DNSLib module
 from dnslib import RCODE, QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord
 from dnslib.proxy import ProxyResolver
-from dnslib.server import DNSServer
-from dnslib.server import DNSLogger
+from dnslib.server import DNSServer, DNSLogger
 
 # Regex module
 import regex
@@ -73,8 +72,8 @@ bl_ip4 = pytricia.PyTricia(32)
 bl_ip6 = pytricia.PyTricia(128)
 wl_ip4 = pytricia.PyTricia(32)
 wl_ip6 = pytricia.PyTricia(128)
-#bl_reg = dict()
-#wl_reg = dict()
+bl_rx = dict()
+wl_rx = dict()
 
 # Cache Dictionaries
 bl_cache = dict()
@@ -158,7 +157,19 @@ def in_blacklist(type, name):
                 else:
                     testname = testname[testname.find('.') + 1:]
 
-    ### !!! Do regex here
+    for i in wl_rx.keys():
+        rx = wl_rx[i]
+        if rx.match(name):
+            print('WHITELIST-REGEX-HIT: ' + type + ' \"' + name + '\" matched against \"' + i + '\"')
+            wl_cache[name] = True
+            return False
+
+    for i in bl_rx.keys():
+        rx = bl_rx[i]
+        if rx.match(name):
+            print('BLACKLIST-REGEX-HIT: ' + type + ' \"' + name + '\" matched against \"' + i + '\"')
+            bl_cache[name] = True
+            return True
 
     return False
        
@@ -201,7 +212,7 @@ def update_cache(msg):
 
     return True
 
-def read_list(file, listname, domlist, iplist4, iplist6):
+def read_list(file, listname, domlist, iplist4, iplist6, rxlist):
 
     print('Reading \"' + listname + '\" (' + file + ')')
 
@@ -212,17 +223,22 @@ def read_list(file, listname, domlist, iplist4, iplist6):
                 count += 1
                 entry = line.replace('\r', '').replace('\n', '').strip().lower()
                 if not (entry.startswith("#")) and not (len(entry) == 0):
-                    if ipregex4.match(entry):
+                    if isregex.match(entry):
+                        rx = entry.strip('/')
+                        rxlist[rx] = regex.compile(rx, regex.I)
+                    elif ipregex4.match(entry):
                         iplist4[entry] = True
                     elif ipregex6.match(entry):
                         iplist6[entry] = True
-                    else:
+                    elif isdomain.match(entry):
                         domlist[entry] = True
+                    else:
+                        print(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
 
     except BaseException as err:
              print('ERROR: Unable to open/read/process file \"' + file + ' - ' + str(err))
 
-    print(listname + ': ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs and ' + str(len(domlist)) + ' DOMAINS')
+    print(listname + ': ' + str(len(rxlist)) + ' REGEXes, ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs and ' + str(len(domlist)) + ' DOMAINS')
 
     return True
 
@@ -300,8 +316,8 @@ class DNS_Instigator(ProxyResolver):
 if __name__ == '__main__':
 
     # Read Lists
-    read_list(whitelist, 'Whitelist', wl_dom, wl_ip4, wl_ip6)
-    read_list(blacklist, 'Blacklist', bl_dom, bl_ip4, bl_ip6)
+    read_list(whitelist, 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx)
+    read_list(blacklist, 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx)
 
     # Resolver
     dns_resolver = DNS_Instigator(forward_address=forward_address, forward_port=forward_port, forward_timeout=forward_timeout, redirect_host=redirect_host, redirect_address=redirect_address) 
@@ -325,4 +341,4 @@ if __name__ == '__main__':
         else:
            time.sleep(1)
          
-
+    quit()

@@ -1,3 +1,13 @@
+/^(imap|pop|smtp)\.gmail\.com$/
+/^(.*\.)*gvt[0-9]\.com$/
+/^(.*\.)*googleusercontent\.com$/
+/^(.*\.)*(apple|icloud|itunes)\.com$/
+/^(.*\.)*(apple|icloud|itunes)\.com\.(.*\.)*(edgekey|akadns)\.net$/
+/^(.*\.)*(apple|icloud|itunes)(-content)*\.com$/
+/^(.*\.)*itunes(essentials|festivals|match|su)\.com$/
+/^(.*\.)*(netflix|nflx[a-z]+)\.(edgesuite\.)*(com|net)$/
+/^(.*\.)*netflix$/
+/^account\..*$/
 1.168.192.in-addr.arpa
 screenshot3.bid
 abuse.ch
@@ -16,7 +26,6 @@ android.com
 anveo.com
 apc.com
 apcc.com
-apple.com
 babasbrew.com
 bac-assets.com
 badips.com
@@ -59,12 +68,9 @@ githubusercontent.com
 gmail.com
 go.com
 googlecode.com
-googleusercontent.com
 connectivitycheck.gstatic.com
 play-music.gstatic.com
 hubspot.com
-icloud.com
-icloud-content.com
 ifttt.com
 igcdn.com
 videosxml.mobileads.indiatimes.com
@@ -91,9 +97,7 @@ nbcuni.com
 nbcuniversal.com
 nespresso.com
 nest.com
-netflix.com
 netgear.com
-nflxext.com
 office365.com
 schneiderelectric.mail.onmicrosoft.com
 opendns.com
@@ -164,13 +168,10 @@ margevicius.lt
 ssl.bblck.me
 afrinic.net
 apple-support.akadns.net
-apple.com.akadns.net
 blobstore-apple.com.akadns.net
 cdn-apple.com.akadns.net
 gc-apple.com.akadns.net
-icloud.com.akadns.net
 itunes-apple.com.akadns.net
-apple.com.edgekey.net.globalredir.akadns.net
 sonos.com.edgekey.net.globalredir.akadns.net
 apnic.net
 apple-dns.net
@@ -184,8 +185,6 @@ d3jdtixm7cvu7y.cloudfront.net
 darksky.net
 dropbox.net
 p13.dynect.net
-apple.com.edgekey.net
-icloud.com.edgekey.net
 sonos.com.edgekey.net
 emergingthreats.net
 v.firebog.net
@@ -195,9 +194,6 @@ hosts-file.net
 intuitcdn.net
 ituneslogin.net
 lacnic.net
-netflix.net
-nflximg.net
-nflxvideo.net
 nbcume.sc.omtrdc.net
 bankofamerica.tt.omtrdc.net
 ripe.net
