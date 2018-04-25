@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v0.84-20180424 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.85-20180425 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -24,7 +24,7 @@ TODO:
 import sys, time, datetime
 
 # make sure modules can be found
-sys.path.append("/usr/local/lib/python2.7/dist-packages/")
+sys.path.append("/usr/local/lib/python3.5/dist-packages/")
 
 # Syslogging
 import syslog
@@ -315,15 +315,21 @@ if __name__ == '__main__':
 
     # Keep things running
     count = 0
-    while dns_server.isAlive():
-        count += 1
-        if count > 30:
-           count = 0
-           wl_cache.expire()
-           bl_cache.expire()
-        else:
-           time.sleep(1)
-         
+    try:
+        while dns_server.isAlive():
+            count += 1
+            if count > 30:
+               count = 0
+               wl_cache.expire()
+               bl_cache.expire()
+            else:
+               time.sleep(1)
+
+            sys.stderr.flush()
+            sys.stdout.flush()
+    except KeyboardInterrupt:
+        pass
+
     quit()
 
 # <EOF>
