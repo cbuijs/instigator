@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 =========================================================================================
- instigator.py: v0.83-20180424 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.84-20180424 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -25,6 +25,10 @@ import sys, time, datetime
 
 # make sure modules can be found
 sys.path.append("/usr/local/lib/python2.7/dist-packages/")
+
+# Syslogging
+import syslog
+syslog.openlog(ident='INSTIGATOR')
 
 # DNSLib module
 from dnslib import RCODE, QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord
@@ -93,26 +97,42 @@ isdomain = regex.compile('^[a-z0-9\.\-]+$', regex.I) # According RFC, Internet o
 # Regex to filter regexes out
 isregex = regex.compile('^/.*/$')
 
+# Counter
+requestcount = 0
+
 ##############################################################
+
+# Logging
+def log_info(message):
+    #print(message)
+    syslog.syslog(syslog.LOG_INFO, message)
+    return True
+
+
+def log_err(message):
+    #print(message)
+    syslog.syslog(syslog.LOG_ERR, message)
+    return True
+
 
 # Check if entry matches a list
 def in_blacklist(type, value):
     testvalue = value
 
     if (testvalue in wl_cache):
-        print('WHITELIST-CACHE-HIT: ' + type + ' \"' + value + '\"')
+        log_info('WHITELIST-CACHE-HIT: ' + type + ' \"' + value + '\"')
         return False
     elif isdomain.match(testvalue) and (testvalue in wl_dom):
         wl_cache[value] = True
-        print('WHITELIST-HIT: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+        log_info('WHITELIST-HIT: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
         return False
 
     if (testvalue in bl_cache):
-        print('BLACKLIST-CACHE-HIT: ' + type + ' \"' + value + '\"')
+        log_info('BLACKLIST-CACHE-HIT: ' + type + ' \"' + value + '\"')
         return True
     elif isdomain.match(testvalue) and (testvalue in bl_dom):
         bl_cache[value] = True
-        print('BLACKLIST-HIT: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+        log_info('BLACKLIST-HIT: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
         return True
 
     if type == 'REPLY' and ipregex.match(testvalue):
@@ -133,11 +153,11 @@ def in_blacklist(type, value):
             prefix = wip.get_key(testvalue)
 
         if found:
-            print('BLACKLIST-IP-HIT: ' + type + ' ' + value + ' matched against ' + prefix)
+            log_info('BLACKLIST-IP-HIT: ' + type + ' ' + value + ' matched against ' + prefix)
             bl_cache[value] = True
             return True
         elif prefix:
-            print('WHITELIST-IP-HIT: ' + type + ' ' + value + ' matched against ' + prefix)
+            log_info('WHITELIST-IP-HIT: ' + type + ' ' + value + ' matched against ' + prefix)
             return False
 
     else:
@@ -146,11 +166,11 @@ def in_blacklist(type, value):
             while testvalue:
                 if testvalue in wl_dom:
                     wl_cache[value] = True
-                    print('WHITELIST-HIT: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+                    log_info('WHITELIST-HIT: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
                     return False
                 if testvalue in bl_dom:
                     bl_cache[value] = True
-                    print('BLACKLIST-HIT: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+                    log_info('BLACKLIST-HIT: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
                     return True
                 elif testvalue.find('.') == -1:
                     break
@@ -160,14 +180,14 @@ def in_blacklist(type, value):
     for i in wl_rx.keys():
         rx = wl_rx[i]
         if rx.match(value):
-            print('WHITELIST-REGEX-HIT: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
+            log_info('WHITELIST-REGEX-HIT: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
             wl_cache[value] = True
             return False
 
     for i in bl_rx.keys():
         rx = bl_rx[i]
         if rx.match(value):
-            print('BLACKLIST-REGEX-HIT: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
+            log_info('BLACKLIST-REGEX-HIT: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
             bl_cache[value] = True
             return True
 
@@ -178,11 +198,11 @@ def in_blacklist(type, value):
 def generate_response(request, qname, qtype, redirect_address):
     reply = request.reply()
     if (len(redirect_address) == 0) or (qtype not in ('A', 'CNAME', 'ANY')):
-        print('REFUSED for \"' + qname + '\" (RR:' + qtype + ')')
+        log_info('REFUSED for \"' + qname + '\" (RR:' + qtype + ')')
         reply.header.rcode = getattr(RCODE,'REFUSED')
         return reply
     else:
-        print('REDIRECT \"' + qname + '\" to \"' + redirect_address + '\" (RR:' + qtype + ')')
+        log_info('REDIRECT \"' + qname + '\" to \"' + redirect_address + '\"')
         #answer = RR(ttl=cachettl, rdata=A(redirect_address))
         answer = RR(ttl=minttl, rdata=A(redirect_address))
 
@@ -193,7 +213,7 @@ def generate_response(request, qname, qtype, redirect_address):
     return reply
 
 def read_list(file, listname, domlist, iplist4, iplist6, rxlist):
-    print('Reading \"' + listname + '\" (' + file + ')')
+    log_info('Reading \"' + listname + '\" (' + file + ')')
 
     count = 0
     try:
@@ -212,12 +232,12 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist):
                     elif isdomain.match(entry):
                         domlist[entry] = True
                     else:
-                        print(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
+                        log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
 
     except BaseException as err:
-             print('ERROR: Unable to open/read/process file \"' + file + ' - ' + str(err))
+        log_err('ERROR: Unable to open/read/process file \"' + file + ' - ' + str(err))
 
-    print(listname + ': ' + str(len(rxlist)) + ' REGEXes, ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs and ' + str(len(domlist)) + ' DOMAINS')
+    log_info(listname + ': ' + str(len(rxlist)) + ' REGEXes, ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs and ' + str(len(domlist)) + ' DOMAINS')
 
     return True
 
@@ -237,12 +257,17 @@ class DNS_Instigator(ProxyResolver):
         ProxyResolver.__init__(self, forward_address, forward_port, forward_timeout)
 
     def resolve(self, request, handler):
+        global requestcount
+
+        requestcount += 1
+
         qname = str(request.q.qname).rstrip('.').lower()
         qtype = QTYPE[request.q.qtype]
         query = str(request.q)
 
+        log_info('REQUEST [#' + str(requestcount) + ']: ' + qname + ' ' + qtype)
+
         if in_blacklist('REQUEST', qname):
-            print('CHECK-REQUEST: ', qname, qtype)
             reply = generate_response(request, qname, qtype, redirect_address)
         else:
             reply = ProxyResolver.resolve(self, request, handler)
@@ -256,13 +281,15 @@ class DNS_Instigator(ProxyResolver):
                         rqname = str(record.rname).rstrip('.').lower()
                         rqtype = QTYPE[record.rtype]
                         data = str(record.rdata).rstrip('.').lower()
-                        print('CHECK-REPLY: ', rqname, rqtype, data)
+
+                        log_info('REPLY [#' + str(requestcount) + ']: ' + rqname + ' ' + rqtype + ' = ' + data)
+
                         if in_blacklist('REQUEST', rqname) or in_blacklist('REPLY', data):
                             reply = generate_response(request, qname, qtype, redirect_address)
                             break
-
             else:
-                return reply
+                data = RCODE[reply.header.rcode]
+                log_info('REPLY [#' + str(requestcount) + ']: ' + qname + ' ' + qtype + ' = ' + data)
            
         return reply
 
@@ -278,13 +305,13 @@ if __name__ == '__main__':
     dns_resolver = DNS_Instigator(forward_address=forward_address, forward_port=forward_port, forward_timeout=forward_timeout, redirect_host=redirect_host, redirect_address=redirect_address) 
 
     # Server
-    logger = DNSLogger(log='request, reply, truncated, error', prefix=False)
+    logger = DNSLogger(log='-request, -reply, -truncated, error', prefix=False)
     dns_server = DNSServer(dns_resolver, address=listen_address, port=listen_port, logger=logger)
 
     # Start server
-    print('Starting DNS Service ...')
+    log_info('Starting DNS Service ...')
     dns_server.start_thread()
-    print('DNS Service ready on ' + listen_address + ':' + str(listen_port))
+    log_info('DNS Service ready on ' + listen_address + ':' + str(listen_port))
 
     # Keep things running
     count = 0
