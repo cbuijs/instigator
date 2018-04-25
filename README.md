@@ -1,7 +1,7 @@
 # DNS Instigator
 Testbed to build a filtering DNS server based on dnslib
 
-See 'instigator.py' for variables and settings.
+See <a href="https://github.com/cbuijs/instigator/blob/master/instigator.py">instigator.py</a> for variables and settings.
 
 Black/White.list syntax:
 
