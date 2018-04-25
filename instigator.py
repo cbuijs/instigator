@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v0.90-20180425 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.93-20180425 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -68,11 +68,11 @@ blacklist = '/opt/instigator/black.list'
 whitelist = '/opt/instigator/white.list'
 
 # Cache Settings
-cachesize = 2500 # Entries
+cachesize = 1536 # Entries
 cachettl = 1800 # Seconds
 
 # TTL Settings
-minttl = 120
+minttl = 30
 maxttl = 7200
 
 # List Dictionaries
@@ -121,7 +121,7 @@ def log_err(tag, message):
 
 # Check if entry matches a list
 def in_blacklist(rid, type, value, log):
-    id = '#' + str(rid)
+    id = str(rid)
     testvalue = value
 
     if (testvalue in wl_cache):
@@ -207,7 +207,7 @@ def generate_response(request, qname, qtype, redirect_address):
         reply.header.rcode = getattr(RCODE,'REFUSED')
         return reply
     else:
-        log_info('REDIRECT \"' + qname + '\" to \"' + redirect_address + '\"')
+        log_info('REDIRECT \"' + qname + '\" to \"' + redirect_address + '\" (RR:' + qtype + ')')
         answer = RR(qname,QTYPE.A,ttl=cachettl,rdata=A(redirect_address))
         auth = RR(qname,QTYPE.SOA,ttl=cachettl,rdata=SOA('ns.sinkhole','hostmaster.sinkhole',(int(datetime.datetime.now().strftime("%s")),cachettl,cachettl,cachettl,cachettl)))
         ar = RR('ns.sinkhole',QTYPE.A,ttl=cachettl,rdata=A('0.0.0.0'))
@@ -303,7 +303,7 @@ def to_cache(qname, qtype, reply):
             cache[query] = reply
             expire = now + ttl
             cacheindex[query] = expire
-            log_info('CACHED-STORED: ' + qname + '/' + qtype + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL:' + str(ttl) + ')')
+            log_info('CACHE-STORED: ' + qname + '/' + qtype + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL:' + str(ttl) + ')')
 
         return ttl
 
@@ -316,17 +316,16 @@ def cache_maintenance():
 
     size = len(cacheindex)
     if (size > cachesize):
-        index = sorted(cacheindex.keys())[0:size-cachesize]
-        for i in index:
-            log_info('CACHE-EXPULSION: ' + query)
+        for i in sorted(list(cacheindex))[0:size-cachesize]:
+            log_info('CACHE-MAINT-EXPULSION: ' + i)
             del cache[i]
             del cacheindex[i]
 
     now = int(datetime.datetime.now().strftime("%s"))
-    for query in cache.keys():
+    for query in list(cache):
        expire = cacheindex[query]
        if expire - now < 0:
-           log_info('CACHE-EXPIRED: ' + query)
+           log_info('CACHE-MAINT-EXPIRED: ' + query)
            del cache[query]
            del cacheindex[query]
     
@@ -345,7 +344,7 @@ class DNS_Instigator(ProxyResolver):
         qname = str(request.q.qname).rstrip('.').lower()
         qtype = QTYPE[request.q.qtype]
 
-        log_info('REQUEST [#' + str(rid) + '] from ' + cip + ': ' + qname + ' ' + qtype)
+        log_info('REQUEST [' + str(rid) + '] from ' + cip + ': ' + qname + ' ' + qtype)
 
         cachereply = from_cache(qname, qtype, request)
         if cachereply:
@@ -368,7 +367,7 @@ class DNS_Instigator(ProxyResolver):
                             rqname = str(record.rname).rstrip('.').lower()
                             rqtype = QTYPE[record.rtype]
                             data = str(record.rdata).rstrip('.').lower()
-                            log_info('REPLY [#' + str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + ' ' + rqtype + ' = ' + data)
+                            log_info('REPLY [' + str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + ' ' + rqtype + ' = ' + data)
 
                             qlog = False
                             if rqname not in seen:
@@ -385,11 +384,11 @@ class DNS_Instigator(ProxyResolver):
 
                 else:
                     data = str(RCODE[reply.header.rcode])
-                    log_info('REPLY [#' + str(rid) + ']: ' + qname + ' ' + qtype + ' = ' + data)
+                    log_info('REPLY [' + str(rid) + ']: ' + qname + ' ' + qtype + ' = ' + data)
 
         to_cache(qname, qtype, reply)
 
-        log_info('FINISHED [#' + str(rid) + '] from ' + cip + ': ' + qname + ' ' + qtype)
+        log_info('FINISHED [' + str(rid) + '] from ' + cip + ': ' + qname + ' ' + qtype)
         return reply
 
 
@@ -423,9 +422,9 @@ if __name__ == "__main__":
     try:
         while dns_server.isAlive():
             count += 1
-            if count > 30:
+            if count > 10:
                count = 0
-               cache_maintenance
+               cache_maintenance()
             else:
                time.sleep(1)
 
