@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v0.93-20180425 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.95-20180425 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -72,8 +72,9 @@ cachesize = 1536 # Entries
 cachettl = 1800 # Seconds
 
 # TTL Settings
-minttl = 30
+minttl = 120
 maxttl = 7200
+rcodettl = 600
 
 # List Dictionaries
 wl_dom = dict() # Domain whitelist
@@ -88,8 +89,8 @@ bl_rx = dict() # Regex Blacklist
 # Cache Dictionaries
 cache = dict()
 cacheindex = dict()
-wl_cache = TTLCache(cachesize, cachettl - 1) # Whitelist hit cache
-bl_cache = TTLCache(cachesize, cachettl - 1) # Blacklist hit cache
+#wl_cache = TTLCache(cachesize, cachettl - 1) # Whitelist hit cache
+#bl_cache = TTLCache(cachesize, cachettl - 1) # Blacklist hit cache
 
 # Regex to filter IP's out
 ip4regex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(/(3[0-2]|[12]?[0-9]))*)'
@@ -124,19 +125,21 @@ def in_blacklist(rid, type, value, log):
     id = str(rid)
     testvalue = value
 
-    if (testvalue in wl_cache):
-        if log: log_info('WHITELIST-CACHE-HIT [' + id + ']: ' + type + ' \"' + value + '\"')
-        return False
-    elif isdomain.match(testvalue) and (testvalue in wl_dom):
-        wl_cache[value] = True
+    #if (testvalue in wl_cache):
+    #    if log: log_info('WHITELIST-CACHE-HIT [' + id + ']: ' + type + ' \"' + value + '\"')
+    #    return False
+    #elif isdomain.match(testvalue) and (testvalue in wl_dom):
+    if isdomain.match(testvalue) and (testvalue in wl_dom):
+        #wl_cache[value] = True
         if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
         return False
 
-    if (testvalue in bl_cache):
-        if log: log_info('BLACKLIST-CACHE-HIT [' + id + ']: ' + type + ' \"' + value + '\"')
-        return True
-    elif isdomain.match(testvalue) and (testvalue in bl_dom):
-        bl_cache[value] = True
+    #if (testvalue in bl_cache):
+    #    if log: log_info('BLACKLIST-CACHE-HIT [' + id + ']: ' + type + ' \"' + value + '\"')
+    #    return True
+    #elif isdomain.match(testvalue) and (testvalue in bl_dom):
+    if isdomain.match(testvalue) and (testvalue in bl_dom):
+        #bl_cache[value] = True
         if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
         return True
 
@@ -159,7 +162,7 @@ def in_blacklist(rid, type, value, log):
 
         if found:
             if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + value + ' matched against ' + prefix)
-            bl_cache[value] = True
+            #bl_cache[value] = True
             return True
         elif prefix:
             if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + value + ' matched against ' + prefix)
@@ -170,11 +173,11 @@ def in_blacklist(rid, type, value, log):
             testvalue = testvalue[testvalue.find('.') + 1:]
             while testvalue:
                 if testvalue in wl_dom:
-                    wl_cache[value] = True
+                    #wl_cache[value] = True
                     if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
                     return False
                 if testvalue in bl_dom:
-                    bl_cache[value] = True
+                    #bl_cache[value] = True
                     if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
                     return True
                 elif testvalue.find('.') == -1:
@@ -186,14 +189,14 @@ def in_blacklist(rid, type, value, log):
         rx = wl_rx[i]
         if rx.match(value):
             if log: log_info('WHITELIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
-            wl_cache[value] = True
+            #wl_cache[value] = True
             return False
 
     for i in bl_rx.keys():
         rx = bl_rx[i]
         if rx.match(value):
             if log: log_info('BLACKLIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
-            bl_cache[value] = True
+            #bl_cache[value] = True
             return True
 
     return False
@@ -280,14 +283,26 @@ def from_cache(qname, qtype, request):
             del cache[query]
             del cacheindex[query]
             return False
+
         else:
-            log_info('CACHE-RETRIEVED: ' + qname + '/' + qtype + ' (TTL:' + str(ttl) + ')')
             reply = cache[query]
+            rcode = str(RCODE[reply.header.rcode])
             id = request.header.id
             reply.header.id = id
 
+            #records = ''
             for record in reply.rr:
                 record.ttl = ttl
+                #rqname = str(record.rname).rstrip('.').lower()
+                #rqtype = QTYPE[record.rtype].upper()
+                #data = str(record.rdata).rstrip('.').lower()
+                #if records:
+                #    records = records + ', ' + rqname + '/' + rqtype + '=' + data
+                #else:
+                #    records = rqname + '/' + rqtype + '=' + data
+
+            #log_info('CACHE-HIT: ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ') [ ' + records + ' ]')
+            log_info('CACHE-HIT: ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
             return reply
 
@@ -298,12 +313,18 @@ def to_cache(qname, qtype, reply):
     query = qname.replace('-','_') + '/' + qtype.upper()
     if query not in cache:
         now = int(datetime.datetime.now().strftime("%s"))
+
         ttl = normalize_ttl(reply.rr, True)
+
+        rcode = str(RCODE[reply.header.rcode])
+        if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
+            ttl = rcodettl
+
         if ttl > 0:
             cache[query] = reply
             expire = now + ttl
             cacheindex[query] = expire
-            log_info('CACHE-STORED: ' + qname + '/' + qtype + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL:' + str(ttl) + ')')
+            log_info('CACHE-STORED: ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
         return ttl
 
@@ -311,8 +332,8 @@ def to_cache(qname, qtype, reply):
 
 
 def cache_maintenance():
-    wl_cache.expire()
-    bl_cache.expire()
+    #wl_cache.expire()
+    #bl_cache.expire()
 
     size = len(cacheindex)
     if (size > cachesize):
