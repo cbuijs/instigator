@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v0.95-20180425 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.96-20180425 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -42,7 +42,7 @@ import regex
 import pytricia
 
 # Use CacheTools TTLCache for cache
-from cachetools import TTLCache
+#from cachetools import TTLCache
 
 # Use UUID's
 import uuid
@@ -61,7 +61,6 @@ forward_timeout = 20 # Seconds
 # Redirect Address, leave empty to generete REFUSED
 #redirect_address = ''
 redirect_address = '192.168.1.250' # IPv4 only
-redirect_host = 'sinkhole' ### !!! TO BE DONE FOR CNAME, MX, SRV, etc... E.G. Records that point to a domainname.
 
 # Files
 blacklist = '/opt/instigator/black.list'
@@ -354,7 +353,7 @@ def cache_maintenance():
 
 
 class DNS_Instigator(ProxyResolver):
-    def __init__(self, forward_address, forward_port, forward_timeout, redirect_host, redirect_address):
+    def __init__(self, forward_address, forward_port, forward_timeout, redirect_address):
         ProxyResolver.__init__(self, forward_address, forward_port, forward_timeout)
 
     def resolve(self, request, handler):
@@ -376,18 +375,23 @@ class DNS_Instigator(ProxyResolver):
             else:
                 reply = ProxyResolver.resolve(self, request, handler)
                 if (RCODE[reply.header.rcode] == 'NOERROR'):
-                    qtype = QTYPE[reply.q.qtype]
+                    #qtype = QTYPE[reply.q.qtype]
                     if reply.rr:
                         replycount = 0
                         replynum = len(reply.rr)
+
                         ttl = normalize_ttl(reply.rr, True)
+
                         seen = set()
+
                         for record in reply.rr:
                             replycount += 1
-                            record.ttl = ttl
+
                             rqname = str(record.rname).rstrip('.').lower()
                             rqtype = QTYPE[record.rtype]
+                            record.ttl = ttl
                             data = str(record.rdata).rstrip('.').lower()
+
                             log_info('REPLY [' + str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + ' ' + rqtype + ' = ' + data)
 
                             qlog = False
@@ -400,8 +404,9 @@ class DNS_Instigator(ProxyResolver):
                                 dlog = True
                                 seen.add(data)
 
-                            if in_blacklist(rid, 'REQUEST', rqname, qlog) or in_blacklist(rid, 'REPLY', data, dlog):
-                                reply=generate_response(request, qname, qtype, redirect_address)
+                            if rqname != qname and rqtype != qtype:
+                                if in_blacklist(rid, 'REQUEST', rqname, qlog) or in_blacklist(rid, 'REPLY', data, dlog):
+                                    reply=generate_response(request, qname, qtype, redirect_address)
 
                 else:
                     data = str(RCODE[reply.header.rcode])
@@ -421,7 +426,7 @@ if __name__ == "__main__":
     read_list(blacklist, 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx)
 
     # Resolver
-    dns_resolver = DNS_Instigator(forward_address=forward_address, forward_port=forward_port, forward_timeout=forward_timeout, redirect_host=redirect_host, redirect_address=redirect_address) 
+    dns_resolver = DNS_Instigator(forward_address=forward_address, forward_port=forward_port, forward_timeout=forward_timeout, redirect_address=redirect_address) 
 
     # Server
     logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=False)
