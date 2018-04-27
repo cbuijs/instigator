@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v0.996-20180427 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.01-20180427 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -31,6 +31,7 @@ import syslog
 syslog.openlog(ident='INSTIGATOR')
 
 # DNSLib module
+#from dnslib import RCODE, QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord
 from dnslib import RCODE, QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord
 from dnslib.proxy import ProxyResolver
 from dnslib.server import DNSServer, DNSLogger
@@ -128,11 +129,37 @@ def log_err(message):
 
 
 # Check if entry matches a list
-def in_blacklist(rid, type, value, log):
+def in_blacklist(rid, type, rrtype, value, log):
     id = str(rid)
     testvalue = value
 
-    if isdomain.match(testvalue):
+    itisanip = False
+    itisadomain = False
+
+    if type == 'REPLY' and rrtype in ('A', 'AAAA') and ipregex.match(testvalue):
+        itisanip = True
+    else:
+        if type == 'REPLY':
+            field = False
+            if rrtype in ('CNAME', 'NS', 'PTR') and isdomain.match(testvalue):
+                itisadomain = True
+            elif type == 'MX':
+                field = 1
+            elif type == 'SOA':
+                field = 0
+            elif type == 'SRV':
+                field = 2
+
+            if field:
+                testvalue = regex.split('\s+',testvalue)[field].rstrip('.')
+                if isdomain.match(testvalue):
+                    itisadomain
+
+        else:
+            if isdomain.match(testvalue):
+                itisadomain = True
+
+    if itisadomain:
         if testvalue in wl_dom:
             if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
             return False
@@ -141,9 +168,10 @@ def in_blacklist(rid, type, value, log):
             return True
 
     # Check against IP-Lists
-    if type == 'REPLY' and ipregex.match(testvalue):
+    if itisanip:
         found = False
         prefix = False
+
         if ipregex4.match(testvalue):
             wip = wl_ip4
             bip = bl_ip4
@@ -310,7 +338,7 @@ def from_cache(qname, qtype, request):
                 addr = round_robin(addr)
                 reply.rr = nonaddr + addr
 
-            log_info('CACHE-HIT: ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+            log_info('CACHE-HIT: ' + qname + '/' + qtype + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + ')')
 
             return reply
 
@@ -328,6 +356,8 @@ def to_cache(qname, qtype, reply):
         rcode = str(RCODE[reply.header.rcode])
         if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
             ttl = rcodettl
+        elif rcode != 'NOERROR':
+            return
 
         if ttl > 0:
             cache[query] = reply
@@ -336,9 +366,7 @@ def to_cache(qname, qtype, reply):
             entry = len(cache)
             log_info('CACHE-STORED (' + str(entry) + '): ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
-        return ttl
-
-    return False
+    return
 
 
 # Purge cache
@@ -392,7 +420,7 @@ class DNS_Instigator(ProxyResolver):
         if cachereply:
             reply = cachereply
         else:
-            if in_blacklist(rid, 'REQUEST', qname, True):
+            if in_blacklist(rid, 'REQUEST', qtype, qname, True):
                 reply = generate_response(request, qname, qtype, redirect_address)
             else:
                 reply = ProxyResolver.resolve(self, request, handler)
@@ -426,13 +454,16 @@ class DNS_Instigator(ProxyResolver):
                                 dlog = True
                                 seen.add(data)
 
-                            if rqname != qname and rqtype != qtype:
-                                if in_blacklist(rid, 'REQUEST', rqname, qlog) or in_blacklist(rid, 'REPLY', data, dlog):
-                                    reply=generate_response(request, qname, qtype, redirect_address)
+                            if in_blacklist(rid, 'REQUEST', rqtype, rqname, qlog) or in_blacklist(rid, 'REPLY', rqtype, data, dlog):
+                                reply=generate_response(request, qname, qtype, redirect_address)
 
                 else:
-                    data = str(RCODE[reply.header.rcode])
-                    log_info('REPLY [' + str(rid) + ']: ' + qname + ' ' + qtype + ' = ' + data)
+                    rcode = str(RCODE[reply.header.rcode])
+                    if rcode in ('NXDOMAIN','NODATA'):
+                        reply = request.reply()
+                        reply.header.rcode = getattr(RCODE, rcode)
+
+                    log_info('REPLY [' + str(rid) + ']: ' + qname + ' ' + qtype + ' = ' + rcode)
 
         to_cache(qname, qtype, reply)
 
