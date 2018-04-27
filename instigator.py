@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v0.995-20180425 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.996-20180427 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -229,9 +229,8 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist):
         with open(file, 'r') as f:
             for line in f:
                 count += 1
-
-                elements = regex.split('\s+', regex.sub('\s*#.*$', '', line.replace('\r', '').replace('\n', '').strip()))
-                entry = elements[0].strip().lower()
+                line = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', ''))
+                entry = line.strip().lower()
                 if len(entry) > 0:
                     if isregex.match(entry):
                         rx = entry.strip('/')
