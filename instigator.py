@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v0.99-20180425 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v0.995-20180425 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -60,8 +60,20 @@ forward_timeout = 20 # Seconds
 redirect_address = '192.168.1.250' # IPv4 only
 
 # Files / Lists
-blacklist = '/opt/instigator/black.list'
-whitelist = '/opt/instigator/white.list'
+lists = dict()
+lists['blacklist'] = '/opt/instigator/black.list'
+lists['whitelist'] = '/opt/instigator/white.list'
+#lists['ads'] = '/opt/instigator/shallalist/adv/domains'
+#lists['banking'] = '/opt/instigator/shallalist/finance/banking/domains'
+#lists['costtraps'] = '/opt/instigator/shallalist/costtraps/domains'
+#lists['porn'] = '/opt/instigator/shallalist/porn/domains'
+#lists['gamble'] = '/opt/instigator/shallalist/gamble/domains'
+#lists['spyware'] = '/opt/instigator/shallalist/spyware/domains'
+#lists['trackers'] = '/opt/instigator/shallalist/tracker/domains'
+#lists['updatesites'] = '/opt/instigator/shallalist/updatesites/domains'
+#lists['warez'] = '/opt/instigator/shallalist/warez/domains'
+blacklist = list(['blacklist', 'ads', 'costtraps', 'porn', 'gamble', 'spyware', 'warez'])
+whitelist = list(['whitelist', 'banking', 'updatesites'])
 
 # Cache Settings
 cachesize = 2048 # Entries
@@ -94,7 +106,7 @@ ipregex6 = regex.compile('^' + ip6regex_text + '$', regex.I)
 ipregex = regex.compile('^(' + ip4regex_text + '|' + ip6regex_text +')$', regex.I)
 
 # Regex to match domains/hosts in lists
-isdomain = regex.compile('^[a-z0-9\.\-]+$', regex.I) # According RFC, Internet only
+isdomain = regex.compile('^[a-z0-9\.\-\_]+$', regex.I) # According RFC plus underscore
 
 # Regex to filter regexes out
 isregex = regex.compile('^/.*/$')
@@ -109,7 +121,7 @@ def log_info(message):
 
 
 # Log ERR messages to syslog
-def log_err(tag, message):
+def log_err(message):
     #print(message)
     syslog.syslog(syslog.LOG_ERR, message)
     return True
@@ -120,13 +132,13 @@ def in_blacklist(rid, type, value, log):
     id = str(rid)
     testvalue = value
 
-    if isdomain.match(testvalue) and (testvalue in wl_dom):
-        if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
-        return False
-
-    if isdomain.match(testvalue) and (testvalue in bl_dom):
-        if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
-        return True
+    if isdomain.match(testvalue):
+        if testvalue in wl_dom:
+            if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+            return False
+        elif testvalue in bl_dom:
+            if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+            return True
 
     # Check against IP-Lists
     if type == 'REPLY' and ipregex.match(testvalue):
@@ -209,15 +221,18 @@ def generate_response(request, qname, qtype, redirect_address):
 
 # Read filter lists
 def read_list(file, listname, domlist, iplist4, iplist6, rxlist):
-    log_info('Reading \"' + listname + '\" (' + file + ')')
+    log_info('Fetching \"' + listname + '\" entries from \"' + file + '\"')
 
     count = 0
+
     try:
         with open(file, 'r') as f:
             for line in f:
                 count += 1
-                entry = line.replace('\r', '').replace('\n', '').strip().lower()
-                if not (entry.startswith("#")) and not (len(entry) == 0):
+
+                elements = regex.split('\s+', regex.sub('\s*#.*$', '', line.replace('\r', '').replace('\n', '').strip()))
+                entry = elements[0].strip().lower()
+                if len(entry) > 0:
                     if isregex.match(entry):
                         rx = entry.strip('/')
                         rxlist[rx] = regex.compile(rx, regex.I)
@@ -231,11 +246,11 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist):
                         log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
 
     except BaseException as err:
-        log_err('ERROR: Unable to open/read/process file \"' + file + ' - ' + str(err))
+        log_err('ERROR: Unable to open/read/process file \"' + file + '\" - ' + str(err))
 
     log_info(listname + ': ' + str(len(rxlist)) + ' REGEXes, ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs and ' + str(len(domlist)) + ' DOMAINs')
 
-    return True
+    return domlist, iplist4, iplist6, rxlist
 
 
 # Normalize TTL's, take either lowest or highest TTL for all records in RRSET
@@ -282,16 +297,19 @@ def from_cache(qname, qtype, request):
             # Gather address and non-address records and do round-robin
             addr = list()
             nonaddr = list()
+            size = len(reply.rr)
             for record in reply.rr:
                 record.ttl = ttl
-                rqtype = QTYPE[record.rtype].upper()
-                if rqtype in ('A', 'AAAA'):
-                    addr.append(record)
-                else:
-                    nonaddr.append(record)
+                if size > 1:
+                    rqtype = QTYPE[record.rtype].upper()
+                    if rqtype in ('A', 'AAAA'):
+                        addr.append(record)
+                    else:
+                        nonaddr.append(record)
 
-            addr = round_robin(addr)
-            reply.rr = nonaddr + addr
+            if len(addr) > 1:
+                addr = round_robin(addr)
+                reply.rr = nonaddr + addr
 
             log_info('CACHE-HIT: ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
@@ -316,7 +334,8 @@ def to_cache(qname, qtype, reply):
             cache[query] = reply
             expire = now + ttl
             cacheindex[query] = expire
-            log_info('CACHE-STORED: ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+            entry = len(cache)
+            log_info('CACHE-STORED (' + str(entry) + '): ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
         return ttl
 
@@ -327,7 +346,7 @@ def to_cache(qname, qtype, reply):
 def cache_purge():
     # Remove expired entries
     now = int(datetime.datetime.now().strftime("%s"))
-    for query in list(cache):
+    for query in list(cache.keys()):
        expire = cacheindex[query]
        if expire - now < 1:
            log_info('CACHE-MAINT-EXPIRED: ' + query)
@@ -338,7 +357,7 @@ def cache_purge():
     size = len(cache)
     if (size > cachesize):
         expire = dict()
-        for query in list(cache):
+        for query in list(cache.keys()):
             expire[query] = cacheindex[query] - now
 
         for query in list(sorted(expire, key=expire.get))[0:size-cachesize]:
@@ -346,6 +365,7 @@ def cache_purge():
             del cache[query]
             del cacheindex[query]
     
+    log_info('CACHE-STATS: ' + str(len(cache)) + ' entries in cache')
     return True
 
 
@@ -425,8 +445,11 @@ class DNS_Instigator(ProxyResolver):
 if __name__ == "__main__":
 
     # Read Lists
-    read_list(whitelist, 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx)
-    read_list(blacklist, 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx)
+    for lst in sorted(lists.keys()):
+        if lst in whitelist:
+            wl_dom, wl_ip4, wl_ip6, wl_rx = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx)
+        else:
+            bl_dom, bl_ip4, bl_ip6, bl_rx = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx)
 
     # Resolver
     dns_resolver = DNS_Instigator(forward_address=forward_address, forward_port=forward_port, forward_timeout=forward_timeout, redirect_address=redirect_address) 
@@ -439,7 +462,7 @@ if __name__ == "__main__":
     # Start Service
     log_info('Starting DNS Service ...')
     dns_server.start_thread()
-    time.sleep(1)
+    time.sleep(0.5)
     if dns_server.isAlive():
     	log_info('DNS Service ready on ' + listen_address + ':' + str(listen_port))
     else:
@@ -447,14 +470,10 @@ if __name__ == "__main__":
         quit()
 
     # Keep things running
-    count = 0
     try:
         while dns_server.isAlive():
-            count += 1
-            if count > 30: # Seconds
-               count = 0
-               cache_purge()
-               time.sleep(1)
+           time.sleep(30) # Seconds
+           cache_purge()
 
     except KeyboardInterrupt:
         pass
