@@ -1,4 +1,6 @@
+/^(.*\.)*((?!(ad|adservice|adword|analytic|gg|googleadapi|google[-]*analytics|gstaticadssl|id|pagead|pagead[-]*googlehosted|partnerad|tagmanager|video[-]*stat|www[-]*google[-]*analytic|www[-]*googletagmanager)[s]*).*)\.google\.com$/
 /^(imap|pop|smtp)\.gmail\.com$/
+/^(.*\.)*((?!font[s]*).)*\.googleapis\.com$/
 /^(.*\.)*gvt[0-9]\.com$/
 /^(.*\.)*googleusercontent\.com$/
 /^(.*\.)*(apple|icloud|itunes)\.com$/
