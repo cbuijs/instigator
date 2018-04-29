@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.01-20180427 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.10-20180427 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -31,8 +31,7 @@ import syslog
 syslog.openlog(ident='INSTIGATOR')
 
 # DNSLib module
-#from dnslib import RCODE, QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord
-from dnslib import RCODE, QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord
+from dnslib import QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord
 from dnslib.proxy import ProxyResolver
 from dnslib.server import DNSServer, DNSLogger
 
@@ -54,7 +53,7 @@ listen_port = 53
 # Forwarding queries to
 forward_address = '1.1.1.1' # CloudFlare
 forward_port = 53
-forward_timeout = 20 # Seconds
+forward_timeout = 2 # Seconds
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_address = ''
@@ -83,7 +82,7 @@ cachesize = 2048 # Entries
 cachettl = 1800 # Seconds
 minttl = 120 # Seconds
 maxttl = 7200 # Seconds
-rcodettl = 600 # Seconds
+rcodettl = minttl # Seconds
 
 # List Dictionaries
 wl_dom = dict() # Domain whitelist
@@ -104,7 +103,7 @@ ip4regex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][
 ip6regex_text = '(((:(:[0-9a-f]{1,4}){1,7}|::|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,6}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,5}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,4}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,3}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,2}|::|:[0-9a-f]{1,4}(::[0-9a-f]{1,4}|::|:[0-9a-f]{1,4}(::|:[0-9a-f]{1,4}))))))))|(:(:[0-9a-f]{1,4}){0,5}|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,4}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,3}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,2}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4})?|:[0-9a-f]{1,4}(:|:[0-9a-f]{1,4})))))):(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3})(/(12[0-8]|1[01][0-9]|[1-9]?[0-9]))*)'
 ipregex4 = regex.compile('^' + ip4regex_text + '$', regex.I)
 ipregex6 = regex.compile('^' + ip6regex_text + '$', regex.I)
-ipregex = regex.compile('^(' + ip4regex_text + '|' + ip6regex_text +')$', regex.I)
+ipregex = regex.compile('^(' + ip4regex_text + '|' + ip6regex_text + ')$', regex.I)
 
 # Regex to match domains/hosts in lists
 isdomain = regex.compile('^[a-z0-9\.\-\_]+$', regex.I) # According RFC plus underscore
@@ -113,6 +112,7 @@ isdomain = regex.compile('^[a-z0-9\.\-\_]+$', regex.I) # According RFC plus unde
 isregex = regex.compile('^/.*/$')
 
 ##############################################################
+
 
 # Log INFO messages to syslog
 def log_info(message):
@@ -151,7 +151,7 @@ def in_blacklist(rid, type, rrtype, value, log):
                 field = 2
 
             if field:
-                testvalue = regex.split('\s+',testvalue)[field].rstrip('.')
+                testvalue = regex.split('\s+', testvalue)[field].rstrip('.')
                 if isdomain.match(testvalue):
                     itisadomain
 
@@ -223,26 +223,26 @@ def in_blacklist(rid, type, rrtype, value, log):
             return True
 
     return False
-       
+
 
 # Generate response when blocking
 def generate_response(request, qname, qtype, redirect_address):
     reply = request.reply()
     if (len(redirect_address) == 0) or (qtype not in ('A', 'CNAME', 'ANY')):
         log_info('REFUSED for \"' + qname + '\" (RR:' + qtype + ')')
-        reply.header.rcode = getattr(RCODE,'REFUSED')
+        reply.header.rcode = getattr(RCODE, 'REFUSED')
         return reply
     else:
         log_info('REDIRECT \"' + qname + '\" to \"' + redirect_address + '\" (RR:' + qtype + ')')
-        answer = RR(qname,QTYPE.A,ttl=cachettl,rdata=A(redirect_address))
-        #auth = RR(qname,QTYPE.SOA,ttl=cachettl,rdata=SOA('ns.sinkhole','hostmaster.sinkhole',(int(datetime.datetime.now().strftime("%s")),cachettl,cachettl,cachettl,cachettl)))
-        #ar = RR('ns.sinkhole',QTYPE.A,ttl=cachettl,rdata=A('0.0.0.0'))
+        answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(redirect_address))
+        #auth = RR(qname, QTYPE.SOA, ttl=cachettl, rdata=SOA('ns.sinkhole','hostmaster.sinkhole',(int(datetime.datetime.now().strftime("%s")), cachettl, cachettl, cachettl, cachettl)))
+        #ar = RR('ns.sinkhole', QTYPE.A, ttl=cachettl, rdata=A('0.0.0.0'))
 
     answer.set_rname(request.q.qname)
     reply.add_answer(answer)
     #reply.add_auth(auth)
     #reply.add_ar(ar)
-    reply.header.rcode = getattr(RCODE,'NOERROR')
+    reply.header.rcode = getattr(RCODE, 'NOERROR')
 
     return reply
 
@@ -301,7 +301,7 @@ def normalize_ttl(rr, getmax):
 
 # Retrieve from cache
 def from_cache(qname, qtype, request):
-    query = qname.replace('-','_') + '/' + qtype.upper()
+    query = qname.replace('-', '_') + '/' + qtype.upper()
     if query in cache:
         expire = cacheindex[query]
         now = int(datetime.datetime.now().strftime("%s"))
@@ -347,7 +347,7 @@ def from_cache(qname, qtype, request):
 
 # Store into cache
 def to_cache(qname, qtype, reply):
-    query = qname.replace('-','_') + '/' + qtype.upper()
+    query = qname.replace('-', '_') + '/' + qtype.upper()
     if query not in cache:
         now = int(datetime.datetime.now().strftime("%s"))
 
@@ -357,6 +357,7 @@ def to_cache(qname, qtype, reply):
         if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
             ttl = rcodettl
         elif rcode != 'NOERROR':
+            log_info('CACHE-SKIPPED: ' + qname + '/' + qtype + ' ' + rcode)
             return
 
         if ttl > 0:
@@ -374,11 +375,11 @@ def cache_purge():
     # Remove expired entries
     now = int(datetime.datetime.now().strftime("%s"))
     for query in list(cache.keys()):
-       expire = cacheindex[query]
-       if expire - now < 1:
-           log_info('CACHE-MAINT-EXPIRED: ' + query)
-           del cache[query]
-           del cacheindex[query]
+        expire = cacheindex[query]
+        if expire - now < 1:
+            log_info('CACHE-MAINT-EXPIRED: ' + query.replace('_', '-'))
+            del cache[query]
+            del cacheindex[query]
 
     # Prune cache back to cachesize, removing least TTL first
     size = len(cache)
@@ -388,10 +389,10 @@ def cache_purge():
             expire[query] = cacheindex[query] - now
 
         for query in list(sorted(expire, key=expire.get))[0:size-cachesize]:
-            log_info('CACHE-MAINT-EXPULSION: ' + query + ' (TTL:' + str(expire[query]) + ')')
+            log_info('CACHE-MAINT-EXPULSION: ' + query.replace('_', '-') + ' (TTL-LEFT:' + str(expire[query]) + ')')
             del cache[query]
             del cacheindex[query]
-    
+
     log_info('CACHE-STATS: ' + str(len(cache)) + ' entries in cache')
     return True
 
@@ -404,7 +405,10 @@ def round_robin(l):
 # DNS Filtering proxy main beef
 class DNS_Instigator(ProxyResolver):
     def __init__(self, forward_address, forward_port, forward_timeout, redirect_address):
-        ProxyResolver.__init__(self, forward_address, forward_port, forward_timeout)
+        #ProxyResolver.__init__(self, forward_address, forward_port, forward_timeout)
+        self.forward_address = forward_address
+        self.forward_port = forward_port
+        self.forward_timeout = forward_timeout
 
     def resolve(self, request, handler):
         rid = str(uuid.uuid4().hex[:5])
@@ -414,7 +418,7 @@ class DNS_Instigator(ProxyResolver):
         qname = str(request.q.qname).rstrip('.').lower()
         qtype = QTYPE[request.q.qtype]
 
-        log_info('REQUEST [' + str(rid) + '] from ' + cip + ': ' + qname + ' ' + qtype)
+        log_info('REQUEST [' + str(rid) + '] from ' + cip + ': ' + qname + '/' + qtype)
 
         cachereply = from_cache(qname, qtype, request)
         if cachereply:
@@ -423,9 +427,12 @@ class DNS_Instigator(ProxyResolver):
             if in_blacklist(rid, 'REQUEST', qtype, qname, True):
                 reply = generate_response(request, qname, qtype, redirect_address)
             else:
-                reply = ProxyResolver.resolve(self, request, handler)
+                try:
+                    reply = DNSRecord.parse(request.send(forward_address, forward_port, forward_timeout))
+                except socket.timeout:
+                    reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+
                 if (RCODE[reply.header.rcode] == 'NOERROR'):
-                    #qtype = QTYPE[reply.q.qtype]
                     if reply.rr:
                         replycount = 0
                         replynum = len(reply.rr)
@@ -439,6 +446,7 @@ class DNS_Instigator(ProxyResolver):
 
                             rqname = str(record.rname).rstrip('.').lower()
                             rqtype = QTYPE[record.rtype]
+
                             record.ttl = ttl
                             data = str(record.rdata).rstrip('.').lower()
 
@@ -455,11 +463,11 @@ class DNS_Instigator(ProxyResolver):
                                 seen.add(data)
 
                             if in_blacklist(rid, 'REQUEST', rqtype, rqname, qlog) or in_blacklist(rid, 'REPLY', rqtype, data, dlog):
-                                reply=generate_response(request, qname, qtype, redirect_address)
+                                reply = generate_response(request, qname, qtype, redirect_address)
 
                 else:
                     rcode = str(RCODE[reply.header.rcode])
-                    if rcode in ('NXDOMAIN','NODATA'):
+                    if rcode in ('NXDOMAIN', 'NODATA'):
                         reply = request.reply()
                         reply.header.rcode = getattr(RCODE, rcode)
 
@@ -467,7 +475,7 @@ class DNS_Instigator(ProxyResolver):
 
         to_cache(qname, qtype, reply)
 
-        log_info('FINISHED [' + str(rid) + '] from ' + cip + ': ' + qname + ' ' + qtype)
+        log_info('FINISHED [' + str(rid) + '] from ' + cip + ': ' + qname + '/' + qtype)
         return reply
 
 
@@ -482,19 +490,18 @@ if __name__ == "__main__":
             bl_dom, bl_ip4, bl_ip6, bl_rx = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx)
 
     # Resolver
-    dns_resolver = DNS_Instigator(forward_address=forward_address, forward_port=forward_port, forward_timeout=forward_timeout, redirect_address=redirect_address) 
+    dns_resolver = DNS_Instigator(forward_address=forward_address, forward_port=forward_port, forward_timeout=forward_timeout, redirect_address=redirect_address)
 
     # Server / Proxy
     logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=False)
     dns_server = DNSServer(dns_resolver, address=listen_address, port=listen_port, logger=logger, tcp=False) # UDP
-    #dns_server = DNSServer(dns_resolver, address=listen_address, port=listen_port, logger=logger, tcp=True)  # TCP
 
     # Start Service
     log_info('Starting DNS Service ...')
     dns_server.start_thread()
     time.sleep(0.5)
     if dns_server.isAlive():
-    	log_info('DNS Service ready on ' + listen_address + ':' + str(listen_port))
+        log_info('DNS Service ready on ' + listen_address + ':' + str(listen_port))
     else:
         log_err('DNS Service did not start, aborting ...')
         quit()
@@ -502,13 +509,14 @@ if __name__ == "__main__":
     # Keep things running
     try:
         while dns_server.isAlive():
-           time.sleep(30) # Seconds
-           cache_purge()
+            time.sleep(30) # Seconds
+            cache_purge()
 
     except KeyboardInterrupt:
         pass
 
-    sys.exit(0)
+    dns_server.stop
 
+    sys.exit(0)
 
 # <EOF>
