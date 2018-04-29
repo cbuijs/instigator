@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.17-20180428 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.20-20180429 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -161,7 +161,7 @@ def in_blacklist(rid, type, rrtype, value, log):
             if field:
                 testvalue = regex.split('\s+', testvalue)[field].rstrip('.')
                 if isdomain.match(testvalue):
-                    itisadomain
+                    itisadomain = True
 
         else:
             if isdomain.match(testvalue):
@@ -201,8 +201,8 @@ def in_blacklist(rid, type, rrtype, value, log):
             if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + value + ' matched against ' + prefix)
             return False
 
-    # Check against Domain-Lists
-    elif testvalue.find('.') > 0:
+    # Check against Sub-Domain-Lists
+    elif itisadomain and testvalue.find('.') > 0:
         testvalue = testvalue[testvalue.find('.') + 1:]
         while testvalue:
             if testvalue in wl_dom:
@@ -265,7 +265,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist):
             for line in f:
                 count += 1
                 line = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', ''))
-                entry = line.strip().lower()
+                entry = line.strip().lower().rstrip('.')
                 if len(entry) > 0:
                     if isregex.match(entry):
                         rx = entry.strip('/')
@@ -278,8 +278,8 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist):
                         iplist6[entry] = True
                     elif entry.find('='):
                         elements = entry.split('=')
-                        domain = elements[0]
-                        alias = elements[1]
+                        domain = elements[0].strip().lower().rstrip('.')
+                        alias = elements[1].strip().lower().rstrip('.')
                         if isdomain.match(domain) and (isdomain.match(alias) or ipregex.match(alias)):
                        	    alist[domain] = alias
                     else:
