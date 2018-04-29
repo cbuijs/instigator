@@ -31,7 +31,7 @@ import syslog
 syslog.openlog(ident='INSTIGATOR')
 
 # DNSLib module
-from dnslib import QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord
+from dnslib import QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord, DNSQuestion
 from dnslib.proxy import ProxyResolver
 from dnslib.server import DNSServer, DNSLogger
 
@@ -278,7 +278,10 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist):
                         iplist6[entry] = True
                     elif entry.find('='):
                         elements = entry.split('=')
-                        alist[elements[0]] = elements[1]
+                        domain = elements[0]
+                        alias = elements[1]
+                        if isdomain.match(domain) and (isdomain.match(alias) or ipregex.match(alias)):
+                       	    alist[domain] = alias
                     else:
                         log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
 
@@ -439,6 +442,7 @@ class DNS_Instigator(ProxyResolver):
                 log_info('IPV6-HIT: ' + qname + '/' + qtype + ' responded with NOTIMP')
                 reply = request.reply()
                 reply.header.rcode = getattr(RCODE, 'NOTIMP')
+
             elif qname in aliases and qtype in ('A', 'AAAA', 'CNAME'):
                 reply = request.reply()
                 reply.header.rcode = getattr(RCODE, 'NOERROR')
@@ -449,12 +453,39 @@ class DNS_Instigator(ProxyResolver):
                         answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(alias))
                     else:
                         answer = RR(qname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(alias))
+                    reply.add_answer(answer)
                 else:
                     answer = RR(qname, QTYPE.CNAME, ttl=cachettl, rdata=CNAME(alias))
+                    reply.add_answer(answer)
+                    aliastype = 'A'
+                    while aliastype:
+                        query = DNSRecord(q=DNSQuestion(alias,getattr(QTYPE,aliastype)))
+                        subreply = DNSRecord.parse(query.send(forward_address, forward_port, timeout=forward_timeout))
+                        rcode = str(RCODE[reply.header.rcode])
+                        if rcode == 'NOERROR':
+                            if subreply.rr:
+                                for record in subreply.rr:
+                                    rqtype = QTYPE[record.rtype]
+                                    data = str(record.rdata).rstrip('.').lower()
+                                    if rqtype == 'A':
+                                        answer = RR(alias, QTYPE.A, ttl=cachettl, rdata=A(data))
+                                        reply.add_answer(answer)
+                                    if rqtype == 'AAAA':
+                                        answer = RR(alias, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(data))
+                                        reply.add_answer(answer)
 
-                reply.add_answer(answer)
+                                aliastype = False
+                        else:
+                            if aliastype == 'A':
+                                aliastype = 'AAAA'
+                            else:
+                                aliastype = False
+                                reply = request.reply()
+                                reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+                                
             elif in_blacklist(rid, 'REQUEST', qtype, qname, True):
                 reply = generate_response(request, qname, qtype, redirect_address)
+
             else:
                 try:
                     reply = ProxyResolver.resolve(self, request, handler)
