@@ -1,3 +1,7 @@
+# Aliases
+# Syntax: <domain-name>=<target>
+# Where domain-name is a FQDN and target is a FQDN or IP-Address
+
 www.google.com=forcesafesearch.google.com
 www.google.fr=forcesafesearch.google.com
 www.google.nl=forcesafesearch.google.com
@@ -9,3 +13,8 @@ m.youtube.com=restrictmoderate.youtube.com
 youtubei.googleapis.com=restrictmoderate.youtube.com
 youtube.googleapis.com=restrictmoderate.youtube.com
 www.youtube-nocookie.com=restrictmoderate.youtube.com
+
+localhost=127.0.0.1
+walled.garden.redirect=192.168.1.250
+
+test.chrisbuijs.com=whahahaha.dahgfdg.tralalala
