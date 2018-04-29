@@ -1,0 +1,13 @@
+www.google.com=forcesafesearch.google.com
+www.google.fr=forcesafesearch.google.com
+www.google.nl=forcesafesearch.google.com
+
+www.bing.com=strict.bing.com
+
+www.youtube.com=restrictmoderate.youtube.com
+m.youtube.com=restrictmoderate.youtube.com
+youtubei.googleapis.com=restrictmoderate.youtube.com
+youtube.googleapis.com=restrictmoderate.youtube.com
+www.youtube-nocookie.com=restrictmoderate.youtube.com
+
+frutch=1.2.3.4

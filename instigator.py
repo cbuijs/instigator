@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.15-20180428 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.17-20180428 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -53,7 +53,7 @@ listen_port = 53
 # Forwarding queries to
 forward_address = '1.1.1.1' # CloudFlare
 forward_port = 53
-forward_timeout = 2 # Seconds
+forward_timeout = 3 # Seconds
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_address = ''
@@ -63,6 +63,7 @@ redirect_address = '192.168.1.250' # IPv4 only
 lists = dict()
 lists['blacklist'] = '/opt/instigator/black.list'
 lists['whitelist'] = '/opt/instigator/white.list'
+lists['aliases'] = '/opt/instigator/aliases.list'
 #lists['ads'] = '/opt/instigator/shallalist/adv/domains'
 #lists['banking'] = '/opt/instigator/shallalist/finance/banking/domains'
 #lists['costtraps'] = '/opt/instigator/shallalist/costtraps/domains'
@@ -73,16 +74,16 @@ lists['whitelist'] = '/opt/instigator/white.list'
 #lists['updatesites'] = '/opt/instigator/shallalist/updatesites/domains'
 #lists['warez'] = '/opt/instigator/shallalist/warez/domains'
 blacklist = list(['blacklist', 'ads', 'costtraps', 'porn', 'gamble', 'spyware', 'warez'])
-whitelist = list(['whitelist', 'banking', 'updatesites'])
+whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites'])
 
 # Cache Settings
 cachesize = 2048 # Entries
 
 # TTL Settings
-cachettl = 1800 # Seconds
+cachettl = 1800 # Seconds - For filtered/blacklisted entry caching
 minttl = 120 # Seconds
 maxttl = 7200 # Seconds
-rcodettl = minttl # Seconds
+rcodettl = minttl # Seconds - For return-codes caching
 
 # Collapse CNAME Chains
 collapse = True
@@ -99,6 +100,7 @@ wl_ip6 = pytricia.PyTricia(128) # IPv6 Whitelist
 bl_ip6 = pytricia.PyTricia(128) # IPv6 Blacklist
 wl_rx = dict() # Regex Whitelist
 bl_rx = dict() # Regex Blacklist
+aliases = dict()
 
 # Cache Dictionaries
 cache = dict()
@@ -112,7 +114,7 @@ ipregex6 = regex.compile('^' + ip6regex_text + '$', regex.I)
 ipregex = regex.compile('^(' + ip4regex_text + '|' + ip6regex_text + ')$', regex.I)
 
 # Regex to match domains/hosts in lists
-isdomain = regex.compile('^[a-z0-9\.\-\_]+$', regex.I) # According RFC plus underscore
+isdomain = regex.compile('^[a-z0-9\.\-\_]+$', regex.I) # Based on RFC1035 plus underscore
 
 # Regex to filter regexes out
 isregex = regex.compile('^/.*/$')
@@ -253,7 +255,7 @@ def generate_response(request, qname, qtype, redirect_address):
 
 
 # Read filter lists
-def read_list(file, listname, domlist, iplist4, iplist6, rxlist):
+def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist):
     log_info('Fetching \"' + listname + '\" entries from \"' + file + '\"')
 
     count = 0
@@ -268,12 +270,15 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist):
                     if isregex.match(entry):
                         rx = entry.strip('/')
                         rxlist[rx] = regex.compile(rx, regex.I)
+                    elif isdomain.match(entry):
+                        domlist[entry] = True
                     elif ipregex4.match(entry):
                         iplist4[entry] = True
                     elif ipregex6.match(entry):
                         iplist6[entry] = True
-                    elif isdomain.match(entry):
-                        domlist[entry] = True
+                    elif entry.find('='):
+                        elements = entry.split('=')
+                        alist[elements[0]] = elements[1]
                     else:
                         log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
 
@@ -282,7 +287,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist):
 
     log_info(listname + ': ' + str(len(rxlist)) + ' REGEXes, ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs and ' + str(len(domlist)) + ' DOMAINs')
 
-    return domlist, iplist4, iplist6, rxlist
+    return domlist, iplist4, iplist6, rxlist, alist
 
 
 # Normalize TTL's, take either lowest or highest TTL for all records in RRSET
@@ -434,6 +439,20 @@ class DNS_Instigator(ProxyResolver):
                 log_info('IPV6-HIT: ' + qname + '/' + qtype + ' responded with NOTIMP')
                 reply = request.reply()
                 reply.header.rcode = getattr(RCODE, 'NOTIMP')
+            elif qname in aliases and qtype in ('A', 'AAAA', 'CNAME'):
+                reply = request.reply()
+                reply.header.rcode = getattr(RCODE, 'NOERROR')
+                alias = aliases[qname]
+                log_info('ALIAS-HIT: ' + qname + ' -> ' + alias)
+                if ipregex.match(alias):
+                    if alias.find(':') == -1:
+                        answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(alias))
+                    else:
+                        answer = RR(qname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(alias))
+                else:
+                    answer = RR(qname, QTYPE.CNAME, ttl=cachettl, rdata=CNAME(alias))
+
+                reply.add_answer(answer)
             elif in_blacklist(rid, 'REQUEST', qtype, qname, True):
                 reply = generate_response(request, qname, qtype, redirect_address)
             else:
@@ -511,12 +530,14 @@ class DNS_Instigator(ProxyResolver):
 # Main
 if __name__ == "__main__":
 
+    log_info('Initializing INSTIGATOR')
+
     # Read Lists
     for lst in sorted(lists.keys()):
         if lst in whitelist:
-            wl_dom, wl_ip4, wl_ip6, wl_rx = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx)
+            wl_dom, wl_ip4, wl_ip6, wl_rx, aliases = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases)
         else:
-            bl_dom, bl_ip4, bl_ip6, bl_rx = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx)
+            bl_dom, bl_ip4, bl_ip6, bl_rx, aliases = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, aliases)
 
     # Resolver
     dns_resolver = DNS_Instigator(forward_address=forward_address, forward_port=forward_port, forward_timeout=forward_timeout, redirect_address=redirect_address)
