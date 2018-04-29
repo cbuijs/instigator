@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.10-20180427 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.15-20180428 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -83,6 +83,12 @@ cachettl = 1800 # Seconds
 minttl = 120 # Seconds
 maxttl = 7200 # Seconds
 rcodettl = minttl # Seconds
+
+# Collapse CNAME Chains
+collapse = True
+
+# Block IPv6 queries
+blockv6 = True
 
 # List Dictionaries
 wl_dom = dict() # Domain whitelist
@@ -194,20 +200,19 @@ def in_blacklist(rid, type, rrtype, value, log):
             return False
 
     # Check against Domain-Lists
-    else:
-        if testvalue.find('.') > 0:
-            testvalue = testvalue[testvalue.find('.') + 1:]
-            while testvalue:
-                if testvalue in wl_dom:
-                    if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
-                    return False
-                if testvalue in bl_dom:
-                    if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
-                    return True
-                elif testvalue.find('.') == -1:
-                    break
-                else:
-                    testvalue = testvalue[testvalue.find('.') + 1:]
+    elif testvalue.find('.') > 0:
+        testvalue = testvalue[testvalue.find('.') + 1:]
+        while testvalue:
+            if testvalue in wl_dom:
+                if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+                return False
+            if testvalue in bl_dom:
+                if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+                return True
+            elif testvalue.find('.') == -1:
+                break
+            else:
+                testvalue = testvalue[testvalue.find('.') + 1:]
 
     # Check agains Regex-Lists
     for i in wl_rx.keys():
@@ -322,21 +327,24 @@ def from_cache(qname, qtype, request):
             reply.header.id = id
 
             # Gather address and non-address records and do round-robin
-            addr = list()
-            nonaddr = list()
-            size = len(reply.rr)
-            for record in reply.rr:
-                record.ttl = ttl
-                if size > 1:
-                    rqtype = QTYPE[record.rtype].upper()
+            if len(reply.rr) > 1:
+                addr = list()
+                nonaddr = list()
+                for record in reply.rr:
+                    record.ttl = ttl
+                    rqtype = QTYPE[record.rtype]
                     if rqtype in ('A', 'AAAA'):
                         addr.append(record)
                     else:
                         nonaddr.append(record)
 
-            if len(addr) > 1:
-                addr = round_robin(addr)
-                reply.rr = nonaddr + addr
+                if len(addr) > 1:
+                    addr = round_robin(addr)
+                    reply.rr = nonaddr + addr
+
+            else:
+                for record in reply.rr:
+                    record.ttl = ttl
 
             log_info('CACHE-HIT: ' + qname + '/' + qtype + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + ')')
 
@@ -348,26 +356,26 @@ def from_cache(qname, qtype, request):
 # Store into cache
 def to_cache(qname, qtype, reply):
     query = qname.replace('-', '_') + '/' + qtype.upper()
-    if query not in cache:
-        now = int(datetime.datetime.now().strftime("%s"))
 
-        ttl = normalize_ttl(reply.rr, True)
+    now = int(datetime.datetime.now().strftime("%s"))
 
-        rcode = str(RCODE[reply.header.rcode])
-        if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
-            ttl = rcodettl
-        elif rcode != 'NOERROR':
-            log_info('CACHE-SKIPPED: ' + qname + '/' + qtype + ' ' + rcode)
-            return
+    ttl = normalize_ttl(reply.rr, True)
 
-        if ttl > 0:
-            cache[query] = reply
-            expire = now + ttl
-            cacheindex[query] = expire
-            entry = len(cache)
-            log_info('CACHE-STORED (' + str(entry) + '): ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+    rcode = str(RCODE[reply.header.rcode])
+    if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
+        ttl = rcodettl
+    elif rcode != 'NOERROR':
+        log_info('CACHE-SKIPPED: ' + qname + '/' + qtype + ' ' + rcode)
+        return
 
-    return
+    if ttl > 0:
+        cache[query] = reply
+        expire = now + ttl
+        cacheindex[query] = expire
+        entry = len(cache)
+        log_info('CACHE-STORED (' + str(entry) + '): ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+
+    return True
 
 
 # Purge cache
@@ -405,10 +413,8 @@ def round_robin(l):
 # DNS Filtering proxy main beef
 class DNS_Instigator(ProxyResolver):
     def __init__(self, forward_address, forward_port, forward_timeout, redirect_address):
-        #ProxyResolver.__init__(self, forward_address, forward_port, forward_timeout)
-        self.forward_address = forward_address
-        self.forward_port = forward_port
-        self.forward_timeout = forward_timeout
+        ProxyResolver.__init__(self, forward_address, forward_port, forward_timeout)
+        self.redirect_address = redirect_address
 
     def resolve(self, request, handler):
         rid = str(uuid.uuid4().hex[:5])
@@ -424,15 +430,21 @@ class DNS_Instigator(ProxyResolver):
         if cachereply:
             reply = cachereply
         else:
-            if in_blacklist(rid, 'REQUEST', qtype, qname, True):
+            if blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
+                log_info('IPV6-HIT: ' + qname + '/' + qtype + ' responded with NOTIMP')
+                reply = request.reply()
+                reply.header.rcode = getattr(RCODE, 'NOTIMP')
+            elif in_blacklist(rid, 'REQUEST', qtype, qname, True):
                 reply = generate_response(request, qname, qtype, redirect_address)
             else:
                 try:
-                    reply = DNSRecord.parse(request.send(forward_address, forward_port, forward_timeout))
+                    reply = ProxyResolver.resolve(self, request, handler)
                 except socket.timeout:
+                    log_err('ERROR Resolving ' + qname + '/' + qtype)
                     reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
-                if (RCODE[reply.header.rcode] == 'NOERROR'):
+                rcode = str(RCODE[reply.header.rcode])
+                if rcode == 'NOERROR':
                     if reply.rr:
                         replycount = 0
                         replynum = len(reply.rr)
@@ -440,15 +452,22 @@ class DNS_Instigator(ProxyResolver):
                         ttl = normalize_ttl(reply.rr, True)
 
                         seen = set()
+                        addr = list()
+                        firstrqtype = False
 
                         for record in reply.rr:
                             replycount += 1
 
                             rqname = str(record.rname).rstrip('.').lower()
                             rqtype = QTYPE[record.rtype]
+                            if not firstrqtype:
+                                firstrqtype = rqtype
 
                             record.ttl = ttl
                             data = str(record.rdata).rstrip('.').lower()
+
+                            if collapse and firstrqtype == 'CNAME' and rqtype in ('A', 'AAAA'):
+                                addr.append(data)
 
                             log_info('REPLY [' + str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + ' ' + rqtype + ' = ' + data)
 
@@ -465,15 +484,25 @@ class DNS_Instigator(ProxyResolver):
                             if in_blacklist(rid, 'REQUEST', rqtype, rqname, qlog) or in_blacklist(rid, 'REPLY', rqtype, data, dlog):
                                 reply = generate_response(request, qname, qtype, redirect_address)
 
+                        if collapse and firstrqtype == 'CNAME' and addr:
+                            log_info('REPLY [' + str(rid) + ']: COLLAPSE ' + qname + '/CNAME')
+                            reply = request.reply()
+                            reply.header.rcode = getattr(RCODE, 'NOERROR')
+                            for ip in addr:
+                                if ip.find(':') == -1:
+                                    answer = RR(qname, QTYPE.A, ttl=ttl, rdata=A(ip))
+                                else:
+                                    answer = RR(qname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(ip))
+
+                                reply.add_answer(answer)
+
                 else:
-                    rcode = str(RCODE[reply.header.rcode])
-                    if rcode in ('NXDOMAIN', 'NODATA'):
-                        reply = request.reply()
-                        reply.header.rcode = getattr(RCODE, rcode)
+                    reply = request.reply()
+                    reply.header.rcode = getattr(RCODE, rcode)
 
                     log_info('REPLY [' + str(rid) + ']: ' + qname + ' ' + qtype + ' = ' + rcode)
 
-        to_cache(qname, qtype, reply)
+            to_cache(qname, qtype, reply)
 
         log_info('FINISHED [' + str(rid) + '] from ' + cip + ': ' + qname + '/' + qtype)
         return reply
