@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.20-20180429 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.21-20180429 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -453,6 +453,7 @@ class DNS_Instigator(ProxyResolver):
                         answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(alias))
                     else:
                         answer = RR(qname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(alias))
+
                     reply.add_answer(answer)
                 else:
                     answer = RR(qname, QTYPE.CNAME, ttl=cachettl, rdata=CNAME(alias))
@@ -460,8 +461,13 @@ class DNS_Instigator(ProxyResolver):
                     aliastype = 'A'
                     while aliastype:
                         query = DNSRecord(q=DNSQuestion(alias,getattr(QTYPE,aliastype)))
-                        subreply = DNSRecord.parse(query.send(forward_address, forward_port, timeout=forward_timeout))
-                        rcode = str(RCODE[reply.header.rcode])
+                        try:
+                            subreply = DNSRecord.parse(query.send(forward_address, forward_port, timeout=forward_timeout))
+                        except socket.timeout:
+                            subreply = request.reply()
+                            subreply.header.rcode = getattr(RCODE, 'SERVFAIL')
+
+                        rcode = str(RCODE[subreply.header.rcode])
                         if rcode == 'NOERROR':
                             if subreply.rr:
                                 for record in subreply.rr:
@@ -481,7 +487,7 @@ class DNS_Instigator(ProxyResolver):
                             else:
                                 aliastype = False
                                 reply = request.reply()
-                                reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+                                reply.header.rcode = getattr(RCODE, rcode)
                                 
             elif in_blacklist(rid, 'REQUEST', qtype, qname, True):
                 reply = generate_response(request, qname, qtype, redirect_address)
