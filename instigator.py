@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.38-20180430 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.40-20180430 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -106,12 +106,9 @@ bl_ip6 = pytricia.PyTricia(128) # IPv6 Blacklist
 wl_rx = dict() # Regex Whitelist
 bl_rx = dict() # Regex Blacklist
 aliases = dict()
-indomain = dict()
 
 # Cache Dictionaries
 cache = dict()
-cacheexpire = dict()
-cachequery = dict()
 
 # Regex to filter IP's out
 ip4regex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(/(3[0-2]|[12]?[0-9]))*)'
@@ -215,12 +212,12 @@ def match_blacklist(rid, type, rrtype, value, log):
     elif itisadomain and testvalue.find('.') > 0:
         testvalue = testvalue[testvalue.find('.') + 1:]
 
-        wl_found = in_domain(testvalue, wl_dom, 'whitelist')
+        wl_found = in_domain(testvalue, wl_dom)
         if wl_found != False:
             if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + wl_found + '\"')
             return False
         else:
-            bl_found = in_domain(testvalue, bl_dom, 'blacklist')
+            bl_found = in_domain(testvalue, bl_dom)
             if bl_found != False:
                 if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + bl_found + '\"')
                 return True
@@ -254,16 +251,10 @@ def match_blacklist(rid, type, rrtype, value, log):
 
 
 # Check if name is domain or sub-domain
-def in_domain(name, domlist, listname):
-    namehash = hash(listname + '/' + name)
-    if namehash in indomain:
-        print('IN-DOMAIN: ' + name + ' in ' + indomain[hash] + ' (' + listname + ')')
-        return indomain[namehash]
-
+def in_domain(name, domlist):
     testname = name
     while testname:
         if testname in domlist:
-            indomain[hash] = testname
             return testname
         elif testname.find('.') == -1:
             break
@@ -318,7 +309,7 @@ def generate_alias(request, qname, qtype, use_tcp):
     if qname in aliases:
         alias = aliases[qname]
     else:
-        aqname = in_domain(qname, aliases, 'aliases')
+        aqname = in_domain(qname, aliases)
         if aqname:
             log_info('ALIAS-HIT: ' + qname + ' subdomain of alias ' + aqname)
             alias = aliases[aqname]
@@ -448,21 +439,21 @@ def normalize_ttl(rr, getmax):
 
 # Retrieve from cache
 def from_cache(qname, qtype, request):
-    queryhash = hash(qname + '/' + qtype)
+    queryhash = query_hash(qname, qtype)
     if queryhash in cache:
-        expire = cacheexpire[queryhash]
+        expire = cache[queryhash][1]
         now = int(time.time())
         ttl = expire - now
 
         # If expired, remove from cache
         if ttl < 1:
-            log_info('CACHE-EXPIRED: ' + cachequery[queryhash])
+            log_info('CACHE-EXPIRED: ' + cache[queryhash][2])
             del_cache_entry(queryhash)
             return False
 
         # Retrieve from cache
         else:
-            reply = cache[queryhash]
+            reply = cache[queryhash][0]
             rcode = str(RCODE[reply.header.rcode])
             id = request.header.id
             reply.header.id = id
@@ -486,7 +477,7 @@ def from_cache(qname, qtype, request):
                 for record in reply.rr:
                     record.ttl = ttl
 
-            log_info('CACHE-HIT: ' + cachequery[queryhash] + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + ')')
+            log_info('CACHE-HIT: ' + cache[queryhash][2] + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + ')')
 
             return reply
 
@@ -508,19 +499,18 @@ def to_cache(qname, qtype, reply):
         expire = int(time.time()) + ttl
         queryhash = add_cache_entry(qname, qtype, expire, reply)
         entry = len(cache)
-        log_info('CACHE-STORED (' + str(entry) + '): ' + cachequery[queryhash] + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+        log_info('CACHE-STORED (' + str(entry) + '): ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
     return True
-
 
 # Purge cache
 def cache_purge():
     # Remove expired entries
     now = int(time.time())
     for queryhash in list(cache.keys()):
-        expire = cacheexpire[queryhash]
+        expire = cache[queryhash][1]
         if expire - now < 1:
-            log_info('CACHE-MAINT-EXPIRED: ' + cachequery[queryhash])
+            log_info('CACHE-MAINT-EXPIRED: ' + cache[queryhash][2])
             del_cache_entry(queryhash)
 
     # Prune cache back to cachesize, removing least TTL first
@@ -528,31 +518,35 @@ def cache_purge():
     if (size > cachesize):
         expire = dict()
         for queryhash in list(cache.keys()):
-            expire[queryhash] = cacheexpire[queryhash] - now
+            expire[queryhash] = cache[queryhash][1] - now
 
         for queryhash in list(sorted(expire, key=expire.get))[0:size-cachesize]:
-            log_info('CACHE-MAINT-EXPULSION: ' + cachequery[queryhash] + ' (TTL-LEFT:' + str(expire[query]) + ')')
+            log_info('CACHE-MAINT-EXPULSION: ' + cache[queryhash][2] + ' (TTL-LEFT:' + str(expire[queryhash]) + ')')
             del_cache_entry(queryhash)
 
     log_info('CACHE-STATS: ' + str(len(cache)) + ' entries in cache')
     return True
 
 
+def query_hash(qname, qtype):
+    return hash(qname + '/' + qtype)
+
+
 def add_cache_entry(qname, qtype, expire, reply):
     hashname = qname + '/' + qtype
-    queryhash = hash(hashname)
-    cache[queryhash] = reply
-    cacheexpire[queryhash] = expire
-    cachequery[queryhash] = hashname
+    queryhash = query_hash(qname, qtype)
+    cache[queryhash] = [reply, expire, hashname]
 
     return queryhash
 
 
+def get_cache_entry(queryhash):
+    reply, expire, hashname = cache[queryhash]
+    return reply, expire, hashname
+
+
 def del_cache_entry(queryhash):
     _ = cache.pop(queryhash, None)
-    _ = cacheexpire.pop(queryhash, None)
-    _ = cachequery.pop(queryhash, None)
-        
     return True
 
 
@@ -588,7 +582,7 @@ class DNS_Instigator(BaseResolver):
                 reply = request.reply()
                 reply.header.rcode = getattr(RCODE, 'NOTIMP')
 
-            elif qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases, 'aliases'):
+            elif qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
                 reply = generate_alias(request, qname, qtype, use_tcp)
 
             elif match_blacklist(rid, 'REQUEST', qtype, qname, True):
@@ -605,6 +599,8 @@ class DNS_Instigator(BaseResolver):
                         ttl = normalize_ttl(reply.rr, True)
 
                         seen = set()
+                        seen.add(qname)
+
                         addr = list()
                         firstrqtype = False
 
@@ -614,7 +610,7 @@ class DNS_Instigator(BaseResolver):
                             rqname = str(record.rname).rstrip('.').lower()
                             rqtype = QTYPE[record.rtype].upper()
 
-                            if rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases, 'aliases'):
+                            if rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
                                 reply = generate_alias(request, rqname, rqtype, use_tcp)
                                 break
 
@@ -640,7 +636,7 @@ class DNS_Instigator(BaseResolver):
                                 dlog = True
                                 seen.add(data)
 
-                            if match_blacklist(rid, 'REQUEST', rqtype, rqname, qlog) or match_blacklist(rid, 'REPLY', rqtype, data, dlog):
+                            if (qlog and match_blacklist(rid, 'REQUEST', rqtype, rqname, qlog)) or (dlog and match_blacklist(rid, 'REPLY', rqtype, data, dlog)):
                                 reply = generate_response(request, qname, qtype, redirect_address)
                                 break
 
@@ -701,6 +697,7 @@ if __name__ == "__main__":
     # Keep things running
     try:
         while udp_dns_server.isAlive() and tcp_dns_server.isAlive():
+            time.sleep(1) # Seconds
             time.sleep(30) # Seconds
             cache_purge()
 
