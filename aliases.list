@@ -1,7 +1,8 @@
-# Aliases
+# ALIASES
+# =======
 # Syntax: <domain-name>=<target>
 # Where domain-name is a FQDN and target is a FQDN, IP-Address, Return-Code or Op-Code.
-# Aliases cannot point to other aliases
+# Aliases cannot point to other aliases and are concidered WHITELIST entries
 # Return-Codes: NOTAUTH, NXDOMAIN and REFUSED
 # Op-Codes: PASSTHRU
 
