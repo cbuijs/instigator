@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.34-20180430 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.38-20180430 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -215,12 +215,12 @@ def match_blacklist(rid, type, rrtype, value, log):
     elif itisadomain and testvalue.find('.') > 0:
         testvalue = testvalue[testvalue.find('.') + 1:]
 
-        wl_found = in_domain(testvalue, wl_dom)
+        wl_found = in_domain(testvalue, wl_dom, 'whitelist')
         if wl_found != False:
             if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + wl_found + '\"')
             return False
         else:
-            bl_found = in_domain(testvalue, bl_dom)
+            bl_found = in_domain(testvalue, bl_dom, 'blacklist')
             if bl_found != False:
                 if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + bl_found + '\"')
                 return True
@@ -254,17 +254,19 @@ def match_blacklist(rid, type, rrtype, value, log):
 
 
 # Check if name is domain or sub-domain
-def in_domain(name, domlist):
-    if name in indomain:
-        return indomain[name]
+def in_domain(name, domlist, listname):
+    namehash = hash(listname + '/' + name)
+    if namehash in indomain:
+        print('IN-DOMAIN: ' + name + ' in ' + indomain[hash] + ' (' + listname + ')')
+        return indomain[namehash]
 
     testname = name
     while testname:
         if testname in domlist:
-            indomain[name] = testname
+            indomain[hash] = testname
             return testname
         elif testname.find('.') == -1:
-            return False
+            break
         else:
             testname = testname[testname.find('.') + 1:]
 
@@ -316,8 +318,9 @@ def generate_alias(request, qname, qtype, use_tcp):
     if qname in aliases:
         alias = aliases[qname]
     else:
-        aqname = in_domain(qname, aliases)
+        aqname = in_domain(qname, aliases, 'aliases')
         if aqname:
+            log_info('ALIAS-HIT: ' + qname + ' subdomain of alias ' + aqname)
             alias = aliases[aqname]
         else:
             alias = 'NXDOMAIN'
@@ -585,7 +588,7 @@ class DNS_Instigator(BaseResolver):
                 reply = request.reply()
                 reply.header.rcode = getattr(RCODE, 'NOTIMP')
 
-            elif qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
+            elif qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases, 'aliases'):
                 reply = generate_alias(request, qname, qtype, use_tcp)
 
             elif match_blacklist(rid, 'REQUEST', qtype, qname, True):
@@ -611,7 +614,7 @@ class DNS_Instigator(BaseResolver):
                             rqname = str(record.rname).rstrip('.').lower()
                             rqtype = QTYPE[record.rtype].upper()
 
-                            if rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
+                            if rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases, 'aliases'):
                                 reply = generate_alias(request, rqname, rqtype, use_tcp)
                                 break
 
