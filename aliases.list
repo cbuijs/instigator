@@ -1,20 +1,39 @@
 # Aliases
 # Syntax: <domain-name>=<target>
-# Where domain-name is a FQDN and target is a FQDN or IP-Address
+# Where domain-name is a FQDN and target is a FQDN, IP-Address, Return-Code or Op-Code.
+# Aliases cannot point to other aliases
+# Return-Codes: NOTAUTH, NXDOMAIN and REFUSED
+# Op-Codes: PASSTHRU
 
+# SafeSearch Google
 www.google.com=forcesafesearch.google.com
 www.google.fr=forcesafesearch.google.com
 www.google.nl=forcesafesearch.google.com
 
+# SafeSearch Bing
 www.bing.com=strict.bing.com
 
+# SafeSearch YouTube
 www.youtube.com=restrictmoderate.youtube.com
 m.youtube.com=restrictmoderate.youtube.com
 youtubei.googleapis.com=restrictmoderate.youtube.com
 youtube.googleapis.com=restrictmoderate.youtube.com
 www.youtube-nocookie.com=restrictmoderate.youtube.com
 
+# LocalHost
 localhost=127.0.0.1
+
+# Redirect Example
 walled.garden.redirect=192.168.1.250
 
-test.chrisbuijs.com=whahahaha.dahgfdg.tralalala
+# Test examples
+test1.chrisbuijs.com=whahahaha.dahgfdg.tralalala
+test2.chrisbuijs.com=www.googleapis.com
+test3.chrisbuijs.com=4.3.2.1
+test4.chrisbuijs.com=NXDOMAIN
+test5.chrisbuijs.com=REFUSED
+www.test5.chrisbuijs.com=1.2.3.4
+company.com=REFUSED
+www.company.com=PASSTHRU
+
+# <EOF>
