@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.21-20180429 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.30-20180430 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -17,11 +17,14 @@ TODO:
 - Loads ...
 - Better Documentation / Remarks / Comments
 
+- Query def
+- list = readlines() file def
+
 =========================================================================================
 '''
 
 # Standard modules
-import sys, time, datetime
+import sys, time, socket
 
 # make sure modules can be found
 sys.path.append("/usr/local/lib/python3.5/dist-packages/")
@@ -33,7 +36,7 @@ syslog.openlog(ident='INSTIGATOR')
 # DNSLib module
 from dnslib import QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord, DNSQuestion
 from dnslib.proxy import ProxyResolver
-from dnslib.server import DNSServer, DNSLogger
+from dnslib.server import DNSServer, DNSLogger, DNSHandler, BaseResolver
 
 # Regex module
 import regex
@@ -81,9 +84,12 @@ cachesize = 2048 # Entries
 
 # TTL Settings
 cachettl = 1800 # Seconds - For filtered/blacklisted entry caching
-minttl = 120 # Seconds
+minttl = 10 # Seconds
 maxttl = 7200 # Seconds
 rcodettl = minttl # Seconds - For return-codes caching
+
+# Roundrobin of address-records
+roundrobin = True
 
 # Collapse CNAME Chains
 collapse = True
@@ -104,7 +110,8 @@ aliases = dict()
 
 # Cache Dictionaries
 cache = dict()
-cacheindex = dict()
+cacheexpire = dict()
+cachequery = dict()
 
 # Regex to filter IP's out
 ip4regex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(/(3[0-2]|[12]?[0-9]))*)'
@@ -118,6 +125,9 @@ isdomain = regex.compile('^[a-z0-9\.\-\_]+$', regex.I) # Based on RFC1035 plus u
 
 # Regex to filter regexes out
 isregex = regex.compile('^/.*/$')
+
+# Regex for AS(N) Numbers
+isasn = regex.compile('^AS[0-9]+$', regex.I)
 
 ##############################################################
 
@@ -137,7 +147,7 @@ def log_err(message):
 
 
 # Check if entry matches a list
-def in_blacklist(rid, type, rrtype, value, log):
+def match_blacklist(rid, type, rrtype, value, log):
     id = str(rid)
     testvalue = value
 
@@ -242,7 +252,7 @@ def generate_response(request, qname, qtype, redirect_address):
     else:
         log_info('REDIRECT \"' + qname + '\" to \"' + redirect_address + '\" (RR:' + qtype + ')')
         answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(redirect_address))
-        #auth = RR(qname, QTYPE.SOA, ttl=cachettl, rdata=SOA('ns.sinkhole','hostmaster.sinkhole',(int(datetime.datetime.now().strftime("%s")), cachettl, cachettl, cachettl, cachettl)))
+        #auth = RR(qname, QTYPE.SOA, ttl=cachettl, rdata=SOA('ns.sinkhole','hostmaster.sinkhole',(int(time.time()), cachettl, cachettl, cachettl, cachettl)))
         #ar = RR('ns.sinkhole', QTYPE.A, ttl=cachettl, rdata=A('0.0.0.0'))
 
     answer.set_rname(request.q.qname)
@@ -250,6 +260,54 @@ def generate_response(request, qname, qtype, redirect_address):
     #reply.add_auth(auth)
     #reply.add_ar(ar)
     reply.header.rcode = getattr(RCODE, 'NOERROR')
+
+    return reply
+
+
+# Generate alias response
+def generate_alias(request, qname, qtype, use_tcp):
+    realqname = str(request.q.qname).rstrip('.').lower()
+    reply = request.reply()
+    reply.header.rcode = getattr(RCODE, 'NOERROR')
+    alias = aliases[qname]
+    log_info('ALIAS-HIT: ' + qname + ' -> ' + alias)
+    if ipregex.match(alias):
+        if alias.find(':') == -1:
+            answer = RR(realqname, QTYPE.A, ttl=cachettl, rdata=A(alias))
+        else:
+            answer = RR(realqname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(alias))
+
+        reply.add_answer(answer)
+    else:
+        if not collapse:
+            answer = RR(realqname, QTYPE.CNAME, ttl=cachettl, rdata=CNAME(alias))
+            reply.add_answer(answer)
+
+        if qtype not in ('A', 'AAAA'):
+            qtype = 'A'
+
+        query = DNSRecord(q = DNSQuestion(alias, getattr(QTYPE, qtype)))
+        try:
+            subreply = DNSRecord.parse(query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout))
+        except socket.timeout:
+            subreply = request.reply()
+            subreply.header.rcode = getattr(RCODE, 'SERVFAIL')
+
+        rcode = str(RCODE[subreply.header.rcode])
+        if rcode == 'NOERROR':
+            if subreply.rr:
+                if collapse:
+                    alias = realqname
+
+                for record in subreply.rr:
+                    rqtype = QTYPE[record.rtype]
+                    data = str(record.rdata).rstrip('.').lower()
+                    if rqtype == 'A':
+                        answer = RR(alias, QTYPE.A, ttl=cachettl, rdata=A(data))
+                        reply.add_answer(answer)
+                    if rqtype == 'AAAA':
+                        answer = RR(alias, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(data))
+                        reply.add_answer(answer)
 
     return reply
 
@@ -264,12 +322,17 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist):
         with open(file, 'r') as f:
             for line in f:
                 count += 1
-                line = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', ''))
-                entry = line.strip().lower().rstrip('.')
+                entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', ''))
+                cleanline = entry
+                entry = regex.split('\s+', entry)[0]
+                entry = entry.strip().lower().rstrip('.')
                 if len(entry) > 0:
-                    if isregex.match(entry):
-                        rx = entry.strip('/')
+                    if isregex.match(cleanline): # Use line
+                        rx = cleanline.strip('/')
                         rxlist[rx] = regex.compile(rx, regex.I)
+                    elif isasn.match(entry):
+                        # ASN Number, just discard for now
+                        _ = entry
                     elif isdomain.match(entry):
                         domlist[entry] = True
                     elif ipregex4.match(entry):
@@ -288,7 +351,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist):
     except BaseException as err:
         log_err('ERROR: Unable to open/read/process file \"' + file + '\" - ' + str(err))
 
-    log_info(listname + ': ' + str(len(rxlist)) + ' REGEXes, ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs and ' + str(len(domlist)) + ' DOMAINs')
+    log_info(listname + ': ' + str(len(rxlist)) + ' REGEXes, ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs, ' + str(len(domlist)) + ' DOMAINs and ' + str(len(alist)) + ' ALIASes')
 
     return domlist, iplist4, iplist6, rxlist, alist
 
@@ -314,28 +377,27 @@ def normalize_ttl(rr, getmax):
 
 # Retrieve from cache
 def from_cache(qname, qtype, request):
-    query = qname.replace('-', '_') + '/' + qtype.upper()
-    if query in cache:
-        expire = cacheindex[query]
-        now = int(datetime.datetime.now().strftime("%s"))
+    queryhash = hash(qname + '/' + qtype)
+    if queryhash in cache:
+        expire = cacheexpire[queryhash]
+        now = int(time.time())
         ttl = expire - now
 
         # If expired, remove from cache
         if ttl < 1:
-            log_info('CACHE-EXPIRED: ' + qname + '/' + qtype)
-            del cache[query]
-            del cacheindex[query]
+            log_info('CACHE-EXPIRED: ' + cachequery[queryhash])
+            del_cache_entry(queryhash)
             return False
 
         # Retrieve from cache
         else:
-            reply = cache[query]
+            reply = cache[queryhash]
             rcode = str(RCODE[reply.header.rcode])
             id = request.header.id
             reply.header.id = id
 
             # Gather address and non-address records and do round-robin
-            if len(reply.rr) > 1:
+            if roundrobin and len(reply.rr) > 1:
                 addr = list()
                 nonaddr = list()
                 for record in reply.rr:
@@ -347,14 +409,13 @@ def from_cache(qname, qtype, request):
                         nonaddr.append(record)
 
                 if len(addr) > 1:
-                    addr = round_robin(addr)
-                    reply.rr = nonaddr + addr
+                    reply.rr = nonaddr + round_robin(addr)
 
             else:
                 for record in reply.rr:
                     record.ttl = ttl
 
-            log_info('CACHE-HIT: ' + qname + '/' + qtype + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + ')')
+            log_info('CACHE-HIT: ' + cachequery[queryhash] + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + ')')
 
             return reply
 
@@ -363,10 +424,6 @@ def from_cache(qname, qtype, request):
 
 # Store into cache
 def to_cache(qname, qtype, reply):
-    query = qname.replace('-', '_') + '/' + qtype.upper()
-
-    now = int(datetime.datetime.now().strftime("%s"))
-
     ttl = normalize_ttl(reply.rr, True)
 
     rcode = str(RCODE[reply.header.rcode])
@@ -377,11 +434,10 @@ def to_cache(qname, qtype, reply):
         return
 
     if ttl > 0:
-        cache[query] = reply
-        expire = now + ttl
-        cacheindex[query] = expire
+        expire = int(time.time()) + ttl
+        queryhash = add_cache_entry(qname, qtype, expire, reply)
         entry = len(cache)
-        log_info('CACHE-STORED (' + str(entry) + '): ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+        log_info('CACHE-STORED (' + str(entry) + '): ' + cachequery[queryhash] + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
     return True
 
@@ -389,27 +445,43 @@ def to_cache(qname, qtype, reply):
 # Purge cache
 def cache_purge():
     # Remove expired entries
-    now = int(datetime.datetime.now().strftime("%s"))
-    for query in list(cache.keys()):
-        expire = cacheindex[query]
+    now = int(time.time())
+    for queryhash in list(cache.keys()):
+        expire = cacheexpire[queryhash]
         if expire - now < 1:
-            log_info('CACHE-MAINT-EXPIRED: ' + query.replace('_', '-'))
-            del cache[query]
-            del cacheindex[query]
+            log_info('CACHE-MAINT-EXPIRED: ' + cachequery[queryhash])
+            del_cache_entry(queryhash)
 
     # Prune cache back to cachesize, removing least TTL first
     size = len(cache)
     if (size > cachesize):
         expire = dict()
-        for query in list(cache.keys()):
-            expire[query] = cacheindex[query] - now
+        for queryhash in list(cache.keys()):
+            expire[queryhash] = cacheexpire[queryhash] - now
 
-        for query in list(sorted(expire, key=expire.get))[0:size-cachesize]:
-            log_info('CACHE-MAINT-EXPULSION: ' + query.replace('_', '-') + ' (TTL-LEFT:' + str(expire[query]) + ')')
-            del cache[query]
-            del cacheindex[query]
+        for queryhash in list(sorted(expire, key=expire.get))[0:size-cachesize]:
+            log_info('CACHE-MAINT-EXPULSION: ' + cachequery[queryhash] + ' (TTL-LEFT:' + str(expire[query]) + ')')
+            del_cache_entry(queryhash)
 
     log_info('CACHE-STATS: ' + str(len(cache)) + ' entries in cache')
+    return True
+
+
+def add_cache_entry(qname, qtype, expire, reply):
+    hashname = qname + '/' + qtype
+    queryhash = hash(hashname)
+    cache[queryhash] = reply
+    cacheexpire[queryhash] = expire
+    cachequery[queryhash] = hashname
+
+    return queryhash
+
+
+def del_cache_entry(queryhash):
+    _ = cache.pop(queryhash, None)
+    _ = cacheexpire.pop(queryhash, None)
+    _ = cachequery.pop(queryhash, None)
+        
     return True
 
 
@@ -419,20 +491,22 @@ def round_robin(l):
 
 
 # DNS Filtering proxy main beef
-class DNS_Instigator(ProxyResolver):
-    def __init__(self, forward_address, forward_port, forward_timeout, redirect_address):
-        ProxyResolver.__init__(self, forward_address, forward_port, forward_timeout)
-        self.redirect_address = redirect_address
+class DNS_Instigator(BaseResolver):
 
     def resolve(self, request, handler):
         rid = str(uuid.uuid4().hex[:5])
 
         cip = str(handler.client_address).split('\'')[1]
 
-        qname = str(request.q.qname).rstrip('.').lower()
-        qtype = QTYPE[request.q.qtype]
+        if handler.protocol == 'udp':
+            use_tcp = False
+        else:
+            use_tcp = True
 
-        log_info('REQUEST [' + str(rid) + '] from ' + cip + ': ' + qname + '/' + qtype)
+        qname = str(request.q.qname).rstrip('.').lower()
+        qtype = QTYPE[request.q.qtype].upper()
+
+        log_info('REQUEST [' + str(rid) + '] from ' + cip + ': ' + qname + '/' + qtype + ' (' + handler.protocol.upper() + ')')
 
         cachereply = from_cache(qname, qtype, request)
         if cachereply:
@@ -444,57 +518,14 @@ class DNS_Instigator(ProxyResolver):
                 reply.header.rcode = getattr(RCODE, 'NOTIMP')
 
             elif qname in aliases and qtype in ('A', 'AAAA', 'CNAME'):
-                reply = request.reply()
-                reply.header.rcode = getattr(RCODE, 'NOERROR')
-                alias = aliases[qname]
-                log_info('ALIAS-HIT: ' + qname + ' -> ' + alias)
-                if ipregex.match(alias):
-                    if alias.find(':') == -1:
-                        answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(alias))
-                    else:
-                        answer = RR(qname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(alias))
+                reply = generate_alias(request, qname, qtype, use_tcp)
 
-                    reply.add_answer(answer)
-                else:
-                    answer = RR(qname, QTYPE.CNAME, ttl=cachettl, rdata=CNAME(alias))
-                    reply.add_answer(answer)
-                    aliastype = 'A'
-                    while aliastype:
-                        query = DNSRecord(q=DNSQuestion(alias,getattr(QTYPE,aliastype)))
-                        try:
-                            subreply = DNSRecord.parse(query.send(forward_address, forward_port, timeout=forward_timeout))
-                        except socket.timeout:
-                            subreply = request.reply()
-                            subreply.header.rcode = getattr(RCODE, 'SERVFAIL')
-
-                        rcode = str(RCODE[subreply.header.rcode])
-                        if rcode == 'NOERROR':
-                            if subreply.rr:
-                                for record in subreply.rr:
-                                    rqtype = QTYPE[record.rtype]
-                                    data = str(record.rdata).rstrip('.').lower()
-                                    if rqtype == 'A':
-                                        answer = RR(alias, QTYPE.A, ttl=cachettl, rdata=A(data))
-                                        reply.add_answer(answer)
-                                    if rqtype == 'AAAA':
-                                        answer = RR(alias, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(data))
-                                        reply.add_answer(answer)
-
-                                aliastype = False
-                        else:
-                            if aliastype == 'A':
-                                aliastype = 'AAAA'
-                            else:
-                                aliastype = False
-                                reply = request.reply()
-                                reply.header.rcode = getattr(RCODE, rcode)
-                                
-            elif in_blacklist(rid, 'REQUEST', qtype, qname, True):
+            elif match_blacklist(rid, 'REQUEST', qtype, qname, True):
                 reply = generate_response(request, qname, qtype, redirect_address)
 
             else:
                 try:
-                    reply = ProxyResolver.resolve(self, request, handler)
+                    reply = DNSRecord.parse(request.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout))
                 except socket.timeout:
                     log_err('ERROR Resolving ' + qname + '/' + qtype)
                     reply.header.rcode = getattr(RCODE, 'SERVFAIL')
@@ -515,11 +546,17 @@ class DNS_Instigator(ProxyResolver):
                             replycount += 1
 
                             rqname = str(record.rname).rstrip('.').lower()
-                            rqtype = QTYPE[record.rtype]
+                            rqtype = QTYPE[record.rtype].upper()
+
+                            if rqname in aliases and rqtype in ('A', 'AAAA', 'CNAME'):
+                                reply = generate_alias(request, rqname, rqtype, use_tcp)
+                                break
+
                             if not firstrqtype:
                                 firstrqtype = rqtype
 
                             record.ttl = ttl
+
                             data = str(record.rdata).rstrip('.').lower()
 
                             if collapse and firstrqtype == 'CNAME' and rqtype in ('A', 'AAAA'):
@@ -537,8 +574,9 @@ class DNS_Instigator(ProxyResolver):
                                 dlog = True
                                 seen.add(data)
 
-                            if in_blacklist(rid, 'REQUEST', rqtype, rqname, qlog) or in_blacklist(rid, 'REPLY', rqtype, data, dlog):
+                            if match_blacklist(rid, 'REQUEST', rqtype, rqname, qlog) or match_blacklist(rid, 'REPLY', rqtype, data, dlog):
                                 reply = generate_response(request, qname, qtype, redirect_address)
+                                break
 
                         if collapse and firstrqtype == 'CNAME' and addr:
                             log_info('REPLY [' + str(rid) + ']: COLLAPSE ' + qname + '/CNAME')
@@ -567,6 +605,7 @@ class DNS_Instigator(ProxyResolver):
 # Main
 if __name__ == "__main__":
 
+    log_info('-----------------------')
     log_info('Initializing INSTIGATOR')
 
     # Read Lists
@@ -576,18 +615,19 @@ if __name__ == "__main__":
         else:
             bl_dom, bl_ip4, bl_ip6, bl_rx, aliases = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, aliases)
 
-    # Resolver
-    dns_resolver = DNS_Instigator(forward_address=forward_address, forward_port=forward_port, forward_timeout=forward_timeout, redirect_address=redirect_address)
-
-    # Server / Proxy
+    # DNS-Server/Resolver
     logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=False)
-    dns_server = DNSServer(dns_resolver, address=listen_address, port=listen_port, logger=logger, tcp=False) # UDP
+    udp_dns_server = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False) # UDP
+    tcp_dns_server = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=True) # TCP
 
-    # Start Service
+    # Start Service as threads
     log_info('Starting DNS Service ...')
-    dns_server.start_thread()
-    time.sleep(0.5)
-    if dns_server.isAlive():
+    udp_dns_server.start_thread() # UDP
+    tcp_dns_server.start_thread() # TCP
+
+    time.sleep(1)
+
+    if udp_dns_server.isAlive() and tcp_dns_server.isAlive():
         log_info('DNS Service ready on ' + listen_address + ':' + str(listen_port))
     else:
         log_err('DNS Service did not start, aborting ...')
@@ -595,14 +635,15 @@ if __name__ == "__main__":
 
     # Keep things running
     try:
-        while dns_server.isAlive():
+        while udp_dns_server.isAlive() and tcp_dns_server.isAlive():
             time.sleep(30) # Seconds
             cache_purge()
 
     except KeyboardInterrupt:
         pass
 
-    dns_server.stop
+    udp_dns_server.stop() # UDP
+    tcp_dns_server.stop() # TCP
 
     sys.exit(0)
 
