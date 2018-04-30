@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.30-20180430 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.34-20180430 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -18,7 +18,6 @@ TODO:
 - Better Documentation / Remarks / Comments
 
 - Query def
-- list = readlines() file def
 
 =========================================================================================
 '''
@@ -107,6 +106,7 @@ bl_ip6 = pytricia.PyTricia(128) # IPv6 Blacklist
 wl_rx = dict() # Regex Whitelist
 bl_rx = dict() # Regex Blacklist
 aliases = dict()
+indomain = dict()
 
 # Cache Dictionaries
 cache = dict()
@@ -214,17 +214,28 @@ def match_blacklist(rid, type, rrtype, value, log):
     # Check against Sub-Domain-Lists
     elif itisadomain and testvalue.find('.') > 0:
         testvalue = testvalue[testvalue.find('.') + 1:]
-        while testvalue:
-            if testvalue in wl_dom:
-                if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
-                return False
-            if testvalue in bl_dom:
-                if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+
+        wl_found = in_domain(testvalue, wl_dom)
+        if wl_found != False:
+            if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + wl_found + '\"')
+            return False
+        else:
+            bl_found = in_domain(testvalue, bl_dom)
+            if bl_found != False:
+                if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + bl_found + '\"')
                 return True
-            elif testvalue.find('.') == -1:
-                break
-            else:
-                testvalue = testvalue[testvalue.find('.') + 1:]
+    
+        #while testvalue:
+        #    if testvalue in wl_dom:
+        #        if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+        #        return False
+        #    if testvalue in bl_dom:
+        #        if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+        #        return True
+        #    elif testvalue.find('.') == -1:
+        #        break
+        #    else:
+        #        testvalue = testvalue[testvalue.find('.') + 1:]
 
     # Check agains Regex-Lists
     for i in wl_rx.keys():
@@ -240,6 +251,37 @@ def match_blacklist(rid, type, rrtype, value, log):
             return True
 
     return False
+
+
+# Check if name is domain or sub-domain
+def in_domain(name, domlist):
+    if name in indomain:
+        return indomain[name]
+
+    testname = name
+    while testname:
+        if testname in domlist:
+            indomain[name] = testname
+            return testname
+        elif testname.find('.') == -1:
+            return False
+        else:
+            testname = testname[testname.find('.') + 1:]
+
+    return False
+
+
+# Do query
+def dns_query(qname, qtype, use_tcp):
+    query = DNSRecord(q = DNSQuestion(qname, getattr(QTYPE, qtype)))
+    try:
+        reply = DNSRecord.parse(query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout))
+    except socket.timeout:
+        log_err('ERROR Resolving ' + qname + '/' + qtype)
+        reply = request.reply()
+        reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+
+    return reply
 
 
 # Generate response when blocking
@@ -267,47 +309,70 @@ def generate_response(request, qname, qtype, redirect_address):
 # Generate alias response
 def generate_alias(request, qname, qtype, use_tcp):
     realqname = str(request.q.qname).rstrip('.').lower()
+
     reply = request.reply()
     reply.header.rcode = getattr(RCODE, 'NOERROR')
-    alias = aliases[qname]
-    log_info('ALIAS-HIT: ' + qname + ' -> ' + alias)
-    if ipregex.match(alias):
+
+    if qname in aliases:
+        alias = aliases[qname]
+    else:
+        aqname = in_domain(qname, aliases)
+        if aqname:
+            alias = aliases[aqname]
+        else:
+            alias = 'NXDOMAIN'
+
+    if alias.upper() in ('PASSTHRU'):
+        log_info('ALIAS-HIT: ' + qname + '/' + qtype + ' PASSTHRU')
+        alias = qname
+
+    aliasqname = False
+    if alias.upper() in ('NOTAUTH', 'NXDOMAIN', 'REFUSED'):
+        reply = request.reply()
+        reply.header.rcode = getattr(RCODE, alias.upper())
+
+    elif ipregex.match(alias):
         if alias.find(':') == -1:
             answer = RR(realqname, QTYPE.A, ttl=cachettl, rdata=A(alias))
         else:
             answer = RR(realqname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(alias))
 
         reply.add_answer(answer)
+
     else:
-        if not collapse:
+        if not collapse and qname != alias:
             answer = RR(realqname, QTYPE.CNAME, ttl=cachettl, rdata=CNAME(alias))
             reply.add_answer(answer)
 
         if qtype not in ('A', 'AAAA'):
             qtype = 'A'
 
-        query = DNSRecord(q = DNSQuestion(alias, getattr(QTYPE, qtype)))
-        try:
-            subreply = DNSRecord.parse(query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout))
-        except socket.timeout:
-            subreply = request.reply()
-            subreply.header.rcode = getattr(RCODE, 'SERVFAIL')
-
+        subreply = dns_query(alias, qtype, use_tcp)
         rcode = str(RCODE[subreply.header.rcode])
         if rcode == 'NOERROR':
             if subreply.rr:
                 if collapse:
-                    alias = realqname
+                    aliasqname = realqname
+                else:
+                    aliasqname = alias
 
                 for record in subreply.rr:
                     rqtype = QTYPE[record.rtype]
                     data = str(record.rdata).rstrip('.').lower()
                     if rqtype == 'A':
-                        answer = RR(alias, QTYPE.A, ttl=cachettl, rdata=A(data))
+                        answer = RR(aliasqname, QTYPE.A, ttl=cachettl, rdata=A(data))
                         reply.add_answer(answer)
                     if rqtype == 'AAAA':
-                        answer = RR(alias, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(data))
+                        answer = RR(aliasqname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(data))
                         reply.add_answer(answer)
+
+        else:
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, rcode)
+
+    log_info('ALIAS-HIT: ' + qname + ' -> ' + alias + ' ' + str(RCODE[reply.header.rcode]))
+    if collapse and aliasqname:
+        log_info('ALIAS-HIT: COLLAPSE ' + qname + '/CNAME')
 
     return reply
 
@@ -319,37 +384,40 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist):
     count = 0
 
     try:
-        with open(file, 'r') as f:
-            for line in f:
-                count += 1
-                entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', ''))
-                cleanline = entry
-                entry = regex.split('\s+', entry)[0]
-                entry = entry.strip().lower().rstrip('.')
-                if len(entry) > 0:
-                    if isregex.match(cleanline): # Use line
-                        rx = cleanline.strip('/')
-                        rxlist[rx] = regex.compile(rx, regex.I)
-                    elif isasn.match(entry):
-                        # ASN Number, just discard for now
-                        _ = entry
-                    elif isdomain.match(entry):
-                        domlist[entry] = True
-                    elif ipregex4.match(entry):
-                        iplist4[entry] = True
-                    elif ipregex6.match(entry):
-                        iplist6[entry] = True
-                    elif entry.find('='):
-                        elements = entry.split('=')
-                        domain = elements[0].strip().lower().rstrip('.')
-                        alias = elements[1].strip().lower().rstrip('.')
-                        if isdomain.match(domain) and (isdomain.match(alias) or ipregex.match(alias)):
-                       	    alist[domain] = alias
-                    else:
-                        log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
+        f = open(file, 'r')
+        lines = f.readlines()
+        f.close()
 
     except BaseException as err:
         log_err('ERROR: Unable to open/read/process file \"' + file + '\" - ' + str(err))
+
+    for line in lines:
+        count += 1
+        entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', ''))
+        cleanline = entry
+        entry = regex.split('\s+', entry)[0]
+        entry = entry.strip().lower().rstrip('.')
+        if len(entry) > 0:
+            if isregex.match(cleanline): # Use line
+                rx = cleanline.strip('/')
+                rxlist[rx] = regex.compile(rx, regex.I)
+            elif isasn.match(entry):
+                # ASN Number, just discard for now
+                pass
+            elif isdomain.match(entry):
+                domlist[entry] = True
+            elif ipregex4.match(entry):
+                iplist4[entry] = True
+            elif ipregex6.match(entry):
+                iplist6[entry] = True
+            elif entry.find('='):
+                elements = entry.split('=')
+                domain = elements[0].strip().lower().rstrip('.')
+                alias = elements[1].strip().lower().rstrip('.')
+                if isdomain.match(domain) and (isdomain.match(alias) or ipregex.match(alias)):
+               	    alist[domain] = alias
+            else:
+                log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
 
     log_info(listname + ': ' + str(len(rxlist)) + ' REGEXes, ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs, ' + str(len(domlist)) + ' DOMAINs and ' + str(len(alist)) + ' ALIASes')
 
@@ -517,19 +585,14 @@ class DNS_Instigator(BaseResolver):
                 reply = request.reply()
                 reply.header.rcode = getattr(RCODE, 'NOTIMP')
 
-            elif qname in aliases and qtype in ('A', 'AAAA', 'CNAME'):
+            elif qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
                 reply = generate_alias(request, qname, qtype, use_tcp)
 
             elif match_blacklist(rid, 'REQUEST', qtype, qname, True):
                 reply = generate_response(request, qname, qtype, redirect_address)
 
             else:
-                try:
-                    reply = DNSRecord.parse(request.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout))
-                except socket.timeout:
-                    log_err('ERROR Resolving ' + qname + '/' + qtype)
-                    reply.header.rcode = getattr(RCODE, 'SERVFAIL')
-
+                reply = dns_query(qname, qtype, use_tcp)
                 rcode = str(RCODE[reply.header.rcode])
                 if rcode == 'NOERROR':
                     if reply.rr:
@@ -548,7 +611,7 @@ class DNS_Instigator(BaseResolver):
                             rqname = str(record.rname).rstrip('.').lower()
                             rqtype = QTYPE[record.rtype].upper()
 
-                            if rqname in aliases and rqtype in ('A', 'AAAA', 'CNAME'):
+                            if rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
                                 reply = generate_alias(request, rqname, rqtype, use_tcp)
                                 break
 
@@ -604,7 +667,6 @@ class DNS_Instigator(BaseResolver):
 
 # Main
 if __name__ == "__main__":
-
     log_info('-----------------------')
     log_info('Initializing INSTIGATOR')
 
