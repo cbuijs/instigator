@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.40-20180430 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.50-20180501 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -33,9 +33,10 @@ import syslog
 syslog.openlog(ident='INSTIGATOR')
 
 # DNSLib module
-from dnslib import QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord, DNSQuestion
-from dnslib.proxy import ProxyResolver
-from dnslib.server import DNSServer, DNSLogger, DNSHandler, BaseResolver
+from dnslib import CLASS, QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord, DNSQuestion
+#from dnslib.proxy import ProxyResolver
+#from dnslib.server import DNSServer, DNSLogger, DNSHandler, BaseResolver
+from dnslib.server import DNSServer, DNSLogger, BaseResolver
 
 # Regex module
 import regex
@@ -62,6 +63,7 @@ forward_timeout = 3 # Seconds
 redirect_address = '192.168.1.250' # IPv4 only
 
 # Files / Lists
+defaultlist = list([None, 0, ''])
 lists = dict()
 lists['blacklist'] = '/opt/instigator/black.list'
 lists['whitelist'] = '/opt/instigator/white.list'
@@ -83,7 +85,7 @@ cachesize = 2048 # Entries
 
 # TTL Settings
 cachettl = 1800 # Seconds - For filtered/blacklisted entry caching
-minttl = 10 # Seconds
+minttl = 120 # Seconds
 maxttl = 7200 # Seconds
 rcodettl = minttl # Seconds - For return-codes caching
 
@@ -438,50 +440,47 @@ def normalize_ttl(rr, getmax):
 
 
 # Retrieve from cache
-def from_cache(qname, qtype, request):
-    queryhash = query_hash(qname, qtype)
-    if queryhash in cache:
-        expire = cache[queryhash][1]
-        now = int(time.time())
-        ttl = expire - now
+def from_cache(queryhash, id):
+    expire = cache.get(queryhash, defaultlist)[1]
+    now = int(time.time())
+    ttl = expire - now
 
-        # If expired, remove from cache
-        if ttl < 1:
-            log_info('CACHE-EXPIRED: ' + cache[queryhash][2])
-            del_cache_entry(queryhash)
-            return False
+    # If expired, remove from cache
+    if ttl < 1:
+        log_info('CACHE-EXPIRED: ' + cache[queryhash][2])
+        del_cache_entry(queryhash)
+        return None
 
-        # Retrieve from cache
+    # Retrieve from cache
+    else:
+        reply = cache.get(queryhash, defaultlist)[0]
+        rcode = str(RCODE[reply.header.rcode])
+        reply.header.id = id
+
+        # Gather address and non-address records and do round-robin
+        if roundrobin and len(reply.rr) > 1:
+            addr = list()
+            nonaddr = list()
+            for record in reply.rr:
+                record.ttl = ttl
+                rqtype = QTYPE[record.rtype]
+                if rqtype in ('A', 'AAAA'):
+                    addr.append(record)
+                else:
+                    nonaddr.append(record)
+
+            if len(addr) > 1:
+                reply.rr = nonaddr + round_robin(addr)
+
         else:
-            reply = cache[queryhash][0]
-            rcode = str(RCODE[reply.header.rcode])
-            id = request.header.id
-            reply.header.id = id
+            for record in reply.rr:
+                record.ttl = ttl
 
-            # Gather address and non-address records and do round-robin
-            if roundrobin and len(reply.rr) > 1:
-                addr = list()
-                nonaddr = list()
-                for record in reply.rr:
-                    record.ttl = ttl
-                    rqtype = QTYPE[record.rtype]
-                    if rqtype in ('A', 'AAAA'):
-                        addr.append(record)
-                    else:
-                        nonaddr.append(record)
+        log_info('CACHE-HIT: ' + cache[queryhash][2] + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + ')')
 
-                if len(addr) > 1:
-                    reply.rr = nonaddr + round_robin(addr)
+        return reply
 
-            else:
-                for record in reply.rr:
-                    record.ttl = ttl
-
-            log_info('CACHE-HIT: ' + cache[queryhash][2] + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + ')')
-
-            return reply
-
-    return False
+    return None
 
 
 # Store into cache
@@ -508,7 +507,7 @@ def cache_purge():
     # Remove expired entries
     now = int(time.time())
     for queryhash in list(cache.keys()):
-        expire = cache[queryhash][1]
+        expire = cache.get(queryhash, defaultlist)[1]
         if expire - now < 1:
             log_info('CACHE-MAINT-EXPIRED: ' + cache[queryhash][2])
             del_cache_entry(queryhash)
@@ -518,10 +517,10 @@ def cache_purge():
     if (size > cachesize):
         expire = dict()
         for queryhash in list(cache.keys()):
-            expire[queryhash] = cache[queryhash][1] - now
+            expire[queryhash] = cache.get(queryhash, defaultlist)[1]
 
         for queryhash in list(sorted(expire, key=expire.get))[0:size-cachesize]:
-            log_info('CACHE-MAINT-EXPULSION: ' + cache[queryhash][2] + ' (TTL-LEFT:' + str(expire[queryhash]) + ')')
+            log_info('CACHE-MAINT-EXPULSION: ' + cache.get(queryhash, defaultlist)[2] + ' (TTL-LEFT:' + str(expire[queryhash]) + ')')
             del_cache_entry(queryhash)
 
     log_info('CACHE-STATS: ' + str(len(cache)) + ' entries in cache')
@@ -535,14 +534,9 @@ def query_hash(qname, qtype):
 def add_cache_entry(qname, qtype, expire, reply):
     hashname = qname + '/' + qtype
     queryhash = query_hash(qname, qtype)
-    cache[queryhash] = [reply, expire, hashname]
+    cache[queryhash] = list([reply, expire, hashname])
 
     return queryhash
-
-
-def get_cache_entry(queryhash):
-    reply, expire, hashname = cache[queryhash]
-    return reply, expire, hashname
 
 
 def del_cache_entry(queryhash):
@@ -569,14 +563,23 @@ class DNS_Instigator(BaseResolver):
             use_tcp = True
 
         qname = str(request.q.qname).rstrip('.').lower()
+        qclass = CLASS[request.q.qclass].upper()
+        if qclass != 'IN':
+            log_info('CLASS-HIT: ' + qname + '/' + qclass + ' responded with NOTIMP')
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'NOTIMP')
+            return reply
+
         qtype = QTYPE[request.q.qtype].upper()
 
         log_info('REQUEST [' + str(rid) + '] from ' + cip + ': ' + qname + '/' + qtype + ' (' + handler.protocol.upper() + ')')
 
-        cachereply = from_cache(qname, qtype, request)
-        if cachereply:
-            reply = cachereply
-        else:
+        reply = None
+        queryhash = query_hash(qname, qtype)
+        if queryhash in cache:
+            reply = from_cache(queryhash, request.header.id)
+
+        if reply == None:
             if blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
                 log_info('IPV6-HIT: ' + qname + '/' + qtype + ' responded with NOTIMP')
                 reply = request.reply()
@@ -658,9 +661,11 @@ class DNS_Instigator(BaseResolver):
 
                     log_info('REPLY [' + str(rid) + ']: ' + qname + ' ' + qtype + ' = ' + rcode)
 
+        if queryhash not in cache:
             to_cache(qname, qtype, reply)
 
         log_info('FINISHED [' + str(rid) + '] from ' + cip + ': ' + qname + '/' + qtype)
+
         return reply
 
 
