@@ -9,6 +9,7 @@
 /^(.*\.)*itunes(essentials|festivals|match|su)\.com$/
 /^(.*\.)*(netflix|nflx[a-z]+)\.(edgesuite\.)*(com|net)$/
 /^(.*\.)*netflix$/
+/^(.*\.)*slack(-(edge|files|(im|ms)gs|redir))*\.(com|net)$/
 /^account\..*$/
 bibm.ad
 unb.co.ae
@@ -2549,7 +2550,6 @@ authentication-api.skimlinks.com
 skodabank.com
 skyfi.com
 skype.com
-slack.com
 sloveniansavings.com
 smbonline.com
 snbenid.com
