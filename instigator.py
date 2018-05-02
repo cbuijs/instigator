@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.65-20180502 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.68-20180502 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -21,7 +21,7 @@ TODO:
 '''
 
 # Standard modules
-import sys, time, socket
+import sys, time, socket, pickle
 
 # make sure modules can be found
 sys.path.append("/usr/local/lib/python3.5/dist-packages/")
@@ -77,6 +77,7 @@ whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites'])
 
 # Cache Settings
 cachesize = 2048 # Entries
+persistentcachefile = '/opt/instigator/cache.file'
 
 # TTL Settings
 cachettl = 1800 # Seconds - For filtered/blacklisted entry caching
@@ -248,7 +249,7 @@ def match_blacklist(rid, type, rrtype, value, log):
             if log: log_info('BLACKLIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
             return True
 
-    if log: log_info('NONE-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched nothing')
+    if log: log_info('NONE-HIT [' + id + ']: ' + type + ' \"' + value + '\" does not match against any lists')
 
     return None
 
@@ -412,6 +413,21 @@ def generate_alias(request, qname, qtype, use_tcp):
         log_info('ALIAS-HIT: COLLAPSE ' + qname + '/CNAME')
 
     return reply
+
+
+    log_info('Retrieving cache from \"' + file + '\"')
+
+    d = dict()
+    try:
+        f = open(file, 'rb')
+        d = pickle.load(cache, f)
+        f.close()
+
+    except BaseException as err:
+        log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
+        return False
+
+    return d
 
 
 # Read filter lists
@@ -584,6 +600,39 @@ def del_cache_entry(queryhash):
     return True
 
 
+def load_cache(file):
+    global cache
+
+    log_info('CACHE-LOAD: Retrieving cache from \"' + file + '\"')
+
+    try:
+        f = open(file, 'rb')
+        cache = pickle.load(f)
+        f.close()
+        cache_purge()
+
+    except BaseException as err:
+        log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
+
+    return True
+
+
+def save_cache(file):
+    log_info('CACHE-SAVE: Saving cache to \"' + file + '\"')
+
+    cache_purge()
+
+    try:
+        f = open(file, 'wb')
+        pickle.dump(cache, f)
+        f.close()
+
+    except BaseException as err:
+        log_err('ERROR: Unable to open/write file \"' + file + '\" - ' + str(err))
+
+    return True
+
+
 # Round-Robin cycle list
 def round_robin(l):
     return l[1:] + l[:1]
@@ -733,6 +782,9 @@ if __name__ == "__main__":
         else:
             bl_dom, bl_ip4, bl_ip6, bl_rx, aliases = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, aliases)
 
+    if persistentcachefile:
+        load_cache(persistentcachefile)
+
     # DNS-Server/Resolver
     logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=False)
     udp_dns_server = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False) # UDP
@@ -756,7 +808,10 @@ if __name__ == "__main__":
         while udp_dns_server.isAlive() and tcp_dns_server.isAlive():
             #time.sleep(1) # Seconds
             time.sleep(30) # Seconds
-            cache_purge()
+            if persistentcachefile:
+                save_cache(persistentcachefile)
+            else:
+                cache_purge()
 
     except KeyboardInterrupt:
         pass
@@ -764,6 +819,9 @@ if __name__ == "__main__":
     log_info('DNS Service shutdown on ' + listen_address + ':' + str(listen_port))
     udp_dns_server.stop() # UDP
     tcp_dns_server.stop() # TCP
+
+    if persistentcachefile:
+        save_cache(persistentcachefile)
 
     log_info('INSTIGATOR EXIT')
     log_info('---------------')
