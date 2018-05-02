@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.60-20180502 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.62-20180502 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -275,6 +275,7 @@ def dns_query(qname, qtype, use_tcp, id):
 
     forward_server = forward_servers.get(server, None)
 
+    reply = None
     for addr in forward_server.split(','):
         forward_address = addr.split(':')[0]
         if addr.find(':') > 0:
@@ -297,11 +298,18 @@ def dns_query(qname, qtype, use_tcp, id):
 
             except socket.timeout:
                 log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype + ' using ' + forward_address + ':' + str(forward_port))
-                reply = query.reply()
-                reply.header.rcode = getattr(RCODE, 'SERVFAIL')
                 to_cache(forward_address, str(forward_port), reply)
+                reply = None
+
+    if reply == None:
+        log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype)
+        cache.clear()
+        query = DNSRecord(q = DNSQuestion(qname, getattr(QTYPE, qtype)))
+        reply = query.reply()
+        reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
     reply.header.id = id
+
     return reply
 
 
@@ -518,7 +526,7 @@ def to_cache(qname, qtype, reply):
     ttl = normalize_ttl(reply.rr, True)
 
     rcode = str(RCODE[reply.header.rcode])
-    if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED', 'TIMEOUT'):
+    if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
         ttl = rcodettl
     elif rcode == 'SERVFAIL':
         ttl = 10
