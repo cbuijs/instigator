@@ -40,9 +40,6 @@ import regex
 # Use module PyTricia for CIDR/Subnet stuff
 import pytricia
 
-# Use UUID's
-import uuid
-
 ###################
 
 # Listen for queries
@@ -142,6 +139,10 @@ def log_err(message):
 
 
 # Check if entry matches a list
+# Returns:
+#   True = Black-listed
+#   False = White-listed
+#   None = None-listed
 def match_blacklist(rid, type, rrtype, value, log):
     id = str(rid)
     testvalue = value
@@ -245,7 +246,9 @@ def match_blacklist(rid, type, rrtype, value, log):
             if log: log_info('BLACKLIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
             return True
 
-    return False
+    if log: log_info('NONE-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched nothing')
+
+    return None
 
 
 # Check if name is domain or sub-domain
@@ -551,7 +554,7 @@ def round_robin(l):
 class DNS_Instigator(BaseResolver):
 
     def resolve(self, request, handler):
-        rid = str(uuid.uuid4().hex[:5])
+        rid = request.header.id
 
         cip = str(handler.client_address).split('\'')[1]
 
@@ -580,7 +583,7 @@ class DNS_Instigator(BaseResolver):
         reply = None
         queryhash = query_hash(qname, qtype)
         if queryhash in cache:
-            reply = from_cache(queryhash, request.header.id)
+            reply = from_cache(queryhash, rid)
 
         if reply == None:
             if blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
@@ -591,78 +594,81 @@ class DNS_Instigator(BaseResolver):
             elif qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
                 reply = generate_alias(request, qname, qtype, use_tcp)
 
-            elif match_blacklist(rid, 'REQUEST', qtype, qname, True):
-                reply = generate_response(request, qname, qtype, redirect_address)
-
             else:
-                reply = dns_query(qname, qtype, use_tcp)
-                rcode = str(RCODE[reply.header.rcode])
-                if rcode == 'NOERROR':
-                    if reply.rr:
-                        replycount = 0
-                        replynum = len(reply.rr)
-
-                        ttl = normalize_ttl(reply.rr, True)
-
-                        seen = set()
-                        seen.add(qname)
-
-                        addr = list()
-                        firstrqtype = False
-
-                        for record in reply.rr:
-                            replycount += 1
-
-                            rqname = str(record.rname).rstrip('.').lower()
-                            rqtype = QTYPE[record.rtype].upper()
-
-                            if rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
-                                reply = generate_alias(request, rqname, rqtype, use_tcp)
-                                break
-
-                            if not firstrqtype:
-                                firstrqtype = rqtype
-
-                            record.ttl = ttl
-
-                            data = str(record.rdata).rstrip('.').lower()
-
-                            if collapse and firstrqtype == 'CNAME' and rqtype in ('A', 'AAAA'):
-                                addr.append(data)
-
-                            log_info('REPLY [' + str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + ' ' + rqtype + ' = ' + data)
-
-                            qlog = False
-                            if rqname not in seen:
-                                qlog = True
-                                seen.add(rqname)
-
-                            dlog = False
-                            if data not in seen:
-                                dlog = True
-                                seen.add(data)
-
-                            if (qlog and match_blacklist(rid, 'REQUEST', rqtype, rqname, qlog)) or (dlog and match_blacklist(rid, 'REPLY', rqtype, data, dlog)):
-                                reply = generate_response(request, qname, qtype, redirect_address)
-                                break
-
-                        if collapse and firstrqtype == 'CNAME' and addr:
-                            log_info('REPLY [' + str(rid) + ']: COLLAPSE ' + qname + '/CNAME')
-                            reply = request.reply()
-                            reply.header.rcode = getattr(RCODE, 'NOERROR')
-                            for ip in addr:
-                                if ip.find(':') == -1:
-                                    answer = RR(qname, QTYPE.A, ttl=ttl, rdata=A(ip))
-                                else:
-                                    answer = RR(qname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(ip))
-
-                                reply.add_answer(answer)
+                ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
+                if ismatch == True: # Blacklisted
+                    reply = generate_response(request, qname, qtype, redirect_address)
 
                 else:
-                    reply = request.reply()
-                    reply.header.rcode = getattr(RCODE, rcode)
+                    reply = dns_query(qname, qtype, use_tcp)
+                    if ismatch == None: # None-Listed, when False it is whitelisted
+                        rcode = str(RCODE[reply.header.rcode])
+                        if rcode == 'NOERROR':
+                            if reply.rr:
+                                replycount = 0
+                                replynum = len(reply.rr)
 
-                    log_info('REPLY [' + str(rid) + ']: ' + qname + ' ' + qtype + ' = ' + rcode)
+                                ttl = normalize_ttl(reply.rr, True)
+
+                                seen = set()
+                                seen.add(qname)
+
+                                addr = list()
+                                firstrqtype = False
+
+                                for record in reply.rr:
+                                    replycount += 1
+
+                                    rqname = str(record.rname).rstrip('.').lower()
+                                    rqtype = QTYPE[record.rtype].upper()
+
+                                    if rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
+                                        reply = generate_alias(request, rqname, rqtype, use_tcp)
+                                        break
+
+                                    if not firstrqtype:
+                                        firstrqtype = rqtype
+
+                                    record.ttl = ttl
+
+                                    data = str(record.rdata).rstrip('.').lower()
+
+                                    if collapse and firstrqtype == 'CNAME' and rqtype in ('A', 'AAAA'):
+                                        addr.append(data)
+
+                                    log_info('REPLY [' + str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + ' ' + rqtype + ' = ' + data)
+
+                                    qlog = False
+                                    if rqname not in seen:
+                                        qlog = True
+                                        seen.add(rqname)
+
+                                    dlog = False
+                                    if data not in seen:
+                                        dlog = True
+                                        seen.add(data)
+
+                                    if (qlog and match_blacklist(rid, 'REQUEST', rqtype, rqname, qlog)) or (dlog and match_blacklist(rid, 'REPLY', rqtype, data, dlog)):
+                                        reply = generate_response(request, qname, qtype, redirect_address)
+                                        break
+
+                                if collapse and firstrqtype == 'CNAME' and addr:
+                                    log_info('REPLY [' + str(rid) + ']: COLLAPSE ' + qname + '/CNAME')
+                                    reply = request.reply()
+                                    reply.header.rcode = getattr(RCODE, 'NOERROR')
+                                    for ip in addr:
+                                        if ip.find(':') == -1:
+                                            answer = RR(qname, QTYPE.A, ttl=ttl, rdata=A(ip))
+                                        else:
+                                            answer = RR(qname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(ip))
+
+                                        reply.add_answer(answer)
+
+                        else:
+                            reply = request.reply()
+                            reply.header.rcode = getattr(RCODE, rcode)
+
+                            log_info('REPLY [' + str(rid) + ']: ' + qname + ' ' + qtype + ' = ' + rcode)
 
         if queryhash not in cache:
             to_cache(qname, qtype, reply)
