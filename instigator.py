@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.62-20180502 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.65-20180502 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -268,7 +268,7 @@ def in_domain(name, domlist):
 
 
 # Do query
-def dns_query(qname, qtype, use_tcp, id):
+def dns_query(qname, qtype, use_tcp, id, cip):
     server = in_domain(qname, forward_servers)
     if not server:
         server = '.'
@@ -283,7 +283,7 @@ def dns_query(qname, qtype, use_tcp, id):
         else:
             forward_port = 53
     
-        if query_hash(forward_address, str(forward_port)) not in cache:
+        if (forward_address != cip) and (query_hash(forward_address, str(forward_port)) not in cache):
             log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + ':' + str(forward_port) + ' for ' + qname + '/' + qtype)
 
             query = DNSRecord(q = DNSQuestion(qname, getattr(QTYPE, qtype)))
@@ -298,7 +298,7 @@ def dns_query(qname, qtype, use_tcp, id):
 
             except socket.timeout:
                 log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype + ' using ' + forward_address + ':' + str(forward_port))
-                to_cache(forward_address, str(forward_port), reply)
+                to_cache(forward_address, str(forward_port), query.response())
                 reply = None
 
     if reply == None:
@@ -383,7 +383,7 @@ def generate_alias(request, qname, qtype, use_tcp):
         if qtype not in ('A', 'AAAA'):
             qtype = 'A'
 
-        subreply = dns_query(alias, qtype, use_tcp, request.header.id)
+        subreply = dns_query(alias, qtype, use_tcp, request.header.id, '127.0.0.1')
         rcode = str(RCODE[subreply.header.rcode])
         if rcode == 'NOERROR':
             if subreply.rr:
@@ -643,7 +643,7 @@ class DNS_Instigator(BaseResolver):
                     reply = generate_response(request, qname, qtype, redirect_address)
 
                 else:
-                    reply = dns_query(qname, qtype, use_tcp, rid)
+                    reply = dns_query(qname, qtype, use_tcp, rid, cip)
                     if ismatch == None: # None-Listed, when False it is whitelisted
                         rcode = str(RCODE[reply.header.rcode])
                         if rcode == 'NOERROR':
