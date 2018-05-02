@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.50-20180501 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.52-20180501 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -16,8 +16,6 @@ This is a little study to build a DNS server in Python including some features:
 TODO:
 - Loads ...
 - Better Documentation / Remarks / Comments
-
-- Query def
 
 =========================================================================================
 '''
@@ -34,8 +32,6 @@ syslog.openlog(ident='INSTIGATOR')
 
 # DNSLib module
 from dnslib import CLASS, QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord, DNSQuestion
-#from dnslib.proxy import ProxyResolver
-#from dnslib.server import DNSServer, DNSLogger, DNSHandler, BaseResolver
 from dnslib.server import DNSServer, DNSLogger, BaseResolver
 
 # Regex module
@@ -454,7 +450,6 @@ def from_cache(queryhash, id):
     # Retrieve from cache
     else:
         reply = cache.get(queryhash, defaultlist)[0]
-        rcode = str(RCODE[reply.header.rcode])
         reply.header.id = id
 
         # Gather address and non-address records and do round-robin
@@ -476,11 +471,9 @@ def from_cache(queryhash, id):
             for record in reply.rr:
                 record.ttl = ttl
 
-        log_info('CACHE-HIT: ' + cache[queryhash][2] + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + ')')
+        log_info('CACHE-HIT: ' + cache[queryhash][2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + ')')
 
         return reply
-
-    return None
 
 
 # Store into cache
@@ -517,7 +510,7 @@ def cache_purge():
     if (size > cachesize):
         expire = dict()
         for queryhash in list(cache.keys()):
-            expire[queryhash] = cache.get(queryhash, defaultlist)[1]
+            expire[queryhash] = cache.get(queryhash, defaultlist)[1] - now
 
         for queryhash in list(sorted(expire, key=expire.get))[0:size-cachesize]:
             log_info('CACHE-MAINT-EXPULSION: ' + cache.get(queryhash, defaultlist)[2] + ' (TTL-LEFT:' + str(expire[queryhash]) + ')')
@@ -563,6 +556,8 @@ class DNS_Instigator(BaseResolver):
             use_tcp = True
 
         qname = str(request.q.qname).rstrip('.').lower()
+        qtype = QTYPE[request.q.qtype].upper()
+
         qclass = CLASS[request.q.qclass].upper()
         if qclass != 'IN':
             log_info('CLASS-HIT: ' + qname + '/' + qclass + ' responded with NOTIMP')
@@ -570,7 +565,10 @@ class DNS_Instigator(BaseResolver):
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
             return reply
 
-        qtype = QTYPE[request.q.qtype].upper()
+        if qname == '' or qtype == 'ANY':
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'REFUSED')
+            return reply
 
         log_info('REQUEST [' + str(rid) + '] from ' + cip + ': ' + qname + '/' + qtype + ' (' + handler.protocol.upper() + ')')
 
