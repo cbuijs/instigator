@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.52-20180501 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.54-20180501 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -43,6 +43,9 @@ import pytricia
 # Use UUID's
 import uuid
 
+# Pickle
+import pickle
+
 ###################
 
 # Listen for queries
@@ -56,7 +59,7 @@ forward_timeout = 3 # Seconds
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_address = ''
-redirect_address = '192.168.1.250' # IPv4 only
+redirect_address = '192.168.1.250' # IPv4 or IPv6
 
 # Files / Lists
 defaultlist = list([None, 0, ''])
@@ -269,7 +272,7 @@ def dns_query(qname, qtype, use_tcp):
         reply = DNSRecord.parse(query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout))
     except socket.timeout:
         log_err('ERROR Resolving ' + qname + '/' + qtype)
-        reply = request.reply()
+        reply = query.reply()
         reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
     return reply
@@ -278,13 +281,18 @@ def dns_query(qname, qtype, use_tcp):
 # Generate response when blocking
 def generate_response(request, qname, qtype, redirect_address):
     reply = request.reply()
-    if (len(redirect_address) == 0) or (qtype not in ('A', 'CNAME', 'ANY')):
+    if (len(redirect_address) == 0) or (qtype not in ('A', 'AAAA', 'CNAME', 'ANY')) or (not ipregex.match(redirect_address)):
         log_info('REFUSED for \"' + qname + '\" (RR:' + qtype + ')')
         reply.header.rcode = getattr(RCODE, 'REFUSED')
         return reply
     else:
         log_info('REDIRECT \"' + qname + '\" to \"' + redirect_address + '\" (RR:' + qtype + ')')
-        answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(redirect_address))
+
+        if redirect_address.find(':') == -1:
+            answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(redirect_address))
+        else:
+            answer = RR(qname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(redirect_address))
+
         #auth = RR(qname, QTYPE.SOA, ttl=cachettl, rdata=SOA('ns.sinkhole','hostmaster.sinkhole',(int(time.time()), cachettl, cachettl, cachettl, cachettl)))
         #ar = RR('ns.sinkhole', QTYPE.A, ttl=cachettl, rdata=A('0.0.0.0'))
 
@@ -700,16 +708,19 @@ if __name__ == "__main__":
     # Keep things running
     try:
         while udp_dns_server.isAlive() and tcp_dns_server.isAlive():
-            time.sleep(1) # Seconds
+            #time.sleep(1) # Seconds
             time.sleep(30) # Seconds
             cache_purge()
 
     except KeyboardInterrupt:
         pass
 
+    log_info('DNS Service shutdown on ' + listen_address + ':' + str(listen_port))
     udp_dns_server.stop() # UDP
     tcp_dns_server.stop() # TCP
 
+    log_info('INSTIGATOR EXIT')
+    log_info('---------------')
     sys.exit(0)
 
 # <EOF>
