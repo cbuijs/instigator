@@ -3,7 +3,7 @@ Testbed to build a filtering DNS server based on dnslib
 
 See <a href="https://github.com/cbuijs/instigator/blob/master/instigator.py">instigator.py</a> for variables and settings.
 
-Black/White.list syntax:
+Black/White/Alias-list syntax:
 
 IP-Addresses can be either just an IP-Address or a CIDR subnet, example:
 
@@ -25,3 +25,13 @@ Regexes need to be secluded in forward slashes at begin and end of the line, exa
 	/^ad[sz]*[0-9]*\..*$/	Will give a hit on domains starting with ad, ads or adz and have an optional number after it.
 	/^.*click\..*$/		Will give a hit on domain-labels ending in click
 	/.*porn.*/              Will give a hit on domain-labels with the word porn in it
+
+Aliases need to be divided by an equals-sign (=), example:
+
+	www.google.com=retricted.google.com	# Redirect
+	www.company.com=10.1.2.3		# Hosts-file equivelant
+	www.badguys.com=REFUSED			# Return-code refused
+	www.whatisthis.com=NXDOMAIN		# Return-code NXDOMAIN
+	www.goodguys.com=PASSTHRU		# Passthru/whitelist
+	
+Note: Aliases are concidered "whitelisted". Cannot point to other aliases.
