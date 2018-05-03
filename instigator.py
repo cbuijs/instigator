@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.70-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.75-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -114,12 +114,19 @@ aliases = dict()
 # Cache Dictionaries
 cache = dict()
 
-# Regex to filter IP's out
+# Regex to filter IP CIDR's out
 ip4regex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(/(3[0-2]|[12]?[0-9]))*)'
 ip6regex_text = '(((:(:[0-9a-f]{1,4}){1,7}|::|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,6}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,5}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,4}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,3}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,2}|::|:[0-9a-f]{1,4}(::[0-9a-f]{1,4}|::|:[0-9a-f]{1,4}(::|:[0-9a-f]{1,4}))))))))|(:(:[0-9a-f]{1,4}){0,5}|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,4}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,3}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,2}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4})?|:[0-9a-f]{1,4}(:|:[0-9a-f]{1,4})))))):(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3})(/(12[0-8]|1[01][0-9]|[1-9]?[0-9]))*)'
 ipregex4 = regex.compile('^' + ip4regex_text + '$', regex.I)
 ipregex6 = regex.compile('^' + ip6regex_text + '$', regex.I)
 ipregex = regex.compile('^(' + ip4regex_text + '|' + ip6regex_text + ')$', regex.I)
+
+# Regex to filter IP:PORT's out
+ip4portregex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))*)'
+ip6portregex_text = '(((:(:[0-9a-f]{1,4}){1,7}|::|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,6}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,5}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,4}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,3}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,2}|::|:[0-9a-f]{1,4}(::[0-9a-f]{1,4}|::|:[0-9a-f]{1,4}(::|:[0-9a-f]{1,4}))))))))|(:(:[0-9a-f]{1,4}){0,5}|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,4}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,3}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,2}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4})?|:[0-9a-f]{1,4}(:|:[0-9a-f]{1,4})))))):(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3})(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))*)'
+ipportregex4 = regex.compile('^' + ip4portregex_text + '$', regex.I)
+ipportregex6 = regex.compile('^' + ip6portregex_text + '$', regex.I)
+ipportregex = regex.compile('^(' + ip4portregex_text + '|' + ip6portregex_text + ')$', regex.I)
 
 # Regex to match domains/hosts in lists
 isdomain = regex.compile('^[a-z0-9\.\-\_]+$', regex.I) # Based on RFC1035 plus underscore
@@ -219,16 +226,16 @@ def match_blacklist(rid, type, rrtype, value, log):
     # Check against Sub-Domain-Lists
     elif itisadomain and testvalue.find('.') > 0:
         testvalue = testvalue[testvalue.find('.') + 1:]
-
-        wl_found = in_domain(testvalue, wl_dom)
-        if wl_found != False:
-            if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + wl_found + '\"')
-            return False
-        else:
-            bl_found = in_domain(testvalue, bl_dom)
-            if bl_found != False:
-                if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + bl_found + '\"')
-                return True
+        if testvalue:
+            wl_found = in_domain(testvalue, wl_dom)
+            if wl_found != False:
+                if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + wl_found + '\"')
+                return False
+            else:
+                bl_found = in_domain(testvalue, bl_dom)
+                if bl_found != False:
+                    if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + bl_found + '\"')
+                    return True
     
         #while testvalue:
         #    if testvalue in wl_dom:
@@ -286,28 +293,34 @@ def dns_query(qname, qtype, use_tcp, id, cip):
 
     reply = None
     for addr in forward_server.split(','):
-        forward_address = addr.split(':')[0]
-        if addr.find(':') > 0:
-            forward_port = int(addr.split(':')[1])
-        else:
-            forward_port = 53
+        if ipportregex.match(addr):
+            forward_address = addr.split(':')[0]
+            if addr.find(':') > 0:
+                forward_port = int(addr.split(':')[1])
+            else:
+                forward_port = 53
     
-        if (forward_address != cip) and (query_hash(forward_address, str(forward_port)) not in cache):
-            log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + ':' + str(forward_port) + ' for ' + qname + '/' + qtype)
+            if (forward_address != cip) and (query_hash(forward_address, str(forward_port)) not in cache):
+                log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + ':' + str(forward_port) + ' for ' + qname + '/' + qtype)
 
-            try:
-                reply = DNSRecord.parse(query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout))
+                try:
+                    reply = DNSRecord.parse(query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout))
 
-                ttl = normalize_ttl(reply.rr, False)
-                for record in reply.rr:
-                    record.ttl = ttl
+                    ttl = normalize_ttl(reply.rr, False)
+                    for record in reply.rr:
+                        record.ttl = ttl
 
-                break
+                    break
 
-            except socket.timeout:
-                log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype + ' using ' + forward_address + ':' + str(forward_port))
-                to_cache(forward_address, str(forward_port), query.response())
-                reply = None
+                except socket.timeout:
+                    log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype + ' using ' + forward_address + ':' + str(forward_port))
+                    to_cache(forward_address, str(forward_port), query.response())
+                    reply = None
+
+        else:
+            log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype + ' using INVALID address/port: ' + addr + ' (REMOVED)')
+            #_ = forward_servers.pop(qname, None)
+       
 
     if reply == None:
         log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype)
@@ -423,7 +436,7 @@ def generate_alias(request, qname, qtype, use_tcp):
 
 # Read filter lists, see "accomplist" lists for compatibility:
 # https://github.com/cbuijs/accomplist
-def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist):
+def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
     log_info('Fetching \"' + listname + '\" entries from \"' + file + '\"')
 
     count = 0
@@ -439,8 +452,10 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist):
     for line in lines:
         count += 1
         entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', ''))
-        cleanline = entry
-        entry = regex.split('\s+', entry)[0]
+        if entry.startswith('/'):
+            entry = regex.sub('/\s+[^/]+$', '/', entry)
+        else:
+            entry = regex.split('\s+', entry)[0]
         entry = entry.strip().lower().rstrip('.')
 
         # If entry ends in questionmark, it is a "forced" entry. Not used for the moment. Heritage of unbound dns-firewall.
@@ -451,31 +466,54 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist):
         if entry.endswith('&'):
             entry = ''
 
-        if len(entry) > 0:
-            if isregex.match(cleanline): # Use line
-                rx = cleanline.strip('/')
+        if len(entry) > 0 and (not entry.startswith('#')):
+            if isregex.match(entry):
+                rx = entry.strip('/')
                 rxlist[rx] = regex.compile(rx, regex.I)
+
             elif isasn.match(entry):
                 # ASN Number, just discard for now
                 pass
+
             elif isdomain.match(entry):
                 domlist[entry] = True
+
             elif ipregex4.match(entry):
                 iplist4[entry] = True
+
             elif ipregex6.match(entry):
                 iplist6[entry] = True
-            elif entry.find('='):
+
+            elif entry.find('=') > 0:
                 elements = entry.split('=')
-                domain = elements[0].strip().lower().rstrip('.')
-                alias = elements[1].strip().lower().rstrip('.')
-                if isdomain.match(domain) and (isdomain.match(alias) or ipregex.match(alias)):
-               	    alist[domain] = alias
+                if len(elements) > 1:
+                    domain = elements[0].strip().lower().rstrip('.')
+                    alias = elements[1].strip().lower().rstrip('.')
+                    if isdomain.match(domain) and (isdomain.match(alias) or ipregex.match(alias)):
+                   	    alist[domain] = alias
+                    else:
+                        log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
+                else:
+                    log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
+
+            elif entry.find('>') > 0:
+                elements = entry.split('>')
+                if len(elements) > 1:
+                    domain = elements[0].strip().lower().rstrip('.')
+                    ips = elements[1].strip().lower().rstrip('.')
+                    if isdomain.match(domain) and ips:
+                        flist[domain] = ips
+                    else:
+                        log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
+                else:
+                    log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
+
             else:
                 log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
 
-    log_info(listname + ': ' + str(len(rxlist)) + ' REGEXes, ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs, ' + str(len(domlist)) + ' DOMAINs and ' + str(len(alist)) + ' ALIASes')
+    log_info(listname + ': ' + str(len(rxlist)) + ' REGEXes, ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs, ' + str(len(domlist)) + ' DOMAINs, ' + str(len(alist)) + ' ALIASes and ' + str(len(flist)) + ' FORWARDs')
 
-    return domlist, iplist4, iplist6, rxlist, alist
+    return domlist, iplist4, iplist6, rxlist, alist, flist
 
 
 # Normalize TTL's, take either lowest or highest TTL for all records in RRSET
@@ -776,9 +814,9 @@ if __name__ == "__main__":
     # Read Lists
     for lst in sorted(lists.keys()):
         if lst in whitelist:
-            wl_dom, wl_ip4, wl_ip6, wl_rx, aliases = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases)
+            wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers)
         else:
-            bl_dom, bl_ip4, bl_ip6, bl_rx, aliases = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, aliases)
+            bl_dom, bl_ip4, bl_ip6, bl_rx, aliases, forward_servers = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, aliases, forward_servers)
 
     if persistentcachefile:
         load_cache(persistentcachefile)
