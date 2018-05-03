@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.68-20180502 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.69-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -16,6 +16,9 @@ This is a little study to build a DNS server in Python including some features:
 TODO:
 - Loads ...
 - Better Documentation / Remarks / Comments
+
+- dns_query, when all servers have errors, clear cache and restart
+- Make recursor '1.2.3.4'.split('.')[::-1]
 
 =========================================================================================
 '''
@@ -84,6 +87,9 @@ cachettl = 1800 # Seconds - For filtered/blacklisted entry caching
 minttl = 120 # Seconds
 maxttl = 7200 # Seconds
 rcodettl = minttl # Seconds - For return-codes caching
+
+# Return-code when query hits a list, only use NXDOMAIN or REFUSED
+hitrcode = 'REFUSED'
 
 # Roundrobin of address-records
 roundrobin = True
@@ -276,6 +282,8 @@ def dns_query(qname, qtype, use_tcp, id, cip):
 
     forward_server = forward_servers.get(server, None)
 
+    query = DNSRecord(q = DNSQuestion(qname, getattr(QTYPE, qtype)))
+
     reply = None
     for addr in forward_server.split(','):
         forward_address = addr.split(':')[0]
@@ -287,7 +295,6 @@ def dns_query(qname, qtype, use_tcp, id, cip):
         if (forward_address != cip) and (query_hash(forward_address, str(forward_port)) not in cache):
             log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + ':' + str(forward_port) + ' for ' + qname + '/' + qtype)
 
-            query = DNSRecord(q = DNSQuestion(qname, getattr(QTYPE, qtype)))
             try:
                 reply = DNSRecord.parse(query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout))
 
@@ -305,7 +312,6 @@ def dns_query(qname, qtype, use_tcp, id, cip):
     if reply == None:
         log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype)
         cache.clear()
-        query = DNSRecord(q = DNSQuestion(qname, getattr(QTYPE, qtype)))
         reply = query.reply()
         reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
@@ -318,8 +324,8 @@ def dns_query(qname, qtype, use_tcp, id, cip):
 def generate_response(request, qname, qtype, redirect_address):
     reply = request.reply()
     if (len(redirect_address) == 0) or (qtype not in ('A', 'AAAA', 'CNAME', 'ANY')) or (not ipregex.match(redirect_address)):
-        log_info('REFUSED for \"' + qname + '\" (RR:' + qtype + ')')
-        reply.header.rcode = getattr(RCODE, 'REFUSED')
+        log_info(hitrcode + ' for \"' + qname + '\" (RR:' + qtype + ')')
+        reply.header.rcode = getattr(RCODE, hitrcode)
         return reply
     else:
         log_info('REDIRECT \"' + qname + '\" to \"' + redirect_address + '\" (RR:' + qtype + ')')
@@ -413,21 +419,6 @@ def generate_alias(request, qname, qtype, use_tcp):
         log_info('ALIAS-HIT: COLLAPSE ' + qname + '/CNAME')
 
     return reply
-
-
-    log_info('Retrieving cache from \"' + file + '\"')
-
-    d = dict()
-    try:
-        f = open(file, 'rb')
-        d = pickle.load(cache, f)
-        f.close()
-
-    except BaseException as err:
-        log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
-        return False
-
-    return d
 
 
 # Read filter lists
@@ -656,16 +647,13 @@ class DNS_Instigator(BaseResolver):
             use_tcp = True
 
         qname = str(request.q.qname).rstrip('.').lower()
+        if qname == '':
+            qname = '.'
+        qclass = CLASS[request.q.qclass].upper()
         qtype = QTYPE[request.q.qtype].upper()
 
-        qclass = CLASS[request.q.qclass].upper()
-        if qclass != 'IN':
-            log_info('CLASS-HIT: ' + qname + '/' + qclass + ' responded with NOTIMP')
-            reply = request.reply()
-            reply.header.rcode = getattr(RCODE, 'NOTIMP')
-            return reply
-
-        if qname == '' or qtype == 'ANY':
+        if qname == '.' or qtype == 'ANY' or qclass != 'IN':
+            log_info('REQUEST [' + id_str(rid) + '] REFUSED from ' + cip + ': ' + qname + '/' + qclass + '/' + qtype + ' (' + handler.protocol.upper() + ')')
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'REFUSED')
             return reply
@@ -679,9 +667,9 @@ class DNS_Instigator(BaseResolver):
 
         if reply == None:
             if blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
-                log_info('IPV6-HIT: ' + qname + '/' + qtype + ' responded with NOTIMP')
+                log_info('IPV6-HIT: ' + qname + '/' + qtype + ' responded with NXDOMAIN')
                 reply = request.reply()
-                reply.header.rcode = getattr(RCODE, 'NOTIMP')
+                reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
 
             elif qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
                 reply = generate_alias(request, qname, qtype, use_tcp)
