@@ -4,7 +4,7 @@
 #   for aliases: <domain-name> = <target>
 #   for forwarding: <domain-name> > <ip>[,<another-ip>...]
 # Where domain-name is a FQDN and target is a FQDN, IP-Address, Return-Code or Op-Code.
-# Aliases cannot point to other aliases and are concidered WHITELISTed entries
+# Aliases cannot point to other aliases and are concidered WHITELISTed entries (not forwards)
 # Return-Codes: NOTAUTH, NXDOMAIN and REFUSED
 # Op-Codes: PASSTHRU
 # Note: don't use blanks/spaces in the definitions
@@ -26,7 +26,7 @@ www.youtube-nocookie.com=restrictmoderate.youtube.com
 
 # Forwarding example
 local>192.168.1.1
-google.com>8.8.8.8:53,8.8.4.4:53
+#google.com>8.8.8.8:53,8.8.4.4:53
 chrisbuijs.com>9.9.9.9:53,149.112.112.112:53
 
 # LocalHost
