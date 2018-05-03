@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.69-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.70-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -421,7 +421,8 @@ def generate_alias(request, qname, qtype, use_tcp):
     return reply
 
 
-# Read filter lists
+# Read filter lists, see "accomplist" lists for compatibility:
+# https://github.com/cbuijs/accomplist
 def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist):
     log_info('Fetching \"' + listname + '\" entries from \"' + file + '\"')
 
@@ -441,6 +442,15 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist):
         cleanline = entry
         entry = regex.split('\s+', entry)[0]
         entry = entry.strip().lower().rstrip('.')
+
+        # If entry ends in questionmark, it is a "forced" entry. Not used for the moment. Heritage of unbound dns-firewall.
+        if entry.endswith('!'):
+            entry = entry[:-1]
+
+        # If entry ends in ampersand, it is a "safelisted" entry. Not used for the moment. Heritage of unbound dns-firewall.
+        if entry.endswith('&'):
+            entry = ''
+
         if len(entry) > 0:
             if isregex.match(cleanline): # Use line
                 rx = cleanline.strip('/')
