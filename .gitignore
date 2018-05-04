@@ -3,3 +3,4 @@
 shallalist
 *.file
 __pycache__/
+dist/
