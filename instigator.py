@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.90-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.95-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -65,6 +65,9 @@ redirect_address = '192.168.1.250' # IPv4 or IPv6
 
 # Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
 hitrcode = 'REFUSED'
+
+# Only load cached/fast files when not older then maxfileage
+maxfileage = 3600 # Seconds
 
 # Files / Lists
 defaultlist = list([None, 0, ''])
@@ -158,6 +161,26 @@ def log_err(message):
     #print(message)
     syslog.syslog(syslog.LOG_ERR, message)
     return True
+
+
+# Check if file exists and return age (in seconds) if so
+def file_exist(file):
+    if file:
+        try:
+            if os.path.isfile(file):
+                fstat = os.stat(file)
+                fsize = fstat.st_size
+                if fsize > 0:
+                    fexists = True
+                    mtime = int(fstat.st_mtime)
+                    currenttime = int(time.time())
+                    age = int(currenttime - mtime)
+                    log_info('FILE-EXIST: ' + file + ' ' + str(age))
+                    return age
+        except:
+            return False
+
+    return False
 
 
 # Check if entry matches a list
@@ -268,7 +291,7 @@ def match_blacklist(rid, type, rrtype, value, log):
             if log: log_info('BLACKLIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
             return True
 
-    if log: log_info('NONE-HIT [' + id + ']: ' + type + ' \"' + value + '\" does not match against any lists')
+    #if log: log_info('NONE-HIT [' + id + ']: ' + type + ' \"' + value + '\" does not match against any lists')
 
     return None
 
@@ -452,6 +475,102 @@ def generate_alias(request, qname, qtype, use_tcp):
     return reply
 
 
+# Load pickle file
+def pickle_load(file):
+    log_info('PICKLE-LOAD: file \"' + file + '\"')
+    d = dict()
+    try:
+        f = open(file, 'rb')
+        d = pickle.load(f)
+        f.close()
+
+    except BaseException as err:
+        log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
+
+    return d
+
+
+# Save pickle file
+def pickle_save(file, d):
+    log_info('PICKLE-SAVE: file \"' + file + '\"')
+    try:
+        f = open(file, 'wb')
+        pickle.dump(d, f, protocol = 2)
+        f.close()
+
+    except BaseException as err:
+        log_err('ERROR: Unable to open/write file \"' + file + '\" - ' + str(err))
+
+    return True
+
+
+def save_lists(file):
+    whitelists = dict()
+    whitelists['domains'] = wl_dom
+    whitelists['ip4'] = wl_ip4
+    whitelists['ip6'] = wl_ip6
+    whitelists['regex'] = wl_rx
+    whitelists['aliases'] = aliases
+    whitelists['forwarders'] = forward_servers
+
+    pickle_save(file + '.white.pickle', whitelists)
+
+    blacklists = dict()
+    blacklists['domains'] = bl_dom
+    blacklists['ip4'] = bl_ip4
+    blacklists['ip6'] = bl_ip6
+    blacklists['regex'] = bl_rx
+
+    pickle_save(file + '.black.pickle', blacklists)
+
+    return True
+
+def load_lists(file):
+
+    global wl_dom
+    global wl_ip4
+    global wl_ip6
+    global wl_rx
+    global aliases
+    global forward_servers
+
+    global bl_dom
+    global bl_ip4
+    global bl_ip6
+    global bl_rx
+
+    age = file_exist(file + '.white.pickle')
+    if age < maxfileage:
+        log_info('LIST-LOAD: Retrieving whitelists from \"' + file + '.white.pickle\"')
+        whitelists = pickle_load(file + '.white.pickle')
+        wl_dom = whitelists.get('domains', dict())
+        wl_ip4 = whitelists.get('ip4', dict())
+        wl_ip6 = whitelists.get('ip6', dict())
+        wl_rx = whitelists.get('regex', dict())
+        aliases = whitelists.get('aliases', dict())
+        forward_servers = whitelists.get('forwarders', dict())
+    else:
+        log_info('LIST-LOAD: Skipped retrieving whitelists from \"' + file + '.white.pickle\", older then ' + str(maxfileage) + ' seconds')
+        return False
+   
+    age = file_exist(file + '.black.pickle')
+    if age < maxfileage:
+        log_info('LIST-LOAD: Retrieving whitelists from \"' + file + '.black.pickle\"')
+        blacklists = pickle_load(file + '.black.pickle')
+        bl_dom = blacklists.get('domains', dict())
+        bl_ip4 = blacklists.get('ip4', dict())
+        bl_ip6 = blacklists.get('ip6', dict())
+        bl_rx = blacklists.get('regex', dict())
+    else:
+        log_info('LIST-LOAD: Skipped retrieving blacklists from \"' + file + '.white.pickle\", older then ' + str(maxfileage) + ' seconds')
+        return False
+
+    log_info('PICKLE-WHITELIST-LOAD: ' + str(len(wl_rx)) + ' REGEXes, ' + str(len(wl_ip4)) + ' IPv4 CIDRs, ' + str(len(wl_ip6)) + ' IPv6 CIDRs, ' + str(len(wl_dom)) + ' DOMAINs, ' + str(len(aliases)) + ' ALIASes and ' + str(len(forward_servers)) + ' FORWARDs')
+    log_info('PICKLE-BLACKLIST-LOAD: ' + str(len(bl_rx)) + ' REGEXes, ' + str(len(bl_ip4)) + ' IPv4 CIDRs, ' + str(len(bl_ip6)) + ' IPv6 CIDRs and ' + str(len(bl_dom)) + ' DOMAINs')
+
+    return True
+
+
 # Read filter lists, see "accomplist" lists for compatibility:
 # https://github.com/cbuijs/accomplist
 def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
@@ -508,7 +627,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
                     domain = elements[0].strip().lower().rstrip('.')
                     alias = elements[1].strip().lower().rstrip('.')
                     if isdomain.match(domain) and (isdomain.match(alias) or ipregex.match(alias)):
-                   	    alist[domain] = alias
+                        alist[domain] = alias
                     else:
                         log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
                 else:
@@ -526,7 +645,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
                                 addrs.append(addr)
                             else:
                                 log_err(listname + ' INVALID FORWARD-ADDRESS [' + str(count) + ']: ' + addr)
-            
+        
                         if addrs:
                             flist[domain] = addrs
                     else:
@@ -669,16 +788,13 @@ def del_cache_entry(queryhash):
 def load_cache(file):
     global cache
 
-    log_info('CACHE-LOAD: Retrieving cache from \"' + file + '\"')
-
-    try:
-        f = open(file, 'rb')
-        cache = pickle.load(f)
-        f.close()
+    age = file_exist(file)
+    if age < maxfileage:
+        log_info('CACHE-LOAD: Retrieving cache from \"' + file + '\"')
+        cache = pickle_load(file)
         cache_purge()
-
-    except BaseException as err:
-        log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
+    else:
+        log_info('CACHE-LOAD: Skipped loading cache from \"' + file + '\", older then ' + str(maxfileage) + ' seconds (' + str(age) + ')')
 
     return True
 
@@ -687,14 +803,7 @@ def save_cache(file):
     log_info('CACHE-SAVE: Saving cache to \"' + file + '\"')
 
     cache_purge()
-
-    try:
-        f = open(file, 'wb')
-        pickle.dump(cache, f)
-        f.close()
-
-    except BaseException as err:
-        log_err('ERROR: Unable to open/write file \"' + file + '\" - ' + str(err))
+    pickle_save(file, cache)
 
     return True
 
@@ -846,11 +955,15 @@ if __name__ == "__main__":
     log_info('Initializing INSTIGATOR')
 
     # Read Lists
-    for lst in sorted(lists.keys()):
-        if lst in whitelist:
-            wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers)
-        else:
-            bl_dom, bl_ip4, bl_ip6, bl_rx, aliases, forward_servers = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, aliases, forward_servers)
+    #if not load_lists('/opt/instigator/save'):   # Check segmentation fault at loading large lists!!!!
+    if True:
+        for lst in sorted(lists.keys()):
+            if lst in whitelist:
+                wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers)
+            else:
+                bl_dom, bl_ip4, bl_ip6, bl_rx, aliases, forward_servers = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, aliases, forward_servers)
+
+    save_lists('/opt/instigator/save')
 
     if persistentcachefile:
         load_cache(persistentcachefile)
