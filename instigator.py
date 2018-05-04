@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.75-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.82-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -34,8 +34,10 @@ import syslog
 syslog.openlog(ident='INSTIGATOR')
 
 # DNSLib module
-from dnslib import CLASS, QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord, DNSQuestion
-from dnslib.server import DNSServer, DNSLogger, BaseResolver
+#from dnslib import CLASS, QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord, DNSQuestion, DNSError
+#from dnslib.server import DNSServer, DNSLogger, BaseResolver
+from dnslib import *
+from dnslib.server import *
 
 # Regex module
 import regex
@@ -46,19 +48,19 @@ import pytricia
 ###################
 
 # Listen for queries
-listen_address = '192.168.1.250'
-listen_port = 53
+listen_on = list(['127.0.0.1:53', '192.168.1.250:53'])
 
 # Forwarding queries to
 forward_timeout = 2 # Seconds
 forward_servers = dict()
-forward_servers['.'] = '1.1.1.1:53,1.0.0.1:53' # DEFAULT
-forward_servers['frutch'] = '192.168.1.1:53'
-forward_servers['1.168.192.in-addr.arpa'] = '192.168.1.1:53'
+forward_servers['.'] = list(['1.1.1.1:53','1.0.0.1:53']) # DEFAULT
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_address = ''
 redirect_address = '192.168.1.250' # IPv4 or IPv6
+
+# Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
+hitrcode = 'REFUSED'
 
 # Files / Lists
 defaultlist = list([None, 0, ''])
@@ -84,17 +86,17 @@ persistentcachefile = '/opt/instigator/cache.file'
 
 # TTL Settings
 cachettl = 1800 # Seconds - For filtered/blacklisted entry caching
-minttl = 120 # Seconds
+minttl = 300 # Seconds
 maxttl = 7200 # Seconds
-rcodettl = minttl # Seconds - For return-codes caching
+rcodettl = 30 # Seconds - For return-codes caching
 
-# Return-code when query hits a list, only use NXDOMAIN or REFUSED
-hitrcode = 'REFUSED'
+# Minimal Responses
+minresp = True
 
 # Roundrobin of address-records
 roundrobin = True
 
-# Collapse CNAME Chains
+# Collapse/Flatten CNAME Chains
 collapse = True
 
 # Block IPv6 queries
@@ -284,16 +286,19 @@ def in_domain(name, domlist):
 # Do query
 def dns_query(qname, qtype, use_tcp, id, cip):
     server = in_domain(qname, forward_servers)
-    if not server:
+    if server:
+        servername = 'FORWARD-HIT: ' + server
+    else:
         server = '.'
-
-    forward_server = forward_servers.get(server, None)
-
-    query = DNSRecord(q = DNSQuestion(qname, getattr(QTYPE, qtype)))
+        servername = 'DEFAULT'
 
     reply = None
-    for addr in forward_server.split(','):
-        if ipportregex.match(addr):
+
+    forward_server = forward_servers.get(server, None)
+    if forward_server:
+        query = DNSRecord(q = DNSQuestion(qname, getattr(QTYPE, qtype)))
+
+        for addr in forward_server:
             forward_address = addr.split(':')[0]
             if addr.find(':') > 0:
                 forward_port = int(addr.split(':')[1])
@@ -301,7 +306,7 @@ def dns_query(qname, qtype, use_tcp, id, cip):
                 forward_port = 53
     
             if (forward_address != cip) and (query_hash(forward_address, str(forward_port)) not in cache):
-                log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + ':' + str(forward_port) + ' for ' + qname + '/' + qtype)
+                log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + ':' + str(forward_port) + ' (' + servername + ') for ' + qname + '/' + qtype)
 
                 try:
                     reply = DNSRecord.parse(query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout))
@@ -317,10 +322,8 @@ def dns_query(qname, qtype, use_tcp, id, cip):
                     to_cache(forward_address, str(forward_port), query.response())
                     reply = None
 
-        else:
-            log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype + ' using INVALID address/port: ' + addr + ' (REMOVED)')
-            #_ = forward_servers.pop(qname, None)
-       
+    else:
+        log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype + ' (' + servername + ') - NO DNS SERVER TO USE!')
 
     if reply == None:
         log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype)
@@ -501,8 +504,16 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
                 if len(elements) > 1:
                     domain = elements[0].strip().lower().rstrip('.')
                     ips = elements[1].strip().lower().rstrip('.')
-                    if isdomain.match(domain) and ips:
-                        flist[domain] = ips
+                    if isdomain.match(domain):
+                        addrs = list()
+                        for addr in ips.split(','):
+                            if ipportregex.match(addr):
+                                addrs.append(addr)
+                            else:
+                                log_err(listname + ' INVALID FORWARD-ADDRESS [' + str(count) + ']: ' + addr)
+            
+                        if addrs:
+                            flist[domain] = addrs
                     else:
                         log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
                 else:
@@ -697,16 +708,17 @@ class DNS_Instigator(BaseResolver):
         qname = str(request.q.qname).rstrip('.').lower()
         if qname == '':
             qname = '.'
+
         qclass = CLASS[request.q.qclass].upper()
         qtype = QTYPE[request.q.qtype].upper()
 
-        if qname == '.' or qtype == 'ANY' or qclass != 'IN':
-            log_info('REQUEST [' + id_str(rid) + '] REFUSED from ' + cip + ': ' + qname + '/' + qclass + '/' + qtype + ' (' + handler.protocol.upper() + ')')
+        if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
+            log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ': ' + qname + '/' + qclass + '/' + qtype + ' NOTIMP (' + handler.protocol.upper() + ')')
             reply = request.reply()
-            reply.header.rcode = getattr(RCODE, 'REFUSED')
+            reply.header.rcode = getattr(RCODE, 'NOTIMP')
             return reply
 
-        log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ': ' + qname + '/' + qtype + ' (' + handler.protocol.upper() + ')')
+        log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ' for ' + qname + '/' + qtype + ' (' + handler.protocol.upper() + ')')
 
         reply = None
         queryhash = query_hash(qname, qtype)
@@ -798,10 +810,15 @@ class DNS_Instigator(BaseResolver):
 
                             log_info('REPLY [' + id_str(rid) + ']: ' + qname + ' ' + qtype + ' = ' + rcode)
 
+        # Minimum responses
+        if minresp:
+            reply.auth = list()
+            reply.ar = list()
+
         if queryhash not in cache:
             to_cache(qname, qtype, reply)
 
-        log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ': ' + qname + '/' + qtype)
+        log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + qname + '/' + qtype)
 
         return reply
 
@@ -823,38 +840,66 @@ if __name__ == "__main__":
 
     # DNS-Server/Resolver
     logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=False)
-    udp_dns_server = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False) # UDP
-    tcp_dns_server = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=True) # TCP
+    udp_dns_server = dict()
+    tcp_dns_server = dict()
+    for listen in listen_on:
+        if ipportregex.match(listen):
+            elements = listen.split(':')
+            listen_address = elements[0]
+            if len(elements) > 1:
+                listen_port = int(elements[1])
+            else:
+                listen_port = 53
 
-    # Start Service as threads
-    log_info('Starting DNS Service ...')
-    udp_dns_server.start_thread() # UDP
-    tcp_dns_server.start_thread() # TCP
+            serverhash = hash(listen_address + ':' + str(listen_port))
 
-    time.sleep(1)
+            udp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False) # UDP
+            tcp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=True) # TCP
 
-    if udp_dns_server.isAlive() and tcp_dns_server.isAlive():
-        log_info('DNS Service ready on ' + listen_address + ':' + str(listen_port))
-    else:
-        log_err('DNS Service did not start, aborting ...')
-        quit()
+            # Start Service as threads
+            log_info('Starting DNS Service on ' + listen_address + ':' + str(listen_port) + ' ...')
+            udp_dns_server[serverhash].start_thread() # UDP
+            tcp_dns_server[serverhash].start_thread() # TCP
+
+            time.sleep(1)
+
+            if udp_dns_server[serverhash].isAlive() and tcp_dns_server[serverhash].isAlive():
+                log_info('DNS Service ready on ' + listen_address + ':' + str(listen_port))
+            else:
+                log_err('DNS Service did not start, aborting ...')
+                sys.exit(1)
 
     # Keep things running
+    count = 0
     try:
-        while udp_dns_server.isAlive() and tcp_dns_server.isAlive():
-            #time.sleep(1) # Seconds
-            time.sleep(30) # Seconds
-            if persistentcachefile:
-                save_cache(persistentcachefile)
-            else:
-                cache_purge()
+        while True:
+            time.sleep(1) # Seconds
+            count += 1
+            if count > 29:
+                count = 0
+                if persistentcachefile:
+                    save_cache(persistentcachefile)
+                else:
+                    cache_purge()
 
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
         pass
 
-    log_info('DNS Service shutdown on ' + listen_address + ':' + str(listen_port))
-    udp_dns_server.stop() # UDP
-    tcp_dns_server.stop() # TCP
+    for listen in listen_on:
+        if ipportregex.match(listen):
+            elements = listen.split(':')
+            listen_address = elements[0]
+            if len(elements) > 1:
+                listen_port = int(elements[1])
+            else:
+                listen_port = 53
+
+            serverhash = hash(listen_address + ':' + str(listen_port))
+
+            log_info('DNS Service shutdown on ' + listen_address + ':' + str(listen_port))
+            udp_dns_server[serverhash].stop() # UDP
+            tcp_dns_server[serverhash].stop() # TCP
+
 
     if persistentcachefile:
         save_cache(persistentcachefile)
