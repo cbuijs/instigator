@@ -2,5 +2,6 @@
 *.backup.*
 shallalist
 *.file
+*.pickle
 __pycache__/
 dist/
