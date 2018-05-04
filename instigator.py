@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.95-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.98-20180504 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -24,7 +24,7 @@ TODO:
 '''
 
 # Standard modules
-import sys, time, socket, pickle
+import sys, time, socket, shelve
 
 # make sure modules can be found
 sys.path.append("/usr/local/lib/python3.5/dist-packages/")
@@ -53,8 +53,8 @@ listen_on = list(['127.0.0.1:53', '192.168.1.250:53'])
 # Forwarding queries to
 forward_timeout = 2 # Seconds
 forward_servers = dict()
-#forward_servers['.'] = list(['1.1.1.1:53','1.0.0.1:53']) # DEFAULT Cloudflare
-forward_servers['.'] = list(['209.244.0.3:53','209.244.0.4:53']) # DEFAULT Level-3
+forward_servers['.'] = list(['1.1.1.1:53','1.0.0.1:53']) # DEFAULT Cloudflare
+#forward_servers['.'] = list(['209.244.0.3:53','209.244.0.4:53']) # DEFAULT Level-3
 #forward_servers['.'] = list(['8.8.8.8:53','8.8.4.4:53']) # DEFAULT Google
 #forward_servers['.'] = list(['9.9.9.9:53','149.112.112.112:53']) # DEFAULT Quad9
 #forward_servers['.'] = list(['208.67.222.222:53','208.67.220.220:53']) # DEFAULT OpenDNS
@@ -89,7 +89,6 @@ whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites'])
 
 # Cache Settings
 cachesize = 2048 # Entries
-persistentcachefile = '/opt/instigator/cache.file'
 
 # TTL Settings
 cachettl = 1800 # Seconds - For filtered/blacklisted entry caching
@@ -475,55 +474,75 @@ def generate_alias(request, qname, qtype, use_tcp):
     return reply
 
 
-# Load pickle file
-def pickle_load(file):
-    log_info('PICKLE-LOAD: file \"' + file + '\"')
-    d = dict()
+def save_cache(file):
+    cache_purge()
+
+    log_info('CACHE-SAVE: Saving to \"' + file + '.db\"')
+
     try:
-        f = open(file, 'rb')
-        d = pickle.load(f)
-        f.close()
+        s = shelve.open(file)
+        s['cache'] = cache
+        s.close()
 
     except BaseException as err:
-        log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
+        log_err('ERROR: Unable to open/write file \"' + file + '.db\" - ' + str(err))
+        return False
 
-    return d
+    return True
 
 
-# Save pickle file
-def pickle_save(file, d):
-    log_info('PICKLE-SAVE: file \"' + file + '\"')
-    try:
-        f = open(file, 'wb')
-        pickle.dump(d, f, protocol = 2)
-        f.close()
+def load_cache(file):
+    global cache
 
-    except BaseException as err:
-        log_err('ERROR: Unable to open/write file \"' + file + '\" - ' + str(err))
+    age = file_exist(file + '.db')
+    if age and age < maxfileage:
+        log_info('CACHE-LOAD: Loading from \"' + file + '.db\"')
+        try:
+            s = shelve.open(file)
+            cache = s['cache']
+            s.close()
+
+        except BaseException as err:
+            log_err('ERROR: Unable to open/read file \"' + file + '.db\" - ' + str(err))
+            return False
+
+        cache_purge()
+
+    else:
+        log_info('CACHE-LOAD: Skip loading cache from \"' + file + '.db\", older then ' + str(maxfileage) + ' seconds')
+        return False
 
     return True
 
 
 def save_lists(file):
-    whitelists = dict()
-    whitelists['domains'] = wl_dom
-    whitelists['ip4'] = wl_ip4
-    whitelists['ip6'] = wl_ip6
-    whitelists['regex'] = wl_rx
-    whitelists['aliases'] = aliases
-    whitelists['forwarders'] = forward_servers
+    log_total()
 
-    pickle_save(file + '.white.pickle', whitelists)
+    log_info('LIST-SAVE: Saving to \"' + file + '.db\"')
 
-    blacklists = dict()
-    blacklists['domains'] = bl_dom
-    blacklists['ip4'] = bl_ip4
-    blacklists['ip6'] = bl_ip6
-    blacklists['regex'] = bl_rx
+    try:
+        s = shelve.open(file)
 
-    pickle_save(file + '.black.pickle', blacklists)
+        s['wl_dom'] = wl_dom
+        s['wl_ip4'] = wl_ip4.keys()
+        s['wl_ip6'] = wl_ip6.keys()
+        s['wl_rx'] = wl_rx
+        s['aliases'] = aliases
+        s['forward_servers'] = forward_servers
+
+        s['bl_dom'] = bl_dom
+        s['bl_ip4'] = bl_ip4.keys()
+        s['bl_ip6'] = bl_ip6.keys()
+        s['bl_rx'] = bl_rx
+
+    except BaseException as err:
+        log_err('ERROR: Unable to open/write file \"' + file + '.db\" - ' + str(err))
+        return False
+
+    s.close()
 
     return True
+
 
 def load_lists(file):
 
@@ -539,34 +558,53 @@ def load_lists(file):
     global bl_ip6
     global bl_rx
 
-    age = file_exist(file + '.white.pickle')
-    if age < maxfileage:
-        log_info('LIST-LOAD: Retrieving whitelists from \"' + file + '.white.pickle\"')
-        whitelists = pickle_load(file + '.white.pickle')
-        wl_dom = whitelists.get('domains', dict())
-        wl_ip4 = whitelists.get('ip4', dict())
-        wl_ip6 = whitelists.get('ip6', dict())
-        wl_rx = whitelists.get('regex', dict())
-        aliases = whitelists.get('aliases', dict())
-        forward_servers = whitelists.get('forwarders', dict())
+    global cache
+
+    age = file_exist(file + '.db')
+    if age and age < maxfileage:
+        log_info('LIST-LOAD: Loading from \"' + file + '.db\"')
+        try:
+            s = shelve.open(file)
+
+            wl_dom = s['wl_dom']
+            wl_ip4 = pytricia.PyTricia(32)
+            for i in s['wl_ip4']:
+                wl_ip4[i] = True
+            wl_ip6 = pytricia.PyTricia(128)
+            for i in s['wl_ip6']:
+                wl_ip6[i] = True
+            wl_rx = s['wl_rx']
+            aliases = s['aliases']
+            forward_servers = s['forward_servers']
+
+            bl_dom = s['bl_dom']
+            bl_ip4 = pytricia.PyTricia(32)
+            for i in s['bl_ip4']:
+                bl_ip4[i] = True
+            bl_ip6 = pytricia.PyTricia(128)
+            for i in s['bl_ip6']:
+                bl_ip6[i] = True
+
+            bl_rx = s['bl_rx']
+
+            s.close()
+
+        except BaseException as err:
+            log_err('ERROR: Unable to open/read file \"' + file + '.db\" - ' + str(err))
+            return False
+
     else:
-        log_info('LIST-LOAD: Skipped retrieving whitelists from \"' + file + '.white.pickle\", older then ' + str(maxfileage) + ' seconds')
-        return False
-   
-    age = file_exist(file + '.black.pickle')
-    if age < maxfileage:
-        log_info('LIST-LOAD: Retrieving whitelists from \"' + file + '.black.pickle\"')
-        blacklists = pickle_load(file + '.black.pickle')
-        bl_dom = blacklists.get('domains', dict())
-        bl_ip4 = blacklists.get('ip4', dict())
-        bl_ip6 = blacklists.get('ip6', dict())
-        bl_rx = blacklists.get('regex', dict())
-    else:
-        log_info('LIST-LOAD: Skipped retrieving blacklists from \"' + file + '.white.pickle\", older then ' + str(maxfileage) + ' seconds')
+        log_info('LIST-LOAD: Skip loading lists from \"' + file + '.db\", older then ' + str(maxfileage) + ' seconds')
         return False
 
-    log_info('PICKLE-WHITELIST-LOAD: ' + str(len(wl_rx)) + ' REGEXes, ' + str(len(wl_ip4)) + ' IPv4 CIDRs, ' + str(len(wl_ip6)) + ' IPv6 CIDRs, ' + str(len(wl_dom)) + ' DOMAINs, ' + str(len(aliases)) + ' ALIASes and ' + str(len(forward_servers)) + ' FORWARDs')
-    log_info('PICKLE-BLACKLIST-LOAD: ' + str(len(bl_rx)) + ' REGEXes, ' + str(len(bl_ip4)) + ' IPv4 CIDRs, ' + str(len(bl_ip6)) + ' IPv6 CIDRs and ' + str(len(bl_dom)) + ' DOMAINs')
+    log_total()
+
+    return True
+
+
+def log_total():
+    log_info('WHITELIST: ' + str(len(wl_rx)) + ' REGEXes, ' + str(len(wl_ip4)) + ' IPv4 CIDRs, ' + str(len(wl_ip6)) + ' IPv6 CIDRs, ' + str(len(wl_dom)) + ' DOMAINs, ' + str(len(aliases)) + ' ALIASes and ' + str(len(forward_servers)) + ' FORWARDs')
+    log_info('BLACKLIST: ' + str(len(bl_rx)) + ' REGEXes, ' + str(len(bl_ip4)) + ' IPv4 CIDRs, ' + str(len(bl_ip6)) + ' IPv6 CIDRs and ' + str(len(bl_dom)) + ' DOMAINs')
 
     return True
 
@@ -655,8 +693,6 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
 
             else:
                 log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
-
-    log_info(listname + ': ' + str(len(rxlist)) + ' REGEXes, ' + str(len(iplist4)) + ' IPv4 CIDRs, ' + str(len(iplist6)) + ' IPv6 CIDRs, ' + str(len(domlist)) + ' DOMAINs, ' + str(len(alist)) + ' ALIASes and ' + str(len(flist)) + ' FORWARDs')
 
     return domlist, iplist4, iplist6, rxlist, alist, flist
 
@@ -782,29 +818,6 @@ def add_cache_entry(qname, qclass, qtype, expire, reply):
 
 def del_cache_entry(queryhash):
     _ = cache.pop(queryhash, None)
-    return True
-
-
-def load_cache(file):
-    global cache
-
-    age = file_exist(file)
-    if age < maxfileage:
-        log_info('CACHE-LOAD: Retrieving cache from \"' + file + '\"')
-        cache = pickle_load(file)
-        cache_purge()
-    else:
-        log_info('CACHE-LOAD: Skipped loading cache from \"' + file + '\", older then ' + str(maxfileage) + ' seconds (' + str(age) + ')')
-
-    return True
-
-
-def save_cache(file):
-    log_info('CACHE-SAVE: Saving cache to \"' + file + '\"')
-
-    cache_purge()
-    pickle_save(file, cache)
-
     return True
 
 
@@ -955,18 +968,18 @@ if __name__ == "__main__":
     log_info('Initializing INSTIGATOR')
 
     # Read Lists
-    #if not load_lists('/opt/instigator/save'):   # Check segmentation fault at loading large lists!!!!
-    if True:
+    if not load_lists('/opt/instigator/save'):   # Check segmentation fault at loading large lists!!!!
         for lst in sorted(lists.keys()):
             if lst in whitelist:
                 wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers)
             else:
                 bl_dom, bl_ip4, bl_ip6, bl_rx, aliases, forward_servers = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, aliases, forward_servers)
 
-    save_lists('/opt/instigator/save')
+        log_total()
 
-    if persistentcachefile:
-        load_cache(persistentcachefile)
+        save_lists('/opt/instigator/save')
+
+    load_cache('/opt/instigator/cache')
 
     # DNS-Server/Resolver
     logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=False)
@@ -1007,10 +1020,7 @@ if __name__ == "__main__":
             count += 1
             if count > 29:
                 count = 0
-                if persistentcachefile:
-                    save_cache(persistentcachefile)
-                else:
-                    cache_purge()
+                cache_purge()
 
     except (KeyboardInterrupt, SystemExit):
         pass
@@ -1030,9 +1040,7 @@ if __name__ == "__main__":
             udp_dns_server[serverhash].stop() # UDP
             tcp_dns_server[serverhash].stop() # TCP
 
-
-    if persistentcachefile:
-        save_cache(persistentcachefile)
+    save_cache('/opt/instigator/cache')
 
     log_info('INSTIGATOR EXIT')
     log_info('---------------')
