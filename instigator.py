@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.85-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.90-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -92,7 +92,7 @@ persistentcachefile = '/opt/instigator/cache.file'
 cachettl = 1800 # Seconds - For filtered/blacklisted entry caching
 minttl = 300 # Seconds
 maxttl = 7200 # Seconds
-rcodettl = 30 # Seconds - For return-codes caching
+rcodettl = 120 # Seconds - For return-codes caching
 
 # Minimal Responses
 minresp = True
@@ -289,6 +289,8 @@ def in_domain(name, domlist):
 
 # Do query
 def dns_query(qname, qtype, use_tcp, id, cip):
+    queryname = qname + '/IN/' + qtype
+
     server = in_domain(qname, forward_servers)
     if server:
         servername = 'FORWARD-HIT: ' + server
@@ -312,8 +314,8 @@ def dns_query(qname, qtype, use_tcp, id, cip):
             else:
                 forward_port = 53
     
-            if (forward_address != cip) and (query_hash(forward_address, str(forward_port)) not in cache):
-                log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + ':' + str(forward_port) + ' (' + servername + ') for ' + qname + '/' + qtype)
+            if (forward_address != cip) and (query_hash(forward_address, 'FORWARDER', str(forward_port)) not in cache):
+                log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + ':' + str(forward_port) + ' (' + servername + ') for ' + queryname)
 
                 try:
                     reply = DNSRecord.parse(query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout))
@@ -325,15 +327,15 @@ def dns_query(qname, qtype, use_tcp, id, cip):
                     break
 
                 except socket.timeout:
-                    log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype + ' using ' + forward_address + ':' + str(forward_port))
-                    to_cache(forward_address, str(forward_port), query.response())
+                    log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + ':' + str(forward_port))
+                    to_cache(forward_address, 'FORWARDER', str(forward_port), query.response())
                     reply = None
 
     else:
-        log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype + ' (' + servername + ') - NO DNS SERVER TO USE!')
+        log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' (' + servername + ') - NO DNS SERVER TO USE!')
 
     if reply == None:
-        log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + qname + '/' + qtype)
+        log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname)
         cache.clear()
         reply = query.reply()
         reply.header.rcode = getattr(RCODE, 'SERVFAIL')
@@ -345,13 +347,14 @@ def dns_query(qname, qtype, use_tcp, id, cip):
 
 # Generate response when blocking
 def generate_response(request, qname, qtype, redirect_address):
+    queryname = qname + '/IN/' + qtype
     reply = request.reply()
     if (len(redirect_address) == 0) or (qtype not in ('A', 'AAAA', 'CNAME', 'ANY')) or (not ipregex.match(redirect_address)):
-        log_info(hitrcode + ' for \"' + qname + '\" (RR:' + qtype + ')')
+        log_info(hitrcode + ' for ' + queryname)
         reply.header.rcode = getattr(RCODE, hitrcode)
         return reply
     else:
-        log_info('REDIRECT \"' + qname + '\" to \"' + redirect_address + '\" (RR:' + qtype + ')')
+        log_info('REDIRECT ' + queryname + ' to ' + redirect_address)
 
         if redirect_address.find(':') == -1:
             answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(redirect_address))
@@ -372,6 +375,8 @@ def generate_response(request, qname, qtype, redirect_address):
 
 # Generate alias response
 def generate_alias(request, qname, qtype, use_tcp):
+    queryname = qname + '/IN/' + qtype
+
     realqname = str(request.q.qname).rstrip('.').lower()
 
     reply = request.reply()
@@ -389,15 +394,17 @@ def generate_alias(request, qname, qtype, use_tcp):
             alias = 'NXDOMAIN'
 
     if alias.upper() in ('PASSTHRU'):
-        log_info('ALIAS-HIT: ' + qname + '/' + qtype + ' PASSTHRU')
+        log_info('ALIAS-HIT: ' + queryname + ' = PASSTHRU')
         alias = qname
 
     aliasqname = False
     if alias.upper() in ('NOTAUTH', 'NXDOMAIN', 'REFUSED'):
+        log_info('ALIAS-HIT: ' + queryname + ' = ' + alias.upper())
         reply = request.reply()
         reply.header.rcode = getattr(RCODE, alias.upper())
 
     elif ipregex.match(alias):
+        log_info('ALIAS-HIT: ' + queryname + ' = REDIRECT-TO-IP')
         if alias.find(':') == -1:
             answer = RR(realqname, QTYPE.A, ttl=cachettl, rdata=A(alias))
         else:
@@ -406,6 +413,7 @@ def generate_alias(request, qname, qtype, use_tcp):
         reply.add_answer(answer)
 
     else:
+        log_info('ALIAS-HIT: ' + queryname + ' = REDIRECT-TO-NAME')
         if not collapse and qname != alias:
             answer = RR(realqname, QTYPE.CNAME, ttl=cachettl, rdata=CNAME(alias))
             reply.add_answer(answer)
@@ -439,7 +447,7 @@ def generate_alias(request, qname, qtype, use_tcp):
 
     log_info('ALIAS-HIT: ' + qname + ' -> ' + alias + ' ' + str(RCODE[reply.header.rcode]))
     if collapse and aliasqname:
-        log_info('ALIAS-HIT: COLLAPSE ' + qname + '/CNAME')
+        log_info('ALIAS-HIT: COLLAPSE ' + qname + '/IN/CNAME')
 
     return reply
 
@@ -595,7 +603,8 @@ def from_cache(queryhash, id):
 
 
 # Store into cache
-def to_cache(qname, qtype, reply):
+def to_cache(qname, qclass, qtype, reply):
+    queryname = qname + '/' + qclass + '/' + qtype
     ttl = normalize_ttl(reply.rr, True)
 
     rcode = str(RCODE[reply.header.rcode])
@@ -604,14 +613,14 @@ def to_cache(qname, qtype, reply):
     elif rcode == 'SERVFAIL':
         ttl = 10
     elif rcode != 'NOERROR':
-        log_info('CACHE-SKIPPED: ' + qname + '/' + qtype + ' ' + rcode)
+        log_info('CACHE-SKIPPED: ' + queryname + ' ' + rcode)
         return
 
     if ttl > 0:
         expire = int(time.time()) + ttl
-        queryhash = add_cache_entry(qname, qtype, expire, reply)
+        queryhash = add_cache_entry(qname, qclass, qtype, expire, reply)
         entry = len(cache)
-        log_info('CACHE-STORED (' + str(entry) + '): ' + qname + '/' + qtype + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+        log_info('CACHE-STORED (' + str(entry) + '): ' + queryname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
     return True
 
@@ -640,13 +649,13 @@ def cache_purge():
     return True
 
 
-def query_hash(qname, qtype):
-    return hash(qname + '/' + qtype)
+def query_hash(qname, qclass, qtype):
+    return hash(qname + '/' + qclass + '/' + qtype)
 
 
-def add_cache_entry(qname, qtype, expire, reply):
-    hashname = qname + '/' + qtype
-    queryhash = query_hash(qname, qtype)
+def add_cache_entry(qname, qclass, qtype, expire, reply):
+    hashname = qname + '/' + qclass + '/' + qtype
+    queryhash = query_hash(qname, qclass, qtype)
     cache[queryhash] = list([reply, expire, hashname])
 
     return queryhash
@@ -718,23 +727,23 @@ class DNS_Instigator(BaseResolver):
 
         qclass = CLASS[request.q.qclass].upper()
         qtype = QTYPE[request.q.qtype].upper()
+        queryname = qname + '/' + qclass + '/' + qtype
 
-        if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
-            log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ': ' + qname + '/' + qclass + '/' + qtype + ' NOTIMP (' + handler.protocol.upper() + ')')
-            reply = request.reply()
-            reply.header.rcode = getattr(RCODE, 'NOTIMP')
-            return reply
-
-        log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ' for ' + qname + '/' + qtype + ' (' + handler.protocol.upper() + ')')
+        log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ' for ' + queryname + ' (' + handler.protocol.upper() + ')')
 
         reply = None
-        queryhash = query_hash(qname, qtype)
+        queryhash = query_hash(qname, qclass, qtype)
         if queryhash in cache:
             reply = from_cache(queryhash, rid)
 
         if reply == None:
-            if blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
-                log_info('IPV6-HIT: ' + qname + '/' + qtype + ' responded with NXDOMAIN')
+            if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
+                log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' NOTIMP (' + handler.protocol.upper() + ')')
+                reply = request.reply()
+                reply.header.rcode = getattr(RCODE, 'NOTIMP')
+
+            elif blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
+                log_info('IPV6-HIT: ' + queryname + ' responded with NXDOMAIN')
                 reply = request.reply()
                 reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
 
@@ -783,8 +792,6 @@ class DNS_Instigator(BaseResolver):
                                     if collapse and firstrqtype == 'CNAME' and rqtype in ('A', 'AAAA'):
                                         addr.append(data)
 
-                                    log_info('REPLY [' + id_str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + ' ' + rqtype + ' = ' + data)
-
                                     qlog = False
                                     if rqname not in seen:
                                         qlog = True
@@ -796,11 +803,14 @@ class DNS_Instigator(BaseResolver):
                                         seen.add(data)
 
                                     if (qlog and match_blacklist(rid, 'REQUEST', rqtype, rqname, qlog)) or (dlog and match_blacklist(rid, 'REPLY', rqtype, data, dlog)):
+                                        log_info('REPLY [' + id_str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
                                         reply = generate_response(request, qname, qtype, redirect_address)
                                         break
+                                    else:
+                                        log_info('REPLY [' + id_str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
 
                                 if collapse and firstrqtype == 'CNAME' and addr:
-                                    log_info('REPLY [' + id_str(rid) + ']: COLLAPSE ' + qname + '/CNAME')
+                                    log_info('REPLY [' + id_str(rid) + ']: COLLAPSE ' + qname + '/IN/CNAME')
                                     reply = request.reply()
                                     reply.header.rcode = getattr(RCODE, 'NOERROR')
                                     for ip in addr:
@@ -815,7 +825,7 @@ class DNS_Instigator(BaseResolver):
                             reply = request.reply()
                             reply.header.rcode = getattr(RCODE, rcode)
 
-                            log_info('REPLY [' + id_str(rid) + ']: ' + qname + ' ' + qtype + ' = ' + rcode)
+                            log_info('REPLY [' + id_str(rid) + ']: ' + queryname + ' = ' + rcode)
 
         # Minimum responses
         if minresp:
@@ -823,9 +833,9 @@ class DNS_Instigator(BaseResolver):
             reply.ar = list()
 
         if queryhash not in cache:
-            to_cache(qname, qtype, reply)
+            to_cache(qname, qclass, qtype, reply)
 
-        log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + qname + '/' + qtype)
+        log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
 
         return reply
 
