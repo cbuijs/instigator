@@ -3,5 +3,6 @@
 shallalist
 *.file
 *.pickle
+*.db
 __pycache__/
 dist/
