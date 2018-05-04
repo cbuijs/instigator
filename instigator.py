@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.82-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v1.85-20180503 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -53,7 +53,11 @@ listen_on = list(['127.0.0.1:53', '192.168.1.250:53'])
 # Forwarding queries to
 forward_timeout = 2 # Seconds
 forward_servers = dict()
-forward_servers['.'] = list(['1.1.1.1:53','1.0.0.1:53']) # DEFAULT
+#forward_servers['.'] = list(['1.1.1.1:53','1.0.0.1:53']) # DEFAULT Cloudflare
+forward_servers['.'] = list(['209.244.0.3:53','209.244.0.4:53']) # DEFAULT Level-3
+#forward_servers['.'] = list(['8.8.8.8:53','8.8.4.4:53']) # DEFAULT Google
+#forward_servers['.'] = list(['9.9.9.9:53','149.112.112.112:53']) # DEFAULT Quad9
+#forward_servers['.'] = list(['208.67.222.222:53','208.67.220.220:53']) # DEFAULT OpenDNS
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_address = ''
@@ -298,7 +302,10 @@ def dns_query(qname, qtype, use_tcp, id, cip):
     if forward_server:
         query = DNSRecord(q = DNSQuestion(qname, getattr(QTYPE, qtype)))
 
-        for addr in forward_server:
+        addrs = round_robin(forward_server)
+        forward_servers[server] = list(addrs)
+
+        for addr in addrs:
             forward_address = addr.split(':')[0]
             if addr.find(':') > 0:
                 forward_port = int(addr.split(':')[1])
