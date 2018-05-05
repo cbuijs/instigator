@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.03-20180504 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.10-20180505 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -33,8 +33,6 @@ import syslog
 syslog.openlog(ident='INSTIGATOR')
 
 # DNSLib module
-#from dnslib import CLASS, QTYPE, RR, A, AAAA, CNAME, MX, NS, PTR, SOA, SRV, TXT, RCODE, DNSRecord, DNSQuestion, DNSError
-#from dnslib.server import DNSServer, DNSLogger, BaseResolver
 from dnslib import *
 from dnslib.server import *
 
@@ -147,7 +145,6 @@ isregex = regex.compile('^/.*/$')
 isasn = regex.compile('^AS[0-9]+$', regex.I)
 
 ##############################################################
-
 
 # Log INFO messages to syslog
 def log_info(message):
@@ -336,7 +333,7 @@ def dns_query(qname, qtype, use_tcp, id, cip):
                     reply = None
 
     else:
-        log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' (' + servername + ') - NO DNS SERVER TO USE!')
+        log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' (' + servername + ') - NO DNS SERVERS AVAILBLE!')
 
     if reply == None:
         log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname)
@@ -744,16 +741,19 @@ def from_cache(queryhash, id):
 def to_cache(qname, qclass, qtype, reply):
     queryname = qname + '/' + qclass + '/' + qtype
 
-    rcode = str(RCODE[reply.header.rcode])
-    if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
-        ttl = rcodettl
-    elif rcode == 'SERVFAIL':
+    if qclass == 'FORWARDER':
         ttl = 10
-    elif rcode != 'NOERROR':
-        log_info('CACHE-SKIPPED: ' + queryname + ' ' + rcode)
-        return
     else:
-        ttl = normalize_ttl(reply.rr, True)
+        rcode = str(RCODE[reply.header.rcode])
+        if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
+            ttl = rcodettl
+        elif rcode == 'SERVFAIL':
+            ttl = 10
+        elif rcode != 'NOERROR' or len(reply.rr) == 0:
+            log_info('CACHE-SKIPPED: ' + queryname + ' ' + rcode)
+            return False
+        else:
+            ttl = reply.rr[0].ttl
 
     if ttl > 0:
         expire = int(time.time()) + ttl
@@ -909,8 +909,6 @@ class DNS_Instigator(BaseResolver):
                             if reply.rr:
                                 replycount = 0
                                 replynum = len(reply.rr)
-
-                                ttl = normalize_ttl(reply.rr, True)
 
                                 seen = set()
                                 seen.add(qname)
