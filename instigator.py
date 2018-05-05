@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.10-20180505 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.15-20180505 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
-Python DNS Server with security and filtering features
+Python DNS Forwarder/Proxy with security and filtering features
 
 This is a little study to build a DNS server in Python including some features:
 
@@ -16,8 +16,6 @@ This is a little study to build a DNS server in Python including some features:
 TODO:
 - Loads ...
 - Better Documentation / Remarks / Comments
-
-- Backburner: Make recursor '1.2.3.4'.split('.')[::-1]
 
 =========================================================================================
 '''
@@ -55,6 +53,10 @@ forward_servers['.'] = list(['1.1.1.1:53','1.0.0.1:53']) # DEFAULT Cloudflare
 #forward_servers['.'] = list(['8.8.8.8:53','8.8.4.4:53']) # DEFAULT Google
 #forward_servers['.'] = list(['9.9.9.9:53','149.112.112.112:53']) # DEFAULT Quad9
 #forward_servers['.'] = list(['208.67.222.222:53','208.67.220.220:53']) # DEFAULT OpenDNS
+#forward_servers['.'] = list(['8.26.56.26:53','8.20.247.20:53']) # DEFAULT Comodo
+#forward_servers['.'] = list(['199.85.126.10:53','199.85.127.10:53']) # DEFAULT Norton
+#forward_servers['.'] = list(['64.6.64.6:53','64.6.65.6:53']) # DEFAULT Verisign
+#forward_servers['.'] = list(['156.154.70.2:53','156.154.71.2:53']) # DEFAULT Neustar
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_address = ''
@@ -98,7 +100,7 @@ rcodettl = 120 # Seconds - For return-codes caching
 # Minimal Responses
 minresp = True
 
-# Roundrobin of address-records
+# Roundrobin of address/forward-records
 roundrobin = True
 
 # Collapse/Flatten CNAME Chains
@@ -118,8 +120,10 @@ wl_rx = dict() # Regex Whitelist
 bl_rx = dict() # Regex Blacklist
 aliases = dict()
 
-# Cache Dictionaries
+# Cache
 cache = dict()
+
+## Regexes
 
 # Regex to filter IP CIDR's out
 ip4regex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(/(3[0-2]|[12]?[0-9]))*)'
@@ -486,15 +490,13 @@ def load_cache(file):
         cache_purge()
 
     else:
-        log_info('CACHE-LOAD: Skip loading cache from \"' + file + '.db\", older then ' + str(maxfileage) + ' seconds')
+        log_info('CACHE-LOAD: Skip loading cache from \"' + file + '.db\" - non-existant or older then ' + str(maxfileage) + ' seconds')
         return False
 
     return True
 
 
 def save_lists(file):
-    log_total()
-
     log_info('LIST-SAVE: Saving to \"' + file + '.db\"')
 
     try:
@@ -571,10 +573,8 @@ def load_lists(file):
             return False
 
     else:
-        log_info('LIST-LOAD: Skip loading lists from \"' + file + '.db\", older then ' + str(maxfileage) + ' seconds')
+        log_info('LIST-LOAD: Skip loading lists from \"' + file + '.db\" - non-existant or older then ' + str(maxfileage) + ' seconds')
         return False
-
-    log_total()
 
     return True
 
@@ -970,16 +970,16 @@ if __name__ == "__main__":
     log_info('Initializing INSTIGATOR')
 
     # Read Lists
-    if not load_lists(savefile):   # Check segmentation fault at loading large lists!!!!
+    if not load_lists(savefile):
         for lst in sorted(lists.keys()):
             if lst in whitelist:
                 wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers)
             else:
-                bl_dom, bl_ip4, bl_ip6, bl_rx, aliases, forward_servers = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, aliases, forward_servers)
-
-        log_total()
+                bl_dom, bl_ip4, bl_ip6, bl_rx, _, _ = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(), dict())
 
         save_lists(savefile)
+
+    log_total()
 
     load_cache(cachefile)
 
