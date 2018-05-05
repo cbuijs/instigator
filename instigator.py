@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v1.98-20180504 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.0-20180504 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -17,8 +17,7 @@ TODO:
 - Loads ...
 - Better Documentation / Remarks / Comments
 
-- dns_query, when all servers have errors, clear cache and restart
-- Make recursor '1.2.3.4'.split('.')[::-1]
+- Backburner: Make recursor '1.2.3.4'.split('.')[::-1]
 
 =========================================================================================
 '''
@@ -70,6 +69,7 @@ hitrcode = 'REFUSED'
 maxfileage = 3600 # Seconds
 
 # Files / Lists
+savefile = '/opt/instigator/save'
 defaultlist = list([None, 0, ''])
 lists = dict()
 lists['blacklist'] = '/opt/instigator/black.list'
@@ -88,6 +88,7 @@ blacklist = list(['blacklist', 'ads', 'costtraps', 'porn', 'gamble', 'spyware', 
 whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites'])
 
 # Cache Settings
+cachefile = '/opt/instigator/cache'
 cachesize = 2048 # Entries
 
 # TTL Settings
@@ -174,7 +175,7 @@ def file_exist(file):
                     mtime = int(fstat.st_mtime)
                     currenttime = int(time.time())
                     age = int(currenttime - mtime)
-                    log_info('FILE-EXIST: ' + file + ' ' + str(age))
+                    log_info('FILE-EXIST: ' + file + ' = ' + str(age) + ' seconds old')
                     return age
         except:
             return False
@@ -199,12 +200,10 @@ def match_blacklist(rid, type, rrtype, value, log):
     else:
         if type == 'REPLY':
             field = False
-            if rrtype in ('CNAME', 'NS', 'PTR') and isdomain.match(testvalue):
-                itisadomain = True
+            if rrtype in ('CNAME', 'NS', 'PTR', 'SOA') and isdomain.match(testvalue):
+                field = 0
             elif type == 'MX':
                 field = 1
-            elif type == 'SOA':
-                field = 0
             elif type == 'SRV':
                 field = 2
 
@@ -214,8 +213,7 @@ def match_blacklist(rid, type, rrtype, value, log):
                     itisadomain = True
 
         else:
-            if isdomain.match(testvalue):
-                itisadomain = True
+            itisadomain = True
 
     if itisadomain:
         if testvalue in wl_dom:
@@ -341,16 +339,12 @@ def dns_query(qname, qtype, use_tcp, id, cip):
 
                 try:
                     reply = DNSRecord.parse(query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout))
-
                     ttl = normalize_ttl(reply.rr, False)
-                    for record in reply.rr:
-                        record.ttl = ttl
-
                     break
 
                 except socket.timeout:
                     log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + ':' + str(forward_port))
-                    to_cache(forward_address, 'FORWARDER', str(forward_port), query.response())
+                    to_cache(forward_address, 'FORWARDER', str(forward_port), list())
                     reply = None
 
     else:
@@ -475,12 +469,10 @@ def generate_alias(request, qname, qtype, use_tcp):
 
 
 def save_cache(file):
-    cache_purge()
-
     log_info('CACHE-SAVE: Saving to \"' + file + '.db\"')
 
     try:
-        s = shelve.open(file)
+        s = shelve.open(file, flag = 'n', protocol = 2)
         s['cache'] = cache
         s.close()
 
@@ -498,7 +490,7 @@ def load_cache(file):
     if age and age < maxfileage:
         log_info('CACHE-LOAD: Loading from \"' + file + '.db\"')
         try:
-            s = shelve.open(file)
+            s = shelve.open(file, flag = 'r', protocol = 2)
             cache = s['cache']
             s.close()
 
@@ -521,7 +513,7 @@ def save_lists(file):
     log_info('LIST-SAVE: Saving to \"' + file + '.db\"')
 
     try:
-        s = shelve.open(file)
+        s = shelve.open(file, flag = 'n', protocol = 2)
 
         s['wl_dom'] = wl_dom
         s['wl_ip4'] = wl_ip4.keys()
@@ -564,7 +556,7 @@ def load_lists(file):
     if age and age < maxfileage:
         log_info('LIST-LOAD: Loading from \"' + file + '.db\"')
         try:
-            s = shelve.open(file)
+            s = shelve.open(file, flag = 'r', protocol = 2)
 
             wl_dom = s['wl_dom']
             wl_ip4 = pytricia.PyTricia(32)
@@ -710,6 +702,9 @@ def normalize_ttl(rr, getmax):
         elif ttl > maxttl:
             ttl = maxttl
 
+        for x in rr:
+            x.ttl = ttl
+
     else:
         ttl = 0
 
@@ -760,7 +755,6 @@ def from_cache(queryhash, id):
 # Store into cache
 def to_cache(qname, qclass, qtype, reply):
     queryname = qname + '/' + qclass + '/' + qtype
-    ttl = normalize_ttl(reply.rr, True)
 
     rcode = str(RCODE[reply.header.rcode])
     if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
@@ -770,6 +764,8 @@ def to_cache(qname, qclass, qtype, reply):
     elif rcode != 'NOERROR':
         log_info('CACHE-SKIPPED: ' + queryname + ' ' + rcode)
         return
+    else:
+        ttl = normalize_ttl(reply.rr, True)
 
     if ttl > 0:
         expire = int(time.time()) + ttl
@@ -781,6 +777,7 @@ def to_cache(qname, qclass, qtype, reply):
 
 # Purge cache
 def cache_purge():
+    before = len(cache)
     # Remove expired entries
     now = int(time.time())
     for queryhash in list(cache.keys()):
@@ -800,7 +797,12 @@ def cache_purge():
             log_info('CACHE-MAINT-EXPULSION: ' + cache.get(queryhash, defaultlist)[2] + ' (TTL-LEFT:' + str(expire[queryhash]) + ')')
             del_cache_entry(queryhash)
 
-    log_info('CACHE-STATS: ' + str(len(cache)) + ' entries in cache')
+    after = len(cache)
+    log_info('CACHE-STATS: purged ' + str(before - after) + ' entries, ' + str(after) + ' in cache')
+
+    if before != after:
+        save_cache(cachefile)
+
     return True
 
 
@@ -828,6 +830,34 @@ def round_robin(l):
 
 def id_str(id):
     return str(id).zfill(5)
+
+
+def collapse_cname(request, reply, rid):
+    if reply.rr:
+        firstqtype = QTYPE[reply.rr[0].rtype].upper()
+        if firstqtype == 'CNAME':
+            qname = str(reply.rr[0].rname).rstrip('.').lower()
+            ttl = reply.rr[0].ttl
+            addr = list()
+            for record in reply.rr:
+                qtype = QTYPE[record.rtype].upper()
+                if qtype in ('A', 'AAAA'):
+                    ip = str(record.rdata).rstrip('.').lower()
+                    addr.append(ip)
+
+            if len(addr) > 0:
+                log_info('REPLY [' + id_str(rid) + ']: COLLAPSE ' + qname + '/IN/CNAME')
+                reply = request.reply()
+                reply.header.rcode = getattr(RCODE, 'NOERROR')
+                for ip in addr:
+                    if ip.find(':') == -1:
+                        answer = RR(qname, QTYPE.A, ttl=ttl, rdata=A(ip))
+                    else:
+                        answer = RR(qname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(ip))
+
+                    reply.add_answer(answer)
+
+    return reply
 
 
 # DNS Filtering proxy main beef
@@ -891,9 +921,6 @@ class DNS_Instigator(BaseResolver):
                                 seen = set()
                                 seen.add(qname)
 
-                                addr = list()
-                                firstrqtype = False
-
                                 for record in reply.rr:
                                     replycount += 1
 
@@ -904,15 +931,7 @@ class DNS_Instigator(BaseResolver):
                                         reply = generate_alias(request, rqname, rqtype, use_tcp)
                                         break
 
-                                    if not firstrqtype:
-                                        firstrqtype = rqtype
-
-                                    record.ttl = ttl
-
                                     data = str(record.rdata).rstrip('.').lower()
-
-                                    if collapse and firstrqtype == 'CNAME' and rqtype in ('A', 'AAAA'):
-                                        addr.append(data)
 
                                     qlog = False
                                     if rqname not in seen:
@@ -931,30 +950,21 @@ class DNS_Instigator(BaseResolver):
                                     else:
                                         log_info('REPLY [' + id_str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
 
-                                if collapse and firstrqtype == 'CNAME' and addr:
-                                    log_info('REPLY [' + id_str(rid) + ']: COLLAPSE ' + qname + '/IN/CNAME')
-                                    reply = request.reply()
-                                    reply.header.rcode = getattr(RCODE, 'NOERROR')
-                                    for ip in addr:
-                                        if ip.find(':') == -1:
-                                            answer = RR(qname, QTYPE.A, ttl=ttl, rdata=A(ip))
-                                        else:
-                                            answer = RR(qname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(ip))
-
-                                        reply.add_answer(answer)
-
                         else:
                             reply = request.reply()
                             reply.header.rcode = getattr(RCODE, rcode)
 
                             log_info('REPLY [' + id_str(rid) + ']: ' + queryname + ' = ' + rcode)
 
-        # Minimum responses
-        if minresp:
-            reply.auth = list()
-            reply.ar = list()
-
         if queryhash not in cache:
+            if collapse:
+                reply = collapse_cname(request, reply, rid)
+
+            # Minimum responses
+            if minresp:
+                reply.auth = list()
+                reply.ar = list()
+
             to_cache(qname, qclass, qtype, reply)
 
         log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
@@ -968,7 +978,7 @@ if __name__ == "__main__":
     log_info('Initializing INSTIGATOR')
 
     # Read Lists
-    if not load_lists('/opt/instigator/save'):   # Check segmentation fault at loading large lists!!!!
+    if not load_lists(savefile):   # Check segmentation fault at loading large lists!!!!
         for lst in sorted(lists.keys()):
             if lst in whitelist:
                 wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers)
@@ -977,9 +987,9 @@ if __name__ == "__main__":
 
         log_total()
 
-        save_lists('/opt/instigator/save')
+        save_lists(savefile)
 
-    load_cache('/opt/instigator/cache')
+    load_cache(cachefile)
 
     # DNS-Server/Resolver
     logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=False)
@@ -1040,7 +1050,7 @@ if __name__ == "__main__":
             udp_dns_server[serverhash].stop() # UDP
             tcp_dns_server[serverhash].stop() # TCP
 
-    save_cache('/opt/instigator/cache')
+    save_cache(cachefile)
 
     log_info('INSTIGATOR EXIT')
     log_info('---------------')
