@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.0-20180504 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.01-20180504 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -856,6 +856,9 @@ def collapse_cname(request, reply, rid):
                         answer = RR(qname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(ip))
 
                     reply.add_answer(answer)
+            else:
+                reply = request.reply()
+                reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
 
     return reply
 
