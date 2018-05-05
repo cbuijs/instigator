@@ -26,12 +26,17 @@ Regexes need to be secluded in forward slashes at begin and end of the line, exa
 	/^.*click\..*$/		Will give a hit on domain-labels ending in click
 	/.*porn.*/              Will give a hit on domain-labels with the word porn in it
 
-Aliases need to be divided by an equals-sign (=), example:
+Aliases need to be divided by an equals-symbol (=), example:
 
 	www.google.com=retricted.google.com	# Redirect
 	www.company.com=10.1.2.3		# Hosts-file equivelant
 	www.badguys.com=REFUSED			# Return-code refused
 	www.whatisthis.com=NXDOMAIN		# Return-code NXDOMAIN
 	www.goodguys.com=PASSTHRU		# Passthru/whitelist
+
+Forwarders need to be divided by a greater-then-symbol (>), example:
+
+	google.com>8.8.8.8:53,8.8.4.4:53		# Use google dns for all domains ending in google.com
+	chrisbuijs.com>9.9.9.9:53,149.112.112.112	# Use Quad9 dns servers for all domains ending in chrisbuijs.com
 	
-Note: Aliases are concidered "whitelisted". Cannot point to other aliases.
+<b>Note:</b> Aliases/Forwardeers are concidered "whitelisted". Cannot point to other aliases.
