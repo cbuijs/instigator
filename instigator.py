@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.01-20180504 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.03-20180504 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Server with security and filtering features
@@ -263,18 +263,6 @@ def match_blacklist(rid, type, rrtype, value, log):
                     if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + bl_found + '\"')
                     return True
     
-        #while testvalue:
-        #    if testvalue in wl_dom:
-        #        if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
-        #        return False
-        #    if testvalue in bl_dom:
-        #        if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
-        #        return True
-        #    elif testvalue.find('.') == -1:
-        #        break
-        #    else:
-        #        testvalue = testvalue[testvalue.find('.') + 1:]
-
     # Check agains Regex-Lists
     for i in wl_rx.keys():
         rx = wl_rx[i]
@@ -772,6 +760,9 @@ def to_cache(qname, qclass, qtype, reply):
         queryhash = add_cache_entry(qname, qclass, qtype, expire, reply)
         entry = len(cache)
         log_info('CACHE-STORED (' + str(entry) + '): ' + queryname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+
+    if len(cache) > cachesize:
+        cache_purge()
 
     return True
 
