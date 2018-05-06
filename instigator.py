@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.15-20180505 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.16-20180505 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -355,25 +355,19 @@ def generate_response(request, qname, qtype, redirect_address):
     queryname = qname + '/IN/' + qtype
     reply = request.reply()
     if (len(redirect_address) == 0) or (qtype not in ('A', 'AAAA', 'CNAME', 'ANY')) or (not ipregex.match(redirect_address)):
-        log_info(hitrcode + ' for ' + queryname)
+        log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
         reply.header.rcode = getattr(RCODE, hitrcode)
-        return reply
     else:
-        log_info('REDIRECT ' + queryname + ' to ' + redirect_address)
+        log_info('GENERATE: REDIRECT ' + queryname + ' to ' + redirect_address)
 
         if redirect_address.find(':') == -1:
             answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(redirect_address))
         else:
             answer = RR(qname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(redirect_address))
 
-        #auth = RR(qname, QTYPE.SOA, ttl=cachettl, rdata=SOA('ns.sinkhole','hostmaster.sinkhole',(int(time.time()), cachettl, cachettl, cachettl, cachettl)))
-        #ar = RR('ns.sinkhole', QTYPE.A, ttl=cachettl, rdata=A('0.0.0.0'))
-
-    answer.set_rname(request.q.qname)
-    reply.add_answer(answer)
-    #reply.add_auth(auth)
-    #reply.add_ar(ar)
-    reply.header.rcode = getattr(RCODE, 'NOERROR')
+        answer.set_rname(request.q.qname)
+        reply.add_answer(answer)
+        reply.header.rcode = getattr(RCODE, 'NOERROR')
 
     return reply
 
@@ -514,11 +508,12 @@ def save_lists(file):
         s['bl_ip6'] = bl_ip6.keys()
         s['bl_rx'] = bl_rx
 
+        s.close()
+
     except BaseException as err:
         log_err('ERROR: Unable to open/write file \"' + file + '.db\" - ' + str(err))
         return False
 
-    s.close()
 
     return True
 
