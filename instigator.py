@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.16-20180505 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.20-20180506 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -49,6 +49,7 @@ listen_on = list(['127.0.0.1:53', '192.168.1.250:53'])
 forward_timeout = 2 # Seconds
 forward_servers = dict()
 forward_servers['.'] = list(['1.1.1.1:53','1.0.0.1:53']) # DEFAULT Cloudflare
+# Alternatives:
 #forward_servers['.'] = list(['209.244.0.3:53','209.244.0.4:53']) # DEFAULT Level-3
 #forward_servers['.'] = list(['8.8.8.8:53','8.8.4.4:53']) # DEFAULT Google
 #forward_servers['.'] = list(['9.9.9.9:53','149.112.112.112:53']) # DEFAULT Quad9
@@ -90,6 +91,7 @@ whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites'])
 # Cache Settings
 cachefile = '/opt/instigator/cache'
 cachesize = 2048 # Entries
+fastcache = True # When True, TTL validation only during maintenance round (every 30 secs) and NO round-robin
 
 # TTL Settings
 cachettl = 1800 # Seconds - For filtered/blacklisted entry caching
@@ -125,16 +127,29 @@ cache = dict()
 
 ## Regexes
 
+# Use fast (less precisie) versions of regexes
+fastregex = True
+
 # Regex to filter IP CIDR's out
-ip4regex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(/(3[0-2]|[12]?[0-9]))*)'
-ip6regex_text = '(((:(:[0-9a-f]{1,4}){1,7}|::|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,6}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,5}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,4}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,3}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,2}|::|:[0-9a-f]{1,4}(::[0-9a-f]{1,4}|::|:[0-9a-f]{1,4}(::|:[0-9a-f]{1,4}))))))))|(:(:[0-9a-f]{1,4}){0,5}|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,4}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,3}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,2}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4})?|:[0-9a-f]{1,4}(:|:[0-9a-f]{1,4})))))):(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3})(/(12[0-8]|1[01][0-9]|[1-9]?[0-9]))*)'
+if fastregex:
+    ip4regex_text = '([0-9]{1,3}\.){3}[0-9]{1,3}(/[0-9]{1,2})*'
+    ip6regex_text = '([0-9a-f]{1,4}|:)(:([0-9a-f]{0,4})){1,7}(/[0-9]{1,3})*'
+else:
+    ip4regex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(/(3[0-2]|[12]?[0-9]))*)'
+    ip6regex_text = '(((:(:[0-9a-f]{1,4}){1,7}|::|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,6}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,5}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,4}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,3}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,2}|::|:[0-9a-f]{1,4}(::[0-9a-f]{1,4}|::|:[0-9a-f]{1,4}(::|:[0-9a-f]{1,4}))))))))|(:(:[0-9a-f]{1,4}){0,5}|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,4}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,3}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,2}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4})?|:[0-9a-f]{1,4}(:|:[0-9a-f]{1,4})))))):(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3})(/(12[0-8]|1[01][0-9]|[1-9]?[0-9]))*)'
+
 ipregex4 = regex.compile('^' + ip4regex_text + '$', regex.I)
 ipregex6 = regex.compile('^' + ip6regex_text + '$', regex.I)
 ipregex = regex.compile('^(' + ip4regex_text + '|' + ip6regex_text + ')$', regex.I)
 
 # Regex to filter IP:PORT's out
-ip4portregex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))*)'
-ip6portregex_text = '(((:(:[0-9a-f]{1,4}){1,7}|::|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,6}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,5}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,4}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,3}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,2}|::|:[0-9a-f]{1,4}(::[0-9a-f]{1,4}|::|:[0-9a-f]{1,4}(::|:[0-9a-f]{1,4}))))))))|(:(:[0-9a-f]{1,4}){0,5}|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,4}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,3}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,2}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4})?|:[0-9a-f]{1,4}(:|:[0-9a-f]{1,4})))))):(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3})(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))*)'
+if fastregex:
+    ip4portregex_text = '([0-9]{1,3}\.){3}[0-9]{1,3}(:[0-9]{1,5})*'
+    ip6portregex_text = '([0-9a-f]{1,4}|:)(:([0-9a-f]{0,4})){1,7}(:[0-9]{1,5})*'
+else:
+    ip4portregex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))*)'
+    ip6portregex_text = '(((:(:[0-9a-f]{1,4}){1,7}|::|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,6}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,5}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,4}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,3}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,2}|::|:[0-9a-f]{1,4}(::[0-9a-f]{1,4}|::|:[0-9a-f]{1,4}(::|:[0-9a-f]{1,4}))))))))|(:(:[0-9a-f]{1,4}){0,5}|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,4}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,3}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,2}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4})?|:[0-9a-f]{1,4}(:|:[0-9a-f]{1,4})))))):(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3})(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))*)'
+
 ipportregex4 = regex.compile('^' + ip4portregex_text + '$', regex.I)
 ipportregex6 = regex.compile('^' + ip6portregex_text + '$', regex.I)
 ipportregex = regex.compile('^(' + ip4portregex_text + '|' + ip6portregex_text + ')$', regex.I)
@@ -196,12 +211,14 @@ def match_blacklist(rid, type, rrtype, value, log):
     itisanip = False
     itisadomain = False
 
-    if type == 'REPLY' and rrtype in ('A', 'AAAA') and ipregex.match(testvalue):
+    #if type == 'REPLY' and rrtype in ('A', 'AAAA') and ipregex.match(testvalue):
+    if type == 'REPLY' and rrtype in ('A', 'AAAA'):
         itisanip = True
     else:
         if type == 'REPLY':
             field = False
-            if rrtype in ('CNAME', 'NS', 'PTR', 'SOA') and isdomain.match(testvalue):
+            #if rrtype in ('CNAME', 'NS', 'PTR', 'SOA') and isdomain.match(testvalue):
+            if rrtype in ('CNAME', 'NS', 'PTR', 'SOA'):
                 field = 0
             elif type == 'MX':
                 field = 1
@@ -210,8 +227,9 @@ def match_blacklist(rid, type, rrtype, value, log):
 
             if field:
                 testvalue = regex.split('\s+', testvalue)[field].rstrip('.')
-                if isdomain.match(testvalue):
-                    itisadomain = True
+                #if isdomain.match(testvalue):
+                #    itisadomain = True
+                itisadomain = True
 
         else:
             itisadomain = True
@@ -229,7 +247,8 @@ def match_blacklist(rid, type, rrtype, value, log):
         found = False
         prefix = False
 
-        if ipregex4.match(testvalue):
+        #if ipregex4.match(testvalue):
+        if testvalue.find(':') == -1:
             wip = wl_ip4
             bip = bl_ip4
         else:
@@ -693,19 +712,27 @@ def normalize_ttl(rr, getmax):
 
 # Retrieve from cache
 def from_cache(queryhash, id):
-    expire = cache.get(queryhash, defaultlist)[1]
+    cacheentry = cache.get(queryhash, defaultlist)
+
+    if fastcache and cacheentry:
+        reply = cacheentry[0]
+        reply.header.id = id
+        log_info('FASTCACHE-HIT: ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]))
+        return reply
+
+    expire = cacheentry[1]
     now = int(time.time())
     ttl = expire - now
 
     # If expired, remove from cache
     if ttl < 1:
-        log_info('CACHE-EXPIRED: ' + cache[queryhash][2])
+        log_info('CACHE-EXPIRED: ' + cacheentry[2])
         del_cache_entry(queryhash)
         return None
 
     # Retrieve from cache
     else:
-        reply = cache.get(queryhash, defaultlist)[0]
+        reply = cacheentry[0]
         reply.header.id = id
 
         # Gather address and non-address records and do round-robin
@@ -727,9 +754,11 @@ def from_cache(queryhash, id):
             for record in reply.rr:
                 record.ttl = ttl
 
-        log_info('CACHE-HIT: ' + cache[queryhash][2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + ')')
+        log_info('CACHE-HIT: ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + ')')
 
         return reply
+
+    return None
 
 
 # Store into cache
@@ -756,14 +785,15 @@ def to_cache(qname, qclass, qtype, reply):
         entry = len(cache)
         log_info('CACHE-STORED (' + str(entry) + '): ' + queryname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
-    if len(cache) > cachesize:
-        cache_purge()
+    #if len(cache) > cachesize:
+    #    cache_purge()
 
     return True
 
 # Purge cache
 def cache_purge():
     before = len(cache)
+
     # Remove expired entries
     now = int(time.time())
     for queryhash in list(cache.keys()):
@@ -793,7 +823,7 @@ def cache_purge():
 
 
 def query_hash(qname, qclass, qtype):
-    return hash(qname + '/' + qclass + '/' + qtype)
+    return hash(sys.intern(qname + '/' + qclass + '/' + qtype))
 
 
 def add_cache_entry(qname, qclass, qtype, expire, reply):
@@ -849,7 +879,15 @@ def collapse_cname(request, reply, rid):
     return reply
 
 
-# DNS Filtering proxy main beef
+def seen_it(name, seen):
+    if name not in seen:
+        seen.add(name)
+        return True
+
+    return False
+
+
+# DNS request/reply processing, main beef
 class DNS_Instigator(BaseResolver):
 
     def resolve(self, request, handler):
@@ -857,9 +895,8 @@ class DNS_Instigator(BaseResolver):
 
         cip = str(handler.client_address).split('\'')[1]
 
-        if handler.protocol == 'udp':
-            use_tcp = False
-        else:
+        use_tcp = False
+        if handler.protocol == 'tcp':
             use_tcp = True
 
         qname = str(request.q.qname).rstrip('.').lower()
@@ -920,15 +957,8 @@ class DNS_Instigator(BaseResolver):
 
                                     data = str(record.rdata).rstrip('.').lower()
 
-                                    qlog = False
-                                    if rqname not in seen:
-                                        qlog = True
-                                        seen.add(rqname)
-
-                                    dlog = False
-                                    if data not in seen:
-                                        dlog = True
-                                        seen.add(data)
+                                    qlog = seen_it(rqname, seen)
+                                    dlog = seen_it(data, seen)
 
                                     if (qlog and match_blacklist(rid, 'REQUEST', rqtype, rqname, qlog)) or (dlog and match_blacklist(rid, 'REPLY', rqtype, data, dlog)):
                                         log_info('REPLY [' + id_str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
