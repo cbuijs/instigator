@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.20-20180506 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.21-20180507 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -60,11 +60,12 @@ forward_servers['.'] = list(['1.1.1.1:53','1.0.0.1:53']) # DEFAULT Cloudflare
 #forward_servers['.'] = list(['156.154.70.2:53','156.154.71.2:53']) # DEFAULT Neustar
 
 # Redirect Address, leave empty to generete REFUSED
-#redirect_address = ''
-redirect_address = '192.168.1.250' # IPv4 or IPv6
+redirect_address = ''
+#redirect_address = '192.168.1.250' # IPv4 or IPv6
 
 # Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
-hitrcode = 'REFUSED'
+hitrcode = 'NXDOMAIN'
+#hitrcode = 'REFUSED'
 
 # Only load cached/fast files when not older then maxfileage
 maxfileage = 3600 # Seconds
@@ -91,7 +92,7 @@ whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites'])
 # Cache Settings
 cachefile = '/opt/instigator/cache'
 cachesize = 2048 # Entries
-fastcache = True # When True, TTL validation only during maintenance round (every 30 secs) and NO round-robin
+cache_maintenance_now = False
 
 # TTL Settings
 cachettl = 1800 # Seconds - For filtered/blacklisted entry caching
@@ -439,7 +440,12 @@ def generate_alias(request, qname, qtype, use_tcp):
         if qtype not in ('A', 'AAAA'):
             qtype = 'A'
 
-        subreply = dns_query(alias, qtype, use_tcp, request.header.id, '127.0.0.1')
+        queryhash = query_hash(qname, 'IN', qtype)
+        if queryhash in cache:
+            subreply = from_cache(queryhash, request.header.id)
+        else:
+            subreply = dns_query(alias, qtype, use_tcp, request.header.id, '127.0.0.1')
+
         rcode = str(RCODE[subreply.header.rcode])
         if rcode == 'NOERROR':
             if subreply.rr:
@@ -714,12 +720,6 @@ def normalize_ttl(rr, getmax):
 def from_cache(queryhash, id):
     cacheentry = cache.get(queryhash, defaultlist)
 
-    if fastcache and cacheentry:
-        reply = cacheentry[0]
-        reply.header.id = id
-        log_info('FASTCACHE-HIT: ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]))
-        return reply
-
     expire = cacheentry[1]
     now = int(time.time())
     ttl = expire - now
@@ -753,8 +753,8 @@ def from_cache(queryhash, id):
         else:
             for record in reply.rr:
                 record.ttl = ttl
-
-        log_info('CACHE-HIT: ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + ')')
+          
+        log_info('CACHE-HIT: Retrieved ' + str(len(reply.rr)) + ' RRs for ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + ')')
 
         return reply
 
@@ -785,13 +785,15 @@ def to_cache(qname, qclass, qtype, reply):
         entry = len(cache)
         log_info('CACHE-STORED (' + str(entry) + '): ' + queryname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
-    #if len(cache) > cachesize:
-    #    cache_purge()
+    if len(cache) > cachesize:
+        cache_maintenance_now = True
 
     return True
 
 # Purge cache
 def cache_purge():
+    cache_maintenance_now = False
+
     before = len(cache)
 
     # Remove expired entries
@@ -823,7 +825,7 @@ def cache_purge():
 
 
 def query_hash(qname, qclass, qtype):
-    return hash(sys.intern(qname + '/' + qclass + '/' + qtype))
+    return hash(qname + '/' + qclass + '/' + qtype)
 
 
 def add_cache_entry(qname, qclass, qtype, expire, reply):
@@ -1045,7 +1047,7 @@ if __name__ == "__main__":
         while True:
             time.sleep(1) # Seconds
             count += 1
-            if count > 29:
+            if cache_maintenance_now or count > 29:
                 count = 0
                 cache_purge()
 
