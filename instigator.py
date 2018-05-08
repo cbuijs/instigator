@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.23-20180507 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.24-20180508 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -624,7 +624,8 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
 
     for line in lines:
         count += 1
-        entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', ''))
+        #entry = regex.sub('\s*#[^#]*$', '', line.text.encode('ascii', 'ignore').replace('\r', '').replace('\n', '')) # Strip comments and line-feeds
+        entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', '')) # Strip comments and line-feeds
         if entry.startswith('/'):
             entry = regex.sub('/\s+[^/]+$', '/', entry)
         else:
