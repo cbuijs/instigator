@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.21-20180507 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.23-20180507 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -20,11 +20,12 @@ TODO:
 =========================================================================================
 '''
 
-# Standard modules
-import sys, time, socket, shelve
-
-# make sure modules can be found
+# sys module and path
+import sys
 sys.path.append("/usr/local/lib/python3.5/dist-packages/")
+
+# Standard modules
+import time, socket, shelve
 
 # Syslogging / Logging
 import syslog
@@ -236,7 +237,7 @@ def match_blacklist(rid, type, rrtype, value, log):
             itisadomain = True
 
     if itisadomain:
-        if testvalue in wl_dom:
+        if (testvalue in wl_dom):
             if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
             return False
         elif testvalue in bl_dom:
@@ -663,6 +664,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
                     alias = elements[1].strip().lower().rstrip('.')
                     if isdomain.match(domain) and (isdomain.match(alias) or ipregex.match(alias)):
                         alist[domain] = alias
+                        domlist[domain] = True # Whitelist it
                     else:
                         log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
                 else:
@@ -674,6 +676,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
                     domain = elements[0].strip().lower().rstrip('.')
                     ips = elements[1].strip().lower().rstrip('.')
                     if isdomain.match(domain):
+                        domlist[domain] = True # Whitelist it
                         addrs = list()
                         for addr in ips.split(','):
                             if ipportregex.match(addr):
