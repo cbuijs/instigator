@@ -49,7 +49,8 @@ listen_on = list(['127.0.0.1:53', '192.168.1.250:53'])
 # Forwarding queries to
 forward_timeout = 2 # Seconds
 forward_servers = dict()
-forward_servers['.'] = list(['1.1.1.1:53','1.0.0.1:53']) # DEFAULT Cloudflare
+#forward_servers['.'] = list(['1.1.1.1:53','1.0.0.1:53']) # DEFAULT Cloudflare
+forward_servers['.'] = list(['127.0.0.1:53053']) # Unbound
 # Alternatives:
 #forward_servers['.'] = list(['209.244.0.3:53','209.244.0.4:53']) # DEFAULT Level-3
 #forward_servers['.'] = list(['8.8.8.8:53','8.8.4.4:53']) # DEFAULT Google
