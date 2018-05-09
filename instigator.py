@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.24-20180508 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.25-20180509 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -50,9 +50,8 @@ listen_on = list(['127.0.0.1:53', '192.168.1.250:53'])
 forward_timeout = 2 # Seconds
 forward_servers = dict()
 #forward_servers['.'] = list(['1.1.1.1:53','1.0.0.1:53']) # DEFAULT Cloudflare
-forward_servers['.'] = list(['127.0.0.1:53053']) # Unbound
 # Alternatives:
-#forward_servers['.'] = list(['209.244.0.3:53','209.244.0.4:53']) # DEFAULT Level-3
+forward_servers['.'] = list(['209.244.0.3:53','209.244.0.4:53']) # DEFAULT Level-3
 #forward_servers['.'] = list(['8.8.8.8:53','8.8.4.4:53']) # DEFAULT Google
 #forward_servers['.'] = list(['9.9.9.9:53','149.112.112.112:53']) # DEFAULT Quad9
 #forward_servers['.'] = list(['208.67.222.222:53','208.67.220.220:53']) # DEFAULT OpenDNS
@@ -821,7 +820,7 @@ def cache_purge():
             del_cache_entry(queryhash)
 
     after = len(cache)
-    log_info('CACHE-STATS: purged ' + str(before - after) + ' entries, ' + str(after) + ' in cache')
+    log_info('CACHE-STATS: purged ' + str(before - after) + ' entries, ' + str(after) + ' left in cache')
 
     if before != after:
         save_cache(cachefile)
