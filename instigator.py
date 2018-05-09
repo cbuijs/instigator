@@ -62,12 +62,12 @@ forward_servers['.'] = list(['127.0.0.1:53053']) # Unbound
 #forward_servers['.'] = list(['156.154.70.2:53','156.154.71.2:53']) # DEFAULT Neustar
 
 # Redirect Address, leave empty to generete REFUSED
-redirect_address = ''
-#redirect_address = '192.168.1.250' # IPv4 or IPv6
+#redirect_address = ''
+redirect_address = '192.168.1.250' # IPv4 or IPv6
 
 # Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
-hitrcode = 'NXDOMAIN'
-#hitrcode = 'REFUSED'
+#hitrcode = 'NXDOMAIN'
+hitrcode = 'REFUSED'
 
 # Only load cached/fast files when not older then maxfileage
 maxfileage = 3600 # Seconds
