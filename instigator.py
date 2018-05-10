@@ -288,16 +288,14 @@ def match_blacklist(rid, type, rrtype, value, log):
     # Check agains Regex-Lists
     for i in wl_rx.keys():
         rx = wl_rx[i]
-        rxmatch = rx.match(value)
-        if rxmatch:
-            if log: log_info('WHITELIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + str(rxmatch.group())+ '\"')
+        if rx.match(value):
+            if log: log_info('WHITELIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
             return False
 
     for i in bl_rx.keys():
         rx = bl_rx[i]
-        rxmatch = rx.match(value)
-        if rxmatch:
-            if log: log_info('BLACKLIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + str(rxmatch.group()) + '\"')
+        if rx.match(value):
+            if log: log_info('BLACKLIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
             return True
 
     #if log: log_info('NONE-HIT [' + id + ']: ' + type + ' \"' + value + '\" does not match against any lists')
