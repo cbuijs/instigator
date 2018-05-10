@@ -16,7 +16,7 @@ IP-Addresses can be either just an IP-Address or a CIDR subnet, example:
 Domains are just domains, will also apply to sub-domains, example:
 
 	company.com		Will give a hit on domain company.com and all domains ending om .company.com
-	ad.doubleclick.net	Will give a hit on domain doubleclick.net and all domains ending in .ad.doubleclick.net
+	ad.doubleclick.net	Will give a hit on domain ad.doubleclick.net and all domains ending in .ad.doubleclick.net
 	blah.test.invalid	Will give a hit on domain blah.test.invalid and all domains ending in .bla.test.invalid
 	info			Will give a hit on domain info and all domains ending in .info
 
@@ -37,6 +37,6 @@ Aliases need to be divided by an equals-symbol (=), example:
 Forwarders need to be divided by a greater-then-symbol (>), example:
 
 	google.com>8.8.8.8:53,8.8.4.4:53		# Use google dns for all domains ending in google.com
-	chrisbuijs.com>9.9.9.9:53,149.112.112.112	# Use Quad9 dns servers for all domains ending in chrisbuijs.com
+	chrisbuijs.com>9.9.9.9:53,149.112.112.112:53	# Use Quad9 dns servers for all domains ending in chrisbuijs.com
 	
-<b>Note:</b> Aliases/Forwardeers are concidered "whitelisted". Cannot point to other aliases.
+<b>Note:</b> Aliases/Forwardeers are concidered "whitelisted". Cannot point to other aliases. For forwarder port-number is optional (default of 53 is assumed).
