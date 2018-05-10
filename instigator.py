@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.28-20180510 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.30-20180510 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -288,14 +288,16 @@ def match_blacklist(rid, type, rrtype, value, log):
     # Check agains Regex-Lists
     for i in wl_rx.keys():
         rx = wl_rx[i]
-        if rx.match(value):
-            if log: log_info('WHITELIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
+        rxmatch = rx.match(value)
+        if rxmatch:
+            if log: log_info('WHITELIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + str(rxmatch.group())+ '\"')
             return False
 
     for i in bl_rx.keys():
         rx = bl_rx[i]
-        if rx.match(value):
-            if log: log_info('BLACKLIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
+        rxmatch = rx.match(value)
+        if rxmatch:
+            if log: log_info('BLACKLIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + str(rxmatch.group()) + '\"')
             return True
 
     #if log: log_info('NONE-HIT [' + id + ']: ' + type + ' \"' + value + '\" does not match against any lists')
