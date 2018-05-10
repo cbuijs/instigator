@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.26-20180509 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.27-20180510 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -758,7 +758,10 @@ def from_cache(queryhash, id):
             for record in reply.rr:
                 record.ttl = ttl
           
-        log_info('CACHE-HIT: Retrieved ' + str(len(reply.rr)) + ' RRs for ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + ')')
+        if len(reply.rr) > 0:
+            log_info('CACHE-HIT: Retrieved ' + str(len(reply.rr)) + ' RRs for ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + ')')
+        else:
+            log_info('CACHE-HIT: Retrieved ' + str(RCODE[reply.header.rcode]) + ' for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + ')')
 
         return reply
 
