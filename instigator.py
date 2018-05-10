@@ -44,7 +44,7 @@ import pytricia
 ###################
 
 # Listen for queries
-listen_on = list(['127.0.0.1:53', '192.168.1.250:53'])
+listen_on = list(['127.0.0.1:53', '192.168.1.251:53'])
 
 # Forwarding queries to
 forward_timeout = 2 # Seconds
@@ -62,7 +62,7 @@ forward_servers['.'] = list(['209.244.0.3:53','209.244.0.4:53']) # DEFAULT Level
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_address = ''
-redirect_address = '192.168.1.250' # IPv4 or IPv6
+redirect_address = '192.168.1.251' # IPv4 or IPv6
 
 # Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
 #hitrcode = 'NXDOMAIN'
