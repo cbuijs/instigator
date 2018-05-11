@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.30-20180510 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.31-20180511 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -44,7 +44,7 @@ import pytricia
 ###################
 
 # Listen for queries
-listen_on = list(['127.0.0.1:53', '192.168.1.251:53'])
+listen_on = list(['127.0.0.1:53', '192.168.1.251:53']) # IPv4 only for now.
 
 # Forwarding queries to
 forward_timeout = 2 # Seconds
@@ -61,8 +61,8 @@ forward_servers['.'] = list(['209.244.0.3:53','209.244.0.4:53']) # DEFAULT Level
 #forward_servers['.'] = list(['156.154.70.2:53','156.154.71.2:53']) # DEFAULT Neustar
 
 # Redirect Address, leave empty to generete REFUSED
-#redirect_address = ''
-redirect_address = '192.168.1.251' # IPv4 or IPv6
+#redirect_addrs = list()
+redirect_addrs = list(['192.168.1.251', '0000:0000:0000:0000:0000:0000:0000:0000'])
 
 # Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
 #hitrcode = 'NXDOMAIN'
@@ -381,23 +381,35 @@ def dns_query(qname, qtype, use_tcp, id, cip):
 
 
 # Generate response when blocking
-def generate_response(request, qname, qtype, redirect_address):
+def generate_response(request, qname, qtype, redirect_addrs):
     queryname = qname + '/IN/' + qtype
+
     reply = request.reply()
-    if (len(redirect_address) == 0) or (qtype not in ('A', 'AAAA', 'CNAME', 'ANY')) or (not ipregex.match(redirect_address)):
+
+    if (len(redirect_addrs) == 0) or (qtype not in ('A', 'AAAA', 'CNAME', 'ANY')):
         log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
         reply.header.rcode = getattr(RCODE, hitrcode)
+
     else:
-        log_info('GENERATE: REDIRECT ' + queryname + ' to ' + redirect_address)
+        addanswer = False
+        for addr in redirect_addrs:
+            answer = None
+            if qtype == 'A' and ipregex4.match(addr):
+                answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(addr))
+            elif qtype == 'AAAA' and ipregex6.match(addr):
+                answer = RR(qname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(addr))
+        
+            if answer != None:
+                addanswer = True
+                answer.set_rname(request.q.qname)
+                reply.add_answer(answer)
 
-        if redirect_address.find(':') == -1:
-            answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(redirect_address))
+        if addanswer:
+            log_info('GENERATE: REDIRECT/NOERROR for ' + queryname)
+            reply.header.rcode = getattr(RCODE, 'NOERROR')
         else:
-            answer = RR(qname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(redirect_address))
-
-        answer.set_rname(request.q.qname)
-        reply.add_answer(answer)
-        reply.header.rcode = getattr(RCODE, 'NOERROR')
+            log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
+            reply.header.rcode = getattr(RCODE, hitrcode)
 
     return reply
 
@@ -928,6 +940,7 @@ class DNS_Instigator(BaseResolver):
         log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ' for ' + queryname + ' (' + handler.protocol.upper() + ')')
 
         reply = None
+
         queryhash = query_hash(qname, qclass, qtype)
         if queryhash in cache:
             reply = from_cache(queryhash, rid)
@@ -939,9 +952,11 @@ class DNS_Instigator(BaseResolver):
                 reply.header.rcode = getattr(RCODE, 'NOTIMP')
 
             elif blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
-                log_info('IPV6-HIT: ' + queryname + ' responded with NXDOMAIN')
-                reply = request.reply()
-                reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+                #log_info('IPV6-HIT: ' + queryname + ' responded with NXDOMAIN')
+                #reply = request.reply()
+                #reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+                log_info('IPV6-HIT: ' + queryname)
+                reply = generate_response(request, qname, qtype, redirect_addrs)
 
             elif qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
                 reply = generate_alias(request, qname, qtype, use_tcp)
@@ -949,7 +964,7 @@ class DNS_Instigator(BaseResolver):
             else:
                 ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
                 if ismatch == True: # Blacklisted
-                    reply = generate_response(request, qname, qtype, redirect_address)
+                    reply = generate_response(request, qname, qtype, redirect_addrs)
 
                 else:
                     reply = dns_query(qname, qtype, use_tcp, rid, cip)
@@ -980,7 +995,7 @@ class DNS_Instigator(BaseResolver):
 
                                     if (qlog and match_blacklist(rid, 'REQUEST', rqtype, rqname, qlog)) or (dlog and match_blacklist(rid, 'REPLY', rqtype, data, dlog)):
                                         log_info('REPLY [' + id_str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
-                                        reply = generate_response(request, qname, qtype, redirect_address)
+                                        reply = generate_response(request, qname, qtype, redirect_addrs)
                                         break
                                     else:
                                         log_info('REPLY [' + id_str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
