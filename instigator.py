@@ -244,6 +244,14 @@ def match_blacklist(rid, type, rrtype, value, log):
             if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
             return True
 
+        # Spamhaus check dbltest.com.dbl.spamhaus.org !!! TEST !!!
+        #subreply = dns_query(value + '.dbl.spamhaus.org', 'A', False, 666, '127.0.0.1')
+        #rcode = str(RCODE[subreply.header.rcode])
+        #if rcode == "NOERROR":
+        #    print(subreply)
+        #    if log: log_info('SPAMHAUS-HIT [' + id + ']: ' + type + ' \"' + value + '\"')
+        #    return True
+
     # Check against IP-Lists
     if itisanip:
         found = False
