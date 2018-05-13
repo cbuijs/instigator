@@ -213,13 +213,13 @@ def match_blacklist(rid, type, rrtype, value, log):
     itisanip = False
     itisadomain = False
 
-    #if type == 'REPLY' and rrtype in ('A', 'AAAA') and ipregex.match(testvalue):
+    #if type == 'REPLY' and rrtype in ('A', 'AAAA') and ipregex.search(testvalue):
     if type == 'REPLY' and rrtype in ('A', 'AAAA'):
         itisanip = True
     else:
         if type == 'REPLY':
             field = False
-            #if rrtype in ('CNAME', 'NS', 'PTR', 'SOA') and isdomain.match(testvalue):
+            #if rrtype in ('CNAME', 'NS', 'PTR', 'SOA') and isdomain.search(testvalue):
             if rrtype in ('CNAME', 'NS', 'PTR', 'SOA'):
                 field = 0
             elif type == 'MX':
@@ -229,7 +229,7 @@ def match_blacklist(rid, type, rrtype, value, log):
 
             if field:
                 testvalue = regex.split('\s+', testvalue)[field].rstrip('.')
-                #if isdomain.match(testvalue):
+                #if isdomain.search(testvalue):
                 #    itisadomain = True
                 itisadomain = True
 
@@ -257,7 +257,7 @@ def match_blacklist(rid, type, rrtype, value, log):
         found = False
         prefix = False
 
-        #if ipregex4.match(testvalue):
+        #if ipregex4.search(testvalue):
         if testvalue.find(':') == -1:
             wip = wl_ip4
             bip = bl_ip4
@@ -296,13 +296,13 @@ def match_blacklist(rid, type, rrtype, value, log):
     # Check agains Regex-Lists
     for i in wl_rx.keys():
         rx = wl_rx[i]
-        if rx.match(value):
+        if rx.search(value):
             if log: log_info('WHITELIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
             return False
 
     for i in bl_rx.keys():
         rx = bl_rx[i]
-        if rx.match(value):
+        if rx.search(value):
             if log: log_info('BLACKLIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
             return True
 
@@ -394,9 +394,9 @@ def generate_response(request, qname, qtype, redirect_addrs):
         addanswer = False
         for addr in redirect_addrs:
             answer = None
-            if qtype == 'A' and ipregex4.match(addr):
+            if qtype == 'A' and ipregex4.search(addr):
                 answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(addr))
-            elif qtype == 'AAAA' and ipregex6.match(addr):
+            elif qtype == 'AAAA' and ipregex6.search(addr):
                 answer = RR(qname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(addr))
         
             if answer != None:
@@ -444,7 +444,7 @@ def generate_alias(request, qname, qtype, use_tcp):
         reply = request.reply()
         reply.header.rcode = getattr(RCODE, alias.upper())
 
-    elif ipregex.match(alias):
+    elif ipregex.search(alias):
         log_info('ALIAS-HIT: ' + queryname + ' = REDIRECT-TO-IP')
         if alias.find(':') == -1:
             answer = RR(realqname, QTYPE.A, ttl=cachettl, rdata=A(alias))
@@ -662,21 +662,21 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
             entry = ''
 
         if len(entry) > 0 and (not entry.startswith('#')):
-            if isregex.match(entry):
+            if isregex.search(entry):
                 rx = entry.strip('/')
                 rxlist[rx] = regex.compile(rx, regex.I)
 
-            elif isasn.match(entry):
+            elif isasn.search(entry):
                 # ASN Number, just discard for now
                 pass
 
-            elif isdomain.match(entry):
+            elif isdomain.search(entry):
                 domlist[entry] = True
 
-            elif ipregex4.match(entry):
+            elif ipregex4.search(entry):
                 iplist4[entry] = True
 
-            elif ipregex6.match(entry):
+            elif ipregex6.search(entry):
                 iplist6[entry] = True
 
             elif entry.find('=') > 0:
@@ -684,7 +684,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
                 if len(elements) > 1:
                     domain = elements[0].strip().lower().rstrip('.')
                     alias = elements[1].strip().lower().rstrip('.')
-                    if isdomain.match(domain) and (isdomain.match(alias) or ipregex.match(alias)):
+                    if isdomain.search(domain) and (isdomain.search(alias) or ipregex.search(alias)):
                         alist[domain] = alias
                         domlist[domain] = True # Whitelist it
                     else:
@@ -697,11 +697,11 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
                 if len(elements) > 1:
                     domain = elements[0].strip().lower().rstrip('.')
                     ips = elements[1].strip().lower().rstrip('.')
-                    if isdomain.match(domain):
+                    if isdomain.search(domain):
                         domlist[domain] = True # Whitelist it
                         addrs = list()
                         for addr in ips.split(','):
-                            if ipportregex.match(addr):
+                            if ipportregex.search(addr):
                                 addrs.append(addr)
                             else:
                                 log_err(listname + ' INVALID FORWARD-ADDRESS [' + str(count) + ']: ' + addr)
@@ -1046,7 +1046,7 @@ if __name__ == "__main__":
     udp_dns_server = dict()
     tcp_dns_server = dict()
     for listen in listen_on:
-        if ipportregex.match(listen):
+        if ipportregex.search(listen):
             elements = listen.split(':')
             listen_address = elements[0]
             if len(elements) > 1:
@@ -1086,7 +1086,7 @@ if __name__ == "__main__":
         pass
 
     for listen in listen_on:
-        if ipportregex.match(listen):
+        if ipportregex.search(listen):
             elements = listen.split(':')
             listen_address = elements[0]
             if len(elements) > 1:
