@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.37-20180514 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.38-20180514 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -15,6 +15,8 @@ This is a little study to build a DNS server in Python including some features:
 
 TODO:
 - Loads ...
+- Logging only option for blacklists
+- Make checking for responses optional/toggable
 - Better Documentation / Remarks / Comments
 
 =========================================================================================
@@ -123,6 +125,7 @@ bl_ip6 = pytricia.PyTricia(128) # IPv6 Blacklist
 wl_rx = dict() # Regex Whitelist
 bl_rx = dict() # Regex Blacklist
 aliases = dict()
+ttls = dict()
 
 # Cache
 cache = dict()
@@ -335,7 +338,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
 
     reply = None
 
-    forward_server = forward_servers.get(server, None)
+    forward_server = forward_servers.get(server, False)
     if forward_server:
         query = DNSRecord(q = DNSQuestion(qname, getattr(QTYPE, qtype)))
 
@@ -355,7 +358,9 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
                 try:
                     q = query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout)
                     reply = DNSRecord.parse(q)
-                    ttl = normalize_ttl(reply.rr, False)
+
+                    ttl = normalize_ttl(qname, reply.rr, False)
+
                     break
 
                 except socket.timeout:
@@ -374,42 +379,41 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
         reply.header.rcode = getattr(RCODE, 'SERVFAIL')
         return reply
 
-    if checkbl:
-        rcode = str(RCODE[reply.header.rcode])
-        if rcode == 'NOERROR':
-            if reply.rr:
-                replycount = 0
-                replynum = len(reply.rr)
+    rcode = str(RCODE[reply.header.rcode])
+    if rcode == 'NOERROR':
+        if checkbl and reply.rr:
+            replycount = 0
+            replynum = len(reply.rr)
 
-                seen = set()
-                seen.add(qname)
+            seen = set()
+            seen.add(qname)
 
-                for record in reply.rr:
-                    replycount += 1
+            for record in reply.rr:
+                replycount += 1
 
-                    rqname = str(record.rname).rstrip('.').lower()
-                    rqtype = QTYPE[record.rtype].upper()
+                rqname = str(record.rname).rstrip('.').lower()
+                rqtype = QTYPE[record.rtype].upper()
 
-                    if checkalias and rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
-                        reply = generate_alias(request, rqname, rqtype, use_tcp)
-                        break
+                if checkalias and rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
+                    reply = generate_alias(request, rqname, rqtype, use_tcp)
+                    break
 
-                    data = str(record.rdata).rstrip('.').lower()
+                data = str(record.rdata).rstrip('.').lower()
 
-                    qlog = seen_it(rqname, seen)
-                    dlog = seen_it(data, seen)
+                qlog = seen_it(rqname, seen)
+                dlog = seen_it(data, seen)
 
-                    if (qlog and match_blacklist(id, 'REQUEST', rqtype, rqname, qlog)) or (dlog and match_blacklist(id, 'REPLY', rqtype, data, dlog)):
-                        log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
-                        reply = generate_response(request, qname, qtype, redirect_addrs)
-                        break
-                    else:
-                        log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
+                if (qlog and match_blacklist(id, 'REQUEST', rqtype, rqname, qlog)) or (dlog and match_blacklist(id, 'REPLY', rqtype, data, dlog)):
+                    log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
+                    reply = generate_response(request, qname, qtype, redirect_addrs)
+                    break
+                else:
+                    log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
 
-        else:
-            reply = request.reply()
-            reply.header.rcode = getattr(RCODE, rcode)
-            log_info('REPLY [' + id_str(id) + ']: ' + queryname + ' = ' + rcode)
+    else:
+        reply = request.reply()
+        reply.header.rcode = getattr(RCODE, rcode)
+        log_info('REPLY [' + id_str(id) + ']: ' + queryname + ' = ' + rcode)
 
 
     # Match up ID
@@ -514,7 +518,7 @@ def generate_alias(request, qname, qtype, use_tcp):
         if qtype not in ('A', 'AAAA'):
             qtype = 'A'
 
-        subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, '127.0.0.1', True, False)
+        subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, '127.0.0.1', True, False)  # To prevent loop "checkalias" must be always False (last argument)
 
         rcode = str(RCODE[subreply.header.rcode])
         if rcode == 'NOERROR':
@@ -600,6 +604,7 @@ def save_lists(file):
         s['wl_rx'] = wl_rx
         s['aliases'] = aliases
         s['forward_servers'] = forward_servers
+        s['ttls'] = ttls
 
         s['bl_dom'] = bl_dom
         s['bl_ip4'] = bl_ip4.keys()
@@ -624,6 +629,7 @@ def load_lists(file):
     global wl_rx
     global aliases
     global forward_servers
+    global ttls
 
     global bl_dom
     global bl_ip4
@@ -648,6 +654,7 @@ def load_lists(file):
             wl_rx = s['wl_rx']
             aliases = s['aliases']
             forward_servers = s['forward_servers']
+            ttls = s['ttls']
 
             bl_dom = s['bl_dom']
             bl_ip4 = pytricia.PyTricia(32)
@@ -673,7 +680,7 @@ def load_lists(file):
 
 
 def log_total():
-    log_info('WHITELIST: ' + str(len(wl_rx)) + ' REGEXes, ' + str(len(wl_ip4)) + ' IPv4 CIDRs, ' + str(len(wl_ip6)) + ' IPv6 CIDRs, ' + str(len(wl_dom)) + ' DOMAINs, ' + str(len(aliases)) + ' ALIASes and ' + str(len(forward_servers)) + ' FORWARDs')
+    log_info('WHITELIST: ' + str(len(wl_rx)) + ' REGEXes, ' + str(len(wl_ip4)) + ' IPv4 CIDRs, ' + str(len(wl_ip6)) + ' IPv6 CIDRs, ' + str(len(wl_dom)) + ' DOMAINs, ' + str(len(aliases)) + ' ALIASes, ' + str(len(forward_servers)) + ' FORWARDs and ' + str(len(ttls)) + ' TTLs')
     log_info('BLACKLIST: ' + str(len(bl_rx)) + ' REGEXes, ' + str(len(bl_ip4)) + ' IPv4 CIDRs, ' + str(len(bl_ip6)) + ' IPv6 CIDRs and ' + str(len(bl_dom)) + ' DOMAINs')
 
     return True
@@ -681,7 +688,7 @@ def log_total():
 
 # Read filter lists, see "accomplist" lists for compatibility:
 # https://github.com/cbuijs/accomplist
-def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
+def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, tlist):
     log_info('Fetching \"' + listname + '\" entries from \"' + file + '\"')
 
     count = 0
@@ -713,23 +720,31 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
             entry = ''
 
         if len(entry) > 0 and (not entry.startswith('#')):
+
+            # REGEX
             if isregex.search(entry):
                 rx = entry.strip('/')
                 rxlist[rx] = regex.compile(rx, regex.I)
 
+            # ASN
             elif isasn.search(entry):
-                # ASN Number, just discard for now
+                ### !!! ASN Number, just discard for now, for future query whoias and get address-ranges to block/allow
+                ### !!! ... or do a "safedns" feature like unbound-dns-firewall (see github)
                 pass
 
+            # DOMAIN
             elif isdomain.search(entry):
                 domlist[entry] = True
 
+            # IPV4
             elif ipregex4.search(entry):
                 iplist4[entry] = True
 
+            # IPV6
             elif ipregex6.search(entry):
                 iplist6[entry] = True
 
+            # ALIAS
             elif entry.find('=') > 0:
                 elements = entry.split('=')
                 if len(elements) > 1:
@@ -743,6 +758,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
                 else:
                     log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
 
+            # FORWARD
             elif entry.find('>') > 0:
                 elements = entry.split('>')
                 if len(elements) > 1:
@@ -764,24 +780,46 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist):
                 else:
                     log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
 
+            elif entry.find('@') > 0:
+                elements = entry.split('@')
+                if len(elements) > 1:
+                    domain = elements[0].strip().lower().rstrip('.')
+                    ttl = elements[1].strip()
+                    if isdomain.search(domain) and ttl.isdecimal():
+                        tlist[domain] = int(ttl)
+                    else:
+                        log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
+                else:
+                    log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
+
+            # BOGUS
             else:
                 log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
 
-    return domlist, iplist4, iplist6, rxlist, alist, flist
+    return domlist, iplist4, iplist6, rxlist, alist, flist, tlist
 
 
 # Normalize TTL's, take either lowest or highest TTL for all records in RRSET
-def normalize_ttl(rr, getmax):
+def normalize_ttl(qname, rr, getmax):
     if len(rr) > 0:
-        if getmax:
-            ttl = max(x.ttl for x in rr)
+        overridettl = False
+        newttl = in_domain(qname, ttls)
+        if newttl:
+            overridettl = ttls.get(newttl, 0)
+        
+        if overridettl:
+            log_info('TTL-HIT: Setting TTL for ' + qname + ' (' + newttl + ') to ' + str(overridettl))
+            ttl = overridettl
         else:
-            ttl = min(x.ttl for x in rr)
+            if getmax:
+                ttl = max(x.ttl for x in rr)
+            else:
+                ttl = min(x.ttl for x in rr)
 
-        if ttl < minttl:
-            ttl = minttl
-        elif ttl > maxttl:
-            ttl = maxttl
+            if ttl < minttl:
+                ttl = minttl
+            elif ttl > maxttl:
+                ttl = maxttl
 
         for x in rr:
             x.ttl = ttl
@@ -796,7 +834,7 @@ def normalize_ttl(rr, getmax):
 def from_cache(qname, qclass, qtype, id):
     queryhash = query_hash(qname, qclass, qtype)
     cacheentry = cache.get(queryhash, defaultlist)
-    if cacheentry == defaultlist:
+    if cacheentry == defaultlist or cacheentry == None:
         return None
 
     expire = cacheentry[1]
@@ -1045,9 +1083,9 @@ if __name__ == "__main__":
     if not load_lists(savefile):
         for lst in sorted(lists.keys()):
             if lst in whitelist:
-                wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers)
+                wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers, ttls = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers, ttls)
             else:
-                bl_dom, bl_ip4, bl_ip6, bl_rx, _, _ = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(), dict())
+                bl_dom, bl_ip4, bl_ip6, bl_rx, _, _, _ = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(), dict(), dict())
 
         save_lists(savefile)
 
