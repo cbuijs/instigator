@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.35-20180514 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.36-20180514 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -318,7 +318,7 @@ def in_domain(name, domlist):
 
 
 # Do query
-def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl):
+def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
     # Get from cache if any
     reply = from_cache(qname, 'IN', qtype, id)
     if reply != None:
@@ -390,7 +390,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl):
                     rqname = str(record.rname).rstrip('.').lower()
                     rqtype = QTYPE[record.rtype].upper()
 
-                    if rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
+                    if checkalias and rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
                         reply = generate_alias(request, rqname, rqtype, use_tcp)
                         break
 
@@ -461,6 +461,8 @@ def generate_response(request, qname, qtype, redirect_addrs):
             log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
             reply.header.rcode = getattr(RCODE, hitrcode)
 
+    to_cache(qname, 'IN', qtype, reply)
+
     return reply
 
 
@@ -495,7 +497,7 @@ def generate_alias(request, qname, qtype, use_tcp):
         reply.header.rcode = getattr(RCODE, alias.upper())
 
     elif ipregex.search(alias):
-        log_info('ALIAS-HIT: ' + queryname + ' = REDIRECT-TO-IP')
+        log_info('ALIAS-HIT: ' + queryname + ' = REDIRECT-TO-IP -> ' + alias)
         if alias.find(':') == -1:
             answer = RR(realqname, QTYPE.A, ttl=cachettl, rdata=A(alias))
         else:
@@ -504,7 +506,7 @@ def generate_alias(request, qname, qtype, use_tcp):
         reply.add_answer(answer)
 
     else:
-        log_info('ALIAS-HIT: ' + queryname + ' = REDIRECT-TO-NAME')
+        log_info('ALIAS-HIT: ' + queryname + ' = REDIRECT-TO-NAME -> ' + alias)
         if not collapse and qname != alias:
             answer = RR(realqname, QTYPE.CNAME, ttl=cachettl, rdata=CNAME(alias))
             reply.add_answer(answer)
@@ -512,7 +514,7 @@ def generate_alias(request, qname, qtype, use_tcp):
         if qtype not in ('A', 'AAAA'):
             qtype = 'A'
 
-        subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, '127.0.0.1', True)
+        subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, '127.0.0.1', True, False)
 
         rcode = str(RCODE[subreply.header.rcode])
         if rcode == 'NOERROR':
@@ -540,6 +542,8 @@ def generate_alias(request, qname, qtype, use_tcp):
     log_info('ALIAS-HIT: ' + qname + ' -> ' + alias + ' ' + str(RCODE[reply.header.rcode]))
     if collapse and aliasqname:
         log_info('ALIAS-HIT: COLLAPSE ' + qname + '/IN/CNAME')
+
+    to_cache(qname, 'IN', qtype, reply)
 
     return reply
 
@@ -840,6 +844,12 @@ def from_cache(qname, qclass, qtype, id):
 
 # Store into cache
 def to_cache(qname, qclass, qtype, reply):
+    if reply == defaultlist or reply == None:
+        return False
+
+    if query_hash(qname, qclass, qtype) in cache:
+        return True
+
     queryname = qname + '/' + qclass + '/' + qtype
     rcode = str(RCODE[reply.header.rcode])
 
@@ -1014,9 +1024,10 @@ class DNS_Instigator(BaseResolver):
 
                 else:
                     if ismatch == None:
-                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True)
+                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True)
                     else:
-                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False)
+                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, True)
+
 
 
         log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
