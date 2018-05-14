@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.32-20180513 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.35-20180514 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -244,14 +244,6 @@ def match_blacklist(rid, type, rrtype, value, log):
             if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
             return True
 
-        # Spamhaus check dbltest.com.dbl.spamhaus.org !!! TEST !!!
-        #subreply = dns_query(value + '.dbl.spamhaus.org', 'A', False, 666, '127.0.0.1')
-        #rcode = str(RCODE[subreply.header.rcode])
-        #if rcode == "NOERROR":
-        #    print(subreply)
-        #    if log: log_info('SPAMHAUS-HIT [' + id + ']: ' + type + ' \"' + value + '\"')
-        #    return True
-
     # Check against IP-Lists
     if itisanip:
         found = False
@@ -326,7 +318,12 @@ def in_domain(name, domlist):
 
 
 # Do query
-def dns_query(qname, qtype, use_tcp, id, cip):
+def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl):
+    # Get from cache if any
+    reply = from_cache(qname, 'IN', qtype, id)
+    if reply != None:
+        return Reply
+
     queryname = qname + '/IN/' + qtype
 
     server = in_domain(qname, forward_servers)
@@ -373,9 +370,62 @@ def dns_query(qname, qtype, use_tcp, id, cip):
         log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname)
         cache.clear()
         reply = query.reply()
+        reply.header.id = id
         reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+        return reply
 
+    if checkbl:
+        rcode = str(RCODE[reply.header.rcode])
+        if rcode == 'NOERROR':
+            if reply.rr:
+                replycount = 0
+                replynum = len(reply.rr)
+
+                seen = set()
+                seen.add(qname)
+
+                for record in reply.rr:
+                    replycount += 1
+
+                    rqname = str(record.rname).rstrip('.').lower()
+                    rqtype = QTYPE[record.rtype].upper()
+
+                    if rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
+                        reply = generate_alias(request, rqname, rqtype, use_tcp)
+                        break
+
+                    data = str(record.rdata).rstrip('.').lower()
+
+                    qlog = seen_it(rqname, seen)
+                    dlog = seen_it(data, seen)
+
+                    if (qlog and match_blacklist(id, 'REQUEST', rqtype, rqname, qlog)) or (dlog and match_blacklist(id, 'REPLY', rqtype, data, dlog)):
+                        log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
+                        reply = generate_response(request, qname, qtype, redirect_addrs)
+                        break
+                    else:
+                        log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
+
+        else:
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, rcode)
+            log_info('REPLY [' + id_str(id) + ']: ' + queryname + ' = ' + rcode)
+
+
+    # Match up ID
     reply.header.id = id
+
+    # Collapse CNAME
+    if collapse:
+        reply = collapse_cname(request, reply, id)
+
+    # Minimum responses
+    if minresp:
+        reply.auth = list()
+        reply.ar = list()
+
+    # Stash in cache
+    to_cache(qname, 'IN', qtype, reply)
 
     return reply
 
@@ -462,11 +512,7 @@ def generate_alias(request, qname, qtype, use_tcp):
         if qtype not in ('A', 'AAAA'):
             qtype = 'A'
 
-        queryhash = query_hash(qname, 'IN', qtype)
-        if queryhash in cache:
-            subreply = from_cache(queryhash, request.header.id)
-        else:
-            subreply = dns_query(alias, qtype, use_tcp, request.header.id, '127.0.0.1')
+        subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, '127.0.0.1', True)
 
         rcode = str(RCODE[subreply.header.rcode])
         if rcode == 'NOERROR':
@@ -742,8 +788,11 @@ def normalize_ttl(rr, getmax):
 
 
 # Retrieve from cache
-def from_cache(queryhash, id):
+def from_cache(qname, qclass, qtype, id):
+    queryhash = query_hash(qname, qclass, qtype)
     cacheentry = cache.get(queryhash, defaultlist)
+    if cacheentry == defaultlist:
+        return None
 
     expire = cacheentry[1]
     now = int(time.time())
@@ -792,11 +841,11 @@ def from_cache(queryhash, id):
 # Store into cache
 def to_cache(qname, qclass, qtype, reply):
     queryname = qname + '/' + qclass + '/' + qtype
+    rcode = str(RCODE[reply.header.rcode])
 
     if qclass == 'FORWARDER':
         ttl = 10
     else:
-        rcode = str(RCODE[reply.header.rcode])
         if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
             ttl = rcodettl
         elif rcode == 'SERVFAIL':
@@ -939,11 +988,8 @@ class DNS_Instigator(BaseResolver):
 
         log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ' for ' + queryname + ' (' + handler.protocol.upper() + ')')
 
-        reply = None
-
-        queryhash = query_hash(qname, qclass, qtype)
-        if queryhash in cache:
-            reply = from_cache(queryhash, rid)
+        # Quick response when in cache
+        reply = from_cache(qname, qclass, qtype, rid)
 
         if reply == None:
             if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
@@ -967,55 +1013,11 @@ class DNS_Instigator(BaseResolver):
                     reply = generate_response(request, qname, qtype, redirect_addrs)
 
                 else:
-                    reply = dns_query(qname, qtype, use_tcp, rid, cip)
-                    if ismatch == None: # None-Listed, when False it is whitelisted
-                        rcode = str(RCODE[reply.header.rcode])
-                        if rcode == 'NOERROR':
-                            if reply.rr:
-                                replycount = 0
-                                replynum = len(reply.rr)
+                    if ismatch == None:
+                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True)
+                    else:
+                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False)
 
-                                seen = set()
-                                seen.add(qname)
-
-                                for record in reply.rr:
-                                    replycount += 1
-
-                                    rqname = str(record.rname).rstrip('.').lower()
-                                    rqtype = QTYPE[record.rtype].upper()
-
-                                    if rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
-                                        reply = generate_alias(request, rqname, rqtype, use_tcp)
-                                        break
-
-                                    data = str(record.rdata).rstrip('.').lower()
-
-                                    qlog = seen_it(rqname, seen)
-                                    dlog = seen_it(data, seen)
-
-                                    if (qlog and match_blacklist(rid, 'REQUEST', rqtype, rqname, qlog)) or (dlog and match_blacklist(rid, 'REPLY', rqtype, data, dlog)):
-                                        log_info('REPLY [' + id_str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
-                                        reply = generate_response(request, qname, qtype, redirect_addrs)
-                                        break
-                                    else:
-                                        log_info('REPLY [' + id_str(rid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
-
-                        else:
-                            reply = request.reply()
-                            reply.header.rcode = getattr(RCODE, rcode)
-
-                            log_info('REPLY [' + id_str(rid) + ']: ' + queryname + ' = ' + rcode)
-
-        if queryhash not in cache:
-            if collapse:
-                reply = collapse_cname(request, reply, rid)
-
-            # Minimum responses
-            if minresp:
-                reply.auth = list()
-                reply.ar = list()
-
-            to_cache(qname, qclass, qtype, reply)
 
         log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
 
