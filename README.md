@@ -48,4 +48,4 @@ TTL overrides can be done by adding an at-sign (@), example (TTL in seconds):
 	google.com@666		# Use TTL of 666 for all domains ending in google.com
 	chrisbuijs.com@120	# Use a TTL of 120 for all domains ending in chrisbuijs.com
 	
-<b>Note:</b> Aliases/Forwardeers are concidered "whitelisted". Cannot point to other aliases. For forwarder port-number is optional (default of 53 is assumed).
+<b>Note:</b> Aliases/Forwarders/TTL-Overrides are concidered "whitelisted". Cannot point to other aliases. For forwarder port-number is optional (default of 53 is assumed).
