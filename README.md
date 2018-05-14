@@ -1,5 +1,7 @@
 # DNS Instigator
-Testbed to build a filtering DNS server based on dnslib
+Testbed to build a filtering DNS server based on dnslib.
+
+<b>Note/Disclaimer:</b> This code is as-is, changes frequently, sometimes well tested and sometimes not. Use at own risk.
 
 See <a href="https://github.com/cbuijs/instigator/blob/master/instigator.py">instigator.py</a> for variables and settings.
 
