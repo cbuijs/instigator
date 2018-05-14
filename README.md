@@ -1,7 +1,9 @@
 # DNS Instigator
 Testbed to build a filtering DNS server based on dnslib.
 
-<b>Note/Disclaimer:</b> This code is as-is, changes frequently, sometimes well tested and sometimes not. Use at own risk.
+<b>Note/Disclaimer:</b> This code is as-is, changes frequently, sometimes well tested, sometimes not and is badly documented. Use at own risk!
+
+Use the <a href="https://github.com/cbuijs/instigator/issues">Issues</a> tab to report anything I could/should help on or should include as feature/fix, and I will try my best.
 
 See <a href="https://github.com/cbuijs/instigator/blob/master/instigator.py">instigator.py</a> for variables and settings.
 
@@ -28,10 +30,10 @@ Regexes need to be secluded in forward slashes at begin and end of the line, exa
 	/^.*click\..*$/		Will give a hit on domain-labels ending in click
 	/.*porn.*/              Will give a hit on domain-labels with the word porn in it
 
-Aliases need to be divided by an equals-symbol (=), example:
+Aliases need to be divided by an equals-symbol (=), example (domains include sub-domains):
 
 	www.google.com=retricted.google.com	# Redirect
-	www.company.com=10.1.2.3		# Hosts-file equivelant
+	www.company.com=10.1.2.3		# Hosts-file equivelant, but includes sub-domains as well
 	www.badguys.com=REFUSED			# Return-code refused
 	www.whatisthis.com=NXDOMAIN		# Return-code NXDOMAIN
 	www.goodguys.com=PASSTHRU		# Passthru/whitelist
@@ -40,5 +42,10 @@ Forwarders need to be divided by a greater-then-symbol (>), example:
 
 	google.com>8.8.8.8:53,8.8.4.4:53		# Use google dns for all domains ending in google.com
 	chrisbuijs.com>9.9.9.9:53,149.112.112.112:53	# Use Quad9 dns servers for all domains ending in chrisbuijs.com
+
+TTL overrides can be done by adding an at-sign (@), example (TTL in seconds):
+
+	google.com@666		# Use TTL of 666 for all domains ending in google.com
+	chrisbuijs.com@120	# Use a TTL of 120 for all domains ending in chrisbuijs.com
 	
 <b>Note:</b> Aliases/Forwardeers are concidered "whitelisted". Cannot point to other aliases. For forwarder port-number is optional (default of 53 is assumed).
