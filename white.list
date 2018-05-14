@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1526200266                  ###
+### Version: 1526286667                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -637,6 +637,7 @@ alexbank.com	Shalla-Banking
 alfa-bank.com	Shalla-Banking
 alfransi.com	Shalla-Banking
 accounts.alibaba.com	Daenoman
+passport.alibaba.com	Daenoman
 alignedpartners.com	Shalla-Banking
 alipay.com	Adguard-Banks
 allahabadbank.com	Shalla-Banking
@@ -6189,6 +6190,7 @@ th30nly.indolini.org	Daenoman
 indorebank.org	Shalla-Banking
 ibank2.intercredit.org	Adguard-Banks
 isc.org	Chris-White
+jumpdanceco.org	Chris-White
 lba.org	Shalla-Banking
 lede-project.org	Chris-White
 lineageos.org	Chris-White
