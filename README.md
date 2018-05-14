@@ -17,9 +17,9 @@ IP-Addresses can be either just an IP-Address or a CIDR subnet, example:
 	2001::1/128		Single IPv6 address
 	1234:aa:bb:cdef::/64	All addresses in a IPv6 /64 subnet including network and broadcast address
 
-Domains are just domains, will also apply to sub-domains, example:
+Domains are just domains, but include sub-domains as well, example:
 
-	company.com		Will give a hit on domain company.com and all domains ending om .company.com
+	company.com		Will give a hit on domain company.com and all domains ending in .company.com
 	ad.doubleclick.net	Will give a hit on domain ad.doubleclick.net and all domains ending in .ad.doubleclick.net
 	blah.test.invalid	Will give a hit on domain blah.test.invalid and all domains ending in .bla.test.invalid
 	info			Will give a hit on domain info and all domains ending in .info
@@ -45,7 +45,7 @@ Forwarders need to be divided by a greater-then-symbol (>), example:
 
 TTL overrides can be done by adding an at-sign (@), example (TTL in seconds):
 
-	google.com@666		# Use TTL of 666 for all domains ending in google.com
-	chrisbuijs.com@120	# Use a TTL of 120 for all domains ending in chrisbuijs.com
+	google.com@666		# Use TTL of 666 for domain google.com and all sub-domains ending in .google.com
+	chrisbuijs.com@120	# Use a TTL of 120 for domain google.com and all sub-domains ending in .chrisbuijs.com
 	
 <b>Note:</b> Aliases/Forwarders/TTL-Overrides are concidered "whitelisted". Cannot point to other aliases. For forwarder port-number is optional (default of 53 is assumed).
