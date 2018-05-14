@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.36-20180514 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.37-20180514 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -96,7 +96,7 @@ cachesize = 2048 # Entries
 cache_maintenance_now = False
 
 # TTL Settings
-cachettl = 1800 # Seconds - For filtered/blacklisted entry caching
+cachettl = 1800 # Seconds - For filtered/blacklisted/alias entry caching
 minttl = 300 # Seconds
 maxttl = 7200 # Seconds
 rcodettl = 120 # Seconds - For return-codes caching
@@ -322,7 +322,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
     # Get from cache if any
     reply = from_cache(qname, 'IN', qtype, id)
     if reply != None:
-        return Reply
+        return reply
 
     queryname = qname + '/IN/' + qtype
 
@@ -518,6 +518,7 @@ def generate_alias(request, qname, qtype, use_tcp):
 
         rcode = str(RCODE[subreply.header.rcode])
         if rcode == 'NOERROR':
+            ttl = subreply.rr[0].ttl
             if subreply.rr:
                 if collapse:
                     aliasqname = realqname
@@ -528,10 +529,10 @@ def generate_alias(request, qname, qtype, use_tcp):
                     rqtype = QTYPE[record.rtype]
                     data = str(record.rdata).rstrip('.').lower()
                     if rqtype == 'A':
-                        answer = RR(aliasqname, QTYPE.A, ttl=cachettl, rdata=A(data))
+                        answer = RR(aliasqname, QTYPE.A, ttl=ttl, rdata=A(data))
                         reply.add_answer(answer)
                     if rqtype == 'AAAA':
-                        answer = RR(aliasqname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(data))
+                        answer = RR(aliasqname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(data))
                         reply.add_answer(answer)
 
         else:
