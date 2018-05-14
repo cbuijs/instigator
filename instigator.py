@@ -180,7 +180,7 @@ def log_info(message):
 # Log ERR messages to syslog
 def log_err(message):
     #print(message)
-    syslog.syslog(syslog.LOG_ERR, message)
+    syslog.syslog(syslog.LOG_ERR, 'STRESS: ' + message)
     return True
 
 
