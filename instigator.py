@@ -744,7 +744,8 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, t
             elif ipregex6.search(entry):
                 iplist6[entry] = True
 
-            # ALIAS
+            #### !!! From here on there are functional entries, which are always condidered "whitelist"
+            # ALIAS - domain.com=ip or domain.com=otherdomain.com
             elif entry.find('=') > 0:
                 elements = entry.split('=')
                 if len(elements) > 1:
@@ -758,7 +759,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, t
                 else:
                     log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
 
-            # FORWARD
+            # FORWARD - domain.com>ip
             elif entry.find('>') > 0:
                 elements = entry.split('>')
                 if len(elements) > 1:
@@ -780,6 +781,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, t
                 else:
                     log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
 
+            # TTLS - domain.com@ttl (TTL = integer)
             elif entry.find('@') > 0:
                 elements = entry.split('@')
                 if len(elements) > 1:
@@ -787,6 +789,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, t
                     ttl = elements[1].strip()
                     if isdomain.search(domain) and ttl.isdecimal():
                         tlist[domain] = int(ttl)
+                        domlist[domain] = True # Whitelist it
                     else:
                         log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
                 else:
