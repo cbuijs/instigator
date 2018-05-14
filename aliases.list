@@ -24,6 +24,9 @@
 #youtube.googleapis.com=restrictmoderate.youtube.com
 #www.youtube-nocookie.com=restrictmoderate.youtube.com
 
+# Lockdown NTP
+pool.ntp.org=north-america.pool.ntp.org
+
 # Forwarding example
 local>192.168.1.1
 1.168.192.in-addr.arpa>192.168.1.1
@@ -46,5 +49,6 @@ test5.chrisbuijs.com=REFUSED
 www.test5.chrisbuijs.com=1.2.3.4
 company.com=REFUSED
 www.company.com=PASSTHRU
+test.company.com=www.googleapis.com
 
 # <EOF>
