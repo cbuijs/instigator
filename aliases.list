@@ -41,6 +41,7 @@ localhost=127.0.0.1
 walled.garden.redirect=192.168.1.250
 
 # Test examples
+chrisbuijs.com@666
 test1.chrisbuijs.com=whahahaha.dahgfdg.tralalala
 test2.chrisbuijs.com=www.googleapis.com
 test3.chrisbuijs.com=4.3.2.1

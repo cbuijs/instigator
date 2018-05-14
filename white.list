@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1526286667                  ###
+### Version: 1526328820                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -1267,6 +1267,7 @@ clydesavings.com	Shalla-Banking
 cmba.com	Shalla-Banking
 cmla.com	Shalla-Banking
 cmutuel.com	Shalla-Banking
+cnb.com	Adguard-Banks
 cnb-brownwood.com	Shalla-Banking
 cnb1.com	Shalla-Banking
 cnbankpa.com	Shalla-Banking
@@ -1417,7 +1418,7 @@ webtrack.dhlglobalmail.com	EasyPrivacy-White, Daenoman
 dime.com	Shalla-Banking
 dimewill.com	Shalla-Banking
 directnet.com	Shalla-Banking, Adguard-Banks
-discover.com	Shalla-Banking
+discover.com	Shalla-Banking, Adguard-Banks
 mediacdn.disqus.com	Daenoman
 redirect.disqus.com	Daenoman
 dnb4you.com	Shalla-Banking
@@ -2342,6 +2343,7 @@ mineolabank.com	Shalla-Banking
 minnbankers.com	Shalla-Banking
 mirabaud.com	Shalla-Banking
 missionoaksbank.com	Shalla-Banking
+ml.com	Adguard-Banks
 mlastan.com	Shalla-Banking
 mmbank.com	Shalla-Banking
 mnb1.com	Shalla-Banking
@@ -2384,6 +2386,7 @@ myhomefed.com	Shalla-Banking
 myindependence.com	Shalla-Banking
 myinvestorsbank.com	Shalla-Banking
 myirwinbank.com	Shalla-Banking
+mymerrill.com	Adguard-Banks
 myprovident.com	Shalla-Banking
 mysorebank.com	Shalla-Banking
 mysunrisebank.com	Shalla-Banking
@@ -2793,6 +2796,7 @@ scb-bc.com	Shalla-Banking
 scbam.com	Shalla-Banking
 scbandt.com	Shalla-Banking
 schneider-electric.com	Chris-White
+schwab.com	Adguard-Banks
 scibank.com	Shalla-Banking
 scnb.com	Shalla-Banking
 scnbank.com	Shalla-Banking
@@ -3149,6 +3153,7 @@ valleycommercebank.com	Shalla-Banking
 valleynationalbank.com	Shalla-Banking
 valleystatebank.com	Shalla-Banking
 valricostate.com	Shalla-Banking
+vanguard.com	Adguard-Banks
 vbnv.com	Shalla-Banking
 vcbonline.com	Shalla-Banking
 venezolano.com	Shalla-Banking
@@ -6223,6 +6228,7 @@ winhelp2002.mvps.org	Chris-White
 nabard.org	Shalla-Banking
 nacha.org	Shalla-Banking
 navyfcu.org	Shalla-Banking
+navyfederal.org	Adguard-Banks
 ncbankers.org	Shalla-Banking
 ncbdc.org	Shalla-Banking
 nebankers.org	Shalla-Banking
@@ -6239,6 +6245,7 @@ orx.org	Shalla-Banking
 pacb.org	Shalla-Banking
 palmettohealthcu.org	Adguard-Banks
 pelco.org	Chris-White
+penfed.org	Adguard-Banks
 pfandbrief.org	Shalla-Banking
 postbanking.org	Shalla-Banking
 projecthoneypot.org	Chris-White
@@ -6265,6 +6272,7 @@ sysctl.org	Chris-White
 team-cymru.org	Chris-White
 texasmba.org	Shalla-Banking
 thefirma.org	Shalla-Banking
+tiaa.org	Adguard-Banks
 tmba.org	Shalla-Banking
 tnbankers.org	Shalla-Banking
 tnmba.org	Shalla-Banking
@@ -6281,6 +6289,7 @@ unionstatebank.org	Shalla-Banking
 vabankers.org	Shalla-Banking
 vacb.org	Shalla-Banking
 vibank.org	Shalla-Banking
+vystarcu.org	Adguard-Banks
 wib.org	Shalla-Banking
 wicba.org	Shalla-Banking
 widscambridge.org	Chris-White
@@ -7173,7 +7182,7 @@ dexia.sk	Shalla-Banking
 nbs.sk	Shalla-Banking
 ib.raiffeisen.sk	Adguard-Banks
 danger.rulez.sk	Chris-White
-ib.slsp.sk	Adguard-Banks
+slsp.sk	Adguard-Banks
 moja.tatrabanka.sk	Adguard-Banks
 wuestenrot.sk	Shalla-Banking
 bcsm.sm	Shalla-Banking
