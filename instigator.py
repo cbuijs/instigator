@@ -63,8 +63,8 @@ forward_servers['.'] = list(['209.244.0.3:53','209.244.0.4:53']) # DEFAULT Level
 #forward_servers['.'] = list(['156.154.70.2:53','156.154.71.2:53']) # DEFAULT Neustar
 
 # Redirect Address, leave empty to generete REFUSED
-#redirect_addrs = list()
-redirect_addrs = list(['192.168.1.251', '0000:0000:0000:0000:0000:0000:0000:0000'])
+redirect_addrs = list()
+#redirect_addrs = list(['192.168.1.251', '0000:0000:0000:0000:0000:0000:0000:0000'])
 
 # Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
 #hitrcode = 'NXDOMAIN'
