@@ -31,8 +31,8 @@ pool.ntp.org=north-america.pool.ntp.org
 local>192.168.1.1
 1.168.192.in-addr.arpa>192.168.1.1
 frutch>192.168.1.1
-#google.com>8.8.8.8:53,8.8.4.4:53
-#chrisbuijs.com>9.9.9.9:53,149.112.112.112:53
+#google.com>8.8.8.8@53,8.8.4.4@53
+#chrisbuijs.com>9.9.9.9@53,149.112.112.112@53
 
 # LocalHost
 localhost=127.0.0.1
@@ -41,7 +41,8 @@ localhost=127.0.0.1
 walled.garden.redirect=192.168.1.250
 
 # Test examples
-chrisbuijs.com@666
+chrisbuijs.com!666
+chrisbuijs.com>9.9.9.9,149.112.112.112
 test1.chrisbuijs.com=whahahaha.dahgfdg.tralalala
 test2.chrisbuijs.com=www.googleapis.com
 test3.chrisbuijs.com=4.3.2.1
