@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1526373082                  ###
+### Version: 1526379036                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -127,6 +127,7 @@ bankers.asn.au	Shalla-Banking
 adelaidebank.com.au	Shalla-Banking
 advance.com.au	Shalla-Banking
 afma.com.au	Shalla-Banking
+alluremedia.com.au	Anudeep-Whitelist
 americanexpress.com.au	Shalla-Banking
 ampbanking.com.au	Shalla-Banking
 anz.com.au	Shalla-Banking
@@ -262,6 +263,7 @@ petercam.be	Shalla-Banking
 puilaetco.be	Shalla-Banking
 recordbank.be	Shalla-Banking
 vdk.be	Shalla-Banking
+youtu.be	Anudeep-Whitelist
 wallet.best	Adguard-Banks
 acb.bg	Shalla-Banking
 bacb.bg	Shalla-Banking
@@ -363,6 +365,13 @@ ibank.zepterbank.by	Adguard-Banks
 adz.bz	Daenoman
 communitybank.bz	Shalla-Banking
 centralbank.org.bz	Shalla-Banking
+cpms.spop10.ams.plex.bz	Anudeep-Whitelist
+cpms35.spop10.ams.plex.bz	Anudeep-Whitelist
+meta.plex.bz	Anudeep-Whitelist
+proxy02.pop.ord.plex.bz	Anudeep-Whitelist
+proxy.plex.bz	Anudeep-Whitelist
+pubsub.plex.bz	Anudeep-Whitelist
+meta-db-worker02.pop.ric.plex.bz	Anudeep-Whitelist
 agrifinance.ca	Shalla-Banking
 bank-banque-canada.ca	Shalla-Banking
 bankofcanada.ca	Shalla-Banking
@@ -532,6 +541,7 @@ wyler-consulting.ch	Shalla-Banking
 zkb.ch	Shalla-Banking, Adguard-Banks
 zuercherlandbank.ch	Shalla-Banking
 zugerkb.ch	Shalla-Banking
+crisp.chat	Anudeep-Whitelist
 sib.ci	Shalla-Banking
 abif.cl	Shalla-Banking
 bcentral.cl	Shalla-Banking
@@ -542,10 +552,12 @@ pbc.gov.cn	Shalla-Banking
 bancopopular.com.co	Shalla-Banking
 banrep.gov.co	Shalla-Banking
 blocklist.greensnow.co	Chris-White
+t.co	Anudeep-Whitelist
 02bancorp.com	Shalla-Banking
 100x100banco.com	Shalla-Banking
 1822direkt.com	Shalla-Banking
 1ambassador.com	Shalla-Banking
+1drv.com	Anudeep-Whitelist
 1natbanker.com	Shalla-Banking
 1st-annapolis.com	Shalla-Banking
 1stbk.com	Shalla-Banking
@@ -625,6 +637,7 @@ aigpb.com	Shalla-Banking
 aigprivatebank.com	Shalla-Banking
 airbus-group-bank.com	Adguard-Banks
 ajib.com	Shalla-Banking
+akamaitechnologies.com	Anudeep-Whitelist
 akbank.com	Shalla-Banking, Adguard-Banks
 akibabank.com	Shalla-Banking
 aktia.com	Shalla-Banking
@@ -638,6 +651,7 @@ alfa-bank.com	Shalla-Banking
 alfransi.com	Shalla-Banking
 accounts.alibaba.com	Daenoman
 passport.alibaba.com	Daenoman
+login.aliexpress.com	Anudeep-Whitelist
 alignedpartners.com	Shalla-Banking
 alipay.com	Adguard-Banks
 allahabadbank.com	Shalla-Banking
@@ -655,7 +669,7 @@ altajirbank.com	Shalla-Banking
 altbank.com	Adguard-Banks
 amanath-bank.com	Shalla-Banking
 amazon.com	Chris-White
-s3.amazonaws.com	Chris-White
+amazonaws.com	Anudeep-Whitelist
 ambfinancial.com	Shalla-Banking
 amco-bank.com	Shalla-Banking
 amcore.com	Shalla-Banking
@@ -721,6 +735,7 @@ asfc.com	Shalla-Banking
 ashefederal.com	Shalla-Banking
 asianamericanbank.com	Shalla-Banking
 asociacionbancaria.com	Shalla-Banking
+aspnetcdn.com	Anudeep-Whitelist
 assocbank.com	Shalla-Banking
 associatedbank.com	Shalla-Banking
 astoriafederal.com	Shalla-Banking
@@ -736,6 +751,7 @@ auburnbank.com	Shalla-Banking
 audi-bank.com	Shalla-Banking
 audi-bankdirect.com	Shalla-Banking
 audibank.com	Shalla-Banking
+ws.audioscrobbler.com	Anudeep-Whitelist
 ausbanca.com	Shalla-Banking
 austinbank.com	Shalla-Banking
 australiancu.com	Shalla-Banking
@@ -973,6 +989,7 @@ bayportbank.com	Shalla-Banking
 bayshorebank.com	Shalla-Banking
 baystatebank.com	Shalla-Banking
 baystatesavings.com	Shalla-Banking
+display.ugc.bazaarvoice.com	Anudeep-Whitelist
 bbacbank.com	Adguard-Banks
 bbandt.com	Shalla-Banking
 bbcnbank.com	Shalla-Banking
@@ -1001,6 +1018,7 @@ bicsa.com	Shalla-Banking
 bigskybank.com	Shalla-Banking
 billdesk.com	Adguard-Banks
 binarydefense.com	Chris-White
+bing.com	Anudeep-Whitelist
 homebrew.bintray.com	Chris-White
 biochim.com	Shalla-Banking
 birdislandbank.com	Shalla-Banking
@@ -1055,6 +1073,7 @@ brattbank.com	Shalla-Banking
 brcbank.com	Shalla-Banking
 bremenbank.com	Shalla-Banking
 bridgewatersavings.com	Shalla-Banking
+edge.api.brightcove.com	Anudeep-Whitelist
 broadwayfed.com	Shalla-Banking
 brooklinebank.com	Shalla-Banking
 brooklinecoop.com	Shalla-Banking
@@ -1067,6 +1086,7 @@ bsvnet.com	Shalla-Banking
 btc-e.com	Adguard-Banks
 btrab.com	Shalla-Banking
 buexpress.com	Shalla-Banking
+bufferapp.com	Anudeep-Whitelist
 burgan.com	Shalla-Banking
 burkeandherbertbank.com	Shalla-Banking
 burlbank.com	Shalla-Banking
@@ -1140,6 +1160,7 @@ cboktulsa.com	Shalla-Banking
 cboviedo.com	Shalla-Banking
 cbs-bank.com	Shalla-Banking
 cbsbank.com	Shalla-Banking
+om.cbsi.com	Anudeep-Whitelist
 cbtcnet.com	Shalla-Banking
 cbtks.com	Shalla-Banking
 cbtn.com	Shalla-Banking
@@ -1263,6 +1284,7 @@ clevelandstatebank.com	Shalla-Banking
 mbz19n.accounts.clickbank.com	Adguard-Banks
 clintonnational.com	Shalla-Banking
 clintonsavings.com	Shalla-Banking
+cdnjs.cloudflare.com	Anudeep-Whitelist
 clydesavings.com	Shalla-Banking
 cmba.com	Shalla-Banking
 cmla.com	Shalla-Banking
@@ -1395,6 +1417,7 @@ dairybank.com	Shalla-Banking
 dallasmortgagebankers.com	Shalla-Banking
 damariscottabank.com	Shalla-Banking
 daoheng.com	Shalla-Banking
+dataplicity.com	Anudeep-Whitelist
 db.com	Shalla-Banking, Adguard-Banks
 dbs.com	Shalla-Banking
 dcbl.com	Shalla-Banking
@@ -1433,6 +1456,8 @@ dragon-capital.com	Shalla-Banking
 draperbank.com	Shalla-Banking
 dresdner-bank.com	Shalla-Banking
 dresdnerbank.com	Shalla-Banking
+drift.com	Anudeep-Whitelist
+driftt.com	Anudeep-Whitelist
 dropbox.com	Chris-White
 dropboxapi.com	Chris-White
 dropboxstatic.com	Chris-White
@@ -1490,6 +1515,7 @@ elmirabank.com	Shalla-Banking
 elmirasavingsbank.com	Shalla-Banking
 elsb.com	Shalla-Banking
 emarinebank.com	Shalla-Banking
+cdn.embedly.com	Anudeep-Whitelist
 emiratesbank.com	Shalla-Banking
 emmerossi.com	Shalla-Banking
 empirebank.com	Shalla-Banking
@@ -1882,7 +1908,8 @@ gibslandbank.com	Shalla-Banking
 giffordbank.com	Shalla-Banking
 gilbertbank.com	Shalla-Banking
 gilmercountybank.com	Shalla-Banking
-github.com	Chris-White
+giphy.com	Anudeep-Whitelist
+github.com	Chris-White, Anudeep-Whitelist
 githubapp.com	Chris-White
 githubusercontent.com	Chris-White
 glacierbank.com	Shalla-Banking
@@ -1898,7 +1925,10 @@ goleta.com	Shalla-Banking
 golfsavingsbank.com	Shalla-Banking
 goodbank.com	Shalla-Banking
 tagmanager.google.com	Daenoman
+googleapis.com	Anudeep-Whitelist
 googlecode.com	Chris-White
+manifest.googlevideo.com	Anudeep-Whitelist
+redirector.googlevideo.com	Anudeep-Whitelist
 gorhamsavingsbank.com	Shalla-Banking
 gotocsb.com	Shalla-Banking
 gottardo.com	Shalla-Banking
@@ -1908,6 +1938,7 @@ grabillbank.com	Shalla-Banking
 grandbankflorida.com	Shalla-Banking
 grandbk.com	Shalla-Banking
 granitebank.com	Shalla-Banking
+gravatar.com	Anudeep-Whitelist
 greatbasinbank.com	Shalla-Banking
 greatercommunity.com	Shalla-Banking
 greaterromebank.com	Shalla-Banking
@@ -1925,8 +1956,7 @@ grupobancolombia.com	Shalla-Banking
 webid2.gs.com	Adguard-Banks
 gsbfin.com	Shalla-Banking
 gsha.com	Shalla-Banking
-connectivitycheck.gstatic.com	Chris-White, Daenoman
-play-music.gstatic.com	Chris-White
+gstatic.com	Anudeep-Whitelist
 guarantybankonline.com	Shalla-Banking
 guarantystate.com	Shalla-Banking
 gunaybank.com	Adguard-Banks
@@ -1995,6 +2025,7 @@ hometownbancorp.com	Shalla-Banking
 homf.com	Shalla-Banking
 horizon-bank.com	Shalla-Banking
 horizonbank.com	Shalla-Banking
+m.hotmail.com	Anudeep-Whitelist
 hottinger.com	Shalla-Banking
 houston-mba.com	Shalla-Banking
 hsbc.com	Shalla-Banking, Adguard-Banks
@@ -2106,10 +2137,12 @@ jordan-kuwait-bank.com	Shalla-Banking
 jordanislamicbank.com	Shalla-Banking
 jpmorgan.com	Shalla-Banking
 jpmorganaccess.com	Shalla-Banking
+jquery.com	Anudeep-Whitelist
 juliusbaer.com	Shalla-Banking, Adguard-Banks
 juniper.com	Shalla-Banking
 justcallhome.com	Shalla-Banking
 jvbonline.com	Shalla-Banking
+ssl.p.jwpcdn.com	Anudeep-Whitelist
 dashboard.jwplayer.com	Daenoman
 jyskebank.com	Shalla-Banking
 kabulbank.com	Shalla-Banking
@@ -2194,12 +2227,11 @@ licb.com	Shalla-Banking
 licdn.com	Chris-White
 customer.lichousing.com	Adguard-Banks
 lincolnbanknc.com	Shalla-Banking
-linkedin.com	Chris-White
+linkedin.com	Chris-White, Anudeep-Whitelist
 linolakesstatebank.com	Shalla-Banking
 liqpay.com	Adguard-Banks
 littleriverbank.com	Shalla-Banking
-login.live.com	Daenoman
-officeapps.live.com	Chris-White
+live.com	Anudeep-Whitelist
 new.livestream.com	Daenoman
 llewellyn-edison.com	Shalla-Banking
 lloydsbank.com	Shalla-Banking, Adguard-Banks
@@ -2258,6 +2290,7 @@ maritimebank.com	Adguard-Banks
 maritimesavings.com	Shalla-Banking
 markaz.com	Shalla-Banking
 marketplacebank.com	Shalla-Banking
+s.marketwatch.com	Anudeep-Whitelist
 marlboroughsavings.com	Shalla-Banking
 marquette.com	Shalla-Banking
 marshallsavings.com	Shalla-Banking
@@ -2324,7 +2357,8 @@ mfsbank.com	Shalla-Banking
 mibank.com	Shalla-Banking
 mibankers.com	Shalla-Banking
 michigannational.com	Shalla-Banking
-officecdn.microsoft.com	Chris-White
+microsoft.com	Anudeep-Whitelist
+microsoftonline.com	Anudeep-Whitelist
 midpennbank.com	Shalla-Banking
 midsouthbank.com	Shalla-Banking
 midstatebank.com	Shalla-Banking
@@ -2370,6 +2404,7 @@ ms-bank.com	Shalla-Banking
 msbankers.com	Shalla-Banking
 msbonline.com	Shalla-Banking
 msftconnecttest.com	Chris-White
+msftncsi.com	Anudeep-Whitelist
 mslandbank.com	Shalla-Banking
 msnb.com	Shalla-Banking
 msnbc.com	Chris-White
@@ -2378,6 +2413,7 @@ mtochka.com	Adguard-Banks
 mutualsavings.com	Shalla-Banking
 mvbankonline.com	Shalla-Banking
 mvsb.com	Shalla-Banking
+keystone.mwbsys.com	Anudeep-Whitelist
 pay.my.com	Adguard-Banks
 mybankcsb.com	Shalla-Banking
 mybankfirstunited.com	Shalla-Banking
@@ -2456,6 +2492,7 @@ nittanybank.com	Shalla-Banking
 njleague.com	Shalla-Banking
 nmbank.com	Shalla-Banking
 nmbankers.com	Shalla-Banking
+no-ip.com	Anudeep-Whitelist
 nordea.com	Adguard-Banks
 noriba.com	Shalla-Banking
 norrybank.com	Shalla-Banking
@@ -2507,7 +2544,8 @@ ocbc.com	Shalla-Banking
 ocbcwhmac.com	Shalla-Banking
 oceansidebank.com	Shalla-Banking
 oevag.com	Shalla-Banking
-office365.com	Chris-White
+office.com	Anudeep-Whitelist
+office365.com	Chris-White, Anudeep-Whitelist
 offshore-bank-list.com	Shalla-Banking
 oficinadirecta.com	Shalla-Banking
 secure.ogone.com	Adguard-Banks
@@ -2530,6 +2568,9 @@ opendns.com	Chris-White
 openphish.com	Chris-White
 auth.opera.com	Daenoman
 api.oplata.com	Adguard-Banks
+cdn.optimizely.com	Anudeep-Whitelist
+cdn2.optimizely.com	Anudeep-Whitelist
+cdn3.optimizely.com	Anudeep-Whitelist
 optimumbank.com	Shalla-Banking
 orchardbank.com	Shalla-Banking
 oregonbankers.com	Shalla-Banking
@@ -2622,7 +2663,7 @@ pinecitybank.com	Shalla-Banking
 pineislandbank.com	Shalla-Banking
 pineriverstatebank.com	Shalla-Banking
 pinnbank.com	Shalla-Banking
-passets-cdn.pinterest.com	Daenoman
+pinterest.com	Anudeep-Whitelist
 pioneerbankandtrust.com	Shalla-Banking
 pioneerbankstl.com	Shalla-Banking
 pioneersb.com	Shalla-Banking
@@ -2635,6 +2676,10 @@ plaqbank.com	Shalla-Banking
 plategka.com	Adguard-Banks
 secure.platononline.com	Adguard-Banks
 plazabankillinois.com	Shalla-Banking
+my.plexapp.com	Anudeep-Whitelist
+node.plexapp.com	Anudeep-Whitelist
+nine.plugins.plexapp.com	Anudeep-Whitelist
+tvthemes.plexapp.com	Anudeep-Whitelist
 plimus.com	Adguard-Banks
 pmbank.com	Shalla-Banking
 pnbindia.com	Shalla-Banking
@@ -2713,6 +2758,7 @@ rcbank.com	Shalla-Banking
 rcbc.com	Shalla-Banking
 rcbcsavings.com	Shalla-Banking
 redcent.com	Shalla-Banking
+reddit.com	Anudeep-Whitelist
 redditarchive.com	Daenoman
 reelfootbank.com	Shalla-Banking
 regal-bank.com	Shalla-Banking
@@ -2755,12 +2801,15 @@ royalbank.com	Shalla-Banking, Adguard-Banks
 royalbankpa.com	Shalla-Banking
 track2.royalmail.com	EasyPrivacy-White, Daenoman
 royaloaksbank.com	Shalla-Banking
+widget-cdn.rpxnow.com	Anudeep-Whitelist
 rrsb.com	Shalla-Banking
 rusnarbank.com	Adguard-Banks
 russlavbank.com	Shalla-Banking
 russobank.com	Adguard-Banks
 rzbgroup.com	Shalla-Banking
 s-b-a.com	Shalla-Banking
+c.s-microsoft.com	Anudeep-Whitelist
+i.s-microsoft.com	Anudeep-Whitelist
 s-nbcnews.com	Chris-White
 saderbank.com	Shalla-Banking
 saferpay.com	Adguard-Banks
@@ -2777,6 +2826,7 @@ santanderbank.com	Adguard-Banks
 saradar.com	Shalla-Banking
 sarasin.com	Shalla-Banking
 saraswatbank.com	Shalla-Banking
+ec-ns.sascdn.com	Anudeep-Whitelist
 gws.sauberbank.com	Adguard-Banks
 savingsinstitute.com	Shalla-Banking
 dove.saymedia.com	EasyList-White, Daenoman
@@ -2827,11 +2877,14 @@ severnbank.com	Shalla-Banking
 seviercobank.com	Shalla-Banking
 sfnb.com	Shalla-Banking
 sgcpanel.com	Daenoman
+sharepoint.com	Anudeep-Whitelist
 shelllakestatebank.com	Shalla-Banking
 sherburnestatebank.com	Shalla-Banking
 sheshunoff.com	Shalla-Banking
 shinhanbank.com	Shalla-Banking
 kz.shinhanglobal.com	Adguard-Banks
+s.shopify.com	Anudeep-Whitelist
+v.shopify.com	Anudeep-Whitelist
 shorebank.com	Shalla-Banking
 shorebankcorp.com	Shalla-Banking
 shorecommunitybank.com	Shalla-Banking
@@ -2852,7 +2905,7 @@ authentication-api.skimlinks.com	EasyList-White, Daenoman
 skodabank.com	Shalla-Banking
 pay.skrill.com	Adguard-Banks
 skyfi.com	Shalla-Banking
-skype.com	Chris-White
+skype.com	Chris-White, Anudeep-Whitelist
 sloveniansavings.com	Shalla-Banking
 smbonline.com	Shalla-Banking
 snbenid.com	Shalla-Banking
@@ -2865,6 +2918,7 @@ sofitasa.com	Shalla-Banking
 static.reverse.softlayer.com	Chris-White
 static.softlayer.com	Daenoman
 developer.softonic.com	Daenoman
+solaredge.com	Anudeep-Whitelist
 solbankspain.com	Shalla-Banking
 solonstatebank.com	Shalla-Banking
 api-secure.solvemedia.com	Daenoman
@@ -2955,6 +3009,7 @@ suntrust.com	Shalla-Banking
 superbiiz.com	Daenoman
 superiorbank.com	Shalla-Banking
 suretybank.com	Shalla-Banking
+surveymonkey.com	Anudeep-Whitelist
 susqbanc.com	Shalla-Banking
 sv-bank.com	Shalla-Banking
 svb.com	Shalla-Banking
@@ -2967,6 +3022,7 @@ swcbank.com	Shalla-Banking
 swissbankaccount.com	Shalla-Banking
 swissnetbank.com	Shalla-Banking
 swissprivatebankers.com	Shalla-Banking
+sa.symcb.com	Anudeep-Whitelist
 syndicatebank.com	Shalla-Banking
 synergybank.com	Shalla-Banking
 synthesisbank.com	Shalla-Banking
@@ -2983,6 +3039,9 @@ tdameritrade.com	Adguard-Banks
 tdbank.com	Shalla-Banking, Adguard-Banks
 tdbanknorth.com	Shalla-Banking
 tdcanadatrust.com	Shalla-Banking, Adguard-Banks
+app-api.ted.com	Anudeep-Whitelist
+hls.ted.com	Anudeep-Whitelist
+tedcdn.com	Anudeep-Whitelist
 tescobank.com	Adguard-Banks
 texasbank.com	Shalla-Banking
 texasbankers.com	Shalla-Banking
@@ -3022,15 +3081,18 @@ thehenrycountybank.com	Shalla-Banking
 theidahobank.com	Shalla-Banking
 theinstapay.com	Adguard-Banks
 thelakebank.com	Shalla-Banking
+themoviedb.com	Anudeep-Whitelist
 thepeoples.com	Shalla-Banking
 player.theplatform.com	Daenoman
 thestatebank.com	Shalla-Banking
 thetrustpeople.com	Shalla-Banking
+thetvdb.com	Anudeep-Whitelist
 thisisyourbank.com	Shalla-Banking
 thsbank.com	Shalla-Banking
 tibbank.com	Shalla-Banking
 tibsite.com	Shalla-Banking
 timberlandbank.com	Shalla-Banking
+tinyurl.com	Anudeep-Whitelist
 tiscoasset.com	Shalla-Banking
 tlnbank.com	Shalla-Banking
 tnbank.com	Shalla-Banking
@@ -3069,7 +3131,9 @@ turkishbanks.com	Shalla-Banking
 esube.turkishcards.com	Adguard-Banks
 adserver.tvcatchup.com	EasyList-White, Daenoman
 adverts.cdn.tvcatchup.com	EasyList-White, Daenoman
+twimg.com	Anudeep-Whitelist
 twinriverbank.com	Shalla-Banking
+twitter.com	Anudeep-Whitelist
 tworiversstatebank.com	Shalla-Banking
 txbank.com	Shalla-Banking
 txloanstar.com	Shalla-Banking
@@ -3136,6 +3200,7 @@ unitybank.com	Shalla-Banking
 universalbank.com	Shalla-Banking
 university-bank.com	Shalla-Banking
 uno-e.com	Shalla-Banking
+unsplash.com	Anudeep-Whitelist
 uobgroup.com	Shalla-Banking
 dbo1.uralfinance.com	Adguard-Banks
 urlblacklist.com	Chris-White
@@ -3167,6 +3232,7 @@ videoposte.com	Shalla-Banking
 vijayabank.com	Shalla-Banking
 village-bank.com	Shalla-Banking
 villagebankonline.com	Shalla-Banking
+vimeo.com	Anudeep-Whitelist
 vineyardbank.com	Shalla-Banking
 vintagebank.com	Shalla-Banking
 virginiamla.com	Shalla-Banking
@@ -3248,8 +3314,9 @@ woodforest.com	Shalla-Banking
 woodlandbank.com	Shalla-Banking
 wooppay.com	Adguard-Banks
 wooribank.com	Shalla-Banking
+wordpress.com	Anudeep-Whitelist
 worldwidebanking.com	Shalla-Banking
-s1.wp.com	Daenoman
+wp.com	Anudeep-Whitelist
 wsbcbank.com	Shalla-Banking
 wsfsbank.com	Shalla-Banking
 wsnb.com	Shalla-Banking
@@ -3258,11 +3325,15 @@ wvacb.com	Shalla-Banking
 wyomingbank.com	Shalla-Banking
 wyomingbankers.com	Shalla-Banking
 wyzecam.com	Chris-White
+xkms.xbolive.com	Anudeep-Whitelist
 marketplace.xbox.com	Daenoman
+xboxlive.com	Anudeep-Whitelist
 xda-cdn.com	Chris-White
 xda-developers.com	Chris-White
+imgs.xkcd.com	Anudeep-Whitelist
 xmccb.com	Shalla-Banking
 static-hw.xvideos-cdn.com	Daenoman
+yahoo.com	Anudeep-Whitelist
 yalebankiowa.com	Shalla-Banking
 ycbank.com	Shalla-Banking
 yellowstonebank.com	Shalla-Banking
@@ -3270,7 +3341,11 @@ ykb.com	Shalla-Banking
 yolobank.com	Shalla-Banking
 yourhomebank.com	Shalla-Banking
 yourlocalbank.com	Shalla-Banking
-youtube-nocookie.com	Chris-White
+youtube.com	Anudeep-Whitelist
+youtube-nocookie.com	Chris-White, Anudeep-Whitelist
+i.ytimg.com	Anudeep-Whitelist
+i1.ytimg.com	Anudeep-Whitelist
+s.ytimg.com	Anudeep-Whitelist
 zagury.com	Shalla-Banking
 zaim.com	Adguard-Banks
 zenithbank.com	Shalla-Banking
@@ -5409,6 +5484,8 @@ tristateleague.info	Shalla-Banking
 bceao.int	Shalla-Banking
 beac.int	Shalla-Banking
 ecb.int	Shalla-Banking
+filament.io	Anudeep-Whitelist
+intercom.io	Anudeep-Whitelist
 advertising.oriel.io	EasyList-White, Daenoman
 sbc.io	Chris-White
 suspect-networks.io	Chris-White
@@ -5604,6 +5681,7 @@ mpsbancapersonale.it	Shalla-Banking
 nlb.it	Shalla-Banking
 osservatoriofinanziario.it	Shalla-Banking
 passbanca.it	Shalla-Banking
+placehold.it	Anudeep-Whitelist
 popcortona.it	Shalla-Banking
 popolarebari.it	Shalla-Banking
 popolarevicenza.it	Shalla-Banking
@@ -5835,6 +5913,7 @@ bnu.com.mo	Shalla-Banking
 amcm.macau.gov.mo	Shalla-Banking
 mcm.gov.mo	Shalla-Banking
 clientis-sparkasse-horgen-niederlassung-hirzel.firmen24.mobi	Shalla-Banking
+j.mp	Anudeep-Whitelist
 auth.gfx.ms	Daenoman
 bom.intnet.mu	Shalla-Banking
 mcb.mu	Shalla-Banking
@@ -5900,6 +5979,8 @@ cdn-apple.com.akadns.net	Chris-White
 gc-apple.com.akadns.net	Chris-White
 itunes-apple.com.akadns.net	Chris-White
 sonos.com.edgekey.net.globalredir.akadns.net	Chris-White
+akamaihd.net	Anudeep-Whitelist
+akamaized.net	Anudeep-Whitelist
 apnic.net	Chris-White
 apple-dns.net	Chris-White
 arin.net	Chris-White
@@ -5920,6 +6001,7 @@ secure.bnpparibas.net	Adguard-Banks
 brb-bi.net	Shalla-Banking
 brh.net	Shalla-Banking
 brickyardbank.net	Shalla-Banking
+brightcove.net	Anudeep-Whitelist
 calbank.net	Shalla-Banking
 canadiabank.net	Shalla-Banking
 carolinabank.net	Shalla-Banking
@@ -5929,7 +6011,9 @@ centralbank.net	Shalla-Banking
 maps.chitika.net	EasyList-White, Daenoman
 maps-static.chitika.net	EasyList-White, Daenoman
 citizenscommunityfederal.net	Shalla-Banking
-fitbit.com.cdn.cloudflare.net	Chris-White
+cdn.cloudflare.net	Anudeep-Whitelist
+d2c8v52ll5s99u.cloudfront.net	Anudeep-Whitelist
+d2gatte9o95jao.cloudfront.net	Anudeep-Whitelist
 d2qxwxxauf5yxr.cloudfront.net	Chris-White
 d3jdtixm7cvu7y.cloudfront.net	Chris-White
 cpb.net	Shalla-Banking
@@ -5938,6 +6022,7 @@ darksky.net	Chris-White
 dropbox.net	Chris-White
 p13.dynect.net	Chris-White
 sonos.com.edgekey.net	Chris-White
+ax.phobos.apple.com.edgesuite.net	Anudeep-Whitelist
 emergingthreats.net	Chris-White
 fbtonline.net	Adguard-Banks
 fcbweb.net	Shalla-Banking
@@ -5962,12 +6047,14 @@ gcmba.net	Shalla-Banking
 gtld-servers.net	Chris-White
 hkexporter.net	Shalla-Banking
 hosts-file.net	Chris-White
+imgix.net	Anudeep-Whitelist
 infokredit.net	Shalla-Banking
 internetzwerk.net	Shalla-Banking
 intuitcdn.net	Chris-White
 islamic-commerce.net	Shalla-Banking
 ituneslogin.net	Chris-White
 jkbank.net	Shalla-Banking
+jsdelivr.net	Anudeep-Whitelist
 fiddle.jshell.net	Daenoman
 kasbonspecialist.net	Shalla-Banking
 keysbank.net	Shalla-Banking
@@ -5984,10 +6071,12 @@ mmla.net	Shalla-Banking
 morganbank.net	Shalla-Banking
 thumb.comic.naver.net	Daenoman
 imgcomic.naver.net	Daenoman
+office.net	Anudeep-Whitelist
 nbcume.sc.omtrdc.net	Chris-White
 bankofamerica.tt.omtrdc.net	Chris-White
 vodafonelimited.tt.omtrdc.net	Daenoman
 parex.net	Shalla-Banking
+clientconfig.passport.net	Anudeep-Whitelist
 plantersbank.net	Shalla-Banking
 ve1.provinet.net	Shalla-Banking
 prudentbank.net	Shalla-Banking
@@ -5996,6 +6085,7 @@ riversidebank.net	Shalla-Banking
 root-servers.net	Chris-White
 rurbanfinancial.net	Shalla-Banking
 scbt.net	Shalla-Banking
+imagesak.secureserver.net	Anudeep-Whitelist
 securitybank.net	Shalla-Banking
 securityfederal.net	Shalla-Banking
 southportbank.net	Shalla-Banking
@@ -6011,6 +6101,9 @@ ucbank.net	Shalla-Banking
 wget-mirrors.uceprotect.net	Chris-White
 unicreditbanking.net	Adguard-Banks
 unionstate.net	Shalla-Banking
+dev.virtualearth.net	Anudeep-Whitelist
+t0.ssl.ak.tiles.virtualearth.net	Anudeep-Whitelist
+t0.ssl.ak.dynamic.tiles.virtualearth.net	Anudeep-Whitelist
 vobadirekt.net	Shalla-Banking
 washingtonsavings.net	Shalla-Banking
 whatsapp.net	Chris-White
@@ -6194,11 +6287,13 @@ indianbanksassociation.org	Shalla-Banking
 th30nly.indolini.org	Daenoman
 indorebank.org	Shalla-Banking
 ibank2.intercredit.org	Adguard-Banks
+api.ipify.org	Anudeep-Whitelist
 isc.org	Chris-White
 jumpdanceco.org	Chris-White
 lba.org	Shalla-Banking
 lede-project.org	Chris-White
 lineageos.org	Chris-White
+linuxtracker.org	Anudeep-Whitelist
 lsta.org	Shalla-Banking
 macb.org	Shalla-Banking
 marinebankers.org	Shalla-Banking
@@ -6293,6 +6388,7 @@ vystarcu.org	Adguard-Banks
 wib.org	Shalla-Banking
 wicba.org	Shalla-Banking
 widscambridge.org	Chris-White
+wikipedia.org	Anudeep-Whitelist
 wimba.org	Shalla-Banking
 worldbank-bangladesh.org	Shalla-Banking
 wvbankers.org	Shalla-Banking
@@ -7216,6 +7312,7 @@ bct.gov.tn	Shalla-Banking
 apbt.org.tn	Shalla-Banking
 easylist.to	Chris-White
 reservebank.to	Shalla-Banking
+tawk.to	Anudeep-Whitelist
 abank.com.tr	Adguard-Banks
 3dsecure.akbank.com.tr	Adguard-Banks
 online.aktifbank.com.tr	Adguard-Banks
@@ -7276,6 +7373,16 @@ tkbb.org.tr	Shalla-Banking
 app3.takasbank.web.tr	Adguard-Banks
 central-bank.org.tt	Shalla-Banking
 france.tv	Chris-White
+plex.tv	Anudeep-Whitelist
+apt.sonarr.tv	Anudeep-Whitelist
+download.sonarr.tv	Anudeep-Whitelist
+forums.sonarr.tv	Anudeep-Whitelist
+services.sonarr.tv	Anudeep-Whitelist
+skyhook.sonarr.tv	Anudeep-Whitelist
+cdn.vidible.tv	Anudeep-Whitelist
+delivery.vidible.tv	Anudeep-Whitelist
+img.vidible.tv	Anudeep-Whitelist
+videos.vidible.tv	Anudeep-Whitelist
 chb.com.tw	Shalla-Banking
 ctnbank.com.tw	Shalla-Banking
 cbc.gov.tw	Shalla-Banking
