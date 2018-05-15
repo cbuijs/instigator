@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.38-20180514 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.391-20180515 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -17,6 +17,7 @@ TODO:
 - Loads ...
 - Logging only option for blacklists
 - Make checking for responses optional/toggable
+- Listen on IPv6 or use IPv6 as transport
 - Better Documentation / Remarks / Comments
 
 =========================================================================================
@@ -46,32 +47,32 @@ import pytricia
 ###################
 
 # Listen for queries
-listen_on = list(['127.0.0.1:53', '192.168.1.251:53']) # IPv4 only for now.
+listen_on = list(['127.0.0.1@53', '::1@53', '192.168.1.251@53']) # IPv4 only for now.
 
 # Forwarding queries to
 forward_timeout = 2 # Seconds
 forward_servers = dict()
-#forward_servers['.'] = list(['1.1.1.1:53','1.0.0.1:53']) # DEFAULT Cloudflare
+#forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
 # Alternatives:
-forward_servers['.'] = list(['209.244.0.3:53','209.244.0.4:53']) # DEFAULT Level-3
-#forward_servers['.'] = list(['8.8.8.8:53','8.8.4.4:53']) # DEFAULT Google
-#forward_servers['.'] = list(['9.9.9.9:53','149.112.112.112:53']) # DEFAULT Quad9
-#forward_servers['.'] = list(['208.67.222.222:53','208.67.220.220:53']) # DEFAULT OpenDNS
-#forward_servers['.'] = list(['8.26.56.26:53','8.20.247.20:53']) # DEFAULT Comodo
-#forward_servers['.'] = list(['199.85.126.10:53','199.85.127.10:53']) # DEFAULT Norton
-#forward_servers['.'] = list(['64.6.64.6:53','64.6.65.6:53']) # DEFAULT Verisign
-#forward_servers['.'] = list(['156.154.70.2:53','156.154.71.2:53']) # DEFAULT Neustar
+forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
+#forward_servers['.'] = list(['8.8.8.8@53','8.8.4.4@53']) # DEFAULT Google
+#forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9
+#forward_servers['.'] = list(['208.67.222.222@53','208.67.220.220@53']) # DEFAULT OpenDNS
+#forward_servers['.'] = list(['8.26.56.26@53','8.20.247.20@53']) # DEFAULT Comodo
+#forward_servers['.'] = list(['199.85.126.10@53','199.85.127.10@53']) # DEFAULT Norton
+#forward_servers['.'] = list(['64.6.64.6@53','64.6.65.6@53']) # DEFAULT Verisign
+#forward_servers['.'] = list(['156.154.70.2@53','156.154.71.2@53']) # DEFAULT Neustar
 
 # Redirect Address, leave empty to generete REFUSED
-redirect_addrs = list()
-#redirect_addrs = list(['192.168.1.251', '0000:0000:0000:0000:0000:0000:0000:0000'])
+#redirect_addrs = list()
+redirect_addrs = list(['192.168.1.251', '0000:0000:0000:0000:0000:0000:0000:0000'])
 
 # Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
-#hitrcode = 'NXDOMAIN'
-hitrcode = 'REFUSED'
+hitrcode = 'NXDOMAIN'
+#hitrcode = 'REFUSED'
 
 # Only load cached/fast files when not older then maxfileage
-maxfileage = 3600 # Seconds
+maxfileage = 1800 # Seconds
 
 # Files / Lists
 savefile = '/opt/instigator/save'
@@ -112,7 +113,7 @@ roundrobin = True
 # Collapse/Flatten CNAME Chains
 collapse = True
 
-# Block IPv6 queries
+# Block IPv6 based queries
 blockv6 = True
 
 # List Dictionaries
@@ -133,7 +134,7 @@ cache = dict()
 ## Regexes
 
 # Use fast (less precisie) versions of regexes
-fastregex = True
+fastregex = False
 
 # Regex to filter IP CIDR's out
 if fastregex:
@@ -149,11 +150,11 @@ ipregex = regex.compile('^(' + ip4regex_text + '|' + ip6regex_text + ')$', regex
 
 # Regex to filter IP:PORT's out
 if fastregex:
-    ip4portregex_text = '([0-9]{1,3}\.){3}[0-9]{1,3}(:[0-9]{1,5})*'
-    ip6portregex_text = '([0-9a-f]{1,4}|:)(:([0-9a-f]{0,4})){1,7}(:[0-9]{1,5})*'
+    ip4portregex_text = '([0-9]{1,3}\.){3}[0-9]{1,3}(@[0-9]{1,5})*'
+    ip6portregex_text = '([0-9a-f]{1,4}|:)(:([0-9a-f]{0,4})){1,7}(@[0-9]{1,5})*'
 else:
-    ip4portregex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))*)'
-    ip6portregex_text = '(((:(:[0-9a-f]{1,4}){1,7}|::|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,6}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,5}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,4}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,3}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,2}|::|:[0-9a-f]{1,4}(::[0-9a-f]{1,4}|::|:[0-9a-f]{1,4}(::|:[0-9a-f]{1,4}))))))))|(:(:[0-9a-f]{1,4}){0,5}|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,4}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,3}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,2}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4})?|:[0-9a-f]{1,4}(:|:[0-9a-f]{1,4})))))):(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3})(:(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))*)'
+    ip4portregex_text = '((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}(@(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))*)'
+    ip6portregex_text = '(((:(:[0-9a-f]{1,4}){1,7}|::|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,6}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,5}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,4}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,3}|::|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){1,2}|::|:[0-9a-f]{1,4}(::[0-9a-f]{1,4}|::|:[0-9a-f]{1,4}(::|:[0-9a-f]{1,4}))))))))|(:(:[0-9a-f]{1,4}){0,5}|[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,4}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,3}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4}){0,2}|:[0-9a-f]{1,4}(:(:[0-9a-f]{1,4})?|:[0-9a-f]{1,4}(:|:[0-9a-f]{1,4})))))):(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3})(@(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3}|0))*)'
 
 ipportregex4 = regex.compile('^' + ip4portregex_text + '$', regex.I)
 ipportregex6 = regex.compile('^' + ip6portregex_text + '$', regex.I)
@@ -346,14 +347,14 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
         forward_servers[server] = list(addrs)
 
         for addr in addrs:
-            forward_address = addr.split(':')[0]
-            if addr.find(':') > 0:
-                forward_port = int(addr.split(':')[1])
+            forward_address = addr.split('@')[0]
+            if addr.find('@') > 0:
+                forward_port = int(addr.split('@')[1])
             else:
                 forward_port = 53
     
             if (forward_address != cip) and (query_hash(forward_address, 'FORWARDER', str(forward_port)) not in cache):
-                log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + ':' + str(forward_port) + ' (' + servername + ') for ' + queryname)
+                log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
 
                 try:
                     q = query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout)
@@ -364,7 +365,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
                     break
 
                 except socket.timeout:
-                    log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + ':' + str(forward_port))
+                    log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + '@' + str(forward_port))
                     to_cache(forward_address, 'FORWARDER', str(forward_port), list())
                     reply = None
 
@@ -445,7 +446,7 @@ def generate_response(request, qname, qtype, redirect_addrs):
         reply.header.rcode = getattr(RCODE, hitrcode)
 
     else:
-        addanswer = False
+        addanswer = list()
         for addr in redirect_addrs:
             answer = None
             if qtype == 'A' and ipregex4.search(addr):
@@ -454,12 +455,12 @@ def generate_response(request, qname, qtype, redirect_addrs):
                 answer = RR(qname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(addr))
         
             if answer != None:
-                addanswer = True
+                addanswer.append(addr)
                 answer.set_rname(request.q.qname)
                 reply.add_answer(answer)
 
-        if addanswer:
-            log_info('GENERATE: REDIRECT/NOERROR for ' + queryname)
+        if len(addanswer) > 0:
+            log_info('GENERATE: REDIRECT/NOERROR for ' + queryname + ' -> ' + ', '.join(addanswer))
             reply.header.rcode = getattr(RCODE, 'NOERROR')
         else:
             log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
@@ -781,9 +782,9 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, t
                 else:
                     log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
 
-            # TTLS - domain.com@ttl (TTL = integer)
-            elif entry.find('@') > 0:
-                elements = entry.split('@')
+            # TTLS - domain.com!ttl (TTL = integer)
+            elif entry.find('!') > 0:
+                elements = entry.split('!')
                 if len(elements) > 1:
                     domain = elements[0].strip().lower().rstrip('.')
                     ttl = elements[1].strip()
@@ -1102,30 +1103,41 @@ if __name__ == "__main__":
     tcp_dns_server = dict()
     for listen in listen_on:
         if ipportregex.search(listen):
-            elements = listen.split(':')
+            elements = listen.split('@')
             listen_address = elements[0]
             if len(elements) > 1:
                 listen_port = int(elements[1])
             else:
                 listen_port = 53
 
-            serverhash = hash(listen_address + ':' + str(listen_port))
 
-            udp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False) # UDP
-            tcp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=True) # TCP
+            log_info('Starting DNS Service on ' + listen_address + ' at port ' + str(listen_port) + ' ...')
+
+            # Define Service
+            if ipregex6.search(listen_address):
+                log_info('LISTENING on IPv6 not supported yet!')
+                serverhash = False
+            else:
+                serverhash = hash(listen_address + '@' + str(listen_port))
+                udp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False) # UDP
+                tcp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=True) # TCP
 
             # Start Service as threads
-            log_info('Starting DNS Service on ' + listen_address + ':' + str(listen_port) + ' ...')
-            udp_dns_server[serverhash].start_thread() # UDP
-            tcp_dns_server[serverhash].start_thread() # TCP
+            if serverhash:
+                try:
+                    udp_dns_server[serverhash].start_thread() # UDP
+                    tcp_dns_server[serverhash].start_thread() # TCP
+                except BaseException as err:
+                    log_err('ERROR: Unable to start service on ' + listen_address + ' at port ' + str(listen_port) + ' - ' + str(err) + ', ABORTING')
+                    sys.exit(1)
 
-            time.sleep(1)
+                time.sleep(0.5)
 
-            if udp_dns_server[serverhash].isAlive() and tcp_dns_server[serverhash].isAlive():
-                log_info('DNS Service ready on ' + listen_address + ':' + str(listen_port))
-            else:
-                log_err('DNS Service did not start, aborting ...')
-                sys.exit(1)
+                if udp_dns_server[serverhash].isAlive() and tcp_dns_server[serverhash].isAlive():
+                    log_info('DNS Service ready on ' + listen_address + ' at port ' + str(listen_port))
+                else:
+                    log_err('DNS Service did not start, aborting ...')
+                    sys.exit(1)
 
     # Keep things running
     count = 0
@@ -1142,18 +1154,23 @@ if __name__ == "__main__":
 
     for listen in listen_on:
         if ipportregex.search(listen):
-            elements = listen.split(':')
+            elements = listen.split('@')
             listen_address = elements[0]
             if len(elements) > 1:
                 listen_port = int(elements[1])
             else:
                 listen_port = 53
 
-            serverhash = hash(listen_address + ':' + str(listen_port))
+            serverhash = hash(listen_address + '@' + str(listen_port))
 
-            log_info('DNS Service shutdown on ' + listen_address + ':' + str(listen_port))
-            udp_dns_server[serverhash].stop() # UDP
-            tcp_dns_server[serverhash].stop() # TCP
+            log_info('DNS Service shutdown on ' + listen_address + ' at port ' + str(listen_port))
+
+            try:
+                udp_dns_server[serverhash].stop() # UDP
+                tcp_dns_server[serverhash].stop() # TCP
+            except BaseException as err:
+                log_err('ERROR: Unable to stop service on ' + listen_address + ' at port ' + str(listen_port) + ' - ' + str(err))
+                pass
 
     save_cache(cachefile)
 
