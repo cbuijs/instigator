@@ -38,14 +38,14 @@ Aliases need to be divided by an equals-symbol (=), example (domains include sub
 	www.whatisthis.com=NXDOMAIN		# Return-code NXDOMAIN
 	www.goodguys.com=PASSTHRU		# Passthru/whitelist
 
-Forwarders need to be divided by a greater-then-symbol (>), example:
+Forwarders need to be divided by a greater-then-symbol (>), port numbers can be used using the at-sign (@), example:
 
-	google.com>8.8.8.8:53,8.8.4.4:53		# Use google dns for all domains ending in google.com
-	chrisbuijs.com>9.9.9.9:53,149.112.112.112:53	# Use Quad9 dns servers for all domains ending in chrisbuijs.com
+	google.com>8.8.8.8@53,8.8.4.4@53		# Use google dns for all domains ending in google.com
+	chrisbuijs.com>9.9.9.9@53,149.112.112.112@53	# Use Quad9 dns servers for all domains ending in chrisbuijs.com
 
-TTL overrides can be done by adding an at-sign (@), example (TTL in seconds):
+TTL overrides can be done by using an exclamation (!), example (TTL in seconds):
 
-	google.com@666		# Use TTL of 666 for domain google.com and all sub-domains ending in .google.com
-	chrisbuijs.com@120	# Use a TTL of 120 for domain google.com and all sub-domains ending in .chrisbuijs.com
+	google.com!666		# Use TTL of 666 for domain google.com and all sub-domains ending in .google.com
+	chrisbuijs.com!120	# Use a TTL of 120 for domain google.com and all sub-domains ending in .chrisbuijs.com
 	
 <b>Note:</b> Aliases/Forwarders/TTL-Overrides are concidered "whitelisted". Cannot point to other aliases. For forwarder port-number is optional (default of 53 is assumed).
