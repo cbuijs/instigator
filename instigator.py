@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.392-20180516 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.393-20180516 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -81,7 +81,7 @@ lists = dict()
 lists['blacklist'] = '/opt/instigator/black.list'
 lists['whitelist'] = '/opt/instigator/white.list'
 lists['aliases'] = '/opt/instigator/aliases.list'
-lists['malicious-ip'] = '/opt/instigator/malicious-ip.list']
+lists['malicious-ip'] = '/opt/instigator/malicious-ip.list'
 #lists['ads'] = '/opt/instigator/shallalist/adv/domains'
 #lists['banking'] = '/opt/instigator/shallalist/finance/banking/domains'
 #lists['costtraps'] = '/opt/instigator/shallalist/costtraps/domains'
