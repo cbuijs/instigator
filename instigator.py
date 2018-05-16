@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.391-20180515 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.392-20180516 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -81,6 +81,7 @@ lists = dict()
 lists['blacklist'] = '/opt/instigator/black.list'
 lists['whitelist'] = '/opt/instigator/white.list'
 lists['aliases'] = '/opt/instigator/aliases.list'
+lists['malicious-ip'] = '/opt/instigator/malicious-ip.list']
 #lists['ads'] = '/opt/instigator/shallalist/adv/domains'
 #lists['banking'] = '/opt/instigator/shallalist/finance/banking/domains'
 #lists['costtraps'] = '/opt/instigator/shallalist/costtraps/domains'
@@ -90,7 +91,7 @@ lists['aliases'] = '/opt/instigator/aliases.list'
 #lists['trackers'] = '/opt/instigator/shallalist/tracker/domains'
 #lists['updatesites'] = '/opt/instigator/shallalist/updatesites/domains'
 #lists['warez'] = '/opt/instigator/shallalist/warez/domains'
-blacklist = list(['blacklist', 'ads', 'costtraps', 'porn', 'gamble', 'spyware', 'warez'])
+blacklist = list(['blacklist', 'ads', 'costtraps', 'porn', 'gamble', 'spyware', 'warez', 'malicious-ip'])
 whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites'])
 
 # Cache Settings
