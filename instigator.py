@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.394-20180516 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.395-20180516 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -358,7 +358,11 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
                 log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
 
                 try:
-                    q = query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout)
+                    useip6 = False
+                    if forward_address.find(':') > 0:
+                        useip6 = True
+
+                    q = query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout, ipv6 = useip6)
                     reply = DNSRecord.parse(q)
 
                     ttl = normalize_ttl(qname, reply.rr, False)
