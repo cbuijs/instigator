@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.393-20180516 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.394-20180516 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -52,9 +52,9 @@ listen_on = list(['127.0.0.1@53', '::1@53', '192.168.1.251@53']) # IPv4 only for
 # Forwarding queries to
 forward_timeout = 2 # Seconds
 forward_servers = dict()
-#forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
+forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
 # Alternatives:
-forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
+#forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
 #forward_servers['.'] = list(['8.8.8.8@53','8.8.4.4@53']) # DEFAULT Google
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9
 #forward_servers['.'] = list(['208.67.222.222@53','208.67.220.220@53']) # DEFAULT OpenDNS
@@ -393,7 +393,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
             for record in reply.rr:
                 replycount += 1
 
-                rqname = str(record.rname).rstrip('.').lower()
+                rqname = str(record.rname).rstrip('.').lower() or '.'
                 rqtype = QTYPE[record.rtype].upper()
 
                 if checkalias and rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
@@ -694,6 +694,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, t
     log_info('Fetching \"' + listname + '\" entries from \"' + file + '\"')
 
     count = 0
+    fetched = 0
 
     try:
         f = open(file, 'r')
@@ -725,6 +726,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, t
 
             # REGEX
             if isregex.search(entry):
+                fetched += 1
                 rx = entry.strip('/')
                 rxlist[rx] = regex.compile(rx, regex.I)
 
@@ -736,14 +738,17 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, t
 
             # DOMAIN
             elif isdomain.search(entry):
+                fetched += 1
                 domlist[entry] = True
 
             # IPV4
             elif ipregex4.search(entry):
+                fetched += 1
                 iplist4[entry] = True
 
             # IPV6
             elif ipregex6.search(entry):
+                fetched += 1
                 iplist6[entry] = True
 
             #### !!! From here on there are functional entries, which are always condidered "whitelist"
@@ -754,6 +759,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, t
                     domain = elements[0].strip().lower().rstrip('.')
                     alias = elements[1].strip().lower().rstrip('.')
                     if isdomain.search(domain) and (isdomain.search(alias) or ipregex.search(alias)):
+                        fetched += 1
                         alist[domain] = alias
                         domlist[domain] = True # Whitelist it
                     else:
@@ -777,6 +783,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, t
                                 log_err(listname + ' INVALID FORWARD-ADDRESS [' + str(count) + ']: ' + addr)
         
                         if addrs:
+                            fetched += 1
                             flist[domain] = addrs
                     else:
                         log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
@@ -790,6 +797,7 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, t
                     domain = elements[0].strip().lower().rstrip('.')
                     ttl = elements[1].strip()
                     if isdomain.search(domain) and ttl.isdecimal():
+                        fetched += 1
                         tlist[domain] = int(ttl)
                         domlist[domain] = True # Whitelist it
                     else:
@@ -800,6 +808,8 @@ def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, t
             # BOGUS
             else:
                 log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
+
+    log_info(listname + ' Processed ' + str(count) + ' lines and used ' + str(fetched))
 
     return domlist, iplist4, iplist6, rxlist, alist, flist, tlist
 
@@ -1032,9 +1042,7 @@ class DNS_Instigator(BaseResolver):
         if handler.protocol == 'tcp':
             use_tcp = True
 
-        qname = str(request.q.qname).rstrip('.').lower()
-        if qname == '':
-            qname = '.'
+        qname = str(request.q.qname).rstrip('.').lower() or '.'
 
         qclass = CLASS[request.q.qclass].upper()
         qtype = QTYPE[request.q.qtype].upper()
