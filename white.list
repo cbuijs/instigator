@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1526459481                  ###
+### Version: 1526482137                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -113,16 +113,6 @@ sparkasse-riezlern.at	Shalla-Banking
 sparkasse-schwaz.at	Shalla-Banking
 stuzza.at	Shalla-Banking
 vakifbank.at	Shalla-Banking
-verkehrskreditbank.at	Shalla-Banking
-vkb.at	Shalla-Banking
-voebb.at	Shalla-Banking
-volksbank.at	Shalla-Banking
-volksbanksalzburg.at	Shalla-Banking
-vtb.at	Shalla-Banking
-westernunion.at	Shalla-Banking
-wsk-bank.at	Shalla-Banking
-wuestenrot.at	Shalla-Banking
-zvezabank.at	Shalla-Banking
 bankers.asn.au	Shalla-Banking
 adelaidebank.com.au	Shalla-Banking
 advance.com.au	Shalla-Banking
@@ -179,9 +169,7 @@ stgeorge.com.au	Shalla-Banking
 suncorpmetway.com.au	Shalla-Banking
 tmtpartners.com.au	Shalla-Banking
 trustar.com.au	Shalla-Banking
-virginmoney.com.au	Shalla-Banking
-westpac.com.au	Shalla-Banking
-widebaycap.com.au	Shalla-Banking
+banking.westpac.com.au	Adguard-Banks
 rba.gov.au	Shalla-Banking
 accessbank.az	Adguard-Banks
 afb.az	Adguard-Banks
@@ -235,14 +223,11 @@ bpo.be	Shalla-Banking
 bpostbank.be	Adguard-Banks, Daenoman
 cbc.be	Shalla-Banking
 cbfa.be	Shalla-Banking
-centea.be	Shalla-Banking
 cetelem.be	Shalla-Banking
 citibank.be	Shalla-Banking
-cofidis.be	Shalla-Banking
 cortal.be	Shalla-Banking
 cph.be	Shalla-Banking
 credit-agricole.be	Shalla-Banking
-degroof.be	Shalla-Banking
 deutschebank.be	Shalla-Banking
 dexia.be	Shalla-Banking
 ethias-banque.be	Shalla-Banking
@@ -251,18 +236,13 @@ fbe.be	Shalla-Banking
 finansbank.be	Shalla-Banking
 fkbk.be	Shalla-Banking
 fortisbank.be	Shalla-Banking
-horatius.be	Shalla-Banking
-ing.be	Shalla-Banking
+ebanking.ing.be	Adguard-Banks
 kbc.be	Shalla-Banking
 keytradebank.be	Adguard-Banks
 meilleur-taux-epargne.be	Shalla-Banking
 nbb.be	Shalla-Banking
-obk.be	Shalla-Banking
-ovbk.be	Shalla-Banking
-petercam.be	Shalla-Banking
 puilaetco.be	Shalla-Banking
 recordbank.be	Shalla-Banking
-vdk.be	Shalla-Banking
 youtu.be	Anudeep-Whitelist
 wallet.best	Adguard-Banks
 acb.bg	Shalla-Banking
@@ -485,7 +465,6 @@ lukb.ch	Shalla-Banking
 luzerner-regiobank.ch	Shalla-Banking
 masterpass.ch	Adguard-Banks
 migrosbank.ch	Shalla-Banking
-mlbs.ch	Shalla-Banking
 nab.ch	Shalla-Banking
 nkb.ch	Shalla-Banking
 nzb.ch	Shalla-Banking
@@ -535,19 +514,13 @@ valiant.ch	Shalla-Banking, Adguard-Banks
 valiantprivatbank.ch	Shalla-Banking
 viseca.ch	Adguard-Banks
 visecaone.ch	Adguard-Banks
-vpbank.ch	Shalla-Banking
-wir.ch	Shalla-Banking
-wyler-consulting.ch	Shalla-Banking
-zkb.ch	Shalla-Banking, Adguard-Banks
-zuercherlandbank.ch	Shalla-Banking
-zugerkb.ch	Shalla-Banking
+zkb.ch	Adguard-Banks
 crisp.chat	Anudeep-Whitelist
 sib.ci	Shalla-Banking
 abif.cl	Shalla-Banking
 bcentral.cl	Shalla-Banking
 larrainvial.cl	Shalla-Banking
 icbc.com.cn	Shalla-Banking, Adguard-Banks
-wzcb.com.cn	Shalla-Banking
 pbc.gov.cn	Shalla-Banking
 bancopopular.com.co	Shalla-Banking
 banrep.gov.co	Shalla-Banking
@@ -563,17 +536,13 @@ t.co	Anudeep-Whitelist
 1stbk.com	Shalla-Banking
 1stchoicebank.com	Shalla-Banking
 1stfed.com	Shalla-Banking
-1stfederal.com	Shalla-Banking
 1stfedvw.com	Shalla-Banking
-1stmarinerbank.com	Shalla-Banking
 1stnatbank.com	Shalla-Banking
 1stnationalbank.com	Shalla-Banking
 1stnb.com	Shalla-Banking
 1stsecuritybank.com	Shalla-Banking
 1stsource.com	Shalla-Banking
 2checkout.com	Adguard-Banks
-356bank.com	Shalla-Banking
-4lnb.com	Shalla-Banking
 4sq.com	Chris-White
 4thebank.com	Shalla-Banking
 53.com	Shalla-Banking, Adguard-Banks
@@ -585,7 +554,6 @@ aba-argentina.com	Shalla-Banking
 abbey.com	Shalla-Banking
 abbybank.com	Shalla-Banking
 abc.com	Chris-White
-abcbancorp.com	Shalla-Banking
 abcbank.com	Shalla-Banking
 abcnews.com	Chris-White
 abcthebank.com	Shalla-Banking
@@ -610,13 +578,11 @@ secure.acquiropay.com	Adguard-Banks
 acs-education.com	Adguard-Banks
 adamsbank.com	Shalla-Banking
 adcbindia.com	Shalla-Banking
-adcbuae.com	Shalla-Banking
 adguard.com	Chris-White
 admuncher.com	Chris-White
 adobelogin.com	Daenoman
 adrianstatebank.com	Shalla-Banking
 publisher.adservice.com	Daenoman
-advancefinancial.com	Shalla-Banking
 advantagebank.com	Shalla-Banking
 mein.advanzia.com	Adguard-Banks
 advanziakonto.com	Shalla-Banking
@@ -672,7 +638,6 @@ amazon.com	Chris-White
 amazonaws.com	Anudeep-Whitelist
 ambfinancial.com	Shalla-Banking
 amco-bank.com	Shalla-Banking
-amcore.com	Shalla-Banking
 americanbanker.com	Shalla-Banking
 americanbankmontana.com	Shalla-Banking
 americanbanktulsa.com	Shalla-Banking
@@ -690,7 +655,6 @@ americansterling.com	Shalla-Banking
 americantrust.com	Shalla-Banking
 ameriservfinancial.com	Shalla-Banking
 amnat.com	Shalla-Banking
-amnb.com	Shalla-Banking
 ampproject.com	Chris-White
 amsouth.com	Shalla-Banking
 amtrust.com	Shalla-Banking
@@ -724,14 +688,12 @@ secure5.arcot.com	Adguard-Banks
 arjil-associes.com	Shalla-Banking
 arkansasonlinebank.com	Shalla-Banking
 arknatl.com	Shalla-Banking
-arrowfinancial.com	Shalla-Banking
 ars-in4matica.com	Shalla-Banking
 artisansbank.com	Shalla-Banking
 arvest.com	Shalla-Banking
 asbhawaii.com	Shalla-Banking
 asbnow.com	Shalla-Banking
 aseanfocus.com	Shalla-Banking
-asfc.com	Shalla-Banking
 ashefederal.com	Shalla-Banking
 asianamericanbank.com	Shalla-Banking
 asociacionbancaria.com	Shalla-Banking
@@ -991,7 +953,6 @@ baystatebank.com	Shalla-Banking
 baystatesavings.com	Shalla-Banking
 display.ugc.bazaarvoice.com	Anudeep-Whitelist
 bbacbank.com	Adguard-Banks
-bbandt.com	Shalla-Banking
 bbcnbank.com	Shalla-Banking
 bbh.com	Shalla-Banking
 bbt.com	Shalla-Banking
@@ -1138,7 +1099,6 @@ casapropia.com	Shalla-Banking
 cascadebank.com	Shalla-Banking
 cathaybank.com	Shalla-Banking
 cattlebank.com	Shalla-Banking
-cavb.com	Shalla-Banking
 cbaaonline.com	Shalla-Banking
 cbai.com	Shalla-Banking
 cbak.com	Shalla-Banking
@@ -1147,7 +1107,6 @@ cbao.com	Shalla-Banking
 cbaofga.com	Shalla-Banking
 cbbwi.com	Shalla-Banking
 cbchaska.com	Shalla-Banking
-cbcl.com	Shalla-Banking
 cbclientsfirst.com	Shalla-Banking
 cbfv.com	Shalla-Banking
 cbiuae.com	Shalla-Banking
@@ -1172,8 +1131,6 @@ ccb.com	Shalla-Banking
 ccbank.com	Shalla-Banking
 ccbg.com	Shalla-Banking
 ccblv.com	Shalla-Banking
-ccbonline.com	Shalla-Banking
-ccbt.com	Shalla-Banking
 ccow.com	Shalla-Banking
 ccservicing.com	Adguard-Banks
 cdcixis.com	Shalla-Banking
@@ -1191,7 +1148,6 @@ centralbankutah.com	Shalla-Banking
 centralbk.com	Shalla-Banking
 centralbnk.com	Shalla-Banking
 centralcaliforniabank.com	Shalla-Banking
-centralkyfsb.com	Shalla-Banking
 centralnational.com	Shalla-Banking
 centralvabank.com	Shalla-Banking
 centralvalleybank.com	Shalla-Banking
@@ -1208,7 +1164,6 @@ cfbk.com	Shalla-Banking
 cfbnk.com	Shalla-Banking
 cfbwartburg.com	Shalla-Banking
 cfsb.com	Shalla-Banking
-cfsbancorp.com	Shalla-Banking
 champlainbank.com	Shalla-Banking
 charlottestatebank.com	Shalla-Banking
 charter-bank.com	Shalla-Banking
@@ -1216,7 +1171,6 @@ charterbankwa.com	Shalla-Banking
 charternationalbank.com	Shalla-Banking
 charterone.com	Shalla-Banking
 chase.com	Shalla-Banking, Adguard-Banks
-checkfree.com	Shalla-Banking
 cheezburger.com	Chris-White
 chemicalbankmi.com	Shalla-Banking
 chestateestatebank.com	Shalla-Banking
@@ -1244,7 +1198,6 @@ citicorp.com	Shalla-Banking
 citidirect.com	Shalla-Banking
 citigroup.com	Shalla-Banking
 citizens-merchantsbank.com	Shalla-Banking
-citizens1st.com	Shalla-Banking
 citizensbank.com	Shalla-Banking, Adguard-Banks
 citizensbankonline.com	Adguard-Banks
 citizensbankusa.com	Shalla-Banking
@@ -1261,7 +1214,6 @@ citizenssb.com	Shalla-Banking
 citizensstatebanknya.com	Shalla-Banking
 citrusbank.com	Shalla-Banking
 citybank.com	Shalla-Banking
-cityholding.com	Shalla-Banking
 citynational.com	Shalla-Banking
 citynational-bank.com	Shalla-Banking
 citynationalbank.com	Shalla-Banking
@@ -1324,7 +1276,6 @@ commbanksofco.com	Shalla-Banking
 commercebank.com	Shalla-Banking
 secure.commercegate.com	Adguard-Banks
 commerceonline.com	Shalla-Banking
-commercepc.com	Shalla-Banking
 commercialbank-stl.com	Shalla-Banking
 commercialbankfl.com	Shalla-Banking
 commercialstate.com	Shalla-Banking
@@ -1343,7 +1294,6 @@ communitycapitalbank.com	Shalla-Banking
 communityelmhurst.com	Shalla-Banking
 communitynationalbank.com	Shalla-Banking
 communitytrustbank.com	Shalla-Banking
-communitywest.com	Shalla-Banking
 comnb.com	Shalla-Banking
 compassbank.com	Shalla-Banking
 compassweb.com	Shalla-Banking
@@ -1402,7 +1352,6 @@ cstrust.com	Shalla-Banking
 ctb-bank.com	Shalla-Banking
 ctbank.com	Shalla-Banking
 ctbatlanta.com	Shalla-Banking
-ctbi.com	Shalla-Banking
 ctcbonline.com	Shalla-Banking
 cttrustsvcs.com	Shalla-Banking
 cubbank.com	Shalla-Banking
@@ -1439,7 +1388,6 @@ dfcugroup.com	Shalla-Banking
 dhbbank.com	Shalla-Banking, Adguard-Banks
 webtrack.dhlglobalmail.com	EasyPrivacy-White, Daenoman
 dime.com	Shalla-Banking
-dimewill.com	Shalla-Banking
 directnet.com	Shalla-Banking, Adguard-Banks
 discover.com	Shalla-Banking, Adguard-Banks
 mediacdn.disqus.com	Daenoman
@@ -1473,7 +1421,6 @@ e2ro.com	Chris-White
 eab.com	Shalla-Banking
 eab-online.com	Shalla-Banking
 eagle-bank.com	Shalla-Banking
-eaglebancshares.com	Shalla-Banking
 eaglebankmd.com	Shalla-Banking
 eaglebankmn.com	Shalla-Banking
 eaglebnk.com	Shalla-Banking
@@ -1493,7 +1440,6 @@ ebl-bd.com	Shalla-Banking
 eblf.com	Shalla-Banking
 ebrd.com	Shalla-Banking
 ebsb.com	Shalla-Banking
-ecbbancorp.com	Shalla-Banking
 ecitizensnationalbank.com	Shalla-Banking
 ecobank.com	Shalla-Banking
 terminal.ecommpay.com	Adguard-Banks
@@ -1518,7 +1464,6 @@ elsb.com	Shalla-Banking
 emarinebank.com	Shalla-Banking
 cdn.embedly.com	Anudeep-Whitelist
 emiratesbank.com	Shalla-Banking
-emmerossi.com	Shalla-Banking
 empirebank.com	Shalla-Banking
 emprisebank.com	Shalla-Banking
 encoremanagement.com	Shalla-Banking
@@ -1581,7 +1526,6 @@ farmers-merchantsbank.com	Shalla-Banking
 farmers-state.com	Shalla-Banking
 farmersandsavings.com	Shalla-Banking
 farmersbanknc.com	Shalla-Banking
-farmersfrankfort.com	Shalla-Banking
 farmersnational.com	Shalla-Banking
 fauquierbank.com	Shalla-Banking
 fbbmilwaukee.com	Shalla-Banking
@@ -1603,7 +1547,6 @@ fcbok.com	Shalla-Banking
 fcbtn.com	Shalla-Banking
 fcfbank.com	Shalla-Banking
 fcidb.com	Shalla-Banking
-fdef.com	Shalla-Banking
 federal-bank.com	Shalla-Banking
 federaltrust.com	Shalla-Banking
 fednetbank.com	Shalla-Banking, Adguard-Banks
@@ -1614,14 +1557,11 @@ ffb-sd.com	Shalla-Banking
 ffbc-oh.com	Shalla-Banking
 ffbh.com	Shalla-Banking
 ffbnk.com	Shalla-Banking
-ffbonline.com	Shalla-Banking
 ffbtn.com	Shalla-Banking
 ffhh.com	Shalla-Banking
-ffin.com	Shalla-Banking
 ffmbank.com	Shalla-Banking
 ffpa.com	Shalla-Banking
 ffsb.com	Shalla-Banking
-ffsbky.com	Shalla-Banking
 fhb.com	Shalla-Banking
 fhlb.com	Shalla-Banking
 fhlbc.com	Shalla-Banking
@@ -1632,21 +1572,17 @@ fidelity.com	Adguard-Banks
 fidelitybank.com	Shalla-Banking
 fidelitybk.com	Shalla-Banking
 fidfed.com	Shalla-Banking
-fiiwarsaw.com	Shalla-Banking
 finansonline.com	Adguard-Banks
 fincombank.com	Shalla-Banking
 first-citizens.com	Shalla-Banking
 first-community-bank.com	Shalla-Banking
 first-federal.com	Shalla-Banking
-first-online.com	Shalla-Banking
-firstactive.com	Shalla-Banking
 firstalliancebank.com	Shalla-Banking
 firstambank.com	Shalla-Banking
 firstamerbank.com	Shalla-Banking
 firstandpeoplesbank.com	Shalla-Banking
 firstar.com	Shalla-Banking
 firstarkansasbank.com	Shalla-Banking
-firstbancorp.com	Shalla-Banking
 firstbankofclewiston.com	Shalla-Banking
 firstbankofdalton.com	Shalla-Banking
 firstbanks.com	Shalla-Banking
@@ -1654,7 +1590,6 @@ firstbanktexas.com	Shalla-Banking
 firstbanktomah.com	Shalla-Banking
 firstbizbank.com	Shalla-Banking
 firstcentralbank.com	Shalla-Banking
-firstcharter.com	Shalla-Banking
 firstcitizens.com	Shalla-Banking
 firstcitizens-bank.com	Shalla-Banking
 firstcitizensnb.com	Shalla-Banking
@@ -1667,21 +1602,16 @@ firstcommunbanktifton.com	Shalla-Banking
 firstcountybank.com	Shalla-Banking
 firstdakota.com	Shalla-Banking
 firstdirect.com	Shalla-Banking
-firstessex.com	Shalla-Banking
 firstexchangebank.com	Shalla-Banking
 firstfd.com	Shalla-Banking
 firstfed.com	Shalla-Banking
 firstfedamerica.com	Shalla-Banking
 firstfedbankkc.com	Shalla-Banking
-firstfedbessemer.com	Shalla-Banking
 firstfederal.com	Shalla-Banking
 firstfederalbank.com	Shalla-Banking
 firstfederalbankky.com	Shalla-Banking
-firstfederalfla.com	Shalla-Banking
-firstfederalsl.com	Shalla-Banking
 firstfedlc.com	Shalla-Banking
 firstfedsavingsbank.com	Shalla-Banking
-firstfinancialholdings.com	Shalla-Banking
 firstgulfbank.com	Shalla-Banking
 firstib.com	Shalla-Banking
 firstindiana.com	Shalla-Banking
@@ -1689,10 +1619,8 @@ firstinterbank.com	Shalla-Banking
 firstinterstatebank.com	Shalla-Banking
 firstkeystone.com	Shalla-Banking
 firstknox.com	Shalla-Banking
-firstmerchants.com	Shalla-Banking
 firstmerit.com	Shalla-Banking
 firstmid.com	Shalla-Banking
-firstmidwest.com	Shalla-Banking
 firstmooselake.com	Shalla-Banking
 firstmutual.com	Shalla-Banking
 firstnational.com	Shalla-Banking
@@ -1704,7 +1632,6 @@ firstnb.com	Shalla-Banking
 firstnebraskabank.com	Shalla-Banking
 firstnorthern.com	Shalla-Banking
 firstoceanicbank.com	Shalla-Banking
-firstregional.com	Shalla-Banking
 firstreliance.com	Shalla-Banking
 firstrepublic.com	Shalla-Banking
 firstrustbank.com	Shalla-Banking
@@ -1720,20 +1647,16 @@ firststatebankofleroy.com	Shalla-Banking
 firststatebanks.com	Shalla-Banking
 firststatebnk.com	Shalla-Banking
 firstunion.com	Shalla-Banking
-firstusa.com	Shalla-Banking
 firstvirginia.com	Shalla-Banking
 fitbit.com	Chris-White
 five-starbank.com	Shalla-Banking
 fjsb.com	Shalla-Banking
 flagshipbank.com	Shalla-Banking
-flagstar.com	Shalla-Banking
 flatbush.com	Shalla-Banking
-flbk.com	Shalla-Banking
 fleet.com	Shalla-Banking
 florencestatebank.com	Shalla-Banking
 floridabankers.com	Shalla-Banking
 floridachoicebank.com	Shalla-Banking
-flushingsavings.com	Shalla-Banking
 fmb-ebank.com	Shalla-Banking
 fmbancorp.com	Shalla-Banking
 fmbanknym.com	Shalla-Banking
@@ -1742,7 +1665,6 @@ fmberlin.com	Shalla-Banking
 fmbnc.com	Shalla-Banking
 fmbnk.com	Shalla-Banking
 fmbsc.com	Shalla-Banking
-fmer.com	Shalla-Banking
 fmnb.com	Shalla-Banking
 fmpaynesville.com	Shalla-Banking
 fmsb.com	Shalla-Banking
@@ -1771,7 +1693,6 @@ fnbblytheville.com	Shalla-Banking
 fnbcenterville.com	Shalla-Banking
 fnbcf.com	Shalla-Banking
 fnbchix.com	Shalla-Banking
-fnbcorporation.com	Shalla-Banking
 fnbcoweta.com	Shalla-Banking
 fnbdanville.com	Shalla-Banking
 fnbdavis.com	Shalla-Banking
@@ -1787,13 +1708,11 @@ fnbmd.com	Shalla-Banking
 fnbmh.com	Shalla-Banking
 fnbmilaca.com	Shalla-Banking
 fnbmontana.com	Shalla-Banking
-fnbnc.com	Shalla-Banking
 fnbnd.com	Shalla-Banking
 fnbnet.com	Shalla-Banking
 fnboa.com	Shalla-Banking
 fnbomaha.com	Shalla-Banking
 fnboneida.com	Shalla-Banking
-fnbonline.com	Shalla-Banking
 fnbop.com	Shalla-Banking
 fnbpc.com	Shalla-Banking
 fnbpipe.com	Shalla-Banking
@@ -1816,7 +1735,6 @@ fnbwynne.com	Shalla-Banking
 fnbwyo.com	Shalla-Banking
 foncier-international.com	Shalla-Banking
 fontaine-suisse.com	Shalla-Banking
-foothillindbank.com	Shalla-Banking
 mybank.fortebank.com	Adguard-Banks
 online.fortebank.com	Adguard-Banks
 fortis.com	Shalla-Banking
@@ -1829,7 +1747,6 @@ foxborobank.com	Shalla-Banking
 framinghamcoop.com	Shalla-Banking
 franklinbank.com	Shalla-Banking
 franklinnetbranch.com	Shalla-Banking
-franklinsavings.com	Shalla-Banking
 fransabank.com	Shalla-Banking
 fraud-net.com	Shalla-Banking
 freedombankwv.com	Shalla-Banking
@@ -1850,7 +1767,6 @@ fsbperkasie.com	Shalla-Banking
 fsbrosemount.com	Shalla-Banking
 fsbshallowater.com	Shalla-Banking
 fsbtc.com	Shalla-Banking
-fsbw.com	Shalla-Banking
 fsbwabasha.com	Shalla-Banking
 fsbwaupaca.com	Shalla-Banking
 fsbwc.com	Shalla-Banking
@@ -1868,14 +1784,12 @@ fuelrewards.com	Chris-White
 acs.fuib.com	Adguard-Banks
 pps.fuib.com	Adguard-Banks
 service.fuib.com	Adguard-Banks
-fult.com	Shalla-Banking
 fultonbank.com	Shalla-Banking
 fundmoremerchantbank.com	Shalla-Banking
 funniermoments.com	EasyList-White, Daenoman
 fvnb.com	Shalla-Banking
 fwsb.com	Shalla-Banking
 fxcomtky.com	Shalla-Banking
-gab.com	Shalla-Banking
 gabankers.com	Shalla-Banking
 garantibank.com	Shalla-Banking
 secure.gate2shop.com	Adguard-Banks
@@ -1884,7 +1798,6 @@ gatewaycommunitybank.com	Shalla-Banking
 gatewaysavings.com	Shalla-Banking
 gatewaysavingsbank.com	Shalla-Banking
 gatewaysb.com	Shalla-Banking
-gbbk.com	Shalla-Banking
 gbtcalhoun.com	Shalla-Banking
 gcsbank.com	Shalla-Banking
 gdb-pur.com	Shalla-Banking
@@ -1899,7 +1812,6 @@ cloud.genymotion.com	Daenoman
 geobank.com	Shalla-Banking
 georgetownsb.com	Shalla-Banking
 german-banks.com	Shalla-Banking
-gfed.com	Shalla-Banking
 gfh.com	Shalla-Banking
 ggpht.com	Chris-White
 giantbank.com	Shalla-Banking
@@ -1941,7 +1853,6 @@ grandbk.com	Shalla-Banking
 granitebank.com	Shalla-Banking
 gravatar.com	Anudeep-Whitelist
 greatbasinbank.com	Shalla-Banking
-greatercommunity.com	Shalla-Banking
 greaterromebank.com	Shalla-Banking
 greatfallsbank.com	Shalla-Banking
 greatriverbank.com	Shalla-Banking
@@ -1955,8 +1866,6 @@ greenwoodsstatebank.com	Shalla-Banking
 griffonbank.com	Shalla-Banking
 grupobancolombia.com	Shalla-Banking
 webid2.gs.com	Adguard-Banks
-gsbfin.com	Shalla-Banking
-gsha.com	Shalla-Banking
 gstatic.com	Anudeep-Whitelist
 guarantybankonline.com	Shalla-Banking
 guarantystate.com	Shalla-Banking
@@ -1970,7 +1879,6 @@ hancockbank.com	Shalla-Banking
 hangseng.com	Shalla-Banking
 hanmi.com	Shalla-Banking
 hansagroup.com	Shalla-Banking
-harborfederal.com	Shalla-Banking
 harrisbank.com	Shalla-Banking, Adguard-Banks
 haspa-bank-in-hamburg.com	Shalla-Banking
 hawaiinational.com	Shalla-Banking
@@ -2001,7 +1909,6 @@ heritageonline.com	Shalla-Banking
 heritagesavingsbank.com	Shalla-Banking
 hersheybank.com	Shalla-Banking
 hf-wa.com	Shalla-Banking
-hfbancorp.com	Shalla-Banking
 hiawatha-nb.com	Shalla-Banking
 hiberniabank.com	Shalla-Banking
 hickoryptbank.com	Shalla-Banking
@@ -2023,7 +1930,6 @@ homesavingsandloan.com	Shalla-Banking
 homesteadbank.com	Shalla-Banking
 homestreetbank.com	Shalla-Banking
 hometownbancorp.com	Shalla-Banking
-homf.com	Shalla-Banking
 horizon-bank.com	Shalla-Banking
 horizonbank.com	Shalla-Banking
 m.hotmail.com	Anudeep-Whitelist
@@ -2047,14 +1953,12 @@ hypo-alpe-adria.com	Shalla-Banking
 hypotirol.com	Shalla-Banking
 hypovereinsbank.com	Shalla-Banking
 iabankers.com	Shalla-Banking
-ibanesto.com	Shalla-Banking
 ibankfnb.com	Shalla-Banking
 ibb-ag.com	Shalla-Banking
 ibc.com	Shalla-Banking
 iberiabank.com	Shalla-Banking
 ibf-bih.com	Shalla-Banking
 ibkuwt.com	Shalla-Banking
-iboc.com	Shalla-Banking
 ibtco.com	Shalla-Banking
 ibyemen.com	Shalla-Banking
 icbcasia.com	Shalla-Banking
@@ -2116,7 +2020,6 @@ isb-algona.com	Shalla-Banking
 islamibankbd.com	Shalla-Banking
 issbank.com	Shalla-Banking
 itascabank.com	Shalla-Banking
-itlacapital.com	Shalla-Banking
 itsb-iowa.com	Shalla-Banking
 iurisbank.com	Shalla-Banking
 jacksoncountybank.com	Shalla-Banking
@@ -2198,7 +2101,6 @@ landmarkbanks.com	Shalla-Banking
 larrainvial.com	Shalla-Banking
 lasallebank.com	Shalla-Banking
 lastpass.com	Chris-White
-laurelsb.com	Shalla-Banking
 laurentianbank.com	Shalla-Banking
 lawrencesavings.com	Shalla-Banking
 lbpweaccess.com	Shalla-Banking
@@ -2213,7 +2115,6 @@ ledyardbank.com	Shalla-Banking
 leesportbank.com	Shalla-Banking
 leomoney.com	Adguard-Banks
 leu.com	Shalla-Banking
-lfg.com	Shalla-Banking
 lgbbank.com	Adguard-Banks
 lgt.com	Shalla-Banking
 lgt-bank.com	Shalla-Banking
@@ -2241,9 +2142,7 @@ lloydstsbtransfer.com	Shalla-Banking
 lmla.com	Shalla-Banking
 lnb.com	Shalla-Banking
 loan-market-assoc.com	Shalla-Banking
-localoklahoma.com	Shalla-Banking
 lodh.com	Shalla-Banking
-logansportsavings.com	Shalla-Banking
 lombardodierdarierhentsch.com	Shalla-Banking
 lonestarflba.com	Shalla-Banking
 longviewbank.com	Shalla-Banking
@@ -2265,11 +2164,9 @@ lzbank.com	Shalla-Banking
 lzo.com	Shalla-Banking, Adguard-Banks
 maconbank.com	Shalla-Banking
 madison-bank.com	Shalla-Banking
-mafbancorp.com	Shalla-Banking
 magbank.com	Shalla-Banking
 maharashtrabank.com	Shalla-Banking
 mahaskabank.com	Shalla-Banking
-mahaskainv.com	Shalla-Banking
 mahnomenbank.com	Shalla-Banking
 admin.mailchimp.com	Daenoman
 mainebank.com	Shalla-Banking
@@ -2312,7 +2209,6 @@ mbastl.com	Shalla-Banking
 ibank.mbbru.com	Adguard-Banks
 mblbd.com	Shalla-Banking
 mbna.com	Shalla-Banking
-mbnainternational.com	Shalla-Banking
 mbvt.com	Shalla-Banking
 avts.mcafee.com	Chris-White
 mcb-bank.com	Shalla-Banking
@@ -2398,7 +2294,6 @@ morrisstate.com	Shalla-Banking
 my.morskoybank.com	Adguard-Banks
 mortgageedu.com	Shalla-Banking
 mortgagemaine.com	Shalla-Banking
-mortonmanagement.com	Shalla-Banking
 moundcitybank.com	Shalla-Banking
 mprivat.com	Shalla-Banking
 ms-bank.com	Shalla-Banking
@@ -2420,7 +2315,6 @@ mybankcsb.com	Shalla-Banking
 mybankfirstunited.com	Shalla-Banking
 mycgb.com	Shalla-Banking
 myhomefed.com	Shalla-Banking
-myindependence.com	Shalla-Banking
 myinvestorsbank.com	Shalla-Banking
 myirwinbank.com	Shalla-Banking
 mymerrill.com	Adguard-Banks
@@ -2504,21 +2398,17 @@ northcommunitybank.com	Shalla-Banking
 northeastbank.com	Shalla-Banking
 northeastbank-mn.com	Shalla-Banking
 northerntrust.com	Shalla-Banking
-northfederal.com	Shalla-Banking
 northforkbank.com	Shalla-Banking
 northhoustonbank.com	Shalla-Banking
 northrim.com	Shalla-Banking
 northshorebank.com	Shalla-Banking
 northshoretrust.com	Shalla-Banking
-northsidebank.com	Shalla-Banking
 northstarbankwa.com	Shalla-Banking
 northstarccu.com	Shalla-Banking
-northvalleybank.com	Shalla-Banking
 northwestfederal.com	Shalla-Banking
 northwestsavingsbank.com	Shalla-Banking
 northwoodsbank.com	Shalla-Banking
 norwest.com	Shalla-Banking
-norwoodfc.com	Shalla-Banking
 novabanka.com	Shalla-Banking
 novablbanka.com	Shalla-Banking
 novasavingsbank.com	Shalla-Banking
@@ -2528,7 +2418,6 @@ nsbbank.com	Shalla-Banking
 nsbov.com	Shalla-Banking
 nsbvt.com	Shalla-Banking
 nstarbank.com	Shalla-Banking
-ntrs.com	Shalla-Banking
 nubankinfo.com	Shalla-Banking
 nvbank.com	Shalla-Banking
 nvebank.com	Shalla-Banking
@@ -2536,7 +2425,6 @@ nvsl.com	Shalla-Banking
 nwolb.com	Shalla-Banking, Adguard-Banks, Daenoman
 nyba.com	Shalla-Banking
 o2bancorp.com	Shalla-Banking
-oakf.com	Shalla-Banking
 oaklawnbank.com	Shalla-Banking
 oba.com	Shalla-Banking
 obabank.com	Shalla-Banking
@@ -2556,9 +2444,7 @@ ohiosavingsbank.com	Shalla-Banking
 secure.okpay.com	Adguard-Banks
 old2nd.com	Shalla-Banking
 oldflbank.com	Shalla-Banking
-oldnational.com	Shalla-Banking
 omahastate.com	Shalla-Banking
-omegafinancial.com	Shalla-Banking
 omegle.com	Daenoman
 oneaccount.com	Adguard-Banks
 onlinebanking-ibb-ag.com	Adguard-Banks
@@ -2583,7 +2469,6 @@ oschadnybank.com	Shalla-Banking
 ossianstatebank.com	Shalla-Banking
 ourbank.com	Shalla-Banking
 outlook.com	Chris-White
-ovbc.com	Shalla-Banking
 oysterfunds.com	Shalla-Banking
 ozarkbank.com	Shalla-Banking
 ozaukeebank.com	Shalla-Banking
@@ -2628,25 +2513,19 @@ pbbanking.com	Shalla-Banking
 pbbdirekt.com	Adguard-Banks
 pbebank.com	Adguard-Banks
 pbfco.com	Shalla-Banking
-pcbancorp.com	Shalla-Banking
 pcbanker.com	Shalla-Banking
 peacehills.com	Shalla-Banking
 peapod.com	Chris-White
 pelco.com	Chris-White
 pellabank.com	Shalla-Banking
-pemibank.com	Shalla-Banking
 penderstate.com	Shalla-Banking
 peninsulabankmd.com	Shalla-Banking
-pennfsb.com	Shalla-Banking
 peoples.com	Shalla-Banking
-peoplesbancorp.com	Shalla-Banking
 peoplesbankbyrdstown.com	Shalla-Banking
 peoplesbankky.com	Shalla-Banking
-peoplesbanknet.com	Shalla-Banking
 peoplesbankofcoffeecounty.com	Shalla-Banking
 peoplesbanktrust.com	Shalla-Banking
 peoplesbk.com	Shalla-Banking
-peoplesbt.com	Shalla-Banking
 peoplesexchangebk.com	Shalla-Banking
 peoplesgraceville.com	Shalla-Banking
 peoplesnationalbank.com	Shalla-Banking
@@ -2686,16 +2565,13 @@ plimus.com	Adguard-Banks
 pmbank.com	Shalla-Banking
 pnbindia.com	Shalla-Banking
 pnbrci.com	Shalla-Banking
-pnc.com	Shalla-Banking
 pncbank.com	Shalla-Banking
 pocketbook-int.com	Daenoman
 pointebank.com	Shalla-Banking
 popularenlinea.com	Shalla-Banking
-popularinc.com	Shalla-Banking
 mohavestbank.portalvault.com	Shalla-Banking
 bank.postil.com	Adguard-Banks
 potomacbank.com	Shalla-Banking
-powercorp.com	Shalla-Banking
 ppbank.com	Shalla-Banking
 prattsletter.com	Shalla-Banking
 premierbank.com	Shalla-Banking
@@ -2719,7 +2595,6 @@ progressiveozarkbank.com	Shalla-Banking
 prosperitybanktx.com	Shalla-Banking
 provcombank.com	Shalla-Banking
 providencejournal.com	Chris-White
-provident-financial.com	Shalla-Banking
 providentbanking.com	Shalla-Banking
 providentbankmd.com	Shalla-Banking
 providentnj.com	Shalla-Banking
@@ -2775,7 +2650,6 @@ republicbankfl.com	Shalla-Banking
 resourcebankonline.com	Shalla-Banking
 retailmenot.com	Daenoman
 rfcu.com	Adguard-Banks
-rgonline.com	Shalla-Banking
 rhbank.com	Shalla-Banking
 rhbbank.com	Shalla-Banking
 ib.ribbank.com	Adguard-Banks
@@ -2783,7 +2657,6 @@ ibank.ricbank.com	Adguard-Banks
 ibankr.ricbank.com	Adguard-Banks
 richlandbank.com	Shalla-Banking
 ridgewoodbank.com	Shalla-Banking
-rietumu.com	Shalla-Banking
 riggsbank.com	Shalla-Banking
 riksbank.com	Shalla-Banking
 riverviewbank.com	Shalla-Banking
@@ -2798,7 +2671,6 @@ roscap.com	Shalla-Banking
 rosedalefederal.com	Shalla-Banking
 rosemountbank.com	Shalla-Banking
 rosevillebankingcenter.com	Shalla-Banking
-roslynsavings.com	Shalla-Banking
 royalbank.com	Shalla-Banking, Adguard-Banks
 royalbankpa.com	Shalla-Banking
 track2.royalmail.com	EasyPrivacy-White, Daenoman
@@ -2839,7 +2711,6 @@ sbdanbury.com	Shalla-Banking
 sbhyd.com	Shalla-Banking
 sbiepay.com	Adguard-Banks
 sbijapan.com	Shalla-Banking
-sbmct.com	Shalla-Banking
 sbr.com	Shalla-Banking
 sbsbank.com	Shalla-Banking
 sbsu.com	Shalla-Banking
@@ -2901,7 +2772,6 @@ static.siteheart.com	Adguard-Banks
 sixrivers.com	Shalla-Banking
 sjbank.com	Shalla-Banking
 sjnb.com	Shalla-Banking
-skibofin.com	Shalla-Banking
 api-merchants.skimlinks.com	EasyList-White, Daenoman
 authentication-api.skimlinks.com	EasyList-White, Daenoman
 skodabank.com	Shalla-Banking
@@ -2927,12 +2797,10 @@ api-secure.solvemedia.com	Daenoman
 somersetsavings.com	Shalla-Banking
 sonos.com	Chris-White
 sorexpay.com	Adguard-Banks
-soundfed.com	Shalla-Banking
 southcoastbank.com	Shalla-Banking
 southcountybank.com	Shalla-Banking
 southindianbank.com	Shalla-Banking, Adguard-Banks
 southpointebank.com	Shalla-Banking
-southside.com	Shalla-Banking
 southtrust.com	Shalla-Banking
 southwesttexasflba.com	Shalla-Banking
 sovereignbank.com	Shalla-Banking
@@ -3000,10 +2868,7 @@ stopmortgagefraud.com	Shalla-Banking
 stripe.com	Adguard-Banks
 summit-bank.com	Shalla-Banking
 summitbank.com	Shalla-Banking
-summitbk.com	Shalla-Banking
 sumterbank.com	Shalla-Banking
-sunbancorp.com	Shalla-Banking
-suncommunity.com	Shalla-Banking
 player.sundaysky.com	EasyPrivacy-White
 sunflowerbank.com	Shalla-Banking
 sunmarkbank.com	Shalla-Banking
@@ -3014,7 +2879,6 @@ suretybank.com	Shalla-Banking
 surveymonkey.com	Anudeep-Whitelist
 susqbanc.com	Shalla-Banking
 sv-bank.com	Shalla-Banking
-svb.com	Shalla-Banking
 svcbank.com	Shalla-Banking
 svgsbank.com	Shalla-Banking
 swbank.com	Shalla-Banking
@@ -3112,7 +2976,6 @@ tradersbank.com	Shalla-Banking
 ibank.transcapital.com	Adguard-Banks
 img.travidia.com	EasyList-White, Daenoman
 trbsinc.com	Shalla-Banking
-tricobank.com	Shalla-Banking
 tricountiesbank.com	Shalla-Banking
 tricountybank.com	Shalla-Banking
 tricountybt.com	Shalla-Banking
@@ -3142,7 +3005,6 @@ txloanstar.com	Shalla-Banking
 ub-t.com	Shalla-Banking
 ubankal.com	Shalla-Banking
 ubaz.com	Shalla-Banking
-ubcd.com	Shalla-Banking
 ubldirect.com	Shalla-Banking
 ubluk.com	Shalla-Banking
 ubmich.com	Shalla-Banking
@@ -3150,18 +3012,14 @@ uboc.com	Shalla-Banking
 ubpserve.com	Shalla-Banking
 ubs.com	Shalla-Banking, Adguard-Banks
 ubsh.com	Shalla-Banking
-ubsi-wv.com	Shalla-Banking
 ubt.com	Shalla-Banking
 ucbankmn.com	Shalla-Banking
-ucbi.com	Shalla-Banking
 ucbl.com	Shalla-Banking
 ucbnd.com	Shalla-Banking
-uci.com	Shalla-Banking
 ikb.uci-bank.com	Adguard-Banks
 ucnb.com	Shalla-Banking
 ucobank.com	Shalla-Banking
 ucpb.com	Shalla-Banking
-ufb-ffed.com	Shalla-Banking
 ugpb.com	Shalla-Banking
 ukbankfinder.com	Shalla-Banking
 ukrgasbank.com	Shalla-Banking, Adguard-Banks
@@ -3170,9 +3028,7 @@ ukrsibbank.com	Adguard-Banks
 ibank.ukrsotsbank.com	Adguard-Banks
 ulsterbank.com	Shalla-Banking
 ultimabank.com	Shalla-Banking
-umb.com	Shalla-Banking
 umbrellabank.com	Shalla-Banking
-umpquabank.com	Shalla-Banking
 unbank.com	Shalla-Banking
 unionbank.com	Shalla-Banking
 unionbankjo.com	Shalla-Banking
@@ -3181,19 +3037,15 @@ unionbankofblair.com	Shalla-Banking
 unionbankph.com	Shalla-Banking
 unionbankvt.com	Shalla-Banking
 unionfederalbank.com	Shalla-Banking
-unionplanters.com	Shalla-Banking
 unionsavings.com	Shalla-Banking
 unionstate.com	Shalla-Banking
 uniontrust.com	Shalla-Banking
-unitedbancorp.com	Shalla-Banking
-unitedbank.com	Shalla-Banking
 unitedbank-va.com	Shalla-Banking
 unitedbankofindia.com	Shalla-Banking
 unitedbankofmichigan.com	Shalla-Banking
 unitedbankwi.com	Shalla-Banking
 unitedbankwoodford.com	Shalla-Banking
 unitedbk.com	Shalla-Banking
-unitedcb.com	Shalla-Banking
 unitedcommunitybanks.com	Shalla-Banking
 unitedprairiebank.com	Shalla-Banking
 unitedsecuritybank.com	Shalla-Banking
@@ -3201,14 +3053,12 @@ unitedtrust.com	Shalla-Banking
 unitybank.com	Shalla-Banking
 universalbank.com	Shalla-Banking
 university-bank.com	Shalla-Banking
-uno-e.com	Shalla-Banking
 unsplash.com	Anudeep-Whitelist
 uobgroup.com	Shalla-Banking
 dbo1.uralfinance.com	Adguard-Banks
 urlblacklist.com	Chris-White
 usaa.com	Adguard-Banks, Daenoman
 usaccessbank.com	Shalla-Banking
-usbancorp.com	Shalla-Banking
 usbank.com	Shalla-Banking
 usbarkcity.com	Shalla-Banking
 ustrust.com	Shalla-Banking
@@ -3221,111 +3071,26 @@ valleynationalbank.com	Shalla-Banking
 valleystatebank.com	Shalla-Banking
 valricostate.com	Shalla-Banking
 vanguard.com	Adguard-Banks
-vbnv.com	Shalla-Banking
-vcbonline.com	Shalla-Banking
-venezolano.com	Shalla-Banking
 venmo.com	Adguard-Banks
-venturacountybusinessbank.com	Shalla-Banking
-vermontmba.com	Shalla-Banking
-vermontnationalbank.com	Shalla-Banking
-viabcp.com	Shalla-Banking
-vibcorp.com	Shalla-Banking
-videoposte.com	Shalla-Banking
-vijayabank.com	Shalla-Banking
-village-bank.com	Shalla-Banking
-villagebankonline.com	Shalla-Banking
 vimeo.com	Anudeep-Whitelist
-vineyardbank.com	Shalla-Banking
-vintagebank.com	Shalla-Banking
-virginiamla.com	Shalla-Banking
-virtualbank.com	Shalla-Banking
-vnbnm.com	Shalla-Banking
-volksbank-erzgebirge.com	Shalla-Banking
-volstatebank.com	Shalla-Banking
-vontobel.com	Shalla-Banking
-vpbank.com	Shalla-Banking
-vtbanker.com	Shalla-Banking
-vtbindia.com	Shalla-Banking
-wabankers.com	Shalla-Banking
-wachovia.com	Shalla-Banking
-wadenastatebank.com	Shalla-Banking
-wainwrightbank.com	Shalla-Banking
-wallisbank.com	Shalla-Banking
-walpolebank.com	Shalla-Banking
-walworthbank.com	Shalla-Banking
-wamu.com	Shalla-Banking
-warringtonbank.com	Shalla-Banking
-washingtonfederal.com	Shalla-Banking
-washingtonfederalbank.com	Shalla-Banking
-washsavbk.com	Shalla-Banking
-washtrust.com	Shalla-Banking
-watrust.com	Shalla-Banking
-waukeestatebank.com	Shalla-Banking
-waukeshabank.com	Shalla-Banking
 wayforpay.com	Adguard-Banks
-waypointbank.com	Shalla-Banking
-wbpr.com	Shalla-Banking
-wcnbwooster.com	Shalla-Banking
 wealthbar.com	Adguard-Banks
 wealthsimple.com	Adguard-Banks
 webbankir.com	Adguard-Banks
 trade.webborsam.com	Adguard-Banks
-webcityfed.com	Shalla-Banking
 cdn.webclicks24.com	Daenoman
 schneider-electric.webex.com	Chris-White
-websterbank.com	Shalla-Banking
-wellsfargo.com	Chris-White, Shalla-Banking, Adguard-Banks
+wellsfargo.com	Chris-White, Adguard-Banks
 wellsfargoadvisors.com	Chris-White
 wellsfargomedia.com	Chris-White
-wellsfederalbank.com	Shalla-Banking
-wesbanco.com	Shalla-Banking
-westamerica.com	Shalla-Banking
-westcoastbancorp.com	Shalla-Banking
-western-bank.com	Shalla-Banking
-westernbankwp.com	Shalla-Banking
-westernsecuritybank.com	Shalla-Banking
-westernspringsbank.com	Shalla-Banking
-westernunion.com	Shalla-Banking
-westernuniongold.com	Shalla-Banking
-westpointebank.com	Shalla-Banking
-westsuburbanbank.com	Shalla-Banking
 whatsapp.com	Chris-White
-whbhk.com	Shalla-Banking
-whbmac.com	Shalla-Banking
-whitneybank.com	Shalla-Banking
-wibank.com	Shalla-Banking
-wienerprivatbank.com	Shalla-Banking
-wilberbank.com	Shalla-Banking
-willowgrovebank.com	Shalla-Banking
-wilmingtontrust.com	Shalla-Banking
-wilshirebank.com	Shalla-Banking
-wilsonbank.com	Shalla-Banking
 windowsupdate.com	Chris-White
-wingspanbank.com	Shalla-Banking
-winonanationalbank.com	Shalla-Banking
-winterhillbank.com	Shalla-Banking
-wintrust.com	Shalla-Banking
 checkout.wirecard.com	Adguard-Banks
-wisbank.com	Shalla-Banking
-wmla.com	Shalla-Banking
 wmtransfer.com	Adguard-Banks
-wnb.com	Shalla-Banking
-wnnb.com	Shalla-Banking
-wolverinebank.com	Shalla-Banking
-woodforest.com	Shalla-Banking
-woodlandbank.com	Shalla-Banking
 wooppay.com	Adguard-Banks
-wooribank.com	Shalla-Banking
 wordpress.com	Anudeep-Whitelist
-worldwidebanking.com	Shalla-Banking
 wp.com	Anudeep-Whitelist
-wsbcbank.com	Shalla-Banking
-wsfsbank.com	Shalla-Banking
-wsnb.com	Shalla-Banking
 banners.wunderground.com	EasyList-White, Daenoman
-wvacb.com	Shalla-Banking
-wyomingbank.com	Shalla-Banking
-wyomingbankers.com	Shalla-Banking
 wyzecam.com	Chris-White
 xkms.xbolive.com	Anudeep-Whitelist
 marketplace.xbox.com	Daenoman
@@ -3333,27 +3098,14 @@ xboxlive.com	Anudeep-Whitelist
 xda-cdn.com	Chris-White
 xda-developers.com	Chris-White
 imgs.xkcd.com	Anudeep-Whitelist
-xmccb.com	Shalla-Banking
 static-hw.xvideos-cdn.com	Daenoman
 yahoo.com	Anudeep-Whitelist
-yalebankiowa.com	Shalla-Banking
-ycbank.com	Shalla-Banking
-yellowstonebank.com	Shalla-Banking
-ykb.com	Shalla-Banking
-yolobank.com	Shalla-Banking
-yourhomebank.com	Shalla-Banking
-yourlocalbank.com	Shalla-Banking
 youtube.com	Anudeep-Whitelist
 youtube-nocookie.com	Chris-White, Anudeep-Whitelist
 i.ytimg.com	Anudeep-Whitelist
 i1.ytimg.com	Anudeep-Whitelist
 s.ytimg.com	Anudeep-Whitelist
-zagury.com	Shalla-Banking
 zaim.com	Adguard-Banks
-zenithbank.com	Shalla-Banking
-zionsbancorporation.com	Shalla-Banking
-zionsbank.com	Shalla-Banking
-zjcbank.com	Shalla-Banking
 abcul.coop	Shalla-Banking
 bvr.coop	Shalla-Banking
 bnv.co.cr	Shalla-Banking
@@ -3391,8 +3143,6 @@ rb.cz	Shalla-Banking, Adguard-Banks
 sberbankcz.cz	Adguard-Banks
 servis24.cz	Adguard-Banks
 turris.cz	Chris-White
-volksbank.cz	Shalla-Banking
-wuestenrot.cz	Shalla-Banking
 1822direkt.de	Adguard-Banks
 1822direkt-banking.de	Adguard-Banks
 1plusi.de	Shalla-Banking
@@ -4635,17 +4385,14 @@ vb-greven.de	Shalla-Banking
 vb-halle.de	Adguard-Banks
 vb-halle-westf.de	Shalla-Banking
 vb-haltern.de	Adguard-Banks
-vb-hammah.de	Shalla-Banking
 vb-heimbach.de	Adguard-Banks
-vb-herford.de	Shalla-Banking
-vb-hoevelhof.de	Shalla-Banking
 vb-hohenlimburg.de	Adguard-Banks
 vb-hohenlohe.de	Adguard-Banks
 vb-ioml.de	Adguard-Banks
 vb-is.de	Adguard-Banks
 vb-iw.de	Adguard-Banks
 vb-jerichower-land.de	Adguard-Banks
-vb-kawe.de	Shalla-Banking, Adguard-Banks
+vb-kawe.de	Adguard-Banks
 vb-kempen.de	Adguard-Banks
 vb-laichinger-alb.de	Adguard-Banks
 vb-lauterecken.de	Adguard-Banks
@@ -4656,10 +4403,8 @@ vb-mittelhessen.de	Adguard-Banks
 vb-ml.de	Adguard-Banks
 vb-modau.de	Adguard-Banks
 vb-mosbach.de	Adguard-Banks
-vb-nahe-schaumberg.de	Shalla-Banking
 vb-niers.de	Adguard-Banks
 vb-nordhuemmling.de	Adguard-Banks
-vb-nordlippe.de	Shalla-Banking
 vb-oberberg.de	Adguard-Banks
 vb-piel.de	Adguard-Banks
 vb-rb.de	Adguard-Banks
@@ -4676,19 +4421,17 @@ vb-selm-bork.de	Adguard-Banks
 vb-senden.de	Adguard-Banks
 vb-steineisingen.de	Adguard-Banks
 vb-stutensee-weingarten.de	Adguard-Banks
-vb-tl.de	Shalla-Banking
 vb-ue-saw.de	Adguard-Banks
 vb-ueberherrn.de	Adguard-Banks
 vb-ueberwald-gorxheimertal.de	Adguard-Banks
-vb-untere-saar.de	Shalla-Banking, Adguard-Banks
+vb-untere-saar.de	Adguard-Banks
 vb-waltrop.de	Adguard-Banks
 vb-westenholz.de	Adguard-Banks
-vb-westerkappeln.de	Shalla-Banking, Adguard-Banks
+vb-westerkappeln.de	Adguard-Banks
 vb-westerstede.de	Adguard-Banks
 vb-wickede.de	Adguard-Banks
-vb-wilferdingen-keltern.de	Shalla-Banking, Adguard-Banks
+vb-wilferdingen-keltern.de	Adguard-Banks
 vb-wittingen-kloetze.de	Adguard-Banks
-vb-worms-wonnegau.de	Shalla-Banking
 vb3.de	Adguard-Banks
 vbank.de	Adguard-Banks
 vbasw.de	Shalla-Banking
@@ -4703,10 +4446,9 @@ vbhawa.de	Adguard-Banks
 vbhildesheimerboerde.de	Adguard-Banks
 vbhnr.de	Adguard-Banks
 vbimharz.de	Adguard-Banks
-vbj.de	Shalla-Banking
 vbkraichgau.de	Adguard-Banks
 vblh.de	Adguard-Banks
-vblohne-muehlen.de	Shalla-Banking, Adguard-Banks
+vblohne-muehlen.de	Adguard-Banks
 vbneuenkirchen-voerden.de	Adguard-Banks
 vbos-nordland.de	Adguard-Banks
 vbpf.de	Adguard-Banks
@@ -4716,7 +4458,6 @@ vbrn.de	Adguard-Banks
 vbsdn.de	Adguard-Banks
 vbsolling.de	Adguard-Banks
 vbspn.de	Adguard-Banks
-vbsprockhoevel.de	Shalla-Banking
 vbstendal.de	Adguard-Banks
 vbsuedemsland.de	Adguard-Banks
 vbsuedheide.de	Adguard-Banks
@@ -4724,11 +4465,7 @@ vbu-volksbank.de	Adguard-Banks
 vbvechta.de	Adguard-Banks
 vbvisbek.de	Adguard-Banks
 vbwinsenermarsch.de	Adguard-Banks
-vbww.de	Shalla-Banking
-verband-freier-sparkassen.de	Shalla-Banking
-vereinigte-sparkasse-im-mk.de	Shalla-Banking
 vereinigte-sparkassen.de	Adguard-Banks
-vereinigte-vb.de	Shalla-Banking
 vereinte-volksbank.de	Adguard-Banks
 voba-aschaffenburg.de	Adguard-Banks
 voba-aw.de	Adguard-Banks
@@ -4737,10 +4474,8 @@ voba-blaubeuren.de	Adguard-Banks
 voba-breisgau-nord.de	Adguard-Banks
 voba-eg.de	Adguard-Banks
 voba-ermstal-alb.de	Adguard-Banks
-voba-gg.de	Shalla-Banking
 voba-glm.de	Adguard-Banks
 voba-heuchelheim.de	Adguard-Banks
-voba-hn.de	Shalla-Banking
 voba-hoba.de	Adguard-Banks
 voba-kw.de	Adguard-Banks
 voba-mainspitze.de	Adguard-Banks
@@ -4748,56 +4483,41 @@ voba-moeckmuehl.de	Adguard-Banks
 voba-msw.de	Adguard-Banks
 voba-niedergrafschaft.de	Adguard-Banks
 voba-ober-moerlen.de	Adguard-Banks
-voba-online.de	Shalla-Banking, Adguard-Banks
-voba-rhein-selz.de	Shalla-Banking
+voba-online.de	Adguard-Banks
 voba-rll.de	Adguard-Banks
-voba-saar-west.de	Shalla-Banking
 voba-sbh.de	Adguard-Banks
 voba-seligenstadt.de	Adguard-Banks
 voba-vorbach-tauber.de	Adguard-Banks
 voba-zuff.de	Adguard-Banks
-vobabbs.de	Shalla-Banking
 vobabm.de	Adguard-Banks
-vobadill.de	Shalla-Banking, Adguard-Banks
+vobadill.de	Adguard-Banks
 vobadreieich.de	Adguard-Banks
-vobaeg.de	Shalla-Banking
 vobahe.de	Adguard-Banks
 vobahf.de	Adguard-Banks
 vobak.de	Adguard-Banks
-vobakl.de	Shalla-Banking, Adguard-Banks
+vobakl.de	Adguard-Banks
 vobakn.de	Adguard-Banks
-vobakrefeld.de	Shalla-Banking
 vobamt.de	Adguard-Banks
 vobasandhofen.de	Adguard-Banks
 vobawhv.de	Adguard-Banks
-vobaworld.de	Shalla-Banking
-voeb.de	Shalla-Banking
-voelker-consult.de	Shalla-Banking
-volker-brands.de	Shalla-Banking
-volksbank.de	Shalla-Banking
 volksbank-adelebsen.de	Adguard-Banks
 volksbank-aktiv.de	Adguard-Banks
 volksbank-albstadt.de	Adguard-Banks
 volksbank-allgaeu-oberschwaben.de	Adguard-Banks
 volksbank-altshausen.de	Adguard-Banks
-volksbank-alzey.de	Shalla-Banking
 volksbank-backnang.de	Adguard-Banks
 volksbank-baden-baden-rastatt.de	Adguard-Banks
 volksbank-berg.de	Adguard-Banks
 volksbank-bi-gt.de	Adguard-Banks
-volksbank-bielefeld.de	Shalla-Banking
 volksbank-boerde-bernburg.de	Adguard-Banks
-volksbank-boppard.de	Shalla-Banking
 volksbank-brawo.de	Adguard-Banks
 volksbank-brenztal.de	Adguard-Banks
 volksbank-buehl.de	Adguard-Banks
-volksbank-bueren-und-salzkotten.de	Shalla-Banking
 volksbank-butzbach.de	Adguard-Banks
 volksbank-chemnitz.de	Adguard-Banks
 volksbank-daaden.de	Adguard-Banks
 volksbank-deggingen.de	Adguard-Banks
 volksbank-demmin.de	Adguard-Banks
-volksbank-detmold.de	Shalla-Banking
 volksbank-dingolfing.de	Adguard-Banks
 volksbank-dornstetten.de	Adguard-Banks
 volksbank-dresden-bautzen.de	Adguard-Banks
@@ -4805,40 +4525,31 @@ volksbank-eppertshausen.de	Adguard-Banks
 volksbank-esslingen.de	Adguard-Banks
 volksbank-ettlingen.de	Adguard-Banks
 volksbank-feldatal.de	Adguard-Banks
-volksbank-filder.de	Shalla-Banking, Adguard-Banks
+volksbank-filder.de	Adguard-Banks
 volksbank-fntt.de	Adguard-Banks
 volksbank-forchheim.de	Adguard-Banks
 volksbank-franken.de	Adguard-Banks
 volksbank-freiburg.de	Adguard-Banks
 volksbank-gardelegen.de	Adguard-Banks
-volksbank-goeppingen.de	Shalla-Banking, Adguard-Banks
+volksbank-goeppingen.de	Adguard-Banks
 volksbank-griesheim.de	Adguard-Banks
-volksbank-guetersloh.de	Shalla-Banking
-volksbank-hamburg.de	Shalla-Banking
 volksbank-hameln-stadthagen.de	Adguard-Banks
 volksbank-hamm.de	Adguard-Banks
-volksbank-heilbronn.de	Shalla-Banking, Adguard-Banks
+volksbank-heilbronn.de	Adguard-Banks
 volksbank-heiligenstadt.de	Adguard-Banks
-volksbank-hellweg.de	Shalla-Banking
 volksbank-heuberg.de	Adguard-Banks
 volksbank-hochrhein.de	Adguard-Banks
-volksbank-hoerstel-eg.de	Shalla-Banking
-volksbank-ilmenau.de	Shalla-Banking
-volksbank-im-mk.de	Shalla-Banking
-volksbank-karlsruhe.de	Shalla-Banking, Adguard-Banks
+volksbank-karlsruhe.de	Adguard-Banks
 volksbank-kassel-goettingen.de	Adguard-Banks
-volksbank-kirchheim-nuertingen.de	Shalla-Banking, Adguard-Banks
-volksbank-kleverland.de	Shalla-Banking
+volksbank-kirchheim-nuertingen.de	Adguard-Banks
 volksbank-koeln-bonn.de	Adguard-Banks
 volksbank-krp.de	Adguard-Banks
 volksbank-kurpfalz.de	Adguard-Banks
 volksbank-lahr.de	Adguard-Banks
 volksbank-langendernbach.de	Adguard-Banks
 volksbank-lindenberg.de	Adguard-Banks
-volksbank-lingen.de	Shalla-Banking, Adguard-Banks
-volksbank-lippstadt.de	Shalla-Banking
+volksbank-lingen.de	Adguard-Banks
 volksbank-ludwigsburg.de	Adguard-Banks
-volksbank-luebbecke.de	Shalla-Banking
 volksbank-luebeck.de	Adguard-Banks
 volksbank-magdeburg.de	Adguard-Banks
 volksbank-magstadt.de	Adguard-Banks
@@ -4850,11 +4561,8 @@ volksbank-montabaur.de	Adguard-Banks
 volksbank-muellheim.de	Adguard-Banks
 volksbank-muensingen.de	Adguard-Banks
 volksbank-neckartal.de	Adguard-Banks
-volksbank-niederrhein.de	Shalla-Banking
 volksbank-nordschwarzwald.de	Adguard-Banks
 volksbank-nottuln.de	Adguard-Banks
-volksbank-oberberg.de	Shalla-Banking
-volksbank-ochtrup.de	Shalla-Banking
 volksbank-oldenburg.de	Adguard-Banks
 volksbank-ortenau.de	Adguard-Banks
 volksbank-osnabrueck.de	Adguard-Banks
@@ -4862,75 +4570,58 @@ volksbank-pfullendorf.de	Adguard-Banks
 volksbank-pirna.de	Adguard-Banks
 volksbank-plochingen.de	Adguard-Banks
 volksbank-raiffeisenbank-rhoen-grabfeld.de	Adguard-Banks
-volksbank-rathenow.de	Shalla-Banking
-volksbank-rems.de	Shalla-Banking
 volksbank-remseck.de	Adguard-Banks
-volksbank-rhede.de	Shalla-Banking
 volksbank-rhein-wehra.de	Adguard-Banks
 volksbank-riesa.de	Adguard-Banks
 volksbank-rot.de	Adguard-Banks
-volksbank-rottweil.de	Shalla-Banking, Adguard-Banks
-volksbank-schlangen.de	Shalla-Banking
-volksbank-schmallenberg.de	Shalla-Banking
+volksbank-rottweil.de	Adguard-Banks
 volksbank-schupbach.de	Adguard-Banks
-volksbank-schwalmtal.de	Shalla-Banking
 volksbank-staufen.de	Adguard-Banks
 volksbank-stormarn.de	Adguard-Banks
 volksbank-straubing.de	Adguard-Banks
 volksbank-strohgaeu.de	Adguard-Banks
-volksbank-stuttgart.de	Shalla-Banking, Adguard-Banks
+volksbank-stuttgart.de	Adguard-Banks
 volksbank-sulmtal.de	Adguard-Banks
 volksbank-trossingen.de	Adguard-Banks
-volksbank-tuebingen.de	Shalla-Banking
 volksbank-ueberlingen.de	Adguard-Banks
 volksbank-ulm-biberach.de	Adguard-Banks
 volksbank-ulrichstein.de	Adguard-Banks
-volksbank-villingen.de	Shalla-Banking
 volksbank-vogtland.de	Adguard-Banks
 volksbank-vor-ort.de	Adguard-Banks
 volksbank-weinheim.de	Adguard-Banks
 volksbank-welzheim.de	Adguard-Banks
-volksbank-wertheim.de	Shalla-Banking
 volksbank-weschnitztal.de	Adguard-Banks
 volksbank-westrhauderfehn.de	Adguard-Banks
-volksbank-wili.de	Shalla-Banking
 volksbank-wissmar.de	Adguard-Banks
 volksbank-wittenberg.de	Adguard-Banks
 volksbank-zwickau.de	Adguard-Banks
 volksbankelsterland.de	Adguard-Banks
-volksbankgelderland.de	Shalla-Banking
 volksbanking.de	Adguard-Banks
-volksbankwfsz.de	Shalla-Banking
-volkswagenbank.de	Shalla-Banking, Adguard-Banks
-vonessenbank.de	Shalla-Banking
+volkswagenbank.de	Adguard-Banks
 vorne.de	Adguard-Banks
-vr-amberg.de	Shalla-Banking, Adguard-Banks
+vr-amberg.de	Adguard-Banks
 vr-b.de	Adguard-Banks
 vr-bank-alzenau.de	Adguard-Banks
 vr-bank-alzey-land-schwabenheim.de	Adguard-Banks
-vr-bank-bruehl-erftstadt-eg.de	Shalla-Banking
 vr-bank-dinklage-steinfeld.de	Adguard-Banks
 vr-bank-ehh.de	Adguard-Banks
 vr-bank-erding.de	Adguard-Banks
-vr-bank-kitzingen.de	Shalla-Banking
 vr-bank-landau.de	Adguard-Banks
-vr-bank-lua.de	Shalla-Banking, Adguard-Banks
+vr-bank-lua.de	Adguard-Banks
 vr-bank-mittelsachsen.de	Adguard-Banks
 vr-bank-muenchen-land.de	Adguard-Banks
 vr-bank-muldental.de	Adguard-Banks
 vr-bank-nordrhoen.de	Adguard-Banks
 vr-bank-online.de	Adguard-Banks
 vr-bank-passau.de	Adguard-Banks
-vr-bank-stuttgart.de	Shalla-Banking
 vr-bank-sw.de	Adguard-Banks
 vr-bank-wuerzburg.de	Adguard-Banks
-vr-banknordeifel.de	Shalla-Banking, Adguard-Banks
+vr-banknordeifel.de	Adguard-Banks
 vr-bankverein.de	Adguard-Banks
 vr-bayernmitte.de	Adguard-Banks
 vr-burglengenfeld.de	Adguard-Banks
 vr-dachau.de	Adguard-Banks
 vr-dm.de	Adguard-Banks
-vr-emsland.de	Shalla-Banking
 vr-ff.de	Adguard-Banks
 vr-genobank.de	Adguard-Banks
 vr-glauchau.de	Adguard-Banks
@@ -4942,14 +4633,12 @@ vr-meissen.de	Adguard-Banks
 vr-memmingen.de	Adguard-Banks
 vr-mfr.de	Adguard-Banks
 vr-miba.de	Adguard-Banks
-vr-networld.de	Shalla-Banking
 vr-neuburg-rain.de	Adguard-Banks
 vr-nms.de	Adguard-Banks
 vr-nordoberpfalz.de	Adguard-Banks
 vr-ofrm.de	Adguard-Banks
 vr-partnerbank.de	Adguard-Banks
 vr-plus.de	Adguard-Banks
-vr-produktvertrieb.de	Shalla-Banking
 vr-schluechtern-birstein.de	Adguard-Banks
 vr-tuebingen.de	Adguard-Banks
 vr-vilshofen.de	Adguard-Banks
@@ -4966,16 +4655,14 @@ vrbank-bamberg.de	Adguard-Banks
 vrbank-bayreuth-hof.de	Adguard-Banks
 vrbank-biedglad.de	Adguard-Banks
 vrbank-bsb.de	Adguard-Banks
-vrbank-coburg.de	Shalla-Banking, Adguard-Banks
-vrbank-eg.de	Shalla-Banking
-vrbank-ellwangen.de	Shalla-Banking, Adguard-Banks
+vrbank-coburg.de	Adguard-Banks
+vrbank-ellwangen.de	Adguard-Banks
 vrbank-feuchtwangen-dinkelsbuehl.de	Adguard-Banks
 vrbank-ffb.de	Adguard-Banks
 vrbank-fl-sl.de	Adguard-Banks
 vrbank-geo.de	Adguard-Banks
 vrbank-hessenland.de	Adguard-Banks
 vrbank-hg.de	Adguard-Banks
-vrbank-hof.de	Shalla-Banking
 vrbank-ihn.de	Adguard-Banks
 vrbank-im-enzkreis.de	Adguard-Banks
 vrbank-isar-vils.de	Adguard-Banks
@@ -4986,13 +4673,11 @@ vrbank-obb-so.de	Adguard-Banks
 vrbank-ostalb.de	Adguard-Banks
 vrbank-rendsburg.de	Adguard-Banks
 vrbank-rv-wgt.de	Adguard-Banks
-vrbank-sha.de	Shalla-Banking, Adguard-Banks
+vrbank-sha.de	Adguard-Banks
 vrbank-suedpfalz.de	Adguard-Banks
 vrbank-suedthueringen.de	Adguard-Banks
 vrbank-suedwestpfalz.de	Adguard-Banks
-vrbank-suew.de	Shalla-Banking
 vrbank-sww.de	Adguard-Banks
-vrbank-ts.de	Shalla-Banking
 vrbank-untertaunus.de	Adguard-Banks
 vrbank-weimar.de	Adguard-Banks
 vrbankgl.de	Adguard-Banks
@@ -5011,41 +4696,29 @@ vrla.de	Adguard-Banks
 vrleonberg.de	Adguard-Banks
 vrmeinebank.de	Adguard-Banks
 vrnu.de	Adguard-Banks
-vrsta.de	Shalla-Banking, Adguard-Banks
+vrsta.de	Adguard-Banks
 vrwm.de	Adguard-Banks
-vspk-neustadt.de	Shalla-Banking, Adguard-Banks
+vspk-neustadt.de	Adguard-Banks
 vtb-direktbank.de	Adguard-Banks
-vtbdirekt.de	Shalla-Banking, Adguard-Banks
+vtbdirekt.de	Adguard-Banks
 vvb-maingau.de	Adguard-Banks
-vvcag.de	Shalla-Banking
 vvrb.de	Adguard-Banks
-vw-bankdirect.de	Shalla-Banking
-vwbank.de	Shalla-Banking
 w-saarplus.de	Adguard-Banks
 waldecker-bank.de	Adguard-Banks
 warburg-bank.de	Adguard-Banks
 wartburg-sparkasse.de	Adguard-Banks
 weberbank.de	Adguard-Banks
 wespa.de	Adguard-Banks
-westernunion.de	Shalla-Banking
 westerwaldbank.de	Adguard-Banks
 westkreis.de	Adguard-Banks
-westlb.de	Shalla-Banking
-wgz-bank.de	Shalla-Banking
 winterbacher-bank.de	Adguard-Banks
 winterlinger-bank.de	Adguard-Banks
 wirecardbank.de	Adguard-Banks
-wivoba.de	Shalla-Banking
-wlsgv-muenster.de	Shalla-Banking
-wolfganglbrunner.de	Shalla-Banking
-wuestenrot.de	Shalla-Banking, Adguard-Banks
-wuestenrotdirect.de	Shalla-Banking, Adguard-Banks
+wuestenrot.de	Adguard-Banks
+wuestenrotdirect.de	Adguard-Banks
 wvb.de	Adguard-Banks
 ww-ag.de	Adguard-Banks
 xn--httenberger-bank-jzb.de	Adguard-Banks
-zahlungsverkehrsfragen.de	Shalla-Banking
-ziraatbank.de	Shalla-Banking
-zka.de	Shalla-Banking
 al-bank.dk	Shalla-Banking
 almbrand.dk	Shalla-Banking
 amagerbanken.dk	Shalla-Banking
@@ -5129,10 +4802,6 @@ sydbank.dk	Shalla-Banking, Adguard-Banks
 tb.dk	Shalla-Banking
 totalbanken.dk	Shalla-Banking
 tvedspar.dk	Shalla-Banking
-vestfynsbank.dk	Shalla-Banking
-vestjyskbank.dk	Shalla-Banking
-vivildspk.dk	Shalla-Banking
-vorbank.dk	Shalla-Banking
 web.any.do	Daenoman
 banreservas.com.do	Shalla-Banking
 bhd.com.do	Shalla-Banking
@@ -5178,11 +4847,10 @@ credit-suisse.es	Shalla-Banking
 deutsche-bank.es	Shalla-Banking, Adguard-Banks
 ebankinter.es	Shalla-Banking
 fibancmediolanum.es	Shalla-Banking
-fimestic.es	Shalla-Banking
 gruposantander.es	Shalla-Banking
 ibercaja.es	Shalla-Banking
 ing.es	Adguard-Banks
-ingdirect.es	Shalla-Banking, Adguard-Banks
+ingdirect.es	Adguard-Banks
 lacaixa.es	Shalla-Banking
 popularbancaprivada.es	Shalla-Banking
 santanderconsumer.es	Shalla-Banking
@@ -5355,7 +5023,7 @@ hba.gr	Shalla-Banking
 nbg.gr	Shalla-Banking
 piraeusbank.gr	Shalla-Banking
 void.gr	Chris-White
-winbank.gr	Shalla-Banking, Adguard-Banks
+winbank.gr	Adguard-Banks
 bi.com.gt	Shalla-Banking
 banguat.gob.gt	Shalla-Banking
 abg.org.gt	Shalla-Banking
@@ -5399,9 +5067,6 @@ pbz.hr	Shalla-Banking
 pozeska-banka.hr	Shalla-Banking
 rba.hr	Shalla-Banking, Adguard-Banks
 splitskabanka.hr	Shalla-Banking
-vbleasing.hr	Shalla-Banking
-wuestenrot.hr	Shalla-Banking
-zaba.hr	Shalla-Banking
 bankszovetseg.hu	Shalla-Banking
 citibank.hu	Shalla-Banking
 erstebank.hu	Shalla-Banking
@@ -5452,7 +5117,6 @@ science.co.il	Shalla-Banking
 hb.unionbank.co.il	Adguard-Banks
 bankisrael.gov.il	Shalla-Banking
 alliance-leicester.co.im	Shalla-Banking
-bbi.co.im	Shalla-Banking
 alb.org.im	Shalla-Banking
 axisbank.co.in	Adguard-Banks
 centralbankofindia.co.in	Shalla-Banking
@@ -5475,7 +5139,6 @@ pnbindia.in	Shalla-Banking, Adguard-Banks
 sbtonline.in	Adguard-Banks
 syndicatebank.in	Shalla-Banking, Adguard-Banks
 syndonline.in	Adguard-Banks
-yesbank.in	Shalla-Banking
 zap.in	Daenoman
 bankofestonia.info	Shalla-Banking
 dnscrypt.info	Chris-White
@@ -5494,7 +5157,6 @@ suspect-networks.io	Chris-White
 cbi.iq	Shalla-Banking
 ib.bank-maskan.ir	Adguard-Banks
 bankmellat.ir	Shalla-Banking
-w3e.bim.ir	Shalla-Banking
 bmi.ir	Adguard-Banks
 cbi.ir	Shalla-Banking
 baker.ebanksepah.ir	Adguard-Banks
@@ -5667,12 +5329,10 @@ iblbanca.it	Shalla-Banking
 icbpi.it	Shalla-Banking
 ifigest.it	Shalla-Banking
 ingdirect.it	Shalla-Banking
-ioconto.it	Shalla-Banking
 italease.it	Shalla-Banking
 iwbank.it	Shalla-Banking
 lacassarurale.it	Shalla-Banking
 lavalsabbina.it	Shalla-Banking
-mbres.it	Shalla-Banking
 mcc.it	Shalla-Banking
 mediobanca.it	Shalla-Banking
 abi.cab.banche.meglio.it	Shalla-Banking
@@ -5681,7 +5341,6 @@ monteparma.it	Shalla-Banking
 mps.it	Shalla-Banking
 mpsbancapersonale.it	Shalla-Banking
 nlb.it	Shalla-Banking
-osservatoriofinanziario.it	Shalla-Banking
 passbanca.it	Shalla-Banking
 placehold.it	Anudeep-Whitelist
 popcortona.it	Shalla-Banking
@@ -5699,15 +5358,10 @@ rivierbanco.it	Shalla-Banking
 santanderconsumer.it	Shalla-Banking
 sella.it	Shalla-Banking
 sparkasse.it	Shalla-Banking
-steinonline.it	Shalla-Banking
 ubibanca.it	Shalla-Banking
 unicredit.it	Shalla-Banking
 unicredit-italia.it	Shalla-Banking
 unicreditbanca.it	Shalla-Banking
-venetobanca.it	Shalla-Banking
-volkswagenbank.it	Shalla-Banking
-webank.it	Shalla-Banking
-xelion.it	Shalla-Banking
 boj.org.jm	Shalla-Banking
 jba.org.jm	Shalla-Banking
 arakari.com.jo	Shalla-Banking
@@ -5734,12 +5388,10 @@ smfg.co.jp	Shalla-Banking
 sumitomotrust.co.jp	Shalla-Banking
 tokyostarbank.co.jp	Shalla-Banking
 towabank.co.jp	Shalla-Banking
-westlb.co.jp	Shalla-Banking
 fsa.go.jp	Shalla-Banking
 jp-bank.japanpost.jp	Shalla-Banking
 cms.tu.bk.mufg.jp	Adguard-Banks
 boj.or.jp	Shalla-Banking
-zenginkyo.or.jp	Shalla-Banking
 cba.co.ke	Shalla-Banking
 co-opbank.co.ke	Shalla-Banking
 kcb.co.ke	Shalla-Banking
@@ -5830,8 +5482,6 @@ llb.li	Shalla-Banking, Adguard-Banks
 neuebankag.li	Shalla-Banking
 pasche.li	Shalla-Banking
 valartis.li	Shalla-Banking
-volksbank.li	Shalla-Banking
-vpbank.li	Shalla-Banking
 cbsl.gov.lk	Shalla-Banking
 hsbc.lk	Shalla-Banking
 netbank.co.ls	Shalla-Banking
@@ -5850,7 +5500,6 @@ bia.lu	Shalla-Banking
 bnpparibas.lu	Shalla-Banking
 carnegie.lu	Shalla-Banking
 cebank.lu	Shalla-Banking
-cortal.lu	Shalla-Banking
 cortalconsors.lu	Shalla-Banking
 creditlyonnais.lu	Shalla-Banking
 dexia.lu	Shalla-Banking
@@ -5864,8 +5513,6 @@ hvb.lu	Shalla-Banking
 kaupthing.lu	Shalla-Banking
 raiffeisen.lu	Shalla-Banking
 sarasin.lu	Shalla-Banking
-westlb.lu	Shalla-Banking
-wgz-bank.lu	Shalla-Banking
 bank.lv	Shalla-Banking
 bankasoc.lv	Shalla-Banking
 online.citadele.lv	Adguard-Banks
@@ -5934,7 +5581,6 @@ ixe.com.mx	Shalla-Banking
 santander.com.mx	Shalla-Banking
 scotiabank.com.mx	Shalla-Banking
 serfin.com.mx	Shalla-Banking
-vwb.com.mx	Shalla-Banking
 banobras.gob.mx	Shalla-Banking
 banrural.gob.mx	Shalla-Banking
 bansefi.gob.mx	Shalla-Banking
@@ -6058,7 +5704,6 @@ ituneslogin.net	Chris-White
 jkbank.net	Shalla-Banking
 jsdelivr.net	Anudeep-Whitelist
 fiddle.jshell.net	Daenoman
-kasbonspecialist.net	Shalla-Banking
 keysbank.net	Shalla-Banking
 ibank.kicb.net	Adguard-Banks
 lacnic.net	Chris-White
@@ -6066,7 +5711,6 @@ natbank.malawi.net	Shalla-Banking
 rbm.malawi.net	Shalla-Banking
 megabank.net	Shalla-Banking, Adguard-Banks
 memberdirect.net	Adguard-Banks
-mercantile.net	Shalla-Banking
 miba.net	Shalla-Banking
 midwestbank.net	Shalla-Banking
 mmla.net	Shalla-Banking
@@ -6080,7 +5724,6 @@ vodafonelimited.tt.omtrdc.net	Daenoman
 parex.net	Shalla-Banking
 clientconfig.passport.net	Anudeep-Whitelist
 plantersbank.net	Shalla-Banking
-ve1.provinet.net	Shalla-Banking
 prudentbank.net	Shalla-Banking
 ripe.net	Chris-White
 riversidebank.net	Shalla-Banking
@@ -6106,8 +5749,6 @@ unionstate.net	Shalla-Banking
 dev.virtualearth.net	Anudeep-Whitelist
 t0.ssl.ak.tiles.virtualearth.net	Anudeep-Whitelist
 t0.ssl.ak.dynamic.tiles.virtualearth.net	Anudeep-Whitelist
-vobadirekt.net	Shalla-Banking
-washingtonsavings.net	Shalla-Banking
 whatsapp.net	Chris-White
 wideup.net	Adguard-Banks
 xpanama.net	EasyList-White, Daenoman
@@ -6160,9 +5801,6 @@ snsbank.nl	Shalla-Banking, Adguard-Banks
 staalbankiers.nl	Shalla-Banking
 triodos.nl	Shalla-Banking, Adguard-Banks
 vanlanschot.nl	Shalla-Banking
-vpv.nl	Shalla-Banking
-westlandutrecht.nl	Shalla-Banking
-ykb.nl	Shalla-Banking
 nettbank2.danskebank.no	Adguard-Banks
 fnh.no	Shalla-Banking
 nor.no	Shalla-Banking
@@ -6258,7 +5896,6 @@ eoniaswap.org	Shalla-Banking
 esmba.org	Shalla-Banking
 eurepo.org	Shalla-Banking
 euribor.org	Shalla-Banking
-evb.org	Shalla-Banking
 fmlc.org	Shalla-Banking
 fondazionedivenezia.org	Shalla-Banking
 fortworthmba.org	Shalla-Banking
@@ -6385,15 +6022,9 @@ umla.org	Shalla-Banking
 unionstatebank.org	Shalla-Banking
 vabankers.org	Shalla-Banking
 vacb.org	Shalla-Banking
-vibank.org	Shalla-Banking
 vystarcu.org	Adguard-Banks
-wib.org	Shalla-Banking
-wicba.org	Shalla-Banking
 widscambridge.org	Chris-White
 wikipedia.org	Anudeep-Whitelist
-wimba.org	Shalla-Banking
-worldbank-bangladesh.org	Shalla-Banking
-wvbankers.org	Shalla-Banking
 yoyo.org	Chris-White
 bif.com.pe	Shalla-Banking
 bcrp.gob.pe	Shalla-Banking
@@ -6448,7 +6079,6 @@ cdm24.pl	Adguard-Banks
 centrum24.pl	Adguard-Banks
 aigbank.com.pl	Shalla-Banking
 fortisbank.com.pl	Shalla-Banking
-gbg.com.pl	Shalla-Banking
 kredytbank.com.pl	Shalla-Banking
 mbank.com.pl	Shalla-Banking
 mrbank.com.pl	Shalla-Banking
@@ -6470,20 +6100,13 @@ izzybank.pl	Shalla-Banking
 mbank.kzp.pl	Shalla-Banking
 online.mbank.pl	Adguard-Banks
 nbp.pl	Shalla-Banking
-nordea.pl	Shalla-Banking
 ekonto.paluckibs.pl	Adguard-Banks
 pekao24.pl	Adguard-Banks
 pkobp.pl	Shalla-Banking
 rabobank.pl	Shalla-Banking
 raiffeisen.pl	Shalla-Banking
-sg.pl	Shalla-Banking
-sgb.pl	Shalla-Banking
 sgb24.pl	Adguard-Banks
 t-mobilebankowe.pl	Adguard-Banks
-vwbank.pl	Shalla-Banking
-vwbankdirect.pl	Shalla-Banking
-westlb.pl	Shalla-Banking
-zbp.pl	Shalla-Banking
 activobank7.pt	Shalla-Banking
 banif.pt	Shalla-Banking
 barclays.pt	Shalla-Banking
@@ -6668,7 +6291,6 @@ online.cetelem.ru	Adguard-Banks
 cf.ru	Shalla-Banking
 cfb.ru	Shalla-Banking
 ibank.cfbank.ru	Adguard-Banks
-zinkom.chat.ru	Shalla-Banking
 chelindbank.ru	Adguard-Banks
 ib.chelinvest.ru	Adguard-Banks
 payments.chronopay.ru	Adguard-Banks
@@ -7180,7 +6802,6 @@ ibank.ussurybank.ru	Adguard-Banks
 utb.ru	Adguard-Banks
 vbank.ru	Shalla-Banking
 vbrr.ru	Adguard-Banks
-veb.ru	Shalla-Banking
 ibank.vegabank.ru	Adguard-Banks
 ic.venets-bank.ru	Adguard-Banks
 ib.vestabank.ru	Adguard-Banks
@@ -7193,7 +6814,7 @@ vp.ru	Adguard-Banks
 client.vpb.ru	Adguard-Banks
 gate.vseplatezhi.ru	Adguard-Banks
 ibank.vstcb.ru	Adguard-Banks
-vtb.ru	Shalla-Banking
+i.vtb.ru	Adguard-Banks
 vtb24.ru	Adguard-Banks
 vtkbank.ru	Adguard-Banks
 ibank.vvbank.ru	Adguard-Banks
@@ -7212,8 +6833,7 @@ ibank.z-bank.ru	Adguard-Banks
 zapsibkombank.ru	Adguard-Banks
 zarech.ru	Adguard-Banks
 zaymer.ru	Adguard-Banks
-zenit.ru	Shalla-Banking
-zerich.ru	Shalla-Banking
+bank.zenit.ru	Adguard-Banks
 ic.zhilcredit.ru	Adguard-Banks
 dbo.zhivagobank.ru	Adguard-Banks
 ibank.ziraatbank.ru	Adguard-Banks
@@ -7274,7 +6894,6 @@ nlb.si	Shalla-Banking
 s-factoring.si	Shalla-Banking
 skb.si	Shalla-Banking
 unicreditbank.si	Shalla-Banking
-zbs-giz.si	Shalla-Banking
 asocbank.sk	Shalla-Banking
 dexia.sk	Shalla-Banking
 nbs.sk	Shalla-Banking
@@ -7282,7 +6901,6 @@ ib.raiffeisen.sk	Adguard-Banks
 danger.rulez.sk	Chris-White
 slsp.sk	Adguard-Banks
 moja.tatrabanka.sk	Adguard-Banks
-wuestenrot.sk	Shalla-Banking
 bcsm.sm	Shalla-Banking
 sunbtc.space	Daenoman
 cbvs.sr	Shalla-Banking
@@ -7363,9 +6981,8 @@ tskb.com.tr	Shalla-Banking
 turkbank.com.tr	Shalla-Banking
 turkiyefinans.com.tr	Shalla-Banking
 vakifbank.com.tr	Shalla-Banking
-yapikredi.com.tr	Shalla-Banking, Adguard-Banks
-ziraat.com.tr	Shalla-Banking
-ziraatbank.com.tr	Shalla-Banking, Adguard-Banks
+yapikredi.com.tr	Adguard-Banks
+ziraatbank.com.tr	Adguard-Banks
 eximbank.gov.tr	Shalla-Banking
 ilbank.gov.tr	Adguard-Banks
 tcmb.gov.tr	Shalla-Banking
@@ -7453,7 +7070,7 @@ universalbank.com.ua	Adguard-Banks
 upb.com.ua	Shalla-Banking
 usb.com.ua	Shalla-Banking
 cb.vtb.com.ua	Adguard-Banks
-xcitybank.com.ua	Shalla-Banking, Adguard-Banks
+xcitybank.com.ua	Adguard-Banks
 promo.concord.ua	Adguard-Banks
 online.credit-agricole.ua	Adguard-Banks
 credit365.ua	Adguard-Banks
@@ -7534,7 +7151,6 @@ retail.santander.co.uk	Adguard-Banks
 scotbanks.co.uk	Shalla-Banking
 tsb.co.uk	Shalla-Banking
 ulsterbank.co.uk	Shalla-Banking
-volkswagenbank.co.uk	Shalla-Banking
 afs.org.uk	Shalla-Banking
 bankingcode.org.uk	Shalla-Banking
 bba.org.uk	Shalla-Banking
@@ -7551,7 +7167,6 @@ lppm.org.uk	Shalla-Banking
 ofta.org.uk	Shalla-Banking
 restoreuk.org.uk	Shalla-Banking
 scotbanks.org.uk	Shalla-Banking
-wmba.org.uk	Shalla-Banking
 squidguard.mesd.k12.or.us	Chris-White
 bcu.gub.uy	Shalla-Banking
 ibank.kdb.uz	Adguard-Banks
@@ -7591,7 +7206,6 @@ banvalor.ws	Shalla-Banking
 cbs.gov.ws	Shalla-Banking
 sterlingbank.ws	Shalla-Banking
 xn--80aae3af7av6a7a.xn--p1ai	Adguard-Banks
-ybrd.com.ye	Shalla-Banking
 centralbank.gov.ye	Shalla-Banking
 absa.co.za	Shalla-Banking, Adguard-Banks
 absadirect.co.za	Shalla-Banking
