@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.395-20180516 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.40-20180516 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -47,11 +47,12 @@ import pytricia
 ###################
 
 # Listen for queries
-listen_on = list(['127.0.0.1@53', '::1@53', '192.168.1.251@53']) # IPv4 only for now.
+listen_on = list(['127.0.0.1@53', '192.168.1.251@53']) # IPv4 only for now.
 
 # Forwarding queries to
 forward_timeout = 2 # Seconds
 forward_servers = dict()
+#forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53', '2606:4700:4700::1111@53', '2606:4700:4700::1001@53']) # DEFAULT Cloudflare
 forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
 # Alternatives:
 #forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
@@ -65,7 +66,7 @@ forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_addrs = list()
-redirect_addrs = list(['192.168.1.251', '0000:0000:0000:0000:0000:0000:0000:0000'])
+redirect_addrs = list(['0.0.0.0', '0000:0000:0000:0000:0000:0000:0000:0000'])
 
 # Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
 hitrcode = 'NXDOMAIN'
@@ -354,7 +355,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
             else:
                 forward_port = 53
     
-            if (forward_address != cip) and (query_hash(forward_address, 'FORWARDER', str(forward_port)) not in cache):
+            if (forward_address != cip) and (query_hash(forward_address, 'BROKEN-FORWARDER', str(forward_port)) not in cache):
                 log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
 
                 try:
@@ -369,10 +370,14 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
 
                     break
 
-                except socket.timeout:
-                    log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + '@' + str(forward_port))
-                    to_cache(forward_address, 'FORWARDER', str(forward_port), list())
+                #except socket.timeout:
+                except BaseException as err:
+                    log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + '@' + str(forward_port) + ' - ' + str(err))
+                    to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply())
                     reply = None
+
+            #else:
+            #    log_err('DNS-QUERY [' + id_str(id) + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port))
 
     else:
         log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' (' + servername + ') - NO DNS SERVERS AVAILBLE!')
@@ -694,8 +699,8 @@ def log_total():
 
 # Read filter lists, see "accomplist" lists for compatibility:
 # https://github.com/cbuijs/accomplist
-def read_list(file, listname, domlist, iplist4, iplist6, rxlist, alist, flist, tlist):
-    log_info('Fetching \"' + listname + '\" entries from \"' + file + '\"')
+def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flist, tlist):
+    log_info('Fetching ' + bw + ' \"' + listname + '\" entries from \"' + file + '\"')
 
     count = 0
     fetched = 0
@@ -911,7 +916,7 @@ def to_cache(qname, qclass, qtype, reply):
     queryname = qname + '/' + qclass + '/' + qtype
     rcode = str(RCODE[reply.header.rcode])
 
-    if qclass == 'FORWARDER':
+    if qclass == 'BROKEN-FORWARDER':
         ttl = 10
     else:
         if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
@@ -1100,9 +1105,11 @@ if __name__ == "__main__":
     if not load_lists(savefile):
         for lst in sorted(lists.keys()):
             if lst in whitelist:
-                wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers, ttls = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers, ttls)
+                #wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers, ttls = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers, ttls)
+                wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers, ttls = read_list(lists[lst], lst, 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers, ttls)
             else:
-                bl_dom, bl_ip4, bl_ip6, bl_rx, _, _, _ = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(), dict(), dict())
+                #bl_dom, bl_ip4, bl_ip6, bl_rx, _, _, _ = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(), dict(), dict())
+                bl_dom, bl_ip4, bl_ip6, bl_rx, _, _, _ = read_list(lists[lst], lst, 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(), dict(), dict())
 
         save_lists(savefile)
 
@@ -1127,13 +1134,14 @@ if __name__ == "__main__":
             log_info('Starting DNS Service on ' + listen_address + ' at port ' + str(listen_port) + ' ...')
 
             # Define Service
+            handler = DNSHandler
             if ipregex6.search(listen_address):
                 log_info('LISTENING on IPv6 not supported yet!')
                 serverhash = False
             else:
                 serverhash = hash(listen_address + '@' + str(listen_port))
-                udp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False) # UDP
-                tcp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=True) # TCP
+                udp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False, handler=handler) # UDP
+                tcp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=True, handler=handler) # TCP
 
             # Start Service as threads
             if serverhash:
