@@ -53,12 +53,13 @@ listen_on = list(['192.168.1.251@53']) # IPv4 only for now.
 forward_timeout = 2 # Seconds
 forward_servers = dict()
 #forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
-forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
+#forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
 #forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
 #forward_servers['.'] = list(['8.8.8.8@53','8.8.4.4@53']) # DEFAULT Google
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9
-#forward_servers['.'] = list(['208.67.222.222@53','208.67.220.220@53']) # DEFAULT OpenDNS
+#forward_servers['.'] = list(['208.67.222.222@443','208.67.220.220@443', '208.67.222.220@443', '208.67.220.222@443']) # DEFAULT OpenDNS
+forward_servers['.'] = list(['208.67.222.123@443','208.67.220.123@443']) # DEFAULT OpenDNS FamilyShield
 #forward_servers['.'] = list(['8.26.56.26@53','8.20.247.20@53']) # DEFAULT Comodo
 #forward_servers['.'] = list(['199.85.126.10@53','199.85.127.10@53']) # DEFAULT Norton
 #forward_servers['.'] = list(['64.6.64.6@53','64.6.65.6@53']) # DEFAULT Verisign
