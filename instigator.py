@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.40-20180516 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.41-20180517 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -47,13 +47,13 @@ import pytricia
 ###################
 
 # Listen for queries
-listen_on = list(['127.0.0.1@53', '192.168.1.251@53']) # IPv4 only for now.
+listen_on = list(['192.168.1.251@53']) # IPv4 only for now.
 
 # Forwarding queries to
 forward_timeout = 2 # Seconds
 forward_servers = dict()
-#forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53', '2606:4700:4700::1111@53', '2606:4700:4700::1001@53']) # DEFAULT Cloudflare
-forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
+#forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
+forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
 #forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
 #forward_servers['.'] = list(['8.8.8.8@53','8.8.4.4@53']) # DEFAULT Google
