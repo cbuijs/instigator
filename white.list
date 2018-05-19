@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1526660835                  ###
+### Version: 1526772944                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -38,6 +38,8 @@ money.idram.am	Adguard-Banks
 online.inecobank.am	Adguard-Banks
 online.procreditbank.am	Adguard-Banks
 ibanking.vtb.am	Adguard-Banks
+centralbank.an	Shalla-Banking
+ibna.an	Shalla-Banking
 bancofrances.com.ar	Shalla-Banking
 bancopatagonia.com.ar	Shalla-Banking
 bna.com.ar	Shalla-Banking
