@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.41-20180517 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.50-20180520 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -107,6 +107,9 @@ minttl = 300 # Seconds
 maxttl = 7200 # Seconds
 rcodettl = 120 # Seconds - For return-codes caching
 
+# Check responses
+checkresponse = True # When False, only queries are checked and responses are ignored (passthru)
+
 # Minimal Responses
 minresp = True
 
@@ -128,11 +131,14 @@ wl_ip6 = pytricia.PyTricia(128) # IPv6 Whitelist
 bl_ip6 = pytricia.PyTricia(128) # IPv6 Blacklist
 wl_rx = dict() # Regex Whitelist
 bl_rx = dict() # Regex Blacklist
+wl_asn = dict()
+bl_asn = dict()
 aliases = dict()
 ttls = dict()
 
 # Cache
 cache = dict()
+
 
 ## Regexes
 
@@ -220,7 +226,6 @@ def match_blacklist(rid, type, rrtype, value, log):
     itisanip = False
     itisadomain = False
 
-    #if type == 'REPLY' and rrtype in ('A', 'AAAA') and ipregex.search(testvalue):
     if type == 'REPLY' and rrtype in ('A', 'AAAA'):
         itisanip = True
     else:
@@ -383,6 +388,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
     else:
         log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' (' + servername + ') - NO DNS SERVERS AVAILBLE!')
 
+    # No response, generate servfail
     if reply == None:
         log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname)
         cache.clear()
@@ -391,6 +397,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
         reply.header.rcode = getattr(RCODE, 'SERVFAIL')
         return reply
 
+    # Lets process response
     rcode = str(RCODE[reply.header.rcode])
     if rcode == 'NOERROR':
         if checkbl and reply.rr:
@@ -439,6 +446,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
     if minresp:
         reply.auth = list()
         reply.ar = list()
+        #reply.add_ar(EDNS0())
 
     # Stash in cache
     to_cache(qname, 'IN', qtype, reply)
@@ -530,7 +538,7 @@ def generate_alias(request, qname, qtype, use_tcp):
         if qtype not in ('A', 'AAAA'):
             qtype = 'A'
 
-        subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, '127.0.0.1', True, False)  # To prevent loop "checkalias" must be always False (last argument)
+        subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, '127.0.0.1', False, False)  # To prevent loop "checkalias" must be always False (last argument)
 
         rcode = str(RCODE[subreply.header.rcode])
         if rcode == 'NOERROR':
@@ -716,8 +724,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
 
     for line in lines:
         count += 1
-        #entry = regex.sub('\s*#[^#]*$', '', line.text.encode('ascii', 'ignore').replace('\r', '').replace('\n', '')) # Strip comments and line-feeds
         entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', '')) # Strip comments and line-feeds
+
         if entry.startswith('/'):
             entry = regex.sub('/\s+[^/]+$', '/', entry)
         else:
@@ -742,8 +750,6 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
 
             # ASN
             elif isasn.search(entry):
-                ### !!! ASN Number, just discard for now, for future query whoias and get address-ranges to block/allow
-                ### !!! ... or do a "safedns" feature like unbound-dns-firewall (see github)
                 pass
 
             # DOMAIN
@@ -876,6 +882,8 @@ def from_cache(qname, qclass, qtype, id):
     else:
         reply = cacheentry[0]
         reply.header.id = id
+        
+        hits = dict()
 
         # Gather address and non-address records and do round-robin
         if roundrobin and len(reply.rr) > 1:
@@ -884,6 +892,11 @@ def from_cache(qname, qclass, qtype, id):
             for record in reply.rr:
                 record.ttl = ttl
                 rqtype = QTYPE[record.rtype]
+                if rqtype in hits:
+                    hits[rqtype] += 1
+                else:
+                    hits[rqtype] = 1
+
                 if rqtype in ('A', 'AAAA'):
                     addr.append(record)
                 else:
@@ -892,11 +905,19 @@ def from_cache(qname, qclass, qtype, id):
             if len(addr) > 1:
                 reply.rr = nonaddr + round_robin(addr)
 
-        else:
-            for record in reply.rr:
-                record.ttl = ttl
+        elif len(reply.rr) > 0:
+            hits[QTYPE[reply.rr[0].rtype]] = 1
+            reply.rr[0].ttl = ttl
           
         if len(reply.rr) > 0:
+            #cat = False
+            #for t in sorted(hits.keys()):
+            #    if cat:
+            #        cat = cat + ', ' + t + ':' + str(hits[t])
+            #    else:
+            #        cat = t + ':' + str(hits[t])
+            #log_info('CACHE-HIT: Retrieved ' + str(len(reply.rr)) + ' RRs (' + cat + ') for ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + ')')S
+
             log_info('CACHE-HIT: Retrieved ' + str(len(reply.rr)) + ' RRs for ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + ')')
         else:
             log_info('CACHE-HIT: Retrieved ' + str(RCODE[reply.header.rcode]) + ' for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + ')')
@@ -1085,7 +1106,7 @@ class DNS_Instigator(BaseResolver):
                     reply = generate_response(request, qname, qtype, redirect_addrs)
 
                 else:
-                    if ismatch == None:
+                    if ismatch == None and checkresponse:
                         reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True)
                     else:
                         reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, True)
@@ -1106,10 +1127,8 @@ if __name__ == "__main__":
     if not load_lists(savefile):
         for lst in sorted(lists.keys()):
             if lst in whitelist:
-                #wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers, ttls = read_list(lists[lst], 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers, ttls)
                 wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers, ttls = read_list(lists[lst], lst, 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, forward_servers, ttls)
             else:
-                #bl_dom, bl_ip4, bl_ip6, bl_rx, _, _, _ = read_list(lists[lst], 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(), dict(), dict())
                 bl_dom, bl_ip4, bl_ip6, bl_rx, _, _, _ = read_list(lists[lst], lst, 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(), dict(), dict())
 
         save_lists(savefile)
