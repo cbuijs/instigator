@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.52-20180520 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.56-20180521 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -248,16 +248,17 @@ def match_blacklist(rid, type, rrtype, value, log):
 
     if itisadomain:
         if (testvalue in wl_dom):
-            if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+            if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\" (' + wl_dom[testvalue] + ')')
             return False
         elif testvalue in bl_dom:
-            if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\"')
+            if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\" (' + bl_dom[testvalue] + ')')
             return True
 
     # Check against IP-Lists
     if itisanip:
         found = False
         prefix = False
+        lst = 'None'
 
         #if ipregex4.search(testvalue):
         if testvalue.find(':') == -1:
@@ -270,15 +271,18 @@ def match_blacklist(rid, type, rrtype, value, log):
         if not testvalue in wip:
             if testvalue in bip:
                 prefix = bip.get_key(testvalue)
+                lst = bip[testvalue]
                 found = True
         else:
-            prefix = wip.get_key(testvalue)
+            prefix = wip.get_key(testvalue, False)
+            if prefix:
+                lst = wip[testvalue]
 
         if found:
-            if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + value + ' matched against ' + prefix)
+            if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + value + ' matched against ' + prefix + ' (' + lst + ')')
             return True
         elif prefix:
-            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + value + ' matched against ' + prefix)
+            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + value + ' matched against ' + prefix + ' (' + lst + ')')
             return False
 
     # Check against Sub-Domain-Lists
@@ -287,25 +291,29 @@ def match_blacklist(rid, type, rrtype, value, log):
         if testvalue:
             wl_found = in_domain(testvalue, wl_dom)
             if wl_found != False:
-                if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + wl_found + '\"')
+                if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
                 return False
             else:
                 bl_found = in_domain(testvalue, bl_dom)
                 if bl_found != False:
-                    if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + bl_found + '\"')
+                    if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
                     return True
     
     # Check agains Regex-Lists
     for i in wl_rx.keys():
         rx = wl_rx[i]
         if rx.search(value):
-            if log: log_info('WHITELIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
+            lst = regex.split(':\s+', i)[0]
+            rxn = ' '.join(regex.split(':\s+', i)[1:])
+            if log: log_info('WHITELIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + rxn + '\" (' + lst + ')')
             return False
 
     for i in bl_rx.keys():
         rx = bl_rx[i]
         if rx.search(value):
-            if log: log_info('BLACKLIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + i + '\"')
+            lst = regex.split(':\s+', i)[0]
+            rxn = ' '.join(regex.split(':\s+', i)[1:])
+            if log: log_info('BLACKLIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + rxn + '\" (' + lst + ')')
             return True
 
     #if log: log_info('NONE-HIT [' + id + ']: ' + type + ' \"' + value + '\" does not match against any lists')
@@ -704,6 +712,32 @@ def log_total():
     return True
 
 
+# Reverse IP
+def rev_ip(cidr):
+
+    if cidr.find('/') == -1:
+        ip = cidr
+        if cidr.find(':') == -1:
+            bits = 32
+        else:
+            bits = 128
+    else:
+        ip, bits  = cidr.split('/')
+
+    if ip.find(':') == -1:
+        if bits in ('8', '16', '24', '32'):
+            cut = int(int(bits) / 8)
+            arpa = '.'.join('.'.join(ip.split('.')[:cut]).split('.')[::-1]) + '.in-addr.arpa'  # Add IPv4 in-addr.arpa
+        else:
+            arpa = 'Trash'
+
+    else:
+        a = ip.replace(':', '')
+        arpa = '.'.join(a[i:i+1] for i in range(0, len(a), 1))[::-1] + '.ip6.arpa'  # Add IPv6 ip6.arpa
+
+    return arpa
+
+
 # Read filter lists, see "accomplist" lists for compatibility:
 # https://github.com/cbuijs/accomplist
 def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flist, tlist):
@@ -725,9 +759,15 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
         entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', '')) # Strip comments and line-feeds
 
         if entry.startswith('/'):
+            id = ' '.join(regex.split('\t+', entry)[1:]).strip()
             entry = regex.sub('/\s+[^/]+$', '/', entry)
         else:
+            id = ' '.join(regex.split('\s+', entry)[1:]).strip()
             entry = regex.split('\s+', entry)[0]
+
+        if len(id) == 0:
+            id = listname
+
         entry = entry.strip().lower().rstrip('.')
 
         # If entry ends in questionmark, it is a "forced" entry. Not used for the moment. Heritage of unbound dns-firewall.
@@ -744,7 +784,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
             if isregex.search(entry):
                 fetched += 1
                 rx = entry.strip('/')
-                rxlist[rx] = regex.compile(rx, regex.I)
+                rxlist[id + ': ' + rx] = regex.compile(rx, regex.I)
 
             # ASN
             elif isasn.search(entry):
@@ -753,17 +793,19 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
             # DOMAIN
             elif isdomain.search(entry):
                 fetched += 1
-                domlist[entry] = True
+                domlist[entry] = id
 
             # IPV4
             elif ipregex4.search(entry):
                 fetched += 1
-                iplist4[entry] = True
+                iplist4[entry] = id
+                domlist[rev_ip(entry)] = entry + ' - ' + id
 
             # IPV6
             elif ipregex6.search(entry):
                 fetched += 1
-                iplist6[entry] = True
+                iplist6[entry] = id
+                domlist[rev_ip(entry)] = id
 
             #### !!! From here on there are functional entries, which are always condidered "whitelist"
             # ALIAS - domain.com=ip or domain.com=otherdomain.com
@@ -775,7 +817,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                     if isdomain.search(domain) and (isdomain.search(alias) or ipregex.search(alias)):
                         fetched += 1
                         alist[domain] = alias
-                        domlist[domain] = True # Whitelist it
+                        domlist[domain] = 'Alias' # Whitelist it
                     else:
                         log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
                 else:
@@ -788,7 +830,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                     domain = elements[0].strip().lower().rstrip('.')
                     ips = elements[1].strip().lower().rstrip('.')
                     if isdomain.search(domain):
-                        domlist[domain] = True # Whitelist it
+                        domlist[domain] = 'Forward-Domain' # Whitelist it
                         addrs = list()
                         for addr in ips.split(','):
                             if ipportregex.search(addr):
@@ -813,7 +855,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                     if isdomain.search(domain) and ttl.isdecimal():
                         fetched += 1
                         tlist[domain] = int(ttl)
-                        domlist[domain] = True # Whitelist it
+                        domlist[domain] = 'TTL-Override' # Whitelist it
                     else:
                         log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
                 else:
