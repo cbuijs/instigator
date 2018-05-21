@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.56-20180521 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.57-20180521 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -121,6 +121,10 @@ collapse = True
 
 # Block IPv6 based queries
 blockv6 = True
+
+# Prefetching
+prefetch = True
+prefetchtime = 10 # TTL seconds remaining to prefetch
 
 # List Dictionaries
 wl_dom = dict() # Domain whitelist
@@ -274,9 +278,8 @@ def match_blacklist(rid, type, rrtype, value, log):
                 lst = bip[testvalue]
                 found = True
         else:
-            prefix = wip.get_key(testvalue, False)
-            if prefix:
-                lst = wip[testvalue]
+            prefix = wip.get_key(testvalue)
+            lst = wip[testvalue]
 
         if found:
             if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + value + ' matched against ' + prefix + ' (' + lst + ')')
@@ -385,7 +388,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
                 #except socket.timeout:
                 except BaseException as err:
                     log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + '@' + str(forward_port) + ' - ' + str(err))
-                    to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply())
+                    to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), False)
                     reply = None
 
             #else:
@@ -455,7 +458,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias):
         #reply.add_ar(EDNS0())
 
     # Stash in cache
-    to_cache(qname, 'IN', qtype, reply)
+    to_cache(qname, 'IN', qtype, reply, False)
 
     return reply
 
@@ -491,7 +494,7 @@ def generate_response(request, qname, qtype, redirect_addrs):
             log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
             reply.header.rcode = getattr(RCODE, hitrcode)
 
-    to_cache(qname, 'IN', qtype, reply)
+    to_cache(qname, 'IN', qtype, reply, False)
 
     return reply
 
@@ -574,7 +577,7 @@ def generate_alias(request, qname, qtype, use_tcp):
     if collapse and aliasqname:
         log_info('ALIAS-HIT: COLLAPSE ' + qname + '/IN/CNAME')
 
-    to_cache(qname, 'IN', qtype, reply)
+    to_cache(qname, 'IN', qtype, reply, False)
 
     return reply
 
@@ -968,11 +971,11 @@ def from_cache(qname, qclass, qtype, id):
 
 
 # Store into cache
-def to_cache(qname, qclass, qtype, reply):
+def to_cache(qname, qclass, qtype, reply, force):
     if reply == defaultlist or reply == None:
         return False
 
-    if query_hash(qname, qclass, qtype) in cache:
+    if (not force) and query_hash(qname, qclass, qtype) in cache:
         return True
 
     queryname = qname + '/' + qclass + '/' + qtype
@@ -1015,6 +1018,10 @@ def cache_purge():
         if expire - now < 1:
             log_info('CACHE-MAINT-EXPIRED: ' + cache[queryhash][2])
             del_cache_entry(queryhash)
+        elif prefetch and expire - now < prefetchtime:
+            log_info('CACHE-PREFETCH: ' + cache[queryhash][2])
+            ### !!! DO SOMETHING SMART HERE !!!
+            pass
 
     # Prune cache back to cachesize, removing least TTL first
     size = len(cache)
