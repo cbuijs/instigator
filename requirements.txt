@@ -1,3 +1,4 @@
+cymruwhois>=1.6
 dnslib>=0.9.7
 pytricia>=1.0.0
 regex>=2018.2.21
