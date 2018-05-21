@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.51-20180520 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.52-20180520 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -131,8 +131,6 @@ wl_ip6 = pytricia.PyTricia(128) # IPv6 Whitelist
 bl_ip6 = pytricia.PyTricia(128) # IPv6 Blacklist
 wl_rx = dict() # Regex Whitelist
 bl_rx = dict() # Regex Blacklist
-wl_asn = dict()
-bl_asn = dict()
 aliases = dict()
 ttls = dict()
 
