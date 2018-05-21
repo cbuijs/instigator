@@ -47,7 +47,7 @@ import pytricia
 ###################
 
 # Listen for queries
-listen_on = list(['192.168.1.251@53']) # IPv4 only for now.
+listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
 
 # Forwarding queries to
 forward_timeout = 2 # Seconds
