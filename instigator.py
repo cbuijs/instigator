@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.50-20180520 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.51-20180520 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -17,7 +17,7 @@ TODO:
 - Loads ...
 - Logging only option for blacklists
 - Make checking for responses optional/toggable
-- Listen on IPv6 or use IPv6 as transport
+- Listen on IPv6 or use IPv6 as transport (need help!)
 - Better Documentation / Remarks / Comments
 
 =========================================================================================
