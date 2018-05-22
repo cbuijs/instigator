@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.60-20180522 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.61-20180522 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -277,9 +277,7 @@ def match_blacklist(rid, type, rrtype, value, log):
     if itisanip:
         found = False
         prefix = False
-        lst = ''
 
-        #if ipregex4.search(testvalue):
         if testvalue.find(':') == -1:
             wip = wl_ip4
             bip = bl_ip4
