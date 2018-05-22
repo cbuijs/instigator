@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.61-20180522 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.63-20180522 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -57,14 +57,14 @@ listen_on = list(['127.0.0.1@53']) # IPv4 only for now.
 # Forwarding queries to
 forward_timeout = 2 # Seconds
 forward_servers = dict()
-#forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
+forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
 #forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
 #forward_servers['.'] = list(['8.8.8.8@53','8.8.4.4@53']) # DEFAULT Google
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9
 #forward_servers['.'] = list(['208.67.222.222@443','208.67.220.220@443', '208.67.222.220@443', '208.67.220.222@443']) # DEFAULT OpenDNS
-forward_servers['.'] = list(['208.67.222.123@443','208.67.220.123@443']) # DEFAULT OpenDNS FamilyShield
+#forward_servers['.'] = list(['208.67.222.123@443','208.67.220.123@443']) # DEFAULT OpenDNS FamilyShield
 #forward_servers['.'] = list(['8.26.56.26@53','8.20.247.20@53']) # DEFAULT Comodo
 #forward_servers['.'] = list(['199.85.126.10@53','199.85.127.10@53']) # DEFAULT Norton
 #forward_servers['.'] = list(['64.6.64.6@53','64.6.65.6@53']) # DEFAULT Verisign
@@ -786,6 +786,9 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 id = ' '.join(regex.split('\s+', entry)[1:]).strip() or listname
                 entry = regex.split('\s+', entry)[0]
 
+            if not id:
+                id = listname
+
             entry = entry.strip().lower().rstrip('.')
 
             # If entry ends in questionmark, it is a "forced" entry. Not used for the moment. Heritage of unbound dns-firewall.
@@ -1188,6 +1191,9 @@ if __name__ == "__main__":
     log_info('-----------------------')
     log_info('Initializing INSTIGATOR')
 
+    if debug:
+        log_info('RUNNING INSTIGATOR IN DEBUG MODE')
+
     # Read Lists
     if not load_lists(savefile):
         for lst in sorted(lists.keys()):
@@ -1200,7 +1206,8 @@ if __name__ == "__main__":
 
     log_total()
 
-    load_cache(cachefile)
+    if not debug:
+        load_cache(cachefile)
 
     # DNS-Server/Resolver
     logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=False)
