@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.63-20180522 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.64-20180522 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -288,17 +288,15 @@ def match_blacklist(rid, type, rrtype, value, log):
         if not testvalue in wip:
             if testvalue in bip:
                 prefix = bip.get_key(testvalue)
-                lst = bip[testvalue]
                 found = True
         else:
             prefix = wip.get_key(testvalue)
-            lst = wip[prefix]
 
         if found:
-            if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + lst + ')')
+            if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + bip[prefix] + ')')
             return True
         elif prefix:
-            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + lst + ')')
+            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + wip[prefix] + ')')
             return False
 
     # Check against Sub-Domain-Lists
@@ -826,7 +824,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 elif ipregex6.search(entry):
                     fetched += 1
                     iplist6[entry] = id
-                    domlist[rev_ip(entry)] = id
+                    domlist[rev_ip(entry)] = entry + ' - ' + id
 
                 #### !!! From here on there are functional entries, which are always condidered "whitelist"
                 # ALIAS - domain.com=ip or domain.com=otherdomain.com
