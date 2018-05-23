@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.64-20180522 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.66-20180523 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -218,7 +218,7 @@ def file_exist(file, isdb):
             if os.path.isfile(file):
                 fstat = os.stat(file)
                 fsize = fstat.st_size
-                if fsize > 0:
+                if fsize > 0: # File-size must be greater then zero
                     fexists = True
                     mtime = int(fstat.st_mtime)
                     currenttime = int(time.time())
@@ -295,7 +295,7 @@ def match_blacklist(rid, type, rrtype, value, log):
         if found:
             if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + bip[prefix] + ')')
             return True
-        elif prefix:
+        elif prefix not in (False, None):
             if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + wip[prefix] + ')')
             return False
 
@@ -756,7 +756,7 @@ def rev_ip(cidr):
     return arpa
 
 
-# Read filter lists, see "accomplist" lists for compatibility:
+# Read filter lists, see "accomplist" to provide ready-2-use lists:
 # https://github.com/cbuijs/accomplist
 def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flist, tlist):
     log_info('Fetching ' + bw + ' \"' + listname + '\" entries from \"' + file + '\"')
@@ -784,8 +784,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 id = ' '.join(regex.split('\s+', entry)[1:]).strip() or listname
                 entry = regex.split('\s+', entry)[0]
 
-            if not id or len(id) == 0:
-                id = listname
+            #if not id or len(id) == 0:
+            #    id = listname
 
             entry = entry.strip().lower().rstrip('.')
 
@@ -797,7 +797,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
             if entry.endswith('&'):
                 entry = ''
 
-            if len(entry) > 0 and (not entry.startswith('#')):
+            if entry and len(entry) > 0 and (not entry.startswith('#')):
 
                 # REGEX
                 if isregex.search(entry):
@@ -894,7 +894,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
 
 # Normalize TTL's, take either lowest or highest TTL for all records in RRSET
 def normalize_ttl(qname, rr, getmax):
-    if len(rr) > 0:
+    if rr and len(rr) > 0:
         overridettl = False
         newttl = in_domain(qname, ttls)
         if newttl:
