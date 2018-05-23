@@ -784,7 +784,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 id = ' '.join(regex.split('\s+', entry)[1:]).strip() or listname
                 entry = regex.split('\s+', entry)[0]
 
-            if not id:
+            if not id or len(id) == 0:
                 id = listname
 
             entry = entry.strip().lower().rstrip('.')
