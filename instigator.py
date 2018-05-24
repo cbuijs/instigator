@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.57-20180521 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.66-20180523 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -28,7 +28,7 @@ import sys
 sys.path.append("/usr/local/lib/python3.5/dist-packages/")
 
 # Standard modules
-import time, socket, shelve
+import time, socket, shelve, dbm
 
 # Syslogging / Logging
 import syslog
@@ -46,20 +46,25 @@ import pytricia
 
 ###################
 
+debug = False
+if len(sys.argv) > 1: # Any argument on command-line will put debug-mode on, printing all messages to TTY.
+    debug = True
+
 # Listen for queries
-listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
+#listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
+listen_on = list(['127.0.0.1@53']) # IPv4 only for now.
 
 # Forwarding queries to
 forward_timeout = 2 # Seconds
 forward_servers = dict()
-#forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
+forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
 #forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
 #forward_servers['.'] = list(['8.8.8.8@53','8.8.4.4@53']) # DEFAULT Google
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9
 #forward_servers['.'] = list(['208.67.222.222@443','208.67.220.220@443', '208.67.222.220@443', '208.67.220.222@443']) # DEFAULT OpenDNS
-forward_servers['.'] = list(['208.67.222.123@443','208.67.220.123@443']) # DEFAULT OpenDNS FamilyShield
+#forward_servers['.'] = list(['208.67.222.123@443','208.67.220.123@443']) # DEFAULT OpenDNS FamilyShield
 #forward_servers['.'] = list(['8.26.56.26@53','8.20.247.20@53']) # DEFAULT Comodo
 #forward_servers['.'] = list(['199.85.126.10@53','199.85.127.10@53']) # DEFAULT Norton
 #forward_servers['.'] = list(['64.6.64.6@53','64.6.65.6@53']) # DEFAULT Verisign
@@ -77,7 +82,7 @@ hitrcode = 'NXDOMAIN'
 maxfileage = 1800 # Seconds
 
 # Files / Lists
-savefile = '/opt/instigator/save'
+savefile = '/opt/instigator/save.shelve'
 defaultlist = list([None, 0, ''])
 lists = dict()
 lists['blacklist'] = '/opt/instigator/black.list'
@@ -97,7 +102,7 @@ blacklist = list(['blacklist', 'ads', 'costtraps', 'porn', 'gamble', 'spyware', 
 whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites'])
 
 # Cache Settings
-cachefile = '/opt/instigator/cache'
+cachefile = '/opt/instigator/cache.shelve'
 cachesize = 2048 # Entries
 cache_maintenance_now = False
 
@@ -184,26 +189,36 @@ isasn = regex.compile('^AS[0-9]+$', regex.I)
 
 # Log INFO messages to syslog
 def log_info(message):
-    #print(message)
-    syslog.syslog(syslog.LOG_INFO, message)
+    if debug:
+        print(message)
+    else:
+        syslog.syslog(syslog.LOG_INFO, message)
+
     return True
 
 
 # Log ERR messages to syslog
 def log_err(message):
-    #print(message)
-    syslog.syslog(syslog.LOG_ERR, 'STRESS: ' + message)
+    message = 'STRESS: ' + message
+    if debug:
+        print(message)
+    else:
+        syslog.syslog(syslog.LOG_ERR, message)
+
     return True
 
 
 # Check if file exists and return age (in seconds) if so
-def file_exist(file):
+def file_exist(file, isdb):
     if file:
+        if isdb and sys.platform.startswith('linux'):
+            file = file + '.db'
+
         try:
             if os.path.isfile(file):
                 fstat = os.stat(file)
                 fsize = fstat.st_size
-                if fsize > 0:
+                if fsize > 0: # File-size must be greater then zero
                     fexists = True
                     mtime = int(fstat.st_mtime)
                     currenttime = int(time.time())
@@ -262,9 +277,7 @@ def match_blacklist(rid, type, rrtype, value, log):
     if itisanip:
         found = False
         prefix = False
-        lst = 'None'
 
-        #if ipregex4.search(testvalue):
         if testvalue.find(':') == -1:
             wip = wl_ip4
             bip = bl_ip4
@@ -275,17 +288,15 @@ def match_blacklist(rid, type, rrtype, value, log):
         if not testvalue in wip:
             if testvalue in bip:
                 prefix = bip.get_key(testvalue)
-                lst = bip[testvalue]
                 found = True
         else:
             prefix = wip.get_key(testvalue)
-            lst = wip[testvalue]
 
         if found:
-            if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + value + ' matched against ' + prefix + ' (' + lst + ')')
+            if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + bip[prefix] + ')')
             return True
-        elif prefix:
-            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + value + ' matched against ' + prefix + ' (' + lst + ')')
+        elif prefix not in (False, None):
+            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + wip[prefix] + ')')
             return False
 
     # Check against Sub-Domain-Lists
@@ -583,15 +594,16 @@ def generate_alias(request, qname, qtype, use_tcp):
 
 
 def save_cache(file):
-    log_info('CACHE-SAVE: Saving to \"' + file + '.db\"')
+    log_info('CACHE-SAVE: Saving to \"' + file + '\"')
 
     try:
-        s = shelve.open(file, flag = 'n', protocol = 2)
+        #s = shelve.open(file, flag = 'n', protocol = 4)
+        s = shelve.DbfilenameShelf(file, flag = 'n', protocol = 4)
         s['cache'] = cache
         s.close()
 
     except BaseException as err:
-        log_err('ERROR: Unable to open/write file \"' + file + '.db\" - ' + str(err))
+        log_err('ERROR: Unable to open/write file \"' + file + '\" - ' + str(err))
         return False
 
     return True
@@ -600,32 +612,34 @@ def save_cache(file):
 def load_cache(file):
     global cache
 
-    age = file_exist(file + '.db')
+    age = file_exist(file, True)
     if age and age < maxfileage:
-        log_info('CACHE-LOAD: Loading from \"' + file + '.db\"')
+        log_info('CACHE-LOAD: Loading from \"' + file + '\"')
         try:
-            s = shelve.open(file, flag = 'r', protocol = 2)
+            #s = shelve.open(file, flag = 'r', protocol = 4)
+            s = shelve.DbfilenameShelf(file, flag = 'r', protocol = 4)
             cache = s['cache']
             s.close()
 
         except BaseException as err:
-            log_err('ERROR: Unable to open/read file \"' + file + '.db\" - ' + str(err))
+            log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
             return False
 
         cache_purge()
 
     else:
-        log_info('CACHE-LOAD: Skip loading cache from \"' + file + '.db\" - non-existant or older then ' + str(maxfileage) + ' seconds')
+        log_info('CACHE-LOAD: Skip loading cache from \"' + file + '\" - non-existant or older then ' + str(maxfileage) + ' seconds')
         return False
 
     return True
 
 
 def save_lists(file):
-    log_info('LIST-SAVE: Saving to \"' + file + '.db\"')
+    log_info('LIST-SAVE: Saving to \"' + file + '\"')
 
     try:
-        s = shelve.open(file, flag = 'n', protocol = 2)
+        #s = shelve.open(file, flag = 'n', protocol = 4)
+        s = shelve.DbfilenameShelf(file, flag = 'n', protocol = 4)
 
         s['wl_dom'] = wl_dom
         s['wl_ip4'] = wl_ip4.keys()
@@ -643,7 +657,7 @@ def save_lists(file):
         s.close()
 
     except BaseException as err:
-        log_err('ERROR: Unable to open/write file \"' + file + '.db\" - ' + str(err))
+        log_err('ERROR: Unable to open/write file \"' + file + '\" - ' + str(err))
         return False
 
 
@@ -667,11 +681,12 @@ def load_lists(file):
 
     global cache
 
-    age = file_exist(file + '.db')
+    age = file_exist(file, True)
     if age and age < maxfileage:
-        log_info('LIST-LOAD: Loading from \"' + file + '.db\"')
+        log_info('LIST-LOAD: Loading from \"' + file + '\"')
         try:
-            s = shelve.open(file, flag = 'r', protocol = 2)
+            #s = shelve.open(file, flag = 'r', protocol = 4)
+            s = shelve.DbfilenameShelf(file, flag = 'r', protocol = 4)
 
             wl_dom = s['wl_dom']
             wl_ip4 = pytricia.PyTricia(32)
@@ -698,11 +713,11 @@ def load_lists(file):
             s.close()
 
         except BaseException as err:
-            log_err('ERROR: Unable to open/read file \"' + file + '.db\" - ' + str(err))
+            log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
             return False
 
     else:
-        log_info('LIST-LOAD: Skip loading lists from \"' + file + '.db\" - non-existant or older then ' + str(maxfileage) + ' seconds')
+        log_info('LIST-LOAD: Skip loading lists from \"' + file + '\" - non-existant or older then ' + str(maxfileage) + ' seconds')
         return False
 
     return True
@@ -741,7 +756,7 @@ def rev_ip(cidr):
     return arpa
 
 
-# Read filter lists, see "accomplist" lists for compatibility:
+# Read filter lists, see "accomplist" to provide ready-2-use lists:
 # https://github.com/cbuijs/accomplist
 def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flist, tlist):
     log_info('Fetching ' + bw + ' \"' + listname + '\" entries from \"' + file + '\"')
@@ -749,124 +764,128 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
     count = 0
     fetched = 0
 
-    try:
-        f = open(file, 'r')
-        lines = f.readlines()
-        f.close()
+    if file_exist(file, False):
+        try:
+            f = open(file, 'r')
+            lines = f.readlines()
+            f.close()
 
-    except BaseException as err:
-        log_err('ERROR: Unable to open/read/process file \"' + file + '\" - ' + str(err))
+        except BaseException as err:
+            log_err('ERROR: Unable to open/read/process file \"' + file + '\" - ' + str(err))
 
-    for line in lines:
-        count += 1
-        entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', '')) # Strip comments and line-feeds
+        for line in lines:
+            count += 1
+            entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', '')) # Strip comments and line-feeds
 
-        if entry.startswith('/'):
-            id = ' '.join(regex.split('\t+', entry)[1:]).strip()
-            entry = regex.sub('/\s+[^/]+$', '/', entry)
-        else:
-            id = ' '.join(regex.split('\s+', entry)[1:]).strip()
-            entry = regex.split('\s+', entry)[0]
+            if entry.startswith('/'):
+                id = ' '.join(regex.split('\t+', entry)[1:]).strip() or listname
+                entry = regex.sub('/\s+[^/]+$', '/', entry)
+            else:
+                id = ' '.join(regex.split('\s+', entry)[1:]).strip() or listname
+                entry = regex.split('\s+', entry)[0]
 
-        if len(id) == 0:
-            id = listname
+            #if not id or len(id) == 0:
+            #    id = listname
 
-        entry = entry.strip().lower().rstrip('.')
+            entry = entry.strip().lower().rstrip('.')
 
-        # If entry ends in questionmark, it is a "forced" entry. Not used for the moment. Heritage of unbound dns-firewall.
-        if entry.endswith('!'):
-            entry = entry[:-1]
+            # If entry ends in questionmark, it is a "forced" entry. Not used for the moment. Heritage of unbound dns-firewall.
+            if entry.endswith('!'):
+                entry = entry[:-1]
 
-        # If entry ends in ampersand, it is a "safelisted" entry. Not used for the moment. Heritage of unbound dns-firewall.
-        if entry.endswith('&'):
-            entry = ''
+            # If entry ends in ampersand, it is a "safelisted" entry. Not used for the moment. Heritage of unbound dns-firewall.
+            if entry.endswith('&'):
+                entry = ''
 
-        if len(entry) > 0 and (not entry.startswith('#')):
+            if entry and len(entry) > 0 and (not entry.startswith('#')):
 
-            # REGEX
-            if isregex.search(entry):
-                fetched += 1
-                rx = entry.strip('/')
-                rxlist[id + ': ' + rx] = regex.compile(rx, regex.I)
+                # REGEX
+                if isregex.search(entry):
+                    fetched += 1
+                    rx = entry.strip('/')
+                    rxlist[id + ': ' + rx] = regex.compile(rx, regex.I)
 
-            # ASN
-            elif isasn.search(entry):
-                pass
+                # ASN
+                elif isasn.search(entry):
+                    pass
 
-            # DOMAIN
-            elif isdomain.search(entry):
-                fetched += 1
-                domlist[entry] = id
+                # DOMAIN
+                elif isdomain.search(entry):
+                    fetched += 1
+                    domlist[entry] = id
 
-            # IPV4
-            elif ipregex4.search(entry):
-                fetched += 1
-                iplist4[entry] = id
-                domlist[rev_ip(entry)] = entry + ' - ' + id
+                # IPV4
+                elif ipregex4.search(entry):
+                    fetched += 1
+                    iplist4[entry] = id
+                    domlist[rev_ip(entry)] = entry + ' - ' + id
 
-            # IPV6
-            elif ipregex6.search(entry):
-                fetched += 1
-                iplist6[entry] = id
-                domlist[rev_ip(entry)] = id
+                # IPV6
+                elif ipregex6.search(entry):
+                    fetched += 1
+                    iplist6[entry] = id
+                    domlist[rev_ip(entry)] = entry + ' - ' + id
 
-            #### !!! From here on there are functional entries, which are always condidered "whitelist"
-            # ALIAS - domain.com=ip or domain.com=otherdomain.com
-            elif entry.find('=') > 0:
-                elements = entry.split('=')
-                if len(elements) > 1:
-                    domain = elements[0].strip().lower().rstrip('.')
-                    alias = elements[1].strip().lower().rstrip('.')
-                    if isdomain.search(domain) and (isdomain.search(alias) or ipregex.search(alias)):
-                        fetched += 1
-                        alist[domain] = alias
-                        domlist[domain] = 'Alias' # Whitelist it
+                #### !!! From here on there are functional entries, which are always condidered "whitelist"
+                # ALIAS - domain.com=ip or domain.com=otherdomain.com
+                elif entry.find('=') > 0:
+                    elements = entry.split('=')
+                    if len(elements) > 1:
+                        domain = elements[0].strip().lower().rstrip('.')
+                        alias = elements[1].strip().lower().rstrip('.')
+                        if isdomain.search(domain) and (isdomain.search(alias) or ipregex.search(alias)):
+                            fetched += 1
+                            alist[domain] = alias
+                            domlist[domain] = 'Alias' # Whitelist it
+                        else:
+                            log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
                     else:
                         log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
-                else:
-                    log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
 
-            # FORWARD - domain.com>ip
-            elif entry.find('>') > 0:
-                elements = entry.split('>')
-                if len(elements) > 1:
-                    domain = elements[0].strip().lower().rstrip('.')
-                    ips = elements[1].strip().lower().rstrip('.')
-                    if isdomain.search(domain):
-                        domlist[domain] = 'Forward-Domain' # Whitelist it
-                        addrs = list()
-                        for addr in ips.split(','):
-                            if ipportregex.search(addr):
-                                addrs.append(addr)
-                            else:
-                                log_err(listname + ' INVALID FORWARD-ADDRESS [' + str(count) + ']: ' + addr)
+                # FORWARD - domain.com>ip
+                elif entry.find('>') > 0:
+                    elements = entry.split('>')
+                    if len(elements) > 1:
+                        domain = elements[0].strip().lower().rstrip('.')
+                        ips = elements[1].strip().lower().rstrip('.')
+                        if isdomain.search(domain):
+                            domlist[domain] = 'Forward-Domain' # Whitelist it
+                            addrs = list()
+                            for addr in ips.split(','):
+                                if ipportregex.search(addr):
+                                    addrs.append(addr)
+                                else:
+                                    log_err(listname + ' INVALID FORWARD-ADDRESS [' + str(count) + ']: ' + addr)
         
-                        if addrs:
-                            fetched += 1
-                            flist[domain] = addrs
+                            if addrs:
+                                fetched += 1
+                                flist[domain] = addrs
+                        else:
+                            log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
                     else:
                         log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
-                else:
-                    log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
 
-            # TTLS - domain.com!ttl (TTL = integer)
-            elif entry.find('!') > 0:
-                elements = entry.split('!')
-                if len(elements) > 1:
-                    domain = elements[0].strip().lower().rstrip('.')
-                    ttl = elements[1].strip()
-                    if isdomain.search(domain) and ttl.isdecimal():
-                        fetched += 1
-                        tlist[domain] = int(ttl)
-                        domlist[domain] = 'TTL-Override' # Whitelist it
+                # TTLS - domain.com!ttl (TTL = integer)
+                elif entry.find('!') > 0:
+                    elements = entry.split('!')
+                    if len(elements) > 1:
+                        domain = elements[0].strip().lower().rstrip('.')
+                        ttl = elements[1].strip()
+                        if isdomain.search(domain) and ttl.isdecimal():
+                            fetched += 1
+                            tlist[domain] = int(ttl)
+                            domlist[domain] = 'TTL-Override' # Whitelist it
+                        else:
+                            log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
                     else:
                         log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
-                else:
-                    log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
 
-            # BOGUS
-            else:
-                log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
+                # BOGUS
+                else:
+                    log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
+
+    else:
+        log_err('ERROR: Cannot open \"' + file + '\" - Does not exist')
 
     log_info(listname + ' Processed ' + str(count) + ' lines and used ' + str(fetched))
 
@@ -875,7 +894,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
 
 # Normalize TTL's, take either lowest or highest TTL for all records in RRSET
 def normalize_ttl(qname, rr, getmax):
-    if len(rr) > 0:
+    if rr and len(rr) > 0:
         overridettl = False
         newttl = in_domain(qname, ttls)
         if newttl:
@@ -1170,6 +1189,9 @@ if __name__ == "__main__":
     log_info('-----------------------')
     log_info('Initializing INSTIGATOR')
 
+    if debug:
+        log_info('RUNNING INSTIGATOR IN DEBUG MODE')
+
     # Read Lists
     if not load_lists(savefile):
         for lst in sorted(lists.keys()):
@@ -1182,7 +1204,8 @@ if __name__ == "__main__":
 
     log_total()
 
-    load_cache(cachefile)
+    if not debug:
+        load_cache(cachefile)
 
     # DNS-Server/Resolver
     logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=False)
