@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1527067571                  ###
+### Version: 1527153827                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -7275,6 +7275,7 @@ bank.lviv.ua	Shalla-Banking
 elbank.lviv.ua	Shalla-Banking
 marfinbank.ua	Adguard-Banks
 moneyveo.ua	Adguard-Banks
+bankid.org.ua	Adguard-Banks
 online.oschadbank.ua	Adguard-Banks
 pib.ua	Adguard-Banks
 ibank.pinbank.ua	Adguard-Banks
