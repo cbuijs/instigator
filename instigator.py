@@ -51,8 +51,8 @@ if len(sys.argv) > 1: # Any argument on command-line will put debug-mode on, pri
     debug = True
 
 # Listen for queries
-#listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
-listen_on = list(['127.0.0.1@53']) # IPv4 only for now.
+listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
+#listen_on = list(['127.0.0.1@53']) # IPv4 only for now.
 
 # Forwarding queries to
 forward_timeout = 2 # Seconds
@@ -293,10 +293,10 @@ def match_blacklist(rid, type, rrtype, value, log):
             prefix = wip.get_key(testvalue)
 
         if found:
-            if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + str(bip[prefix]) + ')')
+            if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + bip[prefix] + ')')
             return True
         elif prefix:
-            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + str(wip[prefix]) + ')')
+            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + wip[prefix] + ')')
 
             return False
 
