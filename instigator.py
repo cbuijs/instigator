@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.66-20180523 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.68-20180524 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -293,10 +293,11 @@ def match_blacklist(rid, type, rrtype, value, log):
             prefix = wip.get_key(testvalue)
 
         if found:
-            if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + bip[prefix] + ')')
+            if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + str(bip[prefix]) + ')')
             return True
-        elif prefix not in (False, None):
-            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + wip[prefix] + ')')
+        elif prefix:
+            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + str(wip[prefix]) + ')')
+
             return False
 
     # Check against Sub-Domain-Lists
@@ -634,6 +635,19 @@ def load_cache(file):
     return True
 
 
+def to_dict(iplist):
+    newlist = dict()
+    for i in iplist.keys():
+        newlist[i] = iplist[i]
+    return newlist
+
+
+def from_dict(fromlist, tolist):
+    for i in fromlist.keys():
+        tolist[i] = fromlist[i]
+    return tolist
+
+
 def save_lists(file):
     log_info('LIST-SAVE: Saving to \"' + file + '\"')
 
@@ -642,16 +656,16 @@ def save_lists(file):
         s = shelve.DbfilenameShelf(file, flag = 'n', protocol = 4)
 
         s['wl_dom'] = wl_dom
-        s['wl_ip4'] = wl_ip4.keys()
-        s['wl_ip6'] = wl_ip6.keys()
+        s['wl_ip4'] = to_dict(wl_ip4)
+        s['wl_ip6'] = to_dict(wl_ip6)
         s['wl_rx'] = wl_rx
         s['aliases'] = aliases
         s['forward_servers'] = forward_servers
         s['ttls'] = ttls
 
         s['bl_dom'] = bl_dom
-        s['bl_ip4'] = bl_ip4.keys()
-        s['bl_ip6'] = bl_ip6.keys()
+        s['bl_ip4'] = to_dict(bl_ip4)
+        s['bl_ip6'] = to_dict(bl_ip6)
         s['bl_rx'] = bl_rx
 
         s.close()
@@ -690,11 +704,9 @@ def load_lists(file):
 
             wl_dom = s['wl_dom']
             wl_ip4 = pytricia.PyTricia(32)
-            for i in s['wl_ip4']:
-                wl_ip4[i] = True
+            from_dict(s['wl_ip4'], wl_ip4)
             wl_ip6 = pytricia.PyTricia(128)
-            for i in s['wl_ip6']:
-                wl_ip6[i] = True
+            from_dict(s['wl_ip6'], wl_ip6)
             wl_rx = s['wl_rx']
             aliases = s['aliases']
             forward_servers = s['forward_servers']
@@ -702,11 +714,9 @@ def load_lists(file):
 
             bl_dom = s['bl_dom']
             bl_ip4 = pytricia.PyTricia(32)
-            for i in s['bl_ip4']:
-                bl_ip4[i] = True
+            from_dict(s['bl_ip4'], bl_ip4)
             bl_ip6 = pytricia.PyTricia(128)
-            for i in s['bl_ip6']:
-                bl_ip6[i] = True
+            from_dict(s['bl_ip6'], bl_ip6)
 
             bl_rx = s['bl_rx']
 
@@ -783,9 +793,6 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
             else:
                 id = ' '.join(regex.split('\s+', entry)[1:]).strip() or listname
                 entry = regex.split('\s+', entry)[0]
-
-            #if not id or len(id) == 0:
-            #    id = listname
 
             entry = entry.strip().lower().rstrip('.')
 
