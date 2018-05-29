@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.731-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.733-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -434,7 +434,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                     reply = generate_alias(request, rqname, rqtype, use_tcp)
                     break
 
-                data = normalize_dom(str(record.rdata))
+                data = normalize_dom(record.rdata)
 
                 qlog = seen_it(rqname, seen)
                 dlog = seen_it(data, seen)
@@ -511,7 +511,7 @@ def generate_response(request, qname, qtype, redirect_addrs):
 def generate_alias(request, qname, qtype, use_tcp):
     queryname = qname + '/IN/' + qtype
 
-    realqname = normalize_dom(str(request.q.qname))
+    realqname = normalize_dom(request.q.qname)
 
     reply = request.reply()
     reply.header.id = request.header.id
@@ -568,7 +568,7 @@ def generate_alias(request, qname, qtype, use_tcp):
 
                 for record in subreply.rr:
                     rqtype = QTYPE[record.rtype]
-                    data = normalize_dom(str(record.rdata))
+                    data = normalize_dom(record.rdata)
                     if rqtype == 'A':
                         answer = RR(aliasqname, QTYPE.A, ttl=ttl, rdata=A(data))
                         reply.add_answer(answer)
@@ -763,7 +763,7 @@ def rev_ip(cidr):
 
 
 def normalize_dom(dom):
-    return = dom.strip().strip('.').lower() or '.'
+    return str(dom).strip().strip('.').lower() or '.'
 
 
 # Read filter lists, see "accomplist" to provide ready-2-use lists:
@@ -789,12 +789,10 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
 
             if entry.startswith('/'):
                 id = ' '.join(regex.split('\t+', entry)[1:]).strip() or listname
-                entry = regex.sub('/\s+[^/]+$', '/', entry)
+                entry = regex.sub('/\s+[^/]+$', '/', entry).strip()
             else:
                 id = ' '.join(regex.split('\s+', entry)[1:]).strip() or listname
-                entry = regex.split('\s+', entry)[0]
-
-            entry = normalize_dom(entry)
+                entry = regex.split('\s+', entry)[0].strip()
 
             # If entry ends in questionmark, it is a "forced" entry. Not used for the moment. Heritage of unbound dns-firewall.
             if entry.endswith('!'):
@@ -818,8 +816,10 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
 
                 # DOMAIN
                 elif isdomain.search(entry):
-                    fetched += 1
-                    domlist[entry] = id
+                    entry = normalize_dom(entry)
+                    if entry != '.':
+                        fetched += 1
+                        domlist[entry] = id
 
                 # IPV4
                 elif ipregex4.search(entry):
@@ -1090,7 +1090,7 @@ def collapse_cname(request, reply, rid):
     if reply.rr:
         firstqtype = QTYPE[reply.rr[0].rtype].upper()
         if firstqtype == 'CNAME':
-            qname = normalize_dom(str(reply.rr[0].rname))
+            qname = normalize_dom(reply.rr[0].rname)
             ttl = reply.rr[0].ttl
             addr = list()
             for record in reply.rr:
@@ -1137,7 +1137,7 @@ class DNS_Instigator(BaseResolver):
         if handler.protocol == 'tcp':
             use_tcp = True
 
-        qname = normalize_dom(str(request.q.qname))
+        qname = normalize_dom(request.q.qname)
 
         qclass = CLASS[request.q.qclass].upper()
         qtype = QTYPE[request.q.qtype].upper()
