@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.75-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.76-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -130,6 +130,7 @@ blockv6 = True
 
 # Prefetch
 prefetch = True
+prefetchhitrate = 30 # 1 cache-hit per 30 seconds needed to get prefetched
 
 # List Dictionaries
 wl_dom = dict() # Domain whitelist
@@ -941,7 +942,10 @@ def update_hits(queryhash):
 
 
 # Prefetch
-def prefetch(queryhash):
+def prefetch_it(queryhash):
+    if not prefetch:
+        return False
+
     now = int(time.time())
     record = cache.get(queryhash, defaultlist)
     expire = record[1]
@@ -949,7 +953,7 @@ def prefetch(queryhash):
     hits = record[3]
     orgttl = record[4]
     prefetchtime = int(orgttl / 5)
-    hitsneeded = int((orgttl / 60) - (ttlleft / 60)) # One hit per minute
+    hitsneeded = int((orgttl / prefetchhitrate) - (ttlleft / prefetchhitrate)) # One hit per 30 secs
 
     if hits < hitsneeded:
         sign = '<'
@@ -958,16 +962,17 @@ def prefetch(queryhash):
     else:
         sign = '='
 
-    if prefetch and hits > hitsneeded and ttlleft < prefetchtime:
+    if hits > hitsneeded and ttlleft < prefetchtime:
         log_info('CACHE-PREFETCH (' + str(hits) + sign + str(hitsneeded) + '): ' + record[2] + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + '/' + str(prefetchtime) + ')')
         # !!!! FIX LOOKUP LOOP !!!!
-        #qname, qclass, qtype = record[2].split('/')
-        #request = DNSRecord.question(qname, qtype, qclass)
-        #_ = dns_query(request, qname, qtype, False, request.header.id, '127.0.0.1', True, True, True) # Force query/cache-update last parameter True
-        if queryhash in cache:
-            cache[queryhash][3] = 0
-            cache[queryhash][1] = now + orgttl
-            return True
+        qname, qclass, qtype = record[2].split('/')
+        request = DNSRecord.question(qname, qtype, qclass)
+        _ = dns_query(request, qname, qtype, False, request.header.id, '127.0.0.1', True, True, True) # Force query/cache-update last parameter True
+        return True
+        #if queryhash in cache:
+        #    cache[queryhash][3] = 0
+        #    cache[queryhash][1] = now + orgttl
+        #    return True
 
     #log_info('CACHE-NO-PREFETCH (' + str(hits) + sign + str(hitsneeded) + '): ' + record[2] + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + '/' + str(prefetchtime) + ')')
 
@@ -986,7 +991,7 @@ def from_cache(qname, qclass, qtype, id):
     ttl = expire - now
 
     # If expired, remove from cache
-    if (not prefetch(queryhash)) and ttl < 1:
+    if ttl < 1:
         log_info('CACHE-EXPIRED: ' + cacheentry[2])
         del_cache_entry(queryhash)
         return None
@@ -1056,8 +1061,8 @@ def to_cache(qname, qclass, qtype, reply, force):
     if ttl > 0:
         expire = int(time.time()) + ttl
         queryhash = add_cache_entry(qname, qclass, qtype, expire, ttl, reply)
-        entry = len(cache)
-        log_info('CACHE-STORED (' + str(entry) + ' entries): ' + queryname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+        entries = len(cache)
+        log_info('CACHE-ADD (' + str(entries) + ' entries): ' + queryname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
     if len(cache) > cachesize:
         cache_maintenance_now = True
@@ -1074,12 +1079,13 @@ def cache_purge():
     now = int(time.time())
     for queryhash in list(cache.keys()):
         record = cache.get(queryhash, defaultlist)
-        expire = record[1]
-        hits = record[3]
-        orgttl = record[4]
-        if (not prefetch(queryhash)) and expire - now < 1:
-            log_info('CACHE-MAINT-EXPIRED: ' + record[2] + ' (TTL-EXPIRED:' + str(orgttl) + ')')
-            del_cache_entry(queryhash)
+        if record[2]:
+            expire = record[1]
+            hits = record[3]
+            orgttl = record[4]
+            if (not prefetch_it(queryhash)) and expire - now < 1:
+                log_info('CACHE-MAINT-EXPIRED: ' + record[2] + ' (TTL-EXPIRED:' + str(orgttl) + ')')
+                del_cache_entry(queryhash)
 
     # Prune cache back to cachesize, removing least TTL first
     size = len(cache)
