@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.71-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.73-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -254,9 +254,7 @@ def match_blacklist(rid, type, rrtype, value, log):
                 field = 2
 
             if field:
-                testvalue = regex.split('\s+', testvalue)[field].rstrip('.')
-                #if isdomain.search(testvalue):
-                #    itisadomain = True
+                testvalue = normalize_dom(regex.split('\s+', testvalue)[field])
                 itisadomain = True
 
         else:
@@ -429,14 +427,14 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
             for record in reply.rr:
                 replycount += 1
 
-                rqname = str(record.rname).rstrip('.').lower() or '.'
+                rqname = normalize_dom(record.rname) or '.'
                 rqtype = QTYPE[record.rtype].upper()
 
                 if checkalias and rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
                     reply = generate_alias(request, rqname, rqtype, use_tcp)
                     break
 
-                data = str(record.rdata).rstrip('.').lower()
+                data = normalize_dom(str(record.rdata))
 
                 qlog = seen_it(rqname, seen)
                 dlog = seen_it(data, seen)
@@ -513,7 +511,7 @@ def generate_response(request, qname, qtype, redirect_addrs):
 def generate_alias(request, qname, qtype, use_tcp):
     queryname = qname + '/IN/' + qtype
 
-    realqname = str(request.q.qname).rstrip('.').lower()
+    realqname = normalize_dom(str(request.q.qname)) or '.'
 
     reply = request.reply()
     reply.header.id = request.header.id
@@ -570,7 +568,7 @@ def generate_alias(request, qname, qtype, use_tcp):
 
                 for record in subreply.rr:
                     rqtype = QTYPE[record.rtype]
-                    data = str(record.rdata).rstrip('.').lower()
+                    data = normalize_dom(str(record.rdata))
                     if rqtype == 'A':
                         answer = RR(aliasqname, QTYPE.A, ttl=ttl, rdata=A(data))
                         reply.add_answer(answer)
@@ -764,6 +762,14 @@ def rev_ip(cidr):
     return arpa
 
 
+def normalize_dom(dom):
+    newdom = dom.strip().strip('.').lower()
+    if newdom == 'root':
+        return '.'
+    
+    return newdom
+
+
 # Read filter lists, see "accomplist" to provide ready-2-use lists:
 # https://github.com/cbuijs/accomplist
 def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flist, tlist):
@@ -792,7 +798,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 id = ' '.join(regex.split('\s+', entry)[1:]).strip() or listname
                 entry = regex.split('\s+', entry)[0]
 
-            entry = entry.strip().lower().rstrip('.')
+            entry = normalize_dom(entry)
 
             # If entry ends in questionmark, it is a "forced" entry. Not used for the moment. Heritage of unbound dns-firewall.
             if entry.endswith('!'):
@@ -836,8 +842,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 elif entry.find('=') > 0:
                     elements = entry.split('=')
                     if len(elements) > 1:
-                        domain = elements[0].strip().lower().rstrip('.')
-                        alias = elements[1].strip().lower().rstrip('.')
+                        domain = normalize_dom(elements[0])
+                        alias = normalize_dom(elements[1])
                         if isdomain.search(domain) and (isdomain.search(alias) or ipregex.search(alias)):
                             fetched += 1
                             alist[domain] = alias
@@ -851,8 +857,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 elif entry.find('>') > 0:
                     elements = entry.split('>')
                     if len(elements) > 1:
-                        domain = elements[0].strip().lower().rstrip('.')
-                        ips = elements[1].strip().lower().rstrip('.')
+                        domain = normalize_dom(elements[0])
+                        ips = elements[1].strip().lower().strip('.')
                         if isdomain.search(domain):
                             domlist[domain] = 'Forward-Domain' # Whitelist it
                             addrs = list()
@@ -874,7 +880,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 elif entry.find('!') > 0:
                     elements = entry.split('!')
                     if len(elements) > 1:
-                        domain = elements[0].strip().lower().rstrip('.')
+                        domain = normalize_dom(elements[0])
                         ttl = elements[1].strip()
                         if isdomain.search(domain) and ttl.isdecimal():
                             fetched += 1
@@ -1088,13 +1094,13 @@ def collapse_cname(request, reply, rid):
     if reply.rr:
         firstqtype = QTYPE[reply.rr[0].rtype].upper()
         if firstqtype == 'CNAME':
-            qname = str(reply.rr[0].rname).rstrip('.').lower()
+            qname = normalize_dom(str(reply.rr[0].rname))
             ttl = reply.rr[0].ttl
             addr = list()
             for record in reply.rr:
                 qtype = QTYPE[record.rtype].upper()
                 if qtype in ('A', 'AAAA'):
-                    ip = str(record.rdata).rstrip('.').lower()
+                    ip = str(record.rdata).lower()
                     addr.append(ip)
 
             if len(addr) > 0:
@@ -1135,7 +1141,7 @@ class DNS_Instigator(BaseResolver):
         if handler.protocol == 'tcp':
             use_tcp = True
 
-        qname = str(request.q.qname).rstrip('.').lower() or '.'
+        qname = normalize_dom(str(request.q.qname)) or '.'
 
         qclass = CLASS[request.q.qclass].upper()
         qtype = QTYPE[request.q.qtype].upper()
