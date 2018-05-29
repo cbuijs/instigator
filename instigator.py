@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.73-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.731-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -427,7 +427,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
             for record in reply.rr:
                 replycount += 1
 
-                rqname = normalize_dom(record.rname) or '.'
+                rqname = normalize_dom(record.rname)
                 rqtype = QTYPE[record.rtype].upper()
 
                 if checkalias and rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
@@ -511,7 +511,7 @@ def generate_response(request, qname, qtype, redirect_addrs):
 def generate_alias(request, qname, qtype, use_tcp):
     queryname = qname + '/IN/' + qtype
 
-    realqname = normalize_dom(str(request.q.qname)) or '.'
+    realqname = normalize_dom(str(request.q.qname))
 
     reply = request.reply()
     reply.header.id = request.header.id
@@ -763,11 +763,7 @@ def rev_ip(cidr):
 
 
 def normalize_dom(dom):
-    newdom = dom.strip().strip('.').lower()
-    if newdom == 'root':
-        return '.'
-    
-    return newdom
+    return = dom.strip().strip('.').lower() or '.'
 
 
 # Read filter lists, see "accomplist" to provide ready-2-use lists:
@@ -1141,7 +1137,7 @@ class DNS_Instigator(BaseResolver):
         if handler.protocol == 'tcp':
             use_tcp = True
 
-        qname = normalize_dom(str(request.q.qname)) or '.'
+        qname = normalize_dom(str(request.q.qname))
 
         qclass = CLASS[request.q.qclass].upper()
         qtype = QTYPE[request.q.qtype].upper()
