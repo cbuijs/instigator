@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.70-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.71-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -109,8 +109,8 @@ cache_maintenance_now = False
 
 # TTL Settings
 cachettl = 1800 # Seconds - For filtered/blacklisted/alias entry caching
-minttl = 5 # Seconds
-maxttl = 25 # Seconds
+minttl = 300 # Seconds
+maxttl = 7200 # Seconds
 rcodettl = 120 # Seconds - For return-codes caching
 
 # Check responses
