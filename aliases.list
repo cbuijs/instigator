@@ -53,5 +53,6 @@ company.com=REFUSED
 www.company.com=PASSTHRU
 test.company.com=www.googleapis.com
 .!99999999
+root=.
 
 # <EOF>
