@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.733-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.736-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -558,7 +558,7 @@ def generate_alias(request, qname, qtype, use_tcp):
         subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, '127.0.0.1', False, False, False)  # To prevent loop "checkalias" must be always False (second-last argument)
 
         rcode = str(RCODE[subreply.header.rcode])
-        if rcode == 'NOERROR':
+        if rcode == 'NOERROR' and subreply.rr:
             ttl = subreply.rr[0].ttl
             if subreply.rr:
                 if collapse:
@@ -1009,7 +1009,10 @@ def to_cache(qname, qclass, qtype, reply, force):
             ttl = rcodettl
         elif rcode == 'SERVFAIL':
             ttl = 10
-        elif rcode != 'NOERROR' or len(reply.rr) == 0:
+        elif rcode == 'NOERROR' and len(reply.rr) == 0:
+            log_info('CACHE-SKIPPED: ' + queryname + ' ' + rcode + ' (NO ANSWERS)')
+            return False
+        elif rcode != 'NOERROR':
             log_info('CACHE-SKIPPED: ' + queryname + ' ' + rcode)
             return False
         else:
