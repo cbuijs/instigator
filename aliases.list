@@ -52,5 +52,6 @@ www.test5.chrisbuijs.com=1.2.3.4
 company.com=REFUSED
 www.company.com=PASSTHRU
 test.company.com=www.googleapis.com
+root!99999999
 
 # <EOF>
