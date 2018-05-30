@@ -54,5 +54,8 @@ company.com=REFUSED
 www.company.com=PASSTHRU
 test.company.com=www.googleapis.com
 .!99999999
+frutch!3600
+1.168.192.in-addr.arpa!3600
+
 
 # <EOF>
