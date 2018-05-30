@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.771-20180529 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.775-20180530 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -29,7 +29,11 @@ import sys
 sys.path.append("/usr/local/lib/python3.5/dist-packages/")
 
 # Standard modules
-import time, socket, shelve, dbm
+import os, time, socket, shelve, dbm
+
+# Random
+import random
+random.seed(os.urandom(128))
 
 # Syslogging / Logging
 import syslog
@@ -108,10 +112,16 @@ cachesize = 2048 # Entries
 cache_maintenance_now = False
 
 # TTL Settings
-cachettl = 1800 # Seconds - For filtered/blacklisted/alias entry caching
-minttl = 300 # Seconds
-maxttl = 7200 # Seconds
-rcodettl = 120 # Seconds - For return-codes caching
+if debug:
+    cachettl = 20 # Seconds - For filtered/blacklisted/alias entry caching
+    minttl = 5 # Seconds
+    maxttl = cachettl # Seconds
+    rcodettl = minttl # Seconds - For return-codes caching
+else:
+    cachettl = 1800 # Seconds - For filtered/blacklisted/alias entry caching
+    minttl = 300 # Seconds
+    maxttl = 7200 # Seconds
+    rcodettl = 120 # Seconds - For return-codes caching
 
 # Check responses
 checkresponse = True # When False, only queries are checked and responses are ignored (passthru)
@@ -130,6 +140,7 @@ blockv6 = True
 
 # Prefetch
 prefetch = True
+prefetchgettime = 5 # Fetch at 1 5-th of TTL time
 prefetchhitrate = 30 # 1 cache-hit per 30 seconds needed to get prefetched
 
 # List Dictionaries
@@ -146,6 +157,9 @@ ttls = dict()
 
 # Cache
 cache = dict()
+
+# Pending IDs
+pending = dict()
 
 
 ## Regexes
@@ -328,7 +342,7 @@ def match_blacklist(rid, type, rrtype, value, log):
             if log: log_info('BLACKLIST-REGEX-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + rxn + '\" (' + lst + ')')
             return True
 
-    #if log: log_info('NONE-HIT [' + id + ']: ' + type + ' \"' + value + '\" does not match against any lists')
+    if debug and log: log_info('NONE-HIT [' + id + ']: ' + type + ' \"' + value + '\" does not match against any lists')
 
     return None
 
@@ -349,13 +363,29 @@ def in_domain(name, domlist):
 
 # Do query
 def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, force):
+    queryname = qname + '/IN/' + qtype
+
+    # Process already pending/same query
+    uid = hash(qname + '/' + qtype + '/' + cip + '/' + str(id))
+    count = 0
+    while uid in pending:
+        count += 1
+        if count > 3: # Disembark after 3 seconds
+            log_info('DNS-QUERY [' + id_str(id) + ']: Skipping query for ' + queryname + ' - ID already processing, takes more then 3 secs')
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+            return reply
+
+        log_info('DNS-QUERY [' + id_str(id) + ']: delaying (' + str(count) + ') query for ' + queryname + ' - ID already in progress, waiting to finish')
+        time.sleep(1) # Seconds
+
     # Get from cache if any
     if not force:
         reply = from_cache(qname, 'IN', qtype, id)
         if reply != None:
             return reply
 
-    queryname = qname + '/IN/' + qtype
+    pending[uid] = True
 
     server = in_domain(qname, forward_servers)
     if server:
@@ -381,7 +411,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                 forward_port = 53
     
             if (forward_address != cip) and (query_hash(forward_address, 'BROKEN-FORWARDER', str(forward_port)) not in cache):
-                log_info('DNS-QUERY [' + id_str(id) + ']: querying ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
+                log_info('DNS-QUERY [' + id_str(id) + ']: forwarding query from ' + cip + ' to ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
 
                 try:
                     useip6 = False
@@ -401,8 +431,8 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                     to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force)
                     reply = None
 
-            #else:
-            #    log_err('DNS-QUERY [' + id_str(id) + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port))
+            if debug:
+                log_err('DNS-QUERY [' + id_str(id) + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port))
 
     else:
         log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' (' + servername + ') - NO DNS SERVERS AVAILBLE!')
@@ -414,6 +444,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
         reply = query.reply()
         reply.header.id = id
         reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+        del pending[uid]
         return reply
 
     # Lets process response
@@ -433,7 +464,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                 rqtype = QTYPE[record.rtype].upper()
 
                 if checkalias and rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
-                    reply = generate_alias(request, rqname, rqtype, use_tcp)
+                    reply = generate_alias(request, rqname, rqtype, use_tcp, force)
                     break
 
                 data = normalize_dom(record.rdata)
@@ -443,7 +474,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
 
                 if (qlog and match_blacklist(id, 'REQUEST', rqtype, rqname, qlog)) or (dlog and match_blacklist(id, 'REPLY', rqtype, data, dlog)):
                     log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
-                    reply = generate_response(request, qname, qtype, redirect_addrs)
+                    reply = generate_response(request, qname, qtype, redirect_addrs, force)
                     break
                 else:
                     log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
@@ -470,11 +501,12 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
     # Stash in cache
     to_cache(qname, 'IN', qtype, reply, force)
 
+    del pending[uid]
     return reply
 
 
 # Generate response when blocking
-def generate_response(request, qname, qtype, redirect_addrs):
+def generate_response(request, qname, qtype, redirect_addrs, force):
     queryname = qname + '/IN/' + qtype
 
     reply = request.reply()
@@ -504,13 +536,13 @@ def generate_response(request, qname, qtype, redirect_addrs):
             log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
             reply.header.rcode = getattr(RCODE, hitrcode)
 
-    to_cache(qname, 'IN', qtype, reply, False)
+    to_cache(qname, 'IN', qtype, reply, force)
 
     return reply
 
 
 # Generate alias response
-def generate_alias(request, qname, qtype, use_tcp):
+def generate_alias(request, qname, qtype, use_tcp, force):
     queryname = qname + '/IN/' + qtype
 
     realqname = normalize_dom(request.q.qname)
@@ -557,17 +589,18 @@ def generate_alias(request, qname, qtype, use_tcp):
         if qtype not in ('A', 'AAAA'):
             qtype = 'A'
 
-        subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, '127.0.0.1', False, False, False)  # To prevent loop "checkalias" must be always False (second-last argument)
+        subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, 'ALIAS-RESOLVER', False, False, False)  # To prevent loop "checkalias" must be always False (second-last argument)
 
         rcode = str(RCODE[subreply.header.rcode])
         if rcode == 'NOERROR' and subreply.rr:
-            ttl = subreply.rr[0].ttl
-            if subreply.rr:
-                if collapse:
-                    aliasqname = realqname
-                else:
-                    aliasqname = alias
+            if collapse:
+                aliasqname = realqname
+            else:
+                aliasqname = alias
 
+            ttl = normalize_ttl(aliasqname, subreply.rr, False)
+
+            if subreply.rr:
                 for record in subreply.rr:
                     rqtype = QTYPE[record.rtype]
                     data = normalize_dom(record.rdata)
@@ -587,7 +620,7 @@ def generate_alias(request, qname, qtype, use_tcp):
     if collapse and aliasqname:
         log_info('ALIAS-HIT: COLLAPSE ' + qname + '/IN/CNAME')
 
-    to_cache(qname, 'IN', qtype, reply, False)
+    to_cache(qname, 'IN', qtype, reply, force)
 
     return reply
 
@@ -943,16 +976,13 @@ def update_hits(queryhash):
 
 # Prefetch
 def prefetch_it(queryhash):
-    if not prefetch:
-        return False
-
     record = cache.get(queryhash, defaultlist)
     now = int(time.time())
     expire = record[1]
     ttlleft = expire - now
     hits = record[3]
     orgttl = record[4]
-    prefetchtime = int(orgttl / 5)
+    prefetchtime = int(orgttl / prefetchgettime)
     hitsneeded = int((orgttl / prefetchhitrate) - (ttlleft / prefetchhitrate)) # One hit per 30 secs
 
     if hits < hitsneeded:
@@ -962,21 +992,20 @@ def prefetch_it(queryhash):
     else:
         sign = '='
 
-    if hits > hitsneeded and ttlleft < prefetchtime:
+    if hits >= hitsneeded and ttlleft <= prefetchtime:
         log_info('CACHE-PREFETCH (' + str(hits) + sign + str(hitsneeded) + '): ' + record[2] + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + '/' + str(prefetchtime) + ')')
-        # !!!! FIX LOOKUP LOOP !!!!
-        #qname, qclass, qtype = record[2].split('/')
-        #request = DNSRecord.question(qname, qtype, qclass)
-        #dns_query(request, qname, qtype, False, request.header.id, '127.0.0.1', True, True, True) # Force query/cache-update last parameter True
-        #return True
-        # !!!! TEMPORARY !!!! FIX !!!!
-        if queryhash in cache:
-            cache[queryhash][3] = 0
-            cache[queryhash][1] = now + orgttl
-            return True
+        qname, qclass, qtype = record[2].split('/')
+        request = DNSRecord.question(qname, qtype, qclass)
+        request.header.id = random.randint(1,65535)
+        handler = DNSHandler
+        handler.protocol = 'udp'
+        handler.client_address = '\'PREFETCHER\''
+        do_query(request, handler, True)
 
-    # only for debugging
-    #log_info('CACHE-NO-PREFETCH (' + str(hits) + sign + str(hitsneeded) + '): ' + record[2] + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + '/' + str(prefetchtime) + ')')
+        return True
+
+    if debug:
+        log_info('CACHE-NO-PREFETCH (' + str(hits) + sign + str(hitsneeded) + '): ' + record[2] + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + '/' + str(prefetchtime) + ')')
 
     return False
 
@@ -1062,9 +1091,7 @@ def to_cache(qname, qclass, qtype, reply, force):
 
     if ttl > 0:
         expire = int(time.time()) + ttl
-        queryhash = add_cache_entry(qname, qclass, qtype, expire, ttl, reply)
-        entries = len(cache)
-        log_info('CACHE-ADD (' + str(entries) + ' entries): ' + queryname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+        queryhash = add_cache_entry(qname, qclass, qtype, expire, ttl, reply, force)
 
     if len(cache) > cachesize:
         cache_maintenance_now = True
@@ -1085,9 +1112,9 @@ def cache_purge():
         hits = record[3]
         orgttl = record[4]
         ttlleft = expire - now
-        if prefetch_it(queryhash):
+        if prefetch and prefetch_it(queryhash):
+            # Everything is done in "prefetch_it" already
             pass
-
         elif ttlleft < 1:
             log_info('CACHE-MAINT-EXPIRED: ' + record[2] + ' (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
             del_cache_entry(queryhash)
@@ -1116,10 +1143,14 @@ def query_hash(qname, qclass, qtype):
     return hash(qname + '/' + qclass + '/' + qtype)
 
 
-def add_cache_entry(qname, qclass, qtype, expire, ttl, reply):
+def add_cache_entry(qname, qclass, qtype, expire, ttl, reply, force):
     hashname = qname + '/' + qclass + '/' + qtype
+    rcode = str(RCODE[reply.header.rcode])
     queryhash = query_hash(qname, qclass, qtype)
+
     cache[queryhash] = list([reply, expire, hashname, 1, ttl]) # reply - expire - qname/class/type - hits - orgttl
+
+    log_info('CACHE-ADD (' + str(len(cache)) + ' entries): ' + hashname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
     return queryhash
 
@@ -1177,61 +1208,64 @@ def seen_it(name, seen):
     return False
 
 
+# Query
+def do_query(request, handler, force):
+    rid = request.header.id
+
+    cip = str(handler.client_address).split('\'')[1]
+
+    use_tcp = False
+    if handler.protocol == 'tcp':
+        use_tcp = True
+
+    qname = normalize_dom(request.q.qname)
+
+    qclass = CLASS[request.q.qclass].upper()
+    qtype = QTYPE[request.q.qtype].upper()
+    queryname = qname + '/' + qclass + '/' + qtype
+
+    log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ' for ' + queryname + ' (' + handler.protocol.upper() + ')')
+
+    # Quick response when in cache
+    reply = None
+    if not force:
+        reply = from_cache(qname, qclass, qtype, rid)
+
+    if reply == None:
+        if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
+            log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' NOTIMP (' + handler.protocol.upper() + ')')
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'NOTIMP')
+
+        elif blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
+            log_info('IPV6-HIT: ' + queryname)
+            reply = generate_response(request, qname, qtype, redirect_addrs, force)
+
+        elif qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
+            reply = generate_alias(request, qname, qtype, use_tcp, force)
+
+        else:
+            ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
+            if ismatch == True: # Blacklisted
+                reply = generate_response(request, qname, qtype, redirect_addrs, force)
+
+            else:
+                if ismatch == None and checkresponse:
+                    reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
+                else:
+                    reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, True, force)
+
+    log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
+
+    return reply
+
+
 # DNS request/reply processing, main beef
 class DNS_Instigator(BaseResolver):
 
     def resolve(self, request, handler):
-        rid = request.header.id
 
-        cip = str(handler.client_address).split('\'')[1]
-
-        use_tcp = False
-        if handler.protocol == 'tcp':
-            use_tcp = True
-
-        qname = normalize_dom(request.q.qname)
-
-        qclass = CLASS[request.q.qclass].upper()
-        qtype = QTYPE[request.q.qtype].upper()
-        queryname = qname + '/' + qclass + '/' + qtype
-
-        log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ' for ' + queryname + ' (' + handler.protocol.upper() + ')')
-
-        # Quick response when in cache
-        reply = from_cache(qname, qclass, qtype, rid)
-
-        if reply == None:
-            if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
-                log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' NOTIMP (' + handler.protocol.upper() + ')')
-                reply = request.reply()
-                reply.header.rcode = getattr(RCODE, 'NOTIMP')
-
-            elif blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
-                #log_info('IPV6-HIT: ' + queryname + ' responded with NXDOMAIN')
-                #reply = request.reply()
-                #reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
-                log_info('IPV6-HIT: ' + queryname)
-                reply = generate_response(request, qname, qtype, redirect_addrs)
-
-            elif qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
-                reply = generate_alias(request, qname, qtype, use_tcp)
-
-            else:
-                ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
-                if ismatch == True: # Blacklisted
-                    reply = generate_response(request, qname, qtype, redirect_addrs)
-
-                else:
-                    if ismatch == None and checkresponse:
-                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, False)
-                    else:
-                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, True, False)
-
-
-
-        log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
-
-        return reply
+        return do_query(request, handler, False)
 
 
 # Main
