@@ -48,6 +48,7 @@ test2.chrisbuijs.com=www.googleapis.com
 test3.chrisbuijs.com=4.3.2.1
 test4.chrisbuijs.com=NXDOMAIN
 test5.chrisbuijs.com=REFUSED
+test9.chrisbuijs.com=www.xs4all.nl
 www.test5.chrisbuijs.com=1.2.3.4
 company.com=REFUSED
 www.company.com=PASSTHRU
