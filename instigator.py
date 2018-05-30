@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.775-20180530 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.786-20180530 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -65,11 +65,11 @@ forward_servers = dict()
 #forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
-#forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
+forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
 #forward_servers['.'] = list(['8.8.8.8@53','8.8.4.4@53']) # DEFAULT Google
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9
 #forward_servers['.'] = list(['208.67.222.222@443','208.67.220.220@443', '208.67.222.220@443', '208.67.220.222@443']) # DEFAULT OpenDNS
-forward_servers['.'] = list(['208.67.222.123@443','208.67.220.123@443']) # DEFAULT OpenDNS FamilyShield
+#forward_servers['.'] = list(['208.67.222.123@443','208.67.220.123@443']) # DEFAULT OpenDNS FamilyShield
 #forward_servers['.'] = list(['8.26.56.26@53','8.20.247.20@53']) # DEFAULT Comodo
 #forward_servers['.'] = list(['199.85.126.10@53','199.85.127.10@53']) # DEFAULT Norton
 #forward_servers['.'] = list(['64.6.64.6@53','64.6.65.6@53']) # DEFAULT Verisign
@@ -139,9 +139,14 @@ collapse = True
 blockv6 = True
 
 # Prefetch
-prefetch = True
-prefetchgettime = 5 # Fetch at 1 5-th of TTL time
-prefetchhitrate = 30 # 1 cache-hit per 30 seconds needed to get prefetched
+if debug:
+    prefetch = True
+    prefetchgettime = 2
+    prefetchhitrate = 3
+else:
+    prefetch = True
+    prefetchgettime = 5 # Fetch at 1/5-th of TTL time
+    prefetchhitrate = 30 # 1 cache-hit per 30 seconds needed to get prefetched
 
 # List Dictionaries
 wl_dom = dict() # Domain whitelist
@@ -204,9 +209,7 @@ isasn = regex.compile('^AS[0-9]+$', regex.I)
 
 # Log INFO messages to syslog
 def log_info(message):
-    if debug:
-        print(message)
-
+    if debug: print(message)
     syslog.syslog(syslog.LOG_INFO, message)
     return True
 
@@ -214,9 +217,7 @@ def log_info(message):
 # Log ERR messages to syslog
 def log_err(message):
     message = 'STRESS: ' + message
-    if debug:
-        print(message)
-
+    if debug: print(message)
     syslog.syslog(syslog.LOG_ERR, message)
     return True
 
@@ -236,7 +237,7 @@ def file_exist(file, isdb):
                     mtime = int(fstat.st_mtime)
                     currenttime = int(time.time())
                     age = int(currenttime - mtime)
-                    log_info('FILE-EXIST: ' + file + ' = ' + str(age) + ' seconds old')
+                    if debug: log_info('FILE-EXIST: ' + file + ' = ' + str(age) + ' seconds old')
                     return age
         except:
             return False
@@ -421,18 +422,17 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                     q = query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout, ipv6 = useip6)
                     reply = DNSRecord.parse(q)
 
-                    ttl = normalize_ttl(qname, reply.rr, False)
+                    ttl = normalize_ttl(qname, reply.rr)
 
                     break
 
                 #except socket.timeout:
                 except BaseException as err:
                     log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + '@' + str(forward_port) + ' - ' + str(err))
-                    to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force)
+                    to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force, False)
                     reply = None
 
-            if debug:
-                log_err('DNS-QUERY [' + id_str(id) + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port))
+            if debug: log_err('DNS-QUERY [' + id_str(id) + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port))
 
     else:
         log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' (' + servername + ') - NO DNS SERVERS AVAILBLE!')
@@ -499,7 +499,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
         #reply.add_ar(EDNS0())
 
     # Stash in cache
-    to_cache(qname, 'IN', qtype, reply, force)
+    to_cache(qname, 'IN', qtype, reply, force, False)
 
     del pending[uid]
     return reply
@@ -536,7 +536,7 @@ def generate_response(request, qname, qtype, redirect_addrs, force):
             log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
             reply.header.rcode = getattr(RCODE, hitrcode)
 
-    to_cache(qname, 'IN', qtype, reply, force)
+    to_cache(qname, 'IN', qtype, reply, force, False)
 
     return reply
 
@@ -598,7 +598,7 @@ def generate_alias(request, qname, qtype, use_tcp, force):
             else:
                 aliasqname = alias
 
-            ttl = normalize_ttl(aliasqname, subreply.rr, False)
+            ttl = normalize_ttl(aliasqname, subreply.rr)
 
             if subreply.rr:
                 for record in subreply.rr:
@@ -620,7 +620,7 @@ def generate_alias(request, qname, qtype, use_tcp, force):
     if collapse and aliasqname:
         log_info('ALIAS-HIT: COLLAPSE ' + qname + '/IN/CNAME')
 
-    to_cache(qname, 'IN', qtype, reply, force)
+    to_cache(qname, 'IN', qtype, reply, force, False)
 
     return reply
 
@@ -847,7 +847,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
 
                 # ASN
                 elif isasn.search(entry):
-                    pass
+                    _ = entry
 
                 # DOMAIN
                 elif isdomain.search(entry):
@@ -935,21 +935,24 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
 
 
 # Normalize TTL's, take either lowest or highest TTL for all records in RRSET
-def normalize_ttl(qname, rr, getmax):
+def normalize_ttl(qname, rr):
     if rr and len(rr) > 0:
         overridettl = False
         newttl = in_domain(qname, ttls)
         if newttl:
-            overridettl = ttls.get(newttl, 0)
+            overridettl = ttls.get(newttl, False)
         
         if overridettl:
             log_info('TTL-HIT: Setting TTL for ' + qname + ' (' + newttl + ') to ' + str(overridettl))
             ttl = overridettl
         else:
-            if getmax:
-                ttl = max(x.ttl for x in rr)
+            if len(rr) == 1:
+                ttl = rr[0].ttl
             else:
-                ttl = min(x.ttl for x in rr)
+                #ttllow = min(x.ttl for x in rr) # Get lowest TTL
+                #ttlhigh = max(x.ttl for x in rr) # get highest TTL
+                #ttl = int((ttllow + ttlhigh) / 2) # mean TTL
+                ttl = int(sum(x.ttl for x in rr) / len(rr)) # Average TTL
 
             if ttl < minttl:
                 ttl = minttl
@@ -977,35 +980,40 @@ def update_hits(queryhash):
 # Prefetch
 def prefetch_it(queryhash):
     record = cache.get(queryhash, defaultlist)
-    now = int(time.time())
     expire = record[1]
-    ttlleft = expire - now
-    hits = record[3]
-    orgttl = record[4]
-    prefetchtime = int(orgttl / prefetchgettime)
-    hitsneeded = int((orgttl / prefetchhitrate) - (ttlleft / prefetchhitrate)) # One hit per 30 secs
+    if expire != 0 and record[0].rr:
+        rcode = str(RCODE[record[0].header.rcode])
+        if rcode == 'NOERROR':
+            now = int(time.time())
+            ttlleft = expire - now
+            queryname = record[2]
+            hits = record[3]
+            orgttl = record[4]
+            prefetchtime = int(orgttl / prefetchgettime)
+            hitsneeded = int((orgttl / prefetchhitrate) - (ttlleft / prefetchhitrate)) # One hit per 30 secs
 
-    if hits < hitsneeded:
-        sign = '<'
-    elif hits > hitsneeded:
-        sign = '>'
-    else:
-        sign = '='
+            if hits < hitsneeded:
+                sign = '<'
+            elif hits > hitsneeded:
+                sign = '>'
+            else:
+                sign = '='
 
-    if hits >= hitsneeded and ttlleft <= prefetchtime:
-        log_info('CACHE-PREFETCH (' + str(hits) + sign + str(hitsneeded) + '): ' + record[2] + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + '/' + str(prefetchtime) + ')')
-        qname, qclass, qtype = record[2].split('/')
-        request = DNSRecord.question(qname, qtype, qclass)
-        request.header.id = random.randint(1,65535)
-        handler = DNSHandler
-        handler.protocol = 'udp'
-        handler.client_address = '\'PREFETCHER\''
-        do_query(request, handler, True)
+            if hits >= hitsneeded and ttlleft > -5 and ttlleft <= prefetchtime:
+                log_info('CACHE-PREFETCH (' + str(hits) + sign + str(hitsneeded) + '): ' + queryname + ' ' + rcode + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + '/' + str(prefetchtime) + ')')
+                qname, qclass, qtype = queryname.split('/')
+                request = DNSRecord.question(qname, qtype, qclass)
+                request.header.id = random.randint(1,65535)
+                handler = DNSHandler
+                handler.protocol = 'udp'
+                handler.client_address = '\'PREFETCHER\''
+                _ = do_query(request, handler, True)
+                #ttl = reply.rr[0].ttl
+                #if orgttl > ttl:
+                #    to_cache(qname, qclass, qtype, reply, True, orgttl)
+                return True
 
-        return True
-
-    if debug:
-        log_info('CACHE-NO-PREFETCH (' + str(hits) + sign + str(hitsneeded) + '): ' + record[2] + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + '/' + str(prefetchtime) + ')')
+            if debug: log_info('CACHE-NO-PREFETCH (' + str(hits) + sign + str(hitsneeded) + '): ' + queryname + ' ' + rcode + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + '/' + str(prefetchtime) + ')')
 
     return False
 
@@ -1063,7 +1071,7 @@ def from_cache(qname, qclass, qtype, id):
 
 
 # Store into cache
-def to_cache(qname, qclass, qtype, reply, force):
+def to_cache(qname, qclass, qtype, reply, force, newttl):
     if reply == defaultlist or reply == None:
         return False
 
@@ -1087,7 +1095,10 @@ def to_cache(qname, qclass, qtype, reply, force):
             log_info('CACHE-SKIPPED: ' + queryname + ' ' + rcode)
             return False
         else:
-            ttl = reply.rr[0].ttl
+            if newttl:
+                ttl = newttl
+            else:
+                ttl = reply.rr[0].ttl
 
     if ttl > 0:
         expire = int(time.time()) + ttl
@@ -1105,25 +1116,29 @@ def cache_purge():
     before = len(cache)
 
     # Remove expired entries
-    now = int(time.time())
     for queryhash in list(cache.keys()):
         record = cache.get(queryhash, defaultlist)
         expire = record[1]
         hits = record[3]
-        orgttl = record[4]
+        now = int(time.time())
         ttlleft = expire - now
+        orgttl = record[4]
         if prefetch and prefetch_it(queryhash):
             # Everything is done in "prefetch_it" already
-            pass
+            _ = 1 # Dummy
         elif ttlleft < 1:
             log_info('CACHE-MAINT-EXPIRED: ' + record[2] + ' (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
             del_cache_entry(queryhash)
+        elif ttlleft > maxttl:
+            log_info('CACHE-TTL-ADJUST: ' + record[2] + ' (NEW-TTL:' + str(ttlleft) + ' -> ' + str(maxttl) + ')')
+            cache[queryhash][1] = now + maxttl
 
     # Prune cache back to cachesize, removing least TTL first
     size = len(cache)
     if (size > cachesize):
         expire = dict()
         for queryhash in list(cache.keys()):
+            now = int(time.time())
             expire[queryhash] = cache.get(queryhash, defaultlist)[1] - now
 
         for queryhash in list(sorted(expire, key=expire.get))[0:size-cachesize]:
@@ -1150,7 +1165,7 @@ def add_cache_entry(qname, qclass, qtype, expire, ttl, reply, force):
 
     cache[queryhash] = list([reply, expire, hashname, 1, ttl]) # reply - expire - qname/class/type - hits - orgttl
 
-    log_info('CACHE-ADD (' + str(len(cache)) + ' entries): ' + hashname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+    log_info('CACHE-UPDATE (' + str(len(cache)) + ' entries): ' + hashname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
     return queryhash
 
@@ -1273,8 +1288,7 @@ if __name__ == "__main__":
     log_info('-----------------------')
     log_info('Initializing INSTIGATOR')
 
-    if debug:
-        log_info('RUNNING INSTIGATOR IN DEBUG MODE')
+    if debug: log_info('RUNNING INSTIGATOR IN DEBUG MODE')
 
     # Read Lists
     if not load_lists(savefile):
