@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.786-20180530 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.79-20180531 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -110,6 +110,7 @@ whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites'])
 cachefile = '/opt/instigator/cache.shelve'
 cachesize = 2048 # Entries
 cache_maintenance_now = False
+cache_maintenance_busy = False
 
 # TTL Settings
 if debug:
@@ -119,9 +120,9 @@ if debug:
     rcodettl = minttl # Seconds - For return-codes caching
 else:
     cachettl = 1800 # Seconds - For filtered/blacklisted/alias entry caching
-    minttl = 300 # Seconds
-    maxttl = 7200 # Seconds
-    rcodettl = 120 # Seconds - For return-codes caching
+    minttl = 60 # Seconds
+    maxttl = 3600 # Seconds
+    rcodettl = 30 # Seconds - For return-codes caching
 
 # Check responses
 checkresponse = True # When False, only queries are checked and responses are ignored (passthru)
@@ -386,7 +387,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
         if reply != None:
             return reply
 
-    pending[uid] = True
+    pending[uid] = int(time.time())
 
     server = in_domain(qname, forward_servers)
     if server:
@@ -987,33 +988,20 @@ def prefetch_it(queryhash):
             now = int(time.time())
             ttlleft = expire - now
             queryname = record[2]
-            hits = record[3]
             orgttl = record[4]
-            prefetchtime = int(orgttl / prefetchgettime)
-            hitsneeded = int((orgttl / prefetchhitrate) - (ttlleft / prefetchhitrate)) # One hit per 30 secs
 
-            if hits < hitsneeded:
-                sign = '<'
-            elif hits > hitsneeded:
-                sign = '>'
-            else:
-                sign = '='
-
-            if hits >= hitsneeded and ttlleft > -5 and ttlleft <= prefetchtime:
-                log_info('CACHE-PREFETCH (' + str(hits) + sign + str(hitsneeded) + '): ' + queryname + ' ' + rcode + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + '/' + str(prefetchtime) + ')')
-                qname, qclass, qtype = queryname.split('/')
-                request = DNSRecord.question(qname, qtype, qclass)
-                request.header.id = random.randint(1,65535)
-                handler = DNSHandler
-                handler.protocol = 'udp'
-                handler.client_address = '\'PREFETCHER\''
-                _ = do_query(request, handler, True)
-                #ttl = reply.rr[0].ttl
-                #if orgttl > ttl:
-                #    to_cache(qname, qclass, qtype, reply, True, orgttl)
-                return True
-
-            if debug: log_info('CACHE-NO-PREFETCH (' + str(hits) + sign + str(hitsneeded) + '): ' + queryname + ' ' + rcode + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + '/' + str(prefetchtime) + ')')
+            log_info('CACHE-PREFETCH: ' + queryname + ' ' + rcode + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + ')')
+            qname, qclass, qtype = queryname.split('/')
+            request = DNSRecord.question(qname, qtype, qclass)
+            request.header.id = random.randint(1,65535)
+            handler = DNSHandler
+            handler.protocol = 'udp'
+            handler.client_address = '\'PREFETCHER\''
+            _ = do_query(request, handler, True)
+            #ttl = reply.rr[0].ttl
+            #if orgttl > ttl:
+            #    to_cache(qname, qclass, qtype, reply, True, orgttl)
+            return True
 
     return False
 
@@ -1109,31 +1097,54 @@ def to_cache(qname, qclass, qtype, reply, force, newttl):
 
     return True
 
+
+# get list of purgable items
+def cache_expired_list():
+    return list(dict((k,v) for k,v in cache.items() if v[1] - int(time.time()) < 1).keys())
+
+
+# Get list of prefetchable items
+def cache_prefetch_list():
+    now = int(time.time())
+    return list(dict((k,v) for k,v in cache.items() if v[1] - now < int(v[4] / prefetchgettime) and v[3] >= int((v[4] / prefetchhitrate) - ((v[1] - now) / prefetchhitrate))).keys())
+
+
 # Purge cache
 def cache_purge():
+    global cache_maintenance_busy
+    global cache_maintenance_now
+
+    if cache_maintenance_busy:
+        return False
+
+    log_info('CACHE-MAINT: Start')
+
+    cache_maintenance_busy = True
     cache_maintenance_now = False
+
+    # Remove old pending
+    for p in list(dict((k,v) for k,v in pending.items() if int(time.time()) - v > 10).keys()):
+        timestamp = pending.get(p, False)
+        if timestamp and int(time.time()) - timestamp > 10: #Seconds
+            del pending[p]
 
     before = len(cache)
 
+    # Prefetch
+    for queryhash in cache_prefetch_list():
+        prefetch_it(queryhash)
+
     # Remove expired entries
-    for queryhash in list(cache.keys()):
+    for queryhash in cache_expired_list():
         record = cache.get(queryhash, defaultlist)
         expire = record[1]
-        hits = record[3]
         now = int(time.time())
         ttlleft = expire - now
         orgttl = record[4]
-        if prefetch and prefetch_it(queryhash):
-            # Everything is done in "prefetch_it" already
-            _ = 1 # Dummy
-        elif ttlleft < 1:
-            log_info('CACHE-MAINT-EXPIRED: ' + record[2] + ' (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
-            del_cache_entry(queryhash)
-        elif ttlleft > maxttl:
-            log_info('CACHE-TTL-ADJUST: ' + record[2] + ' (NEW-TTL:' + str(ttlleft) + ' -> ' + str(maxttl) + ')')
-            cache[queryhash][1] = now + maxttl
+        log_info('CACHE-MAINT-EXPIRED: ' + record[2] + ' (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
+        del_cache_entry(queryhash)
 
-    # Prune cache back to cachesize, removing least TTL first
+    # Prune cache back to cachesize, removing lowest TTLs first
     size = len(cache)
     if (size > cachesize):
         expire = dict()
@@ -1150,6 +1161,10 @@ def cache_purge():
     if before != after:
         log_info('CACHE-STATS: purged ' + str(before - after) + ' entries, ' + str(after) + ' left in cache')
         save_cache(cachefile)
+
+    log_info('CACHE-MAINT: Finish')
+
+    cache_maintenance_busy = False
 
     return True
 
@@ -1354,9 +1369,11 @@ if __name__ == "__main__":
         while True:
             time.sleep(1) # Seconds
             count += 1
-            if cache_maintenance_now or count > 4: # Every 5 seconds
-                count = 0
-                cache_purge()
+
+            if not cache_maintenance_busy:
+                if cache_maintenance_now or count >29 or cache_expired_list() or cache_prefetch_list():
+                    count = 0
+                    cache_purge()
 
     except (KeyboardInterrupt, SystemExit):
         pass
