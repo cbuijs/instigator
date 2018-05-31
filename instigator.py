@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.79-20180531 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.82-20180531 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -15,10 +15,8 @@ This is a little study to build a DNS server in Python including some features:
 
 TODO:
 - Loads ...
-- Logging only option for blacklists
-- Make checking for responses optional/toggable
+- Logging only option (no blocking)
 - Listen on IPv6 or use IPv6 as transport (need help!)
-- Add hit-count to cache for better hit-ratio/maintenance and possible prefetch (backburner)
 - Better Documentation / Remarks / Comments
 
 =========================================================================================
@@ -119,10 +117,10 @@ if debug:
     maxttl = cachettl # Seconds
     rcodettl = minttl # Seconds - For return-codes caching
 else:
-    cachettl = 1800 # Seconds - For filtered/blacklisted/alias entry caching
-    minttl = 60 # Seconds
-    maxttl = 3600 # Seconds
-    rcodettl = 30 # Seconds - For return-codes caching
+    cachettl = 900 # Seconds - For filtered/blacklisted/alias entry caching
+    minttl = 30 # Seconds
+    maxttl = 1800 # Seconds
+    rcodettl = 15 # Seconds - For return-codes caching
 
 # Check responses
 checkresponse = True # When False, only queries are checked and responses are ignored (passthru)
@@ -445,7 +443,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
         reply = query.reply()
         reply.header.id = id
         reply.header.rcode = getattr(RCODE, 'SERVFAIL')
-        del pending[uid]
+        _ = pending.pop(uid, None)
         return reply
 
     # Lets process response
@@ -477,6 +475,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                     log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
                     reply = generate_response(request, qname, qtype, redirect_addrs, force)
                     break
+
                 else:
                     log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
 
@@ -502,7 +501,8 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
     # Stash in cache
     to_cache(qname, 'IN', qtype, reply, force, False)
 
-    del pending[uid]
+    _ = pending.pop(uid, None)
+
     return reply
 
 
@@ -789,7 +789,7 @@ def rev_ip(cidr):
             cut = int(int(bits) / 8)
             arpa = '.'.join('.'.join(ip.split('.')[:cut]).split('.')[::-1]) + '.in-addr.arpa'  # Add IPv4 in-addr.arpa
         else:
-            arpa = 'Trash'
+            arpa = 'dummy-' + cidr
 
     else:
         a = ip.replace(':', '')
@@ -861,13 +861,13 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 elif ipregex4.search(entry):
                     fetched += 1
                     iplist4[entry] = id
-                    domlist[rev_ip(entry)] = entry + ' - ' + id
+                    domlist[rev_ip(entry)] = 'Auto-Reverse ' + entry + ' - ' + id
 
                 # IPV6
                 elif ipregex6.search(entry):
                     fetched += 1
                     iplist6[entry] = id
-                    domlist[rev_ip(entry)] = entry + ' - ' + id
+                    domlist[rev_ip(entry)] = 'Auto-Reverse ' + entry + ' - ' + id
 
                 #### !!! From here on there are functional entries, which are always condidered "whitelist"
                 # ALIAS - domain.com=ip or domain.com=otherdomain.com
@@ -950,10 +950,9 @@ def normalize_ttl(qname, rr):
             if len(rr) == 1:
                 ttl = rr[0].ttl
             else:
-                #ttllow = min(x.ttl for x in rr) # Get lowest TTL
-                #ttlhigh = max(x.ttl for x in rr) # get highest TTL
-                #ttl = int((ttllow + ttlhigh) / 2) # mean TTL
-                ttl = int(sum(x.ttl for x in rr) / len(rr)) # Average TTL
+                ttl = min(x.ttl for x in rr) # Lowest TTL
+                #ttl = max(x.ttl for x in rr) # Highest TTL
+                #ttl = int(sum(x.ttl for x in rr) / len(rr)) # Average TTL
 
             if ttl < minttl:
                 ttl = minttl
@@ -993,14 +992,12 @@ def prefetch_it(queryhash):
             log_info('CACHE-PREFETCH: ' + queryname + ' ' + rcode + ' (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + ')')
             qname, qclass, qtype = queryname.split('/')
             request = DNSRecord.question(qname, qtype, qclass)
+            #request.header.id = 0 # !!! TEST
             request.header.id = random.randint(1,65535)
             handler = DNSHandler
             handler.protocol = 'udp'
             handler.client_address = '\'PREFETCHER\''
-            _ = do_query(request, handler, True)
-            #ttl = reply.rr[0].ttl
-            #if orgttl > ttl:
-            #    to_cache(qname, qclass, qtype, reply, True, orgttl)
+            _ = do_query(request, handler, True) # Query and update cache
             return True
 
     return False
@@ -1100,7 +1097,8 @@ def to_cache(qname, qclass, qtype, reply, force, newttl):
 
 # get list of purgable items
 def cache_expired_list():
-    return list(dict((k,v) for k,v in cache.items() if v[1] - int(time.time()) < 1).keys())
+    now = int(time.time())
+    return list(dict((k,v) for k,v in cache.items() if v[1] - now < 1).keys())
 
 
 # Get list of prefetchable items
@@ -1126,7 +1124,8 @@ def cache_purge():
     for p in list(dict((k,v) for k,v in pending.items() if int(time.time()) - v > 10).keys()):
         timestamp = pending.get(p, False)
         if timestamp and int(time.time()) - timestamp > 10: #Seconds
-            del pending[p]
+            log_info('PENDING: Removed stale UID ' + str(p))
+            _ = pending.pop(d, None)
 
     before = len(cache)
 
@@ -1324,6 +1323,7 @@ if __name__ == "__main__":
     logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=False)
     udp_dns_server = dict()
     tcp_dns_server = dict()
+    handler = DNSHandler
     for listen in listen_on:
         if ipportregex.search(listen):
             elements = listen.split('@')
@@ -1337,7 +1337,7 @@ if __name__ == "__main__":
             log_info('Starting DNS Service on ' + listen_address + ' at port ' + str(listen_port) + ' ...')
 
             # Define Service
-            handler = DNSHandler
+            #handler = DNSHandler
             if ipregex6.search(listen_address):
                 log_info('LISTENING on IPv6 not supported yet!')
                 serverhash = False
@@ -1363,6 +1363,7 @@ if __name__ == "__main__":
                     log_err('DNS Service did not start, aborting ...')
                     sys.exit(1)
 
+
     # Keep things running
     count = 0
     try:
@@ -1371,12 +1372,13 @@ if __name__ == "__main__":
             count += 1
 
             if not cache_maintenance_busy:
-                if cache_maintenance_now or count >29 or cache_expired_list() or cache_prefetch_list():
+                if cache_maintenance_now or count > 29 or cache_expired_list() or cache_prefetch_list():
                     count = 0
                     cache_purge()
 
     except (KeyboardInterrupt, SystemExit):
         pass
+
 
     for listen in listen_on:
         if ipportregex.search(listen):
