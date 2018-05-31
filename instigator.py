@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.82-20180531 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.83-20180531 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -18,6 +18,10 @@ TODO:
 - Logging only option (no blocking)
 - Listen on IPv6 or use IPv6 as transport (need help!)
 - Better Documentation / Remarks / Comments
+- Optimize code for better cache/resolution performance
+- Switch to dnspython or more modern lib as DNS 'engine' (backburner or seperate project)
+- DNSSEC support (validation only)
+- Itterative resolution besides only forwarding (as is today)
 
 =========================================================================================
 '''
@@ -60,12 +64,12 @@ listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
 # Forwarding queries to
 forward_timeout = 2 # Seconds
 forward_servers = dict()
-#forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare
+#forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
 forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
-#forward_servers['.'] = list(['8.8.8.8@53','8.8.4.4@53']) # DEFAULT Google
-#forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9
+#forward_servers['.'] = list(['8.8.8.8@53','8.8.4.4@53']) # DEFAULT Google !!! TTLs inconsistent !!!
+#forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['208.67.222.222@443','208.67.220.220@443', '208.67.222.220@443', '208.67.220.222@443']) # DEFAULT OpenDNS
 #forward_servers['.'] = list(['208.67.222.123@443','208.67.220.123@443']) # DEFAULT OpenDNS FamilyShield
 #forward_servers['.'] = list(['8.26.56.26@53','8.20.247.20@53']) # DEFAULT Comodo
