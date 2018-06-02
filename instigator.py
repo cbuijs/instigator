@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.83-20180531 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.84-20180601 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -200,7 +200,7 @@ ipportregex6 = regex.compile('^' + ip6portregex_text + '$', regex.I)
 ipportregex = regex.compile('^(' + ip4portregex_text + '|' + ip6portregex_text + ')$', regex.I)
 
 # Regex to match domains/hosts in lists
-isdomain = regex.compile('^[a-z0-9\.\-\_]+$', regex.I) # Based on RFC1035 plus underscore
+isdomain = regex.compile('^[a-z0-9\.\_\-]+$', regex.I) # Based on RFC1035 plus underscore
 
 # Regex to filter regexes out
 isregex = regex.compile('^/.*/$')
@@ -1252,9 +1252,9 @@ def do_query(request, handler, force):
         use_tcp = True
 
     qname = normalize_dom(request.q.qname)
-
     qclass = CLASS[request.q.qclass].upper()
     qtype = QTYPE[request.q.qtype].upper()
+
     queryname = qname + '/' + qclass + '/' + qtype
 
     log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ' for ' + queryname + ' (' + handler.protocol.upper() + ')')
@@ -1265,7 +1265,12 @@ def do_query(request, handler, force):
         reply = from_cache(qname, qclass, qtype, rid)
 
     if reply == None:
-        if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
+        if not isdomain.search(qname):
+            log_err('REQUEST [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' SERVFAIL - INVALID SYNTAX (' + handler.protocol.upper() + ')')
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+
+        elif qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
             log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' NOTIMP (' + handler.protocol.upper() + ')')
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
