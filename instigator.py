@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.85-20180603 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.9-20180604 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -126,6 +126,9 @@ else:
     maxttl = 1800 # Seconds
     rcodettl = 15 # Seconds - For return-codes caching
 
+# Filtering on or off
+filtering = True
+
 # Check responses
 checkresponse = True # When False, only queries are checked and responses are ignored (passthru)
 
@@ -150,6 +153,9 @@ else:
     prefetch = True
     prefetchgettime = 5 # Fetch at 1/5-th of TTL time
     prefetchhitrate = 30 # 1 cache-hit per 30 seconds needed to get prefetched
+
+# Command TLD to interpert as instructions, only allowed from localhost
+command = 'command'
 
 # List Dictionaries
 wl_dom = dict() # Domain whitelist
@@ -943,9 +949,10 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
 def normalize_ttl(qname, rr):
     if rr and len(rr) > 0:
         overridettl = False
-        newttl = in_domain(qname, ttls)
-        if newttl:
-            overridettl = ttls.get(newttl, False)
+        if filtering:
+            newttl = in_domain(qname, ttls)
+            if newttl:
+                overridettl = ttls.get(newttl, False)
         
         if overridettl:
             log_info('TTL-HIT: Setting TTL for ' + qname + ' (' + newttl + ') to ' + str(overridettl))
@@ -954,9 +961,9 @@ def normalize_ttl(qname, rr):
             if len(rr) == 1:
                 ttl = rr[0].ttl
             else:
-                ttl = min(x.ttl for x in rr) # Lowest TTL
+                #ttl = min(x.ttl for x in rr) # Lowest TTL
                 #ttl = max(x.ttl for x in rr) # Highest TTL
-                #ttl = int(sum(x.ttl for x in rr) / len(rr)) # Average TTL
+                ttl = int(sum(x.ttl for x in rr) / len(rr)) # Average TTL
 
             if ttl < minttl:
                 ttl = minttl
@@ -1203,7 +1210,7 @@ def id_str(id):
 
 
 def collapse_cname(request, reply, rid):
-    if reply.rr:
+    if filtering and reply.rr:
         firstqtype = QTYPE[reply.rr[0].rtype].upper()
         if firstqtype == 'CNAME':
             qname = normalize_dom(reply.rr[0].rname)
@@ -1231,6 +1238,26 @@ def collapse_cname(request, reply, rid):
                 reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
 
     return reply
+
+
+def execute_command(qname):
+    global filtering
+
+    qname = regex.sub('\.' + command + '$', '', qname)
+    log_info('COMMAND: ' + qname)
+    if qname in ('flush', 'pause', 'resume'):
+        now = int(time.time())
+        for i in list(cache.keys()):
+            cache[i][1] = now
+        cache_purge()
+        if qname == 'resume':
+            filtering = True
+        elif qname == 'pause':
+            filtering = False
+        return True
+
+    log_info('COMMAND: ' + qname + ' UNKNOWN/FAILED')
+    return False
 
 
 def seen_it(name, seen):
@@ -1261,7 +1288,18 @@ def do_query(request, handler, force):
 
     # Quick response when in cache
     reply = None
-    if not force:
+
+    if command and qname.endswith('.' + command):
+        reply = request.reply()
+        if cip in ('127.0.0.1', '::1'):
+            if execute_command(qname):
+                reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+            else:
+                reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+        else:
+            reply.header.rcode = getattr(RCODE, 'REFUSED')
+
+    if reply == None and (not force):
         reply = from_cache(qname, qclass, qtype, rid)
 
     if reply == None:
@@ -1275,23 +1313,27 @@ def do_query(request, handler, force):
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
 
-        elif blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
+        elif filtering and blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
             log_info('IPV6-HIT: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
-        elif qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
+        elif filtering and qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
             reply = generate_alias(request, qname, qtype, use_tcp, force)
 
         else:
-            ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
-            if ismatch == True: # Blacklisted
-                reply = generate_response(request, qname, qtype, redirect_addrs, force)
+            if filtering:
+                ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
+                if ismatch == True: # Blacklisted
+                    reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
-            else:
-                if ismatch == None and checkresponse:
-                    reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
                 else:
-                    reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, True, force)
+                    if ismatch == None and checkresponse:
+                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
+                    else:
+                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, True, force)
+            else:
+                reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, False, force)
+
 
     log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
 
@@ -1322,6 +1364,8 @@ if __name__ == "__main__":
                 bl_dom, bl_ip4, bl_ip6, bl_rx, _, _, _ = read_list(lists[lst], lst, 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(), dict(), dict())
 
         save_lists(savefile)
+
+    wl_dom[command] = 'Command-TLD'
 
     log_total()
 
