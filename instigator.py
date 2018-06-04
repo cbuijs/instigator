@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.9-20180604 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.92-20180604 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1245,11 +1245,19 @@ def execute_command(qname):
 
     qname = regex.sub('\.' + command + '$', '', qname)
     log_info('COMMAND: ' + qname)
-    if qname in ('flush', 'pause', 'resume'):
+    if qname in ('flush', 'pause', 'resume', 'show'):
         now = int(time.time())
-        for i in list(cache.keys()):
-            cache[i][1] = now
-        cache_purge()
+        if qname == 'show':
+            count = 0
+            total = str(len(cache))
+            for i in list(cache.keys()):
+                count += 1
+                log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' (TTL-LEFT:' + str(cache[i][1] - now) + '/' + str(cache[i][4]) + ')')
+        else:
+            for i in list(cache.keys()):
+                cache[i][1] = now
+            cache_purge()
+
         if qname == 'resume':
             filtering = True
         elif qname == 'pause':
