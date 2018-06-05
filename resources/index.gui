@@ -1,0 +1,37 @@
+<svg>
+  <rect id="background" />
+  <text id="txtWeather" class="weather-text">...</text>
+  <rect class="divider divider-one" />
+  <text id="txtBattery" class="battery-text">0%</text>
+  <rect class="divider divider-two" />
+  <text id="txtTime" class="clock-text">00:00</text>
+  <rect class="divider divider-three" />
+  <text id="txtDate" class="date-text">Sun 01 Jan</text>
+  <rect class="divider divider-four" />
+  <svg class="stats">
+    <use id="iconHRM" href="#heart-beat" />
+    <text id="txtHRM" class="stat-left" />
+    <use id="stats-cycle" href="#cycleview">
+      <use href="#cycleview-item" class="cycle-item">
+        <image href="images/steps.png" class="image" />
+        <text class="stat-right" />
+      </use>
+      <use href="#cycleview-item" class="cycle-item">
+        <image href="images/calories.png" class="image" />
+        <text class="stat-right" />
+      </use>
+      <use href="#cycleview-item" class="cycle-item">
+        <image href="images/distance.png" class="image" />
+        <text class="stat-right" />
+      </use>
+      <use href="#cycleview-item" class="cycle-item">
+        <image href="images/floors.png" class="image" />
+        <text class="stat-right" />
+      </use>
+      <use href="#cycleview-item" class="cycle-item">
+        <image href="images/active_minutes.png" class="image" />
+        <text class="stat-right" />
+      </use>
+    </use>
+  </svg>
+</svg>
