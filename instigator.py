@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.93-20180604 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.95-20180604 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -668,7 +668,7 @@ def load_cache(file):
             log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
             return False
 
-        cache_purge()
+        cache_purge(False)
 
     else:
         log_info('CACHE-LOAD: Skip loading cache from \"' + file + '\" - non-existant or older then ' + str(maxfileage) + ' seconds')
@@ -1119,7 +1119,7 @@ def cache_prefetch_list():
 
 
 # Purge cache
-def cache_purge():
+def cache_purge(flushall):
     global cache_maintenance_busy
     global cache_maintenance_now
 
@@ -1145,10 +1145,18 @@ def cache_purge():
         prefetch_it(queryhash)
 
     # Remove expired entries
-    for queryhash in cache_expired_list():
+    if flushall:
+        lst = list(cache.keys())
+    else:
+        lst = cache_expired_list()
+
+    for queryhash in lst:
         record = cache.get(queryhash, defaultlist)
-        expire = record[1]
         now = int(time.time())
+        if flushall:
+            expire = now
+        else:
+            expire = record[1]
         ttlleft = expire - now
         orgttl = record[4]
         log_info('CACHE-MAINT-EXPIRED: ' + record[2] + ' (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
@@ -1244,24 +1252,30 @@ def execute_command(qname):
     global filtering
 
     qname = regex.sub('\.' + command + '$', '', qname)
+
     log_info('COMMAND: ' + qname)
+
     if qname in ('flush', 'pause', 'resume', 'show'):
         now = int(time.time())
+
         if qname == 'show':
             count = 0
             total = str(len(cache))
             for i in list(cache.keys()):
                 count += 1
-                log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' [' + str(cache[i][3]) + ' Hits] (TTL-LEFT:' + str(cache[i][1] - now) + '/' + str(cache[i][4]) + ')')
+                record = cache.get(i, defaultlist)
+                if record[0] != None:
+                    log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' [' + str(record[3]) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
+
         else:
-            for i in list(cache.keys()):
-                cache[i][1] = now
-            cache_purge()
+            cache_purge(True)
 
         if qname == 'resume':
             filtering = True
+
         elif qname == 'pause':
             filtering = False
+
         return True
 
     log_info('COMMAND: ' + qname + ' UNKNOWN/FAILED')
@@ -1435,7 +1449,7 @@ if __name__ == "__main__":
             if not cache_maintenance_busy:
                 if cache_maintenance_now or count > 29 or cache_expired_list() or cache_prefetch_list():
                     count = 0
-                    cache_purge()
+                    cache_purge(False)
 
     except (KeyboardInterrupt, SystemExit):
         pass
