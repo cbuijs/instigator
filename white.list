@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1528535717                  ###
+### Version: 1528561266                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -5233,7 +5233,6 @@ gba.gi	Shalla-Banking
 goo.gl	Chris-White
 cbg.gm	Shalla-Banking
 trustbank.gm	Shalla-Banking
-goog	Chris-White
 gov	Chris-White
 bdaf.gp	Shalla-Banking
 alpha.gr	Shalla-Banking
@@ -6177,7 +6176,6 @@ icba.nm.org	Shalla-Banking
 nmmba.org	Shalla-Banking
 notabug.org	Chris-White
 nothink.org	Chris-White
-ntp.org	Chris-Exclude
 ohiomba.org	Shalla-Banking
 orx.org	Shalla-Banking
 pacb.org	Shalla-Banking
@@ -7774,7 +7772,7 @@ AS2906	Chris-ASN-White
 23.8.80.0/20	Chris-ASN-White-AS20940
 23.8.96.0/19	Chris-ASN-White-AS16625
 23.8.224.0/20	Chris-ASN-White-AS16625
-23.9.0.0/20	Chris-ASN-White-AS16625
+23.9.0.0/19	Aggregated
 23.9.80.0/20	Chris-ASN-White-AS16625
 23.9.96.0/20	Chris-ASN-White-AS16625
 23.9.128.0/18	Aggregated
@@ -9684,7 +9682,7 @@ AS2906	Chris-ASN-White
 104.102.26.0/24	Chris-ASN-White-AS20940
 104.102.241.0/24	Chris-ASN-White-AS20940
 104.102.244.0/24	Chris-ASN-White-AS20940
-104.102.246.0/23	Chris-ASN-White-AS20940
+104.102.247.0/24	Chris-ASN-White-AS20940
 104.103.32.0/19	Chris-ASN-White-AS16625
 104.103.64.0/22	Chris-ASN-White-AS16625
 104.103.68.0/23	Chris-ASN-White-AS16625
