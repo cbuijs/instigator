@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.96-20180609 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.961-20180609 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -31,7 +31,8 @@ import sys
 sys.path.append("/usr/local/lib/python3.5/dist-packages/")
 
 # Standard modules
-import os, time, socket, shelve, dbm
+import os, time, socket, shelve, dbm, gc
+gc.enable() # Enable garbage collection
 
 # Random
 import random
@@ -1003,6 +1004,8 @@ def prefetch_it(queryhash):
             hitsneeded = int(orgttl / prefetchhitrate)
 
             log_info('CACHE-PREFETCH: ' + queryname + ' ' + rcode + ' [' + str(hits) + '/' + str(hitsneeded) + ' hits] (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + ')')
+
+            _ = cache.pop(queryhash, defaultlist)
             qname, qclass, qtype = queryname.split('/')
             request = DNSRecord.question(qname, qtype, qclass)
             #request.header.id = 0 # !!! TEST
