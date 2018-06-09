@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.961-20180609 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.965-20180609 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1191,6 +1191,8 @@ def cache_purge(flushall):
         save_cache(cachefile)
 
     log_info('CACHE-MAINT: Finish')
+
+    gc.collect();
 
     cache_maintenance_busy = False
 
