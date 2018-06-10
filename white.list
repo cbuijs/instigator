@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1528561266                  ###
+### Version: 1528622040                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -9682,7 +9682,7 @@ AS2906	Chris-ASN-White
 104.102.26.0/24	Chris-ASN-White-AS20940
 104.102.241.0/24	Chris-ASN-White-AS20940
 104.102.244.0/24	Chris-ASN-White-AS20940
-104.102.247.0/24	Chris-ASN-White-AS20940
+104.102.246.0/23	Chris-ASN-White-AS20940
 104.103.32.0/19	Chris-ASN-White-AS16625
 104.103.64.0/22	Chris-ASN-White-AS16625
 104.103.68.0/23	Chris-ASN-White-AS16625
