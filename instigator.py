@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.965-20180609 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.966-20180613 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -148,12 +148,12 @@ blockv6 = True
 # Prefetch
 if debug:
     prefetch = True
-    prefetchgettime = 2
-    prefetchhitrate = 3
+    prefetchgettime = 3
+    prefetchhitrate = 10
 else:
     prefetch = True
-    prefetchgettime = 5 # Fetch at 1/5-th of TTL time
-    prefetchhitrate = 30 # 1 cache-hit per 30 seconds needed to get prefetched
+    prefetchgettime = 5 # Fetch at 1/x-th of TTL time
+    prefetchhitrate = 120 # 1 cache-hit per xx seconds needed to get prefetched
 
 # Command TLD to interpert as instructions, only allowed from localhost
 command = 'command'
@@ -967,7 +967,8 @@ def normalize_ttl(qname, rr):
                 ttl = int(sum(x.ttl for x in rr) / len(rr)) # Average TTL
 
             if ttl < minttl:
-                ttl = minttl
+                #ttl = minttl
+                ttl = ttl + minttl
             elif ttl > maxttl:
                 ttl = maxttl
 
@@ -1001,7 +1002,7 @@ def prefetch_it(queryhash):
             queryname = record[2]
             hits = record[3]
             orgttl = record[4]
-            hitsneeded = int(orgttl / prefetchhitrate)
+            hitsneeded = int(round(orgttl / prefetchhitrate))
 
             log_info('CACHE-PREFETCH: ' + queryname + ' ' + rcode + ' [' + str(hits) + '/' + str(hitsneeded) + ' hits] (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + ')')
 
@@ -1033,7 +1034,7 @@ def from_cache(qname, qclass, qtype, id):
     # If expired, remove from cache
     if ttl < 1:
         orgttl = cacheentry[4]
-        hitsneeded = int(orgttl / prefetchhitrate)
+        hitsneeded = int(round(orgttl / prefetchhitrate))
         rcode = str(RCODE[cacheentry[0].header.rcode])
         log_info('CACHE-EXPIRED: ' + cacheentry[2] + ' ' + rcode + ' [' + str(cacheentry[3]) + '/' + str(hitsneeded) + ' hits]' + ' (TTL-EXPIRED:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
         del_cache_entry(queryhash)
@@ -1065,9 +1066,9 @@ def from_cache(qname, qclass, qtype, id):
             reply.rr[0].ttl = ttl
           
         if len(reply.rr) > 0:
-            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(len(reply.rr)) + ' RRs for ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + ')')
+            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(len(reply.rr)) + ' RRs for ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
         else:
-            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(RCODE[reply.header.rcode]) + ' for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + ')')
+            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(RCODE[reply.header.rcode]) + ' for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
 
         return reply
 
@@ -1123,7 +1124,10 @@ def cache_expired_list():
 # Get list of prefetchable items
 def cache_prefetch_list():
     now = int(time.time())
-    return list(dict((k,v) for k,v in cache.items() if v[3] > 1 and v[1] - now < int(v[4] / prefetchgettime) and v[3] >= int((v[4] / prefetchhitrate) - ((v[1] - now) / prefetchhitrate))).keys())
+    # Formula: At least 2 cache-hits, hirate > 0 and hits are above/equal hitrate
+    # value list entries: 0:reply - 1:expire - 2:qname/class/type - 3:hits - 4:orgttl
+    #return list(dict((k,v) for k,v in cache.items() if v[3] > 1 and v[1] - now < int(v[4] / prefetchgettime) and v[3] >= int((v[4] / prefetchhitrate) - ((v[1] - now) / prefetchhitrate))).keys())
+    return list(dict((k,v) for k,v in cache.items() if v[3] > 1 and int(round(v[4] / prefetchhitrate)) > 0 and v[1] - now < int(round(v[4] / prefetchgettime)) and v[3] >= int((round(v[4] / prefetchhitrate)) - (round((v[1] - now) / prefetchhitrate)))).keys())
 
 
 # Purge cache
@@ -1167,7 +1171,7 @@ def cache_purge(flushall):
             expire = record[1]
         ttlleft = expire - now
         orgttl = record[4]
-        hitsneeded = int(orgttl / prefetchhitrate)
+        hitsneeded = int(round(orgttl / prefetchhitrate))
         rcode = str(RCODE[record[0].header.rcode])
         log_info('CACHE-MAINT-EXPIRED: ' + record[2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' hits] (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
         del_cache_entry(queryhash)
