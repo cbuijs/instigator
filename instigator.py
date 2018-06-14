@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.966-20180613 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.97-20180614 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -142,7 +142,8 @@ roundrobin = True
 # Collapse/Flatten CNAME Chains
 collapse = True
 
-# Block IPv6 based queries
+# Block IPV4 or IPv6 based queries
+blockv4 = False
 blockv6 = True
 
 # Prefetch
@@ -267,25 +268,24 @@ def match_blacklist(rid, type, rrtype, value, log):
     itisanip = False
     itisadomain = False
 
-    if type == 'REPLY' and rrtype in ('A', 'AAAA'):
-        itisanip = True
-    else:
-        if type == 'REPLY':
-            field = False
-            #if rrtype in ('CNAME', 'NS', 'PTR', 'SOA') and isdomain.search(testvalue):
-            if rrtype in ('CNAME', 'NS', 'PTR', 'SOA'):
-                field = 0
-            elif type == 'MX':
-                field = 1
-            elif type == 'SRV':
-                field = 2
-
-            if field:
-                testvalue = normalize_dom(regex.split('\s+', testvalue)[field])
-                itisadomain = True
-
+    if type == 'REPLY':
+        if rrtype in ('A', 'AAAA'):
+            itisanip = True
         else:
-            itisadomain = True
+          field = False
+          if rrtype in ('CNAME', 'NS', 'PTR', 'SOA'):
+              field = 0
+          elif type == 'MX':
+              field = 1
+          elif type == 'SRV':
+              field = 2
+
+          if field:
+              testvalue = normalize_dom(regex.split('\s+', testvalue)[field])
+              itisadomain = True
+
+    else:
+        itisadomain = True
 
     if itisadomain:
         if (testvalue in wl_dom):
@@ -482,7 +482,13 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                 qlog = seen_it(rqname, seen)
                 dlog = seen_it(data, seen)
 
-                if (qlog and match_blacklist(id, 'REQUEST', rqtype, rqname, qlog)) or (dlog and match_blacklist(id, 'REPLY', rqtype, data, dlog)):
+                blockit = False
+                if (qlog and match_blacklist(id, 'REQUEST', rqtype, rqname, qlog)):
+                    blockit = True
+                elif (dlog and match_blacklist(id, 'REPLY', rqtype, data, dlog)):
+                    blockit = True
+
+                if blockit:
                     log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
                     reply = generate_response(request, qname, qtype, redirect_addrs, force)
                     break
@@ -1126,7 +1132,6 @@ def cache_prefetch_list():
     now = int(time.time())
     # Formula: At least 2 cache-hits, hirate > 0 and hits are above/equal hitrate
     # value list entries: 0:reply - 1:expire - 2:qname/class/type - 3:hits - 4:orgttl
-    #return list(dict((k,v) for k,v in cache.items() if v[3] > 1 and v[1] - now < int(v[4] / prefetchgettime) and v[3] >= int((v[4] / prefetchhitrate) - ((v[1] - now) / prefetchhitrate))).keys())
     return list(dict((k,v) for k,v in cache.items() if v[3] > 1 and int(round(v[4] / prefetchhitrate)) > 0 and v[1] - now < int(round(v[4] / prefetchgettime)) and v[3] >= int((round(v[4] / prefetchhitrate)) - (round((v[1] - now) / prefetchhitrate)))).keys())
 
 
@@ -1350,6 +1355,10 @@ def do_query(request, handler, force):
             log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' NOTIMP (' + handler.protocol.upper() + ')')
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
+
+        elif filtering and blockv4 and (qtype == 'A' or qname.endswith('.in-addr.arpa')):
+            log_info('IPV4-HIT: ' + queryname)
+            reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
         elif filtering and blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
             log_info('IPV6-HIT: ' + queryname)
