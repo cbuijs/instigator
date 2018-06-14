@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.97-20180614 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.975-20180614 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -266,34 +266,11 @@ def match_blacklist(rid, type, rrtype, value, log):
     testvalue = value
 
     itisanip = False
-    itisadomain = False
-
     if type == 'REPLY':
         if rrtype in ('A', 'AAAA'):
             itisanip = True
         else:
-          field = False
-          if rrtype in ('CNAME', 'NS', 'PTR', 'SOA'):
-              field = 0
-          elif type == 'MX':
-              field = 1
-          elif type == 'SRV':
-              field = 2
-
-          if field:
-              testvalue = normalize_dom(regex.split('\s+', testvalue)[field])
-              itisadomain = True
-
-    else:
-        itisadomain = True
-
-    if itisadomain:
-        if (testvalue in wl_dom):
-            if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\" (' + wl_dom[testvalue] + ')')
-            return False
-        elif testvalue in bl_dom:
-            if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + testvalue + '\" (' + bl_dom[testvalue] + ')')
-            return True
+            testvalue = normalize_dom(regex.split('\s+', testvalue)[-1])
 
     # Check against IP-Lists
     if itisanip:
@@ -319,22 +296,19 @@ def match_blacklist(rid, type, rrtype, value, log):
             return True
         elif prefix:
             if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + wip[prefix] + ')')
-
             return False
 
     # Check against Sub-Domain-Lists
-    elif itisadomain and testvalue.find('.') > 0:
-        testvalue = testvalue[testvalue.find('.') + 1:]
-        if testvalue:
-            wl_found = in_domain(testvalue, wl_dom)
-            if wl_found != False:
-                if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
-                return False
-            else:
-                bl_found = in_domain(testvalue, bl_dom)
-                if bl_found != False:
-                    if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
-                    return True
+    elif testvalue.find('.') > 0 and isdomain.search(testvalue):
+        wl_found = in_domain(testvalue, wl_dom)
+        if wl_found != False:
+            if log: log_info('WHITELIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
+            return False
+        else:
+            bl_found = in_domain(testvalue, bl_dom)
+            if bl_found != False:
+                if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
+                return True
     
     # Check agains Regex-Lists
     for i in wl_rx.keys():
@@ -464,9 +438,6 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
             replycount = 0
             replynum = len(reply.rr)
 
-            seen = set()
-            seen.add(qname)
-
             for record in reply.rr:
                 replycount += 1
 
@@ -479,14 +450,18 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
 
                 data = normalize_dom(record.rdata)
 
-                qlog = seen_it(rqname, seen)
-                dlog = seen_it(data, seen)
-
                 blockit = False
-                if (qlog and match_blacklist(id, 'REQUEST', rqtype, rqname, qlog)):
+                matchreq = match_blacklist(id, 'CHAIN', rqtype, rqname, True)
+                if matchreq == False:
+                    break
+                elif matchreq == True:
                     blockit = True
-                elif (dlog and match_blacklist(id, 'REPLY', rqtype, data, dlog)):
-                    blockit = True
+                else:
+                    matchrep = match_blacklist(id, 'REPLY', rqtype, data, True)
+                    if matchrep == False:
+                        break
+                    elif matchrep == True:
+                        blockit = True
 
                 if blockit:
                     log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
@@ -1306,6 +1281,7 @@ def execute_command(qname):
 def seen_it(name, seen):
     if name not in seen:
         seen.add(name)
+    else:
         return True
 
     return False
