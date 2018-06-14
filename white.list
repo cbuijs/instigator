@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1528983052                  ###
+### Version: 1529011397                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -650,7 +650,7 @@ altajirbank.com	Shalla-Banking
 altbank.com	Adguard-Banks
 amanath-bank.com	Shalla-Banking
 amazon.com	Chris-White
-s3.amazonaws.com	Chris-White
+s3.amazonaws.com	Source
 ambfinancial.com	Shalla-Banking
 amco-bank.com	Shalla-Banking
 amcore.com	Shalla-Banking
@@ -5394,7 +5394,7 @@ beac.int	Shalla-Banking
 ecb.int	Shalla-Banking
 advertising.oriel.io	EasyList-White
 sbc.io	Chris-White
-suspect-networks.io	Chris-White
+suspect-networks.io	Source
 cbi.iq	Shalla-Banking
 ib.bank-maskan.ir	Adguard-Banks
 bankmellat.ir	Shalla-Banking
@@ -6056,7 +6056,7 @@ acams.org	Shalla-Banking
 acbankers.org	Shalla-Banking
 acbonline.org	Shalla-Banking
 adb.org	Shalla-Banking
-easylist-downloads.adblockplus.org	Chris-White
+easylist-downloads.adblockplus.org	Source
 adfiap.org	Shalla-Banking
 adtidy.org	Chris-White
 afdb.org	Shalla-Banking
@@ -7169,7 +7169,7 @@ ibank.tj	Adguard-Banks
 nbt.tj	Shalla-Banking
 bct.gov.tn	Shalla-Banking
 apbt.org.tn	Shalla-Banking
-easylist.to	Chris-White
+easylist.to	Source
 reservebank.to	Shalla-Banking
 abank.com.tr	Adguard-Banks
 3dsecure.akbank.com.tr	Adguard-Banks
