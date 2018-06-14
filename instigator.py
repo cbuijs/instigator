@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.975-20180614 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.977-20180614 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -114,6 +114,7 @@ cachefile = '/opt/instigator/cache.shelve'
 cachesize = 2048 # Entries
 cache_maintenance_now = False
 cache_maintenance_busy = False
+persistentcache = True
 
 # TTL Settings
 if debug:
@@ -619,6 +620,9 @@ def generate_alias(request, qname, qtype, use_tcp, force):
 
 
 def save_cache(file):
+    if not persistentcache:
+        return False
+
     log_info('CACHE-SAVE: Saving to \"' + file + '\"')
 
     try:
@@ -635,6 +639,9 @@ def save_cache(file):
 
 
 def load_cache(file):
+    if not persistentcache:
+        return False
+
     global cache
 
     age = file_exist(file, True)
@@ -1227,10 +1234,13 @@ def collapse_cname(request, reply, rid):
                     addr.append(ip)
 
             if len(addr) > 0:
-                log_info('REPLY [' + id_str(rid) + ']: COLLAPSE ' + qname + '/IN/CNAME')
                 reply = request.reply()
                 reply.header.rcode = getattr(RCODE, 'NOERROR')
+                count = 0
+                total = str(len(addr))
                 for ip in addr:
+                    count += 1
+                    log_info('REPLY [' + id_str(rid) + ':' + str(count) + '-' + total + ']: COLLAPSE ' + qname + '/IN/CNAME -> ' + str(ip))
                     if ip.find(':') == -1:
                         answer = RR(qname, QTYPE.A, ttl=ttl, rdata=A(ip))
                     else:
