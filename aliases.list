@@ -10,27 +10,27 @@
 # Note: don't use blanks/spaces in the definitions
 
 # SafeSearch Google
-#www.google.com=forcesafesearch.google.com
-#www.google.fr=forcesafesearch.google.com
-#www.google.nl=forcesafesearch.google.com
+www.google.com=forcesafesearch.google.com
+www.google.fr=forcesafesearch.google.com
+www.google.nl=forcesafesearch.google.com
 
 # SafeSearch Bing
-#www.bing.com=strict.bing.com
+www.bing.com=strict.bing.com
 
 # SafeSearch YouTube
-#www.youtube.com=restrictmoderate.youtube.com
-#m.youtube.com=restrictmoderate.youtube.com
-#youtubei.googleapis.com=restrictmoderate.youtube.com
-#youtube.googleapis.com=restrictmoderate.youtube.com
-#www.youtube-nocookie.com=restrictmoderate.youtube.com
+www.youtube.com=restrictmoderate.youtube.com
+m.youtube.com=restrictmoderate.youtube.com
+youtubei.googleapis.com=restrictmoderate.youtube.com
+youtube.googleapis.com=restrictmoderate.youtube.com
+www.youtube-nocookie.com=restrictmoderate.youtube.com
 
 # Lockdown NTP
 pool.ntp.org=north-america.pool.ntp.org
 
 # Forwarding example
-local>192.168.1.1
-1.168.192.in-addr.arpa>192.168.1.1
-frutch>192.168.1.1
+#local>192.168.1.1
+#1.168.192.in-addr.arpa>192.168.1.1
+#frutch>192.168.1.1
 #google.com>8.8.8.8@53,8.8.4.4@53
 #chrisbuijs.com>9.9.9.9@53,149.112.112.112@53
 
@@ -38,24 +38,24 @@ frutch>192.168.1.1
 localhost=127.0.0.1
 
 # Redirect Example
-walled.garden.redirect=192.168.1.250
+#walled.garden.redirect=192.168.1.250
 
 # Test examples
-chrisbuijs.com!666
-chrisbuijs.com>9.9.9.9,149.112.112.112
-test1.chrisbuijs.com=whahahaha.dahgfdg.tralalala
-test2.chrisbuijs.com=www.googleapis.com
-test3.chrisbuijs.com=4.3.2.1
-test4.chrisbuijs.com=NXDOMAIN
-test5.chrisbuijs.com=REFUSED
-test9.chrisbuijs.com=www.xs4all.nl
-www.test5.chrisbuijs.com=1.2.3.4
-company.com=REFUSED
-www.company.com=PASSTHRU
-test.company.com=www.googleapis.com
-.!99999999
-frutch!3600
-1.168.192.in-addr.arpa!3600
+#chrisbuijs.com!666
+#chrisbuijs.com>9.9.9.9,149.112.112.112
+#test1.chrisbuijs.com=whahahaha.dahgfdg.tralalala
+#test2.chrisbuijs.com=www.googleapis.com
+#test3.chrisbuijs.com=4.3.2.1
+#test4.chrisbuijs.com=NXDOMAIN
+#test5.chrisbuijs.com=REFUSED
+#test9.chrisbuijs.com=www.xs4all.nl
+#www.test5.chrisbuijs.com=1.2.3.4
+#company.com=REFUSED
+#www.company.com=PASSTHRU
+#test.company.com=www.googleapis.com
+#.!99999999
+#frutch!3600
+#1.168.192.in-addr.arpa!3600
 
 
 # <EOF>
