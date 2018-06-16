@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.977-20180614 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.98-20180616 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -70,11 +70,12 @@ forward_servers = dict()
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
 #forward_servers['.'] = list(['172.16.1.1@53']) # DEFAULT Eero
+forward_servers['.'] = list(['172.16.1.1@53','209.244.0.3@53','209.244.0.4@53']) # DEFAULT Eero plus fallback level-3
 #forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
 #forward_servers['.'] = list(['8.8.8.8@53','8.8.4.4@53']) # DEFAULT Google !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['208.67.222.222@443','208.67.220.220@443', '208.67.222.220@443', '208.67.220.222@443']) # DEFAULT OpenDNS
-forward_servers['.'] = list(['208.67.222.123@443','208.67.220.123@443']) # DEFAULT OpenDNS FamilyShield
+#forward_servers['.'] = list(['208.67.222.123@443','208.67.220.123@443']) # DEFAULT OpenDNS FamilyShield
 #forward_servers['.'] = list(['8.26.56.26@53','8.20.247.20@53']) # DEFAULT Comodo
 #forward_servers['.'] = list(['199.85.126.10@53','199.85.127.10@53']) # DEFAULT Norton
 #forward_servers['.'] = list(['64.6.64.6@53','64.6.65.6@53']) # DEFAULT Verisign
@@ -142,6 +143,7 @@ minresp = True
 
 # Roundrobin of address/forward-records
 roundrobin = True
+forwardroundrobin = False
 
 # Collapse/Flatten CNAME Chains
 collapse = True
@@ -389,8 +391,11 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
     if forward_server:
         query = DNSRecord(q = DNSQuestion(qname, getattr(QTYPE, qtype)))
 
-        addrs = round_robin(forward_server)
-        forward_servers[server] = list(addrs)
+        if forwardroundrobin and len(forward_server) > 1:
+            addrs = round_robin(forward_server)
+            forward_servers[server] = list(addrs)
+        else:
+            addrs = forward_server
 
         for addr in addrs:
             forward_address = addr.split('@')[0]
