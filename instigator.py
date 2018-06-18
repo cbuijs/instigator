@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.98-20180616 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.985-20180618 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -361,7 +361,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
     count = 0
     while uid in pending:
         count += 1
-        if count > 3: # Disembark after 3 seconds
+        if count > 2: # Disembark after 3 seconds
             log_info('DNS-QUERY [' + id_str(id) + ']: Skipping query for ' + queryname + ' - ID already processing, takes more then 3 secs')
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
@@ -407,6 +407,8 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
             if (forward_address != cip) and (query_hash(forward_address, 'BROKEN-FORWARDER', str(forward_port)) not in cache):
                 log_info('DNS-QUERY [' + id_str(id) + ']: forwarding query from ' + cip + ' to ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
 
+                error = 'None'
+                failed = False
                 try:
                     useip6 = False
                     if forward_address.find(':') > 0:
@@ -414,18 +416,26 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
 
                     q = query.send(forward_address, forward_port, tcp = use_tcp, timeout = forward_timeout, ipv6 = useip6)
                     reply = DNSRecord.parse(q)
-
-                    ttl = normalize_ttl(qname, reply.rr)
-
-                    break
+                    rcode = str(RCODE[reply.header.rcode])
+                    if rcode != 'SERVFAIL':
+                        ttl = normalize_ttl(qname, reply.rr)
+                        break
+                    else:
+                        error = 'SERVFAIL'
+                        failed = True
 
                 #except socket.timeout:
                 except BaseException as err:
-                    log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + '@' + str(forward_port) + ' - ' + str(err))
-                    to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force, False)
+                    error = err
+                    failed = True
+
+                if failed:
+                    log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + '@' + str(forward_port) + ' - ' + str(error))
+                    if error != 'SERVFAIL':
+                        to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force, False)
                     reply = None
 
-            if debug: log_err('DNS-QUERY [' + id_str(id) + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port))
+            if debug: log_info('DNS-QUERY [' + id_str(id) + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port))
 
     else:
         log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' (' + servername + ') - NO DNS SERVERS AVAILBLE!')
@@ -1083,7 +1093,7 @@ def to_cache(qname, qclass, qtype, reply, force, newttl):
     rcode = str(RCODE[reply.header.rcode])
 
     if qclass == 'BROKEN-FORWARDER':
-        ttl = 10
+        ttl = 30 # Seconds before trying again
     else:
         if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
             ttl = rcodettl
