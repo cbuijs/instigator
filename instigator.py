@@ -976,7 +976,7 @@ def normalize_ttl(qname, rr):
 
             if ttl < minttl:
                 #ttl = minttl
-                ttl = ttl + minttl
+                ttl = random.randint(minttl,maxttl)
             elif ttl > maxttl:
                 ttl = maxttl
 
