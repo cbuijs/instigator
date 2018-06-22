@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1529569175                  ###
+### Version: 1529655567                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -86,6 +86,7 @@ kathrein.at	Shalla-Banking
 kommunalkredit.at	Shalla-Banking
 kontonummer.at	Shalla-Banking
 krentschker.at	Shalla-Banking
+llb.at	Adguard-Banks
 modern-banking.at	Shalla-Banking
 netbanking.at	Shalla-Banking
 sparkasse.neuhofen.at	Shalla-Banking
@@ -399,6 +400,7 @@ bankbiz.ch	Shalla-Banking
 bankcoop.ch	Shalla-Banking
 bankenbasel.ch	Shalla-Banking
 bankleerau.ch	Shalla-Banking
+banklinth.ch	Adguard-Banks
 banksarasin.ch	Shalla-Banking
 bankscout.ch	Shalla-Banking
 banque-cantonale.ch	Shalla-Banking
@@ -4641,9 +4643,12 @@ vereinte-volksbank.de	Adguard-Banks
 vlvb.de	Adguard-Banks
 voba-aschaffenburg.de	Adguard-Banks
 voba-aw.de	Adguard-Banks
+voba-bigge-lenne.de	Adguard-Banks
 voba-bkh.de	Adguard-Banks
+voba-bl.de	Adguard-Banks
 voba-blaubeuren.de	Adguard-Banks
 voba-breisgau-nord.de	Adguard-Banks
+voba-deisslingen.de	Adguard-Banks
 voba-eg.de	Adguard-Banks
 voba-ermstal-alb.de	Adguard-Banks
 voba-gg.de	Shalla-Banking
@@ -4653,24 +4658,35 @@ voba-hn.de	Shalla-Banking
 voba-hoba.de	Adguard-Banks
 voba-kw.de	Adguard-Banks
 voba-mainspitze.de	Adguard-Banks
+voba-mg.de	Adguard-Banks
 voba-moeckmuehl.de	Adguard-Banks
 voba-msw.de	Adguard-Banks
 voba-niedergrafschaft.de	Adguard-Banks
 voba-ober-moerlen.de	Adguard-Banks
 voba-online.de	Shalla-Banking, Adguard-Banks
+voba-owd.de	Adguard-Banks
 voba-rhein-selz.de	Shalla-Banking
 voba-rheinahreifel.de	Adguard-Banks
+voba-rheinboellen.de	Adguard-Banks
 voba-rll.de	Adguard-Banks
+voba-rnh.de	Adguard-Banks
 voba-saar-west.de	Shalla-Banking
 voba-sbh.de	Adguard-Banks
+voba-schwanewede.de	Adguard-Banks
 voba-seligenstadt.de	Adguard-Banks
+voba-sh.de	Adguard-Banks
+voba-si.de	Adguard-Banks
 voba-vorbach-tauber.de	Adguard-Banks
+voba-worpswede.de	Adguard-Banks
 voba-zuff.de	Adguard-Banks
 vobabbs.de	Shalla-Banking
 vobabm.de	Adguard-Banks
+vobadhk.de	Adguard-Banks
 vobadill.de	Shalla-Banking, Adguard-Banks
+vobadin.de	Adguard-Banks
+vobadirekt.de	Adguard-Banks
 vobadreieich.de	Adguard-Banks
-vobaeg.de	Shalla-Banking
+vobaeg.de	Shalla-Banking, Adguard-Banks
 vobahe.de	Adguard-Banks
 vobahf.de	Adguard-Banks
 vobak.de	Adguard-Banks
@@ -4691,11 +4707,15 @@ volksbank-albstadt.de	Adguard-Banks
 volksbank-allgaeu-oberschwaben.de	Adguard-Banks
 volksbank-altshausen.de	Adguard-Banks
 volksbank-alzey.de	Shalla-Banking
+volksbank-ammerbuch.de	Adguard-Banks
+volksbank-anroechte.de	Adguard-Banks
 volksbank-backnang.de	Adguard-Banks
 volksbank-baden-baden-rastatt.de	Adguard-Banks
+volksbank-baumberge.de	Adguard-Banks
 volksbank-berg.de	Adguard-Banks
 volksbank-bi-gt.de	Adguard-Banks
 volksbank-bielefeld.de	Shalla-Banking
+volksbank-boenen.de	Adguard-Banks
 volksbank-boerde-bernburg.de	Adguard-Banks
 volksbank-boppard.de	Shalla-Banking
 volksbank-brawo.de	Adguard-Banks
@@ -4708,10 +4728,17 @@ volksbank-daaden.de	Adguard-Banks
 volksbank-deggingen.de	Adguard-Banks
 volksbank-demmin.de	Adguard-Banks
 volksbank-detmold.de	Shalla-Banking
+volksbank-dettenhausen.de	Adguard-Banks
+volksbank-dh.de	Adguard-Banks
 volksbank-dingolfing.de	Adguard-Banks
 volksbank-dornstetten.de	Adguard-Banks
 volksbank-dresden-bautzen.de	Adguard-Banks
+volksbank-dueren.de	Adguard-Banks
+volksbank-eg.de	Adguard-Banks
+volksbank-eifel.de	Adguard-Banks
 volksbank-eppertshausen.de	Adguard-Banks
+volksbank-erft.de	Adguard-Banks
+volksbank-erle.de	Adguard-Banks
 volksbank-esslingen.de	Adguard-Banks
 volksbank-ettlingen.de	Adguard-Banks
 volksbank-feldatal.de	Adguard-Banks
@@ -4722,6 +4749,7 @@ volksbank-franken.de	Adguard-Banks
 volksbank-freiburg.de	Adguard-Banks
 volksbank-gardelegen.de	Adguard-Banks
 volksbank-goeppingen.de	Shalla-Banking, Adguard-Banks
+volksbank-greven.de	Adguard-Banks
 volksbank-griesheim.de	Adguard-Banks
 volksbank-guetersloh.de	Shalla-Banking
 volksbank-hamburg.de	Shalla-Banking
@@ -4729,15 +4757,21 @@ volksbank-hameln-stadthagen.de	Adguard-Banks
 volksbank-hamm.de	Adguard-Banks
 volksbank-heilbronn.de	Shalla-Banking, Adguard-Banks
 volksbank-heiligenstadt.de	Adguard-Banks
-volksbank-hellweg.de	Shalla-Banking
+volksbank-heinsberg.de	Adguard-Banks
+volksbank-hellweg.de	Shalla-Banking, Adguard-Banks
 volksbank-heuberg.de	Adguard-Banks
 volksbank-hochrhein.de	Adguard-Banks
 volksbank-hoerstel-eg.de	Shalla-Banking
+volksbank-hunsrueck-nahe.de	Adguard-Banks
 volksbank-ilmenau.de	Shalla-Banking
-volksbank-im-mk.de	Shalla-Banking
+volksbank-im-mk.de	Shalla-Banking, Adguard-Banks
+volksbank-immenstadt.de	Adguard-Banks
+volksbank-jever.de	Adguard-Banks
 volksbank-karlsruhe.de	Shalla-Banking, Adguard-Banks
 volksbank-kassel-goettingen.de	Adguard-Banks
+volksbank-kierspe.de	Adguard-Banks
 volksbank-kirchheim-nuertingen.de	Shalla-Banking, Adguard-Banks
+volksbank-kirnau.de	Adguard-Banks
 volksbank-kleverland.de	Shalla-Banking
 volksbank-koeln-bonn.de	Adguard-Banks
 volksbank-krp.de	Adguard-Banks
@@ -8548,11 +8582,10 @@ AS2906	Chris-ASN-White
 23.199.128.0/19	Chris-ASN-White-AS16625
 23.199.192.0/19	Chris-ASN-White-AS16625
 23.199.228.0/22	Chris-ASN-White-AS16625
-23.199.232.0/21	Chris-ASN-White-AS16625
+23.199.232.0/22	Chris-ASN-White-AS16625
 23.199.240.0/20	Chris-ASN-White-AS16625
-23.200.0.0/18	Chris-ASN-White-AS16625
-23.200.64.0/20	Chris-ASN-White-AS16625
-23.200.80.0/23	Chris-ASN-White-AS16625
+23.200.0.0/19	Chris-ASN-White-AS16625
+23.200.32.0/20	Chris-ASN-White-AS16625
 23.200.84.0/24	Chris-ASN-White-AS20940
 23.200.86.0/23	Chris-ASN-White-AS20940
 23.200.88.0/23	Chris-ASN-White-AS20940
