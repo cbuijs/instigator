@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1529655567                  ###
+### Version: 1529741966                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -5142,6 +5142,7 @@ ib.expobank.eu	Adguard-Banks
 epayment.nets.eu	Adguard-Banks
 acs-visa.norvik.eu	Adguard-Banks
 onlinebanking-herzogpark.eu	Adguard-Banks
+secure.payza.eu	Adguard-Banks
 acs.sia.eu	Adguard-Banks
 aktia.fi	Shalla-Banking
 alandsbanken.fi	Shalla-Banking
@@ -7959,8 +7960,7 @@ AS2906	Chris-ASN-White
 23.35.80.0/20	Chris-ASN-White-AS20940
 23.35.98.0/23	Chris-ASN-White-AS20940
 23.35.100.0/22	Chris-ASN-White-AS16625
-23.35.104.0/22	Chris-ASN-White-AS16625
-23.35.108.0/23	Chris-ASN-White-AS16625
+23.35.104.0/21	Aggregated
 23.35.112.0/20	Chris-ASN-White-AS16625
 23.35.128.0/20	Chris-ASN-White-AS16625
 23.35.146.0/23	Chris-ASN-White-AS16625
@@ -8306,7 +8306,7 @@ AS2906	Chris-ASN-White
 23.61.208.0/20	Chris-ASN-White-AS16625
 23.61.224.0/20	Chris-ASN-White-AS16625
 23.61.240.0/22	Chris-ASN-White-AS16625
-23.61.245.0/24	Chris-ASN-White-AS20940
+23.61.244.0/23	Chris-ASN-White-AS20940
 23.61.247.0/24	Chris-ASN-White-AS20940
 23.61.248.0/24	Chris-ASN-White-AS20940
 23.61.250.0/23	Chris-ASN-White-AS20940
