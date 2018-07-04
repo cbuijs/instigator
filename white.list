@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1530605958                  ###
+### Version: 1530692359                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -6362,6 +6362,7 @@ deutschebank.pl	Adguard-Banks
 dominetbank.pl	Shalla-Banking
 e-dominet.pl	Shalla-Banking
 secure.getinbank.pl	Adguard-Banks
+gov.pl	Adguard-Banks
 secure.ideabank.pl	Adguard-Banks
 ingbank.pl	Adguard-Banks
 inteligo.pl	Shalla-Banking
@@ -7551,7 +7552,9 @@ AS2906	Chris-ASN-White
 2.16.153.0/24	Chris-ASN-White-AS20940
 2.16.154.0/23	Chris-ASN-White-AS20940
 2.16.156.0/22	Chris-ASN-White-AS20940
-2.16.160.0/21	Chris-ASN-White-AS20940
+2.16.160.0/22	Chris-ASN-White-AS20940
+2.16.165.0/24	Chris-ASN-White-AS20940
+2.16.166.0/23	Chris-ASN-White-AS20940
 2.16.168.0/24	Chris-ASN-White-AS20940
 2.16.170.0/23	Chris-ASN-White-AS20940
 2.16.172.0/22	Aggregated
@@ -7688,7 +7691,6 @@ AS2906	Chris-ASN-White
 2.21.192.0/19	Chris-ASN-White-AS16625
 2.21.228.0/23	Chris-ASN-White-AS20940
 2.21.240.0/22	Chris-ASN-White-AS20940
-2.21.246.0/24	Chris-ASN-White-AS20940
 2.22.0.0/20	Aggregated
 2.22.22.0/23	Chris-ASN-White-AS20940
 2.22.30.0/23	Chris-ASN-White-AS20940
@@ -8388,6 +8390,7 @@ AS2906	Chris-ASN-White
 23.67.53.0/24	Chris-ASN-White-AS20940
 23.67.54.0/23	Chris-ASN-White-AS20940
 23.67.56.0/24	Chris-ASN-White-AS20940
+23.67.59.0/24	Chris-ASN-White-AS20940
 23.67.78.0/23	Chris-ASN-White-AS20940
 23.67.112.0/20	Chris-ASN-White-AS16625
 23.67.128.0/20	Chris-ASN-White-AS20940
