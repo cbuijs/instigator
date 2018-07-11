@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1531210756                  ###
+### Version: 1531297159                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -677,6 +677,7 @@ amnat.com	Shalla-Banking
 amnb.com	Shalla-Banking
 ampproject.com	Chris-White
 amsouth.com	Shalla-Banking
+amtrak.com	Chris-White
 amtrust.com	Shalla-Banking
 anb.com	Shalla-Banking
 anbcleveland.com	Shalla-Banking
@@ -8136,6 +8137,7 @@ AS2906	Chris-ASN-White
 23.49.58.0/23	Chris-ASN-White-AS16625
 23.49.60.0/23	Chris-ASN-White-AS20940
 23.49.62.0/24	Chris-ASN-White-AS20940
+23.49.144.0/20	Chris-ASN-White-AS16625
 23.49.176.0/20	Chris-ASN-White-AS16625
 23.49.240.0/20	Chris-ASN-White-AS16625
 23.50.8.0/23	Chris-ASN-White-AS20940
@@ -8641,6 +8643,7 @@ AS2906	Chris-ASN-White
 23.204.102.0/24	Chris-ASN-White-AS20940
 23.204.104.0/21	Aggregated
 23.204.112.0/23	Chris-ASN-White-AS20940
+23.204.116.0/22	Chris-ASN-White-AS20940
 23.204.122.0/23	Chris-ASN-White-AS20940
 23.204.124.0/22	Chris-ASN-White-AS20940
 23.204.128.0/22	Chris-ASN-White-AS16625
@@ -9040,6 +9043,7 @@ AS2906	Chris-ASN-White
 72.246.88.0/22	Chris-ASN-White-AS20940
 72.246.92.0/23	Chris-ASN-White-AS16625
 72.246.100.0/23	Chris-ASN-White-AS16625
+72.246.103.0/24	Chris-ASN-White-AS20940
 72.246.117.0/24	Chris-ASN-White-AS20940
 72.246.124.0/22	Chris-ASN-White-AS16625
 72.246.128.0/20	Chris-ASN-White-AS16625
@@ -9977,6 +9981,8 @@ AS2906	Chris-ASN-White
 108.160.160.0/20	Chris-ASN-White-AS19679
 108.175.32.0/20	Chris-ASN-White-AS2906
 115.248.238.0/24	Chris-ASN-White-AS20940
+118.214.1.0/24	Chris-ASN-White-AS20940
+118.214.64.0/20	Chris-ASN-White-AS16625
 118.214.96.0/20	Chris-ASN-White-AS20940
 118.214.160.0/24	Chris-ASN-White-AS20940
 118.214.162.0/23	Chris-ASN-White-AS20940
@@ -9999,6 +10005,7 @@ AS2906	Chris-ASN-White
 118.215.176.0/20	Chris-ASN-White-AS16625
 120.138.106.0/24	Chris-ASN-White-AS16625
 120.138.127.0/24	Chris-ASN-White-AS16625
+121.78.46.0/24	Chris-ASN-White-AS20940
 122.56.36.0/24	Chris-ASN-White-AS20940
 122.252.40.0/21	Chris-ASN-White-AS20940
 124.155.192.0/24	Chris-ASN-White-AS20940
@@ -10075,7 +10082,7 @@ AS2906	Chris-ASN-White
 173.205.6.0/23	Chris-ASN-White-AS20940
 173.205.70.0/24	Chris-ASN-White-AS20940
 173.205.78.0/23	Chris-ASN-White-AS20940
-173.222.0.0/20	Chris-ASN-White-AS20940
+173.222.0.0/20	Chris-ASN-White-AS16625
 173.222.32.0/20	Chris-ASN-White-AS16625
 173.222.80.0/20	Chris-ASN-White-AS16625
 173.222.108.0/23	Chris-ASN-White-AS20940
@@ -10095,9 +10102,9 @@ AS2906	Chris-ASN-White
 173.222.236.0/22	Chris-ASN-White-AS20940
 173.222.244.0/22	Chris-ASN-White-AS16625
 173.222.250.0/23	Chris-ASN-White-AS16625
-173.223.4.0/22	Chris-ASN-White-AS20940
+173.223.4.0/22	Chris-ASN-White-AS16625
 173.223.10.0/23	Chris-ASN-White-AS20940
-173.223.20.0/23	Chris-ASN-White-AS20940
+173.223.20.0/23	Chris-ASN-White-AS16625
 173.223.28.0/22	Chris-ASN-White-AS16625
 173.223.36.0/22	Chris-ASN-White-AS16625
 173.223.48.0/22	Chris-ASN-White-AS20940
@@ -10107,6 +10114,7 @@ AS2906	Chris-ASN-White
 173.223.112.0/20	Chris-ASN-White-AS16625
 173.223.128.0/23	Chris-ASN-White-AS16625
 173.223.132.0/22	Chris-ASN-White-AS16625
+173.223.140.0/22	Chris-ASN-White-AS16625
 173.223.156.0/22	Chris-ASN-White-AS16625
 173.223.164.0/22	Chris-ASN-White-AS16625
 173.223.168.0/21	Aggregated
@@ -10115,7 +10123,7 @@ AS2906	Chris-ASN-White
 173.223.228.0/22	Chris-ASN-White-AS20940
 173.223.235.0/24	Chris-ASN-White-AS20940
 173.223.238.0/23	Chris-ASN-White-AS16625
-173.223.240.0/20	Chris-ASN-White-AS20940
+173.223.240.0/20	Chris-ASN-White-AS16625
 176.103.130.130/31	Aggregated
 176.103.130.132/32	Chris-White
 176.103.130.134/32	Chris-White
@@ -10245,6 +10253,7 @@ AS2906	Chris-ASN-White
 184.29.40.0/21	Aggregated
 184.29.58.0/23	Chris-ASN-White-AS20940
 184.29.60.0/23	Chris-ASN-White-AS16625
+184.29.78.0/23	Chris-ASN-White-AS16625
 184.29.88.0/23	Chris-ASN-White-AS16625
 184.29.100.0/22	Aggregated
 184.29.108.0/23	Chris-ASN-White-AS20940
@@ -10404,6 +10413,8 @@ AS2906	Chris-ASN-White
 202.4.185.0/24	Chris-ASN-White-AS20940
 202.43.88.0/23	Chris-ASN-White-AS20940
 202.74.45.0/24	Chris-ASN-White-AS20940
+202.90.8.0/22	Chris-ASN-White-AS16625
+202.90.15.0/24	Chris-ASN-White-AS20940
 202.94.80.0/24	Chris-ASN-White-AS20940
 202.171.237.0/24	Chris-ASN-White-AS20940
 203.27.6.0/23	Chris-ASN-White-AS20940
