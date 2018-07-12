@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.986-20180619 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.99-20180711 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -136,6 +136,9 @@ else:
 
 # Filtering on or off
 filtering = True
+
+# Make queries anyway (only check responses)
+makequery = False
 
 # Check responses
 checkresponse = True # When False, only queries are checked and responses are ignored (passthru)
@@ -469,15 +472,16 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                     reply = generate_alias(request, rqname, rqtype, use_tcp, force)
                     break
 
-                data = normalize_dom(record.rdata)
-
                 blockit = False
-                matchreq = match_blacklist(id, 'CHAIN', rqtype, rqname, True)
-                if matchreq == False:
-                    break
-                elif matchreq == True:
-                    blockit = True
-                else:
+                if replycount > 1: # Request itself should already be caught during request/query phase
+                    matchreq = match_blacklist(id, 'CHAIN', rqtype, rqname, True)
+                    if matchreq == False:
+                        break
+                    elif matchreq == True:
+                        blockit = True
+
+                if blockit == False:
+                    data = normalize_dom(record.rdata)
                     matchrep = match_blacklist(id, 'REPLY', rqtype, data, True)
                     if matchrep == False:
                         break
@@ -1055,6 +1059,8 @@ def from_cache(qname, qclass, qtype, id):
 
         numhits = update_hits(queryhash)
 
+        redirected = "STANDARD"
+
         # Gather address and non-address records and do round-robin
         if roundrobin and len(reply.rr) > 1:
             addr = list()
@@ -1072,11 +1078,14 @@ def from_cache(qname, qclass, qtype, id):
 
         elif len(reply.rr) > 0:
             reply.rr[0].ttl = ttl
+            rdata = str(reply.rr[0].rdata)
+            if rdata in redirect_addrs:
+                redirected = 'REDIRECT->' + rdata
           
         if len(reply.rr) > 0:
-            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(len(reply.rr)) + ' RRs for ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
+            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(len(reply.rr)) + ' RRs for ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + '/' + redirected + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
         else:
-            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(RCODE[reply.header.rcode]) + ' for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
+            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(RCODE[reply.header.rcode]) + '/' + redirected + ' for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
 
         return reply
 
@@ -1377,7 +1386,21 @@ def do_query(request, handler, force):
             if filtering:
                 ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
                 if ismatch == True: # Blacklisted
-                    reply = generate_response(request, qname, qtype, redirect_addrs, force)
+                    generate = False
+
+                    if makequery:
+                        log_info('MAKEQUERY: ' + queryname + ' (Blacklisted)')
+                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
+                        if len(reply.rr) > 0:
+                            rdata = str(reply.rr[0].rdata)
+                            if rdata in redirect_addrs:
+                                generate = True
+
+                    else:
+                        generate = True
+
+                    if generate:
+                        reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
                 else:
                     if ismatch == None and checkresponse:
@@ -1409,6 +1432,12 @@ if __name__ == "__main__":
     if debug: log_info('RUNNING INSTIGATOR IN DEBUG MODE')
 
     # Read Lists
+    for addr in redirect_addrs:
+        if ipregex4.search(addr):
+            bl_ip4[addr] = 'Redirect Address'
+        elif ipregex6.search(addr):
+            bl_ip6[addr] = 'Redirect Address'
+
     if not load_lists(savefile):
         for lst in sorted(lists.keys()):
             if lst in whitelist:
