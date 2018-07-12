@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.99-20180711 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.992-20180712 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -87,6 +87,7 @@ forward_servers['.'] = list(['172.16.1.1@53','209.244.0.3@53','209.244.0.4@53'])
 #redirect_addrs = list()
 #redirect_addrs = list(['0.0.0.0', '0000:0000:0000:0000:0000:0000:0000:0000'])
 redirect_addrs = list(['172.16.1.1', '0000:0000:0000:0000:0000:0000:0000:0000'])
+#redirect_addrs = list(['blocked.eero.com'])
 
 # Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
 hitrcode = 'NXDOMAIN'
@@ -467,13 +468,14 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
 
                 rqname = normalize_dom(record.rname)
                 rqtype = QTYPE[record.rtype].upper()
+                data = normalize_dom(record.rdata)
 
                 if checkalias and rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
                     reply = generate_alias(request, rqname, rqtype, use_tcp, force)
                     break
 
                 blockit = False
-                if replycount > 1: # Request itself should already be caught during request/query phase
+                if replycount > 1 or makequery: # Request itself should already be caught during request/query phase
                     matchreq = match_blacklist(id, 'CHAIN', rqtype, rqname, True)
                     if matchreq == False:
                         break
@@ -481,7 +483,6 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                         blockit = True
 
                 if blockit == False:
-                    data = normalize_dom(record.rdata)
                     matchrep = match_blacklist(id, 'REPLY', rqtype, data, True)
                     if matchrep == False:
                         break
@@ -541,6 +542,8 @@ def generate_response(request, qname, qtype, redirect_addrs, force):
                 answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(addr))
             elif qtype == 'AAAA' and ipregex6.search(addr):
                 answer = RR(qname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(addr))
+            elif (qtype in ('A', 'AAAA')) and (not ipregex.search(addr)):
+                answer = RR(qname, QTYPE.CNAME, ttl=cachettl, rdata=CNAME(addr))
         
             if answer != None:
                 addanswer.append(addr)
@@ -1386,20 +1389,10 @@ def do_query(request, handler, force):
             if filtering:
                 ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
                 if ismatch == True: # Blacklisted
-                    generate = False
-
                     if makequery:
                         log_info('MAKEQUERY: ' + queryname + ' (Blacklisted)')
                         reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
-                        if len(reply.rr) > 0:
-                            rdata = str(reply.rr[0].rdata)
-                            if rdata in redirect_addrs:
-                                generate = True
-
                     else:
-                        generate = True
-
-                    if generate:
                         reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
                 else:
