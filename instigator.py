@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.992-20180712 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v2.993-20180712 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -85,8 +85,8 @@ forward_servers['.'] = list(['172.16.1.1@53','209.244.0.3@53','209.244.0.4@53'])
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_addrs = list()
-#redirect_addrs = list(['0.0.0.0', '0000:0000:0000:0000:0000:0000:0000:0000'])
-redirect_addrs = list(['172.16.1.1', '0000:0000:0000:0000:0000:0000:0000:0000'])
+redirect_addrs = list(['0.0.0.0', '0000:0000:0000:0000:0000:0000:0000:0000'])
+#redirect_addrs = list(['172.16.1.1', '0000:0000:0000:0000:0000:0000:0000:0000'])
 #redirect_addrs = list(['blocked.eero.com'])
 
 # Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
@@ -481,6 +481,8 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                         break
                     elif matchreq == True:
                         blockit = True
+                else:
+                    log_info('REPLY-QUERY-SKIP: ' + rqname + '/IN/' + rqtype)
 
                 if blockit == False:
                     matchrep = match_blacklist(id, 'REPLY', rqtype, data, True)
@@ -1272,11 +1274,14 @@ def collapse_cname(request, reply, rid):
                 total = str(len(addr))
                 for ip in addr:
                     count += 1
-                    log_info('REPLY [' + id_str(rid) + ':' + str(count) + '-' + total + ']: COLLAPSE ' + qname + '/IN/CNAME -> ' + str(ip))
                     if ip.find(':') == -1:
+                        rrtype = "A"
                         answer = RR(qname, QTYPE.A, ttl=ttl, rdata=A(ip))
                     else:
+                        rrtype = "AAAA"
                         answer = RR(qname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(ip))
+
+                    log_info('REPLY [' + id_str(rid) + ':' + str(count) + '-' + total + ']: COLLAPSE ' + qname + '/IN/CNAME -> ' + str(ip) + '/' + rrtype)
 
                     reply.add_answer(answer)
             else:
