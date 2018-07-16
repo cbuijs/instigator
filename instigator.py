@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.01-20180716 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.02-20180716 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -361,6 +361,10 @@ def in_domain(name, domlist):
 # Do query
 def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, force):
     queryname = qname + '/IN/' + qtype
+
+    if checkbl: queryname = 'BL:' + queryname
+    if checkalias: queryname = 'AL:' + queryname
+    if force: queryname = 'F:' + queryname
 
     # Process already pending/same query
     uid = hash(qname + '/' + qtype + '/' + cip + '/' + str(id))
