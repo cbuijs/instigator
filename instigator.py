@@ -64,7 +64,7 @@ listen_on = list(['172.16.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
 #listen_on = list(['127.0.0.1@53']) # IPv4 only for now.
 
 # Forwarding queries to
-forward_timeout = 2 # Seconds
+forward_timeout = 5 # Seconds
 forward_servers = dict()
 #forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
@@ -82,6 +82,7 @@ forward_servers['.'] = list(['172.16.1.1@53']) # DEFAULT Eero/Gateway
 #forward_servers['.'] = list(['156.154.70.2@53','156.154.71.2@53']) # DEFAULT Neustar
 #forward_servers['.'] = list(['8.34.34.34@53', '8.35.35.35.35@53']) # DEFAULT ZScaler Shift
 #forward_servers['.'] = list(['71.243.0.14@53', '68.237.161.14@53']) # DEFAULT Verizon New England area (Boston and NY opt-out)
+#forward_servers['.'] = list(['127.0.0.1@53053']) # DEFAULT Stubby
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_addrs = list()
