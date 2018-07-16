@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v2.995-20180713 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.01-20180716 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -138,7 +138,7 @@ else:
 # Filtering on or off
 filtering = True
 
-# Make queries anyway (only check responses)
+# Make queries anyway and check response (including request) after
 makequery = False
 
 # Check responses
@@ -1393,19 +1393,18 @@ def do_query(request, handler, force):
 
         else:
             if filtering:
-                ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
-                if ismatch == True: # Blacklisted
-                    if makequery:
-                        log_info('MAKEQUERY: ' + queryname + ' (Blacklisted)')
-                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
-                    else:
-                        reply = generate_response(request, qname, qtype, redirect_addrs, force)
-
+                if makequery: # Make query anyway and check it after response instead of before sending query
+                    log_info('MAKEQUERY: ' + queryname)
+                    reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
                 else:
-                    if ismatch == None and checkresponse:
-                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
+                    ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
+                    if ismatch == True: # Blacklisted
+                        reply = generate_response(request, qname, qtype, redirect_addrs, force)
                     else:
-                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, True, force)
+                        if ismatch == None and checkresponse:
+                            reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
+                        else:
+                            reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, True, force)
             else:
                 reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, False, force)
 
