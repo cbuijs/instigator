@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1531756857                  ###
+### Version: 1531815633                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -1516,6 +1516,7 @@ eurekabancorp.com	Shalla-Banking
 eurobank-ua.com	Adguard-Banks
 eurohypo.com	Shalla-Banking
 evansnationalbank.com	Shalla-Banking
+evenroute.com	Chris-White
 everbank.com	Shalla-Banking
 everettbank.com	Shalla-Banking
 evergreenbanking.com	Shalla-Banking
@@ -8214,6 +8215,7 @@ AS2906	Chris-ASN-White
 23.54.154.0/23	Chris-ASN-White-AS20940
 23.54.156.0/23	Chris-ASN-White-AS20940
 23.54.158.0/24	Chris-ASN-White-AS20940
+23.54.162.0/24	Chris-ASN-White-AS20940
 23.54.165.0/24	Chris-ASN-White-AS20940
 23.54.166.0/23	Chris-ASN-White-AS16625
 23.54.192.0/19	Chris-ASN-White-AS16625
@@ -8912,6 +8914,7 @@ AS2906	Chris-ASN-White
 23.219.132.0/22	Chris-ASN-White-AS20940
 23.219.138.0/23	Chris-ASN-White-AS20940
 23.219.140.0/22	Chris-ASN-White-AS20940
+23.219.159.0/24	Chris-ASN-White-AS20940
 23.219.160.0/24	Chris-ASN-White-AS20940
 23.219.162.0/23	Chris-ASN-White-AS20940
 23.219.164.0/23	Chris-ASN-White-AS16625
@@ -9305,7 +9308,7 @@ AS2906	Chris-ASN-White
 96.6.208.0/20	Chris-ASN-White-AS16625
 96.7.16.0/20	Chris-ASN-White-AS16625
 96.7.40.0/24	Chris-ASN-White-AS20940
-96.7.48.0/23	Chris-ASN-White-AS20940
+96.7.48.0/24	Chris-ASN-White-AS20940
 96.7.51.0/24	Chris-ASN-White-AS20940
 96.7.52.0/22	Aggregated
 96.7.58.0/23	Chris-ASN-White-AS16625
