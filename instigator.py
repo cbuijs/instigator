@@ -59,8 +59,8 @@ if len(sys.argv) > 1: # Any argument on command-line will put debug-mode on, pri
     debug = True
 
 # Listen for queries
-#listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
-listen_on = list(['172.16.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
+listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
+#listen_on = list(['172.16.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
 #listen_on = list(['127.0.0.1@53']) # IPv4 only for now.
 
 # Forwarding queries to
@@ -70,8 +70,8 @@ forward_servers = dict()
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
-#forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '1.0.0.1@53', '8.8.8.8@53', '8.8.4.4@53']) # Default Quad9/CloudFlare/Google (Unfiltered versions)
-forward_servers['.'] = list(['172.16.1.1@53']) # DEFAULT Eero/Gateway
+forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '1.0.0.1@53', '8.8.8.8@53', '8.8.4.4@53']) # Default Quad9/CloudFlare/Google (Unfiltered versions)
+#forward_servers['.'] = list(['172.16.1.1@53']) # DEFAULT Eero/Gateway
 #forward_servers['.'] = list(['172.16.1.1@53','9.9.9.9@53', '149.112.112.112@53']) # DEFAULT Eero/Gateway fallback Quad9
 #forward_servers['.'] = list(['172.16.1.1@53','209.244.0.3@53','209.244.0.4@53']) # DEFAULT Eero/Gateway plus fallback level-3
 #forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
@@ -89,7 +89,9 @@ forward_servers['.'] = list(['172.16.1.1@53']) # DEFAULT Eero/Gateway
 # Redirect Address, leave empty to generete REFUSED
 #redirect_addrs = list()
 #redirect_addrs = list(['0.0.0.0', '0000:0000:0000:0000:0000:0000:0000:0000'])
-redirect_addrs = list(['172.16.1.1', '0000:0000:0000:0000:0000:0000:0000:0000'])
+#redirect_addrs = list(['172.16.1.1', '0000:0000:0000:0000:0000:0000:0000:0000'])
+redirect_addrs = list(['192.168.1.251', '0000:0000:0000:0000:0000:0000:0000:0000'])
+#redirect_addrs = list(['172.16.1.1'])
 #redirect_addrs = list(['blocked.eero.com'])
 
 # Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
@@ -152,7 +154,7 @@ minresp = True
 
 # Roundrobin of address/forward-records
 roundrobin = True
-forwardroundrobin = False
+forwardroundrobin = True
 
 # Collapse/Flatten CNAME Chains
 collapse = True
