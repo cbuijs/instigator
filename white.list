@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1532247633                  ###
+### Version: 1532334039                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -7640,6 +7640,7 @@ AS2906	Chris-ASN-White
 2.19.240.0/22	Chris-ASN-White-AS16625
 2.19.248.0/23	Chris-ASN-White-AS20940
 2.19.250.0/24	Chris-ASN-White-AS20940
+2.19.254.0/24	Chris-ASN-White-AS20940
 2.20.8.0/21	Chris-ASN-White-AS20940
 2.20.16.0/20	Aggregated
 2.20.32.0/20	Aggregated
@@ -8752,7 +8753,8 @@ AS2906	Chris-ASN-White
 23.210.210.0/23	Chris-ASN-White-AS20940
 23.210.214.0/23	Chris-ASN-White-AS20940
 23.210.218.0/23	Chris-ASN-White-AS20940
-23.210.232.0/21	Chris-ASN-White-AS16625
+23.210.220.0/22	Chris-ASN-White-AS16625
+23.210.224.0/20	Chris-ASN-White-AS16625
 23.210.248.0/21	Chris-ASN-White-AS16625
 23.211.0.0/21	Chris-ASN-White-AS16625
 23.211.8.0/22	Chris-ASN-White-AS16625
@@ -9164,7 +9166,7 @@ AS2906	Chris-ASN-White
 88.221.254.0/23	Chris-ASN-White-AS20940
 92.122.16.0/22	Chris-ASN-White-AS16625
 92.122.24.0/21	Aggregated
-92.122.44.0/22	Chris-ASN-White-AS16625
+92.122.40.0/21	Aggregated
 92.122.48.0/23	Chris-ASN-White-AS20940
 92.122.52.0/23	Chris-ASN-White-AS20940
 92.122.54.0/24	Chris-ASN-White-AS20940
@@ -9182,7 +9184,7 @@ AS2906	Chris-ASN-White
 92.122.144.0/22	Chris-ASN-White-AS16625
 92.122.153.0/24	Chris-ASN-White-AS20940
 92.122.154.0/23	Chris-ASN-White-AS20940
-92.122.156.0/23	Chris-ASN-White-AS16625
+92.122.156.0/22	Aggregated
 92.122.160.0/20	Aggregated
 92.122.176.0/21	Chris-ASN-White-AS20940
 92.122.186.0/23	Chris-ASN-White-AS20940
