@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1532420438                  ###
+### Version: 1532444471                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -2341,6 +2341,7 @@ global.moneygram.com	Adguard-Banks
 monitorbank.com	Shalla-Banking
 mononabank.com	Shalla-Banking
 monroecountybank.com	Shalla-Banking
+monster.com	Chris-White
 montanabankers.com	Shalla-Banking
 montecito.com	Shalla-Banking
 morrisstate.com	Shalla-Banking
@@ -6058,6 +6059,7 @@ lieshout-partners.nl	Shalla-Banking
 lloydsbank.nl	Adguard-Banks
 lloydstsb.nl	Shalla-Banking
 ads.memo2.nl	EasyList-White
+monsterboard.nl	Chris-White
 ntco.nl	Shalla-Banking
 nvb.nl	Shalla-Banking
 nwb.nl	Shalla-Banking
@@ -7896,6 +7898,7 @@ AS2906	Chris-ASN-White
 23.14.136.0/22	Chris-ASN-White-AS16625
 23.14.144.0/20	Chris-ASN-White-AS16625
 23.14.160.0/19	Chris-ASN-White-AS16625
+23.14.192.0/20	Chris-ASN-White-AS16625
 23.15.1.0/24	Chris-ASN-White-AS20940
 23.15.4.0/23	Chris-ASN-White-AS20940
 23.15.7.0/24	Chris-ASN-White-AS20940
@@ -9424,7 +9427,7 @@ AS2906	Chris-ASN-White
 104.67.224.0/19	Chris-ASN-White-AS16625
 104.68.0.0/19	Chris-ASN-White-AS20940
 104.68.96.0/19	Chris-ASN-White-AS16625
-104.68.160.0/19	Chris-ASN-White-AS20940
+104.68.160.0/19	Chris-ASN-White-AS16625
 104.68.192.0/19	Aggregated
 104.68.224.0/20	Aggregated
 104.68.240.0/21	Chris-ASN-White-AS16625
@@ -9475,9 +9478,9 @@ AS2906	Chris-ASN-White
 104.72.70.0/24	Chris-ASN-White-AS20940
 104.72.78.0/24	Chris-ASN-White-AS20940
 104.72.128.0/20	Chris-ASN-White-AS16625
-104.72.148.0/22	Chris-ASN-White-AS20940
-104.72.152.0/23	Chris-ASN-White-AS20940
-104.72.160.0/19	Chris-ASN-White-AS20940
+104.72.148.0/22	Chris-ASN-White-AS16625
+104.72.152.0/23	Chris-ASN-White-AS16625
+104.72.160.0/19	Chris-ASN-White-AS16625
 104.73.48.0/20	Chris-ASN-White-AS16625
 104.73.64.0/20	Chris-ASN-White-AS16625
 104.73.96.0/19	Chris-ASN-White-AS20940
@@ -10385,11 +10388,11 @@ AS2906	Chris-ASN-White
 184.86.64.0/20	Chris-ASN-White-AS16625
 184.86.88.0/21	Aggregated
 184.86.100.0/23	Chris-ASN-White-AS20940
-184.86.104.0/21	Aggregated
+184.86.104.0/21	Chris-ASN-White-AS16625
 184.86.114.0/23	Chris-ASN-White-AS20940
 184.86.120.0/23	Chris-ASN-White-AS16625
 184.86.144.0/20	Chris-ASN-White-AS16625
-184.86.208.0/23	Chris-ASN-White-AS20940
+184.86.208.0/23	Chris-ASN-White-AS16625
 184.86.220.0/24	Chris-ASN-White-AS20940
 184.86.224.0/22	Chris-ASN-White-AS16625
 184.86.236.0/22	Chris-ASN-White-AS20940
