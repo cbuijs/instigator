@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.02-20180716 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.03-20180724 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -90,7 +90,7 @@ forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '
 #redirect_addrs = list()
 #redirect_addrs = list(['0.0.0.0', '0000:0000:0000:0000:0000:0000:0000:0000'])
 #redirect_addrs = list(['172.16.1.1', '0000:0000:0000:0000:0000:0000:0000:0000'])
-redirect_addrs = list(['192.168.1.251', '0000:0000:0000:0000:0000:0000:0000:0000'])
+redirect_addrs = list(['192.168.1.251'])
 #redirect_addrs = list(['172.16.1.1'])
 #redirect_addrs = list(['blocked.eero.com'])
 
@@ -1119,7 +1119,7 @@ def to_cache(qname, qclass, qtype, reply, force, newttl):
     rcode = str(RCODE[reply.header.rcode])
 
     if qclass == 'BROKEN-FORWARDER':
-        ttl = 30 # Seconds before trying again
+        ttl = 5 # Seconds before trying again
     else:
         if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
             ttl = rcodettl
