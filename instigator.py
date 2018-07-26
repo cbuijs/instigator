@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.03-20180724 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.1-20180726 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -15,7 +15,8 @@ This is a little study to build a DNS server in Python including some features:
 
 TODO:
 - Loads ...
-- Logging only option (no blocking)
+- Use configuration file in easy format to configure Instigator
+- Logging only option (no blocking), partly done.
 - Listen on IPv6 or use IPv6 as transport (need help!)
 - Better Documentation / Remarks / Comments
 - Optimize code for better cache/resolution performance
@@ -162,6 +163,32 @@ collapse = True
 # Block IPV4 or IPv6 based queries
 blockv4 = False
 blockv6 = True
+
+# Block rebinding, meaning that IP-Addresses in responses that match against below ranges,
+# must come from a DNS server with an IP-Address also in below ranges
+blockrebind = True
+rebind4 = pytricia.PyTricia(32)
+rebind6 = pytricia.PyTricia(128)
+rebind4['0.0.0.0/8'] = 'Only valid as source'
+rebind4['10.0.0.0/8'] = 'Private'
+rebind4['127.0.0.0/8'] = 'Loopback'
+rebind4['168.254.0.0/16'] = 'Link-Local/APIPA'
+rebind4['172.16.0.0/12'] = 'Private'
+rebind4['192.0.0.0/24'] = 'Private, Protocol Assignements'
+rebind4['192.0.2.0/24'] = 'Documentation/Examples TEST-NET-1'
+rebind4['192.168.0.0/16'] = 'Private'
+rebind4['198.18.0.0/15'] = 'Private, Benchmarking'
+rebind4['198.51.100.0/24'] = 'Documentation/Examples TEST-NET-2'
+rebind4['203.0.113.0/24'] = 'Documentation/Examples TEST-NET-3'
+rebind4['224.0.0.0/4'] = 'Multicast'
+rebind4['240.0.0.0/4'] = 'Reserved (Class-E)'
+rebind6['::/128'] = 'Reserved/Unspecified'
+rebind6['::1/128'] = 'Loopback'
+rebind6['2001:db8::/32'] = 'Documentation/Examples'
+rebind6['fc00::/7'] = 'Private'
+rebind6['fe80::/10'] = 'Link-Local'
+rebind6['ff00::/8'] = 'Multicast'
+rebind6['ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/128'] = True
 
 # Prefetch
 if debug:
@@ -484,6 +511,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                     break
 
                 blockit = False
+
                 if replycount > 1 or makequery: # Request itself should already be caught during request/query phase
                     matchreq = match_blacklist(id, 'CHAIN', rqtype, rqname, True)
                     if matchreq == False:
@@ -494,11 +522,27 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                     log_info('REPLY-QUERY-SKIP: ' + rqname + '/IN/' + rqtype)
 
                 if blockit == False:
-                    matchrep = match_blacklist(id, 'REPLY', rqtype, data, True)
-                    if matchrep == False:
-                        break
-                    elif matchrep == True:
-                        blockit = True
+                    if blockrebind and ((rqtype == 'A' and data in rebind4) or (rqtype == 'AAAA' and data in rebind6)):
+                        if useip6 and forward_address not in rebind6:
+                            blockit = True
+                            prefix = rebind6.get_key(data)
+                            desc = rebind6.get(data, 'None')
+                        elif forward_address not in rebind4:
+                            blockit = True
+                            prefix = rebind4.get_key(data)
+                            desc = rebind4.get(data, 'None')
+
+                        if blockit:
+                            log_info('REBIND-BLOCK: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' matches ' + prefix + ' (' + desc + ')')
+                        else:
+                            log_info('REBIND-ALLOW: ' + rqname + '/IN/' + rqtype + ' = ' + data + '(DNS Server in REBIND ranges)')
+
+                    if blockit == False:
+                        matchrep = match_blacklist(id, 'REPLY', rqtype, data, True)
+                        if matchrep == False:
+                            break
+                        elif matchrep == True:
+                            blockit = True
 
                 if blockit:
                     log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
