@@ -29,8 +29,10 @@ pool.ntp.org=north-america.pool.ntp.org
 
 # Forwarding example
 #local>192.168.1.1
-#1.168.192.in-addr.arpa>192.168.1.1
-#frutch>192.168.1.1
+1.1.10.in-addr.arpa>192.168.1.1@53
+1.16.172.in-addr.arpa>192.168.1.1@53
+1.168.192.in-addr.arpa>192.168.1.1@53
+frutch>192.168.1.1
 #google.com>8.8.8.8@53,8.8.4.4@53
 #chrisbuijs.com>9.9.9.9@53,149.112.112.112@53
 
