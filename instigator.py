@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.1-20180726 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.15-20180803 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -71,7 +71,7 @@ forward_servers = dict()
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
-#forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '1.0.0.1@53', '8.8.8.8@53', '8.8.4.4@53']) # Default Quad9/CloudFlare/Google (Unfiltered versions)
+forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '1.0.0.1@53', '8.8.8.8@53', '8.8.4.4@53']) # Default Quad9/CloudFlare/Google (Unfiltered versions)
 #forward_servers['.'] = list(['172.16.1.1@53']) # DEFAULT Eero/Gateway
 #forward_servers['.'] = list(['172.16.1.1@53','9.9.9.9@53', '149.112.112.112@53']) # DEFAULT Eero/Gateway fallback Quad9
 #forward_servers['.'] = list(['172.16.1.1@53','209.244.0.3@53','209.244.0.4@53']) # DEFAULT Eero/Gateway plus fallback level-3
@@ -85,7 +85,7 @@ forward_servers = dict()
 #forward_servers['.'] = list(['156.154.70.2@53','156.154.71.2@53']) # DEFAULT Neustar
 #forward_servers['.'] = list(['8.34.34.34@53', '8.35.35.35.35@53']) # DEFAULT ZScaler Shift
 #forward_servers['.'] = list(['71.243.0.14@53', '68.237.161.14@53']) # DEFAULT Verizon New England area (Boston and NY opt-out)
-forward_servers['.'] = list(['127.0.0.1@53053']) # DEFAULT Stubby
+#forward_servers['.'] = list(['127.0.0.1@53053']) # DEFAULT Stubby
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_addrs = list()
@@ -130,16 +130,10 @@ cache_maintenance_busy = False
 persistentcache = True
 
 # TTL Settings
-if debug:
-    cachettl = 20 # Seconds - For filtered/blacklisted/alias entry caching
-    minttl = 5 # Seconds
-    maxttl = cachettl # Seconds
-    rcodettl = minttl # Seconds - For return-codes caching
-else:
-    cachettl = 900 # Seconds - For filtered/blacklisted/alias entry caching
-    minttl = 30 # Seconds
-    maxttl = 1800 # Seconds
-    rcodettl = 15 # Seconds - For return-codes caching
+cachettl = 900 # Seconds - For filtered/blacklisted/alias entry caching
+minttl = 30 # Seconds
+maxttl = 1800 # Seconds
+rcodettl = 15 # Seconds - For return-codes caching
 
 # Filtering on or off
 filtering = True
@@ -475,6 +469,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                     log_err('DNS-QUERY [' + id_str(id) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + '@' + str(forward_port) + ' - ' + str(error))
                     if error != 'SERVFAIL':
                         to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force, False)
+
                     reply = None
 
             if debug: log_info('DNS-QUERY [' + id_str(id) + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port))
@@ -491,6 +486,15 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
         reply.header.rcode = getattr(RCODE, 'SERVFAIL')
         _ = pending.pop(uid, None)
         return reply
+    else:
+        # Clear broken-forwarder cache entries
+        if broken_exist():
+            for queryhash in no_noerror_list():
+                record = cache.get(queryhash, defaultlist)
+                rcode = str(RCODE[record[0].header.rcode])
+                log_info('========= CACHE-MAINT-PURGE: ' + record[2] + ' ' + rcode + ' (One or more DNS Servers responding again)')
+                del_cache_entry(queryhash)
+
 
     # Lets process response
     rcode = str(RCODE[reply.header.rcode])
@@ -1197,6 +1201,21 @@ def cache_expired_list():
     return list(dict((k,v) for k,v in cache.items() if v[1] - now < 1).keys())
 
 
+# Check if we have broken forwarders
+def broken_exist():
+    if len(list(dict((k,v) for k,v in cache.items() if v[2].find('/BROKEN-FORWARDER/') > 0).keys())) > 0:
+        return True
+
+    return False
+
+
+# Return all no-noerror list
+def no_noerror_list():
+    #return list(dict((k,v) for k,v in cache.items() if v[2].find('/BROKEN-FORWARDER/') > 0 or str(RCODE[v[0].header.rcode]) != 'NOERROR').keys())
+    #return list(dict((k,v) for k,v in cache.items() if str(RCODE[v[0].header.rcode]) != 'NOERROR').keys())
+    return list(dict((k,v) for k,v in cache.items() if v[0].header.rcode != 0).keys())
+
+
 # Get list of prefetchable items
 def cache_prefetch_list():
     now = int(time.time())
@@ -1223,7 +1242,7 @@ def cache_purge(flushall):
         timestamp = pending.get(p, False)
         if timestamp and int(time.time()) - timestamp > 10: #Seconds
             log_info('PENDING: Removed stale UID ' + str(p))
-            _ = pending.pop(d, None)
+            _ = pending.pop(p, None)
 
     before = len(cache)
 
