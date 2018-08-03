@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.15-20180803 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.16-20180803 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -134,11 +134,14 @@ cachettl = 900 # Seconds - For filtered/blacklisted/alias entry caching
 minttl = 30 # Seconds
 maxttl = 1800 # Seconds
 rcodettl = 15 # Seconds - For return-codes caching
+failttl = 10 # Seconds - When failure/error happens
+retryttl = 5 # Seconds - Retry time
+nottl = 0 # Seconds - when no TTL
 
 # Filtering on or off
 filtering = True
 
-# Make queries anyway and check response (including request) after
+# Make queries anyway and check response (including request) after, e.g. query is ALWAYS done
 makequery = False
 
 # Check responses
@@ -492,7 +495,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
             for queryhash in no_noerror_list():
                 record = cache.get(queryhash, defaultlist)
                 rcode = str(RCODE[record[0].header.rcode])
-                log_info('========= CACHE-MAINT-PURGE: ' + record[2] + ' ' + rcode + ' (One or more DNS Servers responding again)')
+                log_info('CACHE-MAINT-PURGE: ' + record[2] + ' ' + rcode + ' (One or more DNS Servers responding again)')
                 del_cache_entry(queryhash)
 
 
@@ -1051,7 +1054,7 @@ def normalize_ttl(qname, rr):
             x.ttl = ttl
 
     else:
-        ttl = 0
+        ttl = nottl
 
     return ttl
 
@@ -1167,12 +1170,12 @@ def to_cache(qname, qclass, qtype, reply, force, newttl):
     rcode = str(RCODE[reply.header.rcode])
 
     if qclass == 'BROKEN-FORWARDER':
-        ttl = 5 # Seconds before trying again
+        ttl = retryttl # Seconds before trying again
     else:
         if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
             ttl = rcodettl
         elif rcode == 'SERVFAIL':
-            ttl = 10
+            ttl = failttl
         elif rcode == 'NOERROR' and len(reply.rr) == 0:
             log_info('CACHE-SKIPPED: ' + queryname + ' ' + rcode + ' (NO ANSWERS)')
             return False
