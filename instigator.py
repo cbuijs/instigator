@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.16-20180803 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.17-20180806 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -71,7 +71,7 @@ forward_servers = dict()
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
-forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '1.0.0.1@53', '8.8.8.8@53', '8.8.4.4@53']) # Default Quad9/CloudFlare/Google (Unfiltered versions)
+#forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '1.0.0.1@53', '8.8.8.8@53', '8.8.4.4@53']) # Default Quad9/CloudFlare/Google (Unfiltered versions)
 #forward_servers['.'] = list(['172.16.1.1@53']) # DEFAULT Eero/Gateway
 #forward_servers['.'] = list(['172.16.1.1@53','9.9.9.9@53', '149.112.112.112@53']) # DEFAULT Eero/Gateway fallback Quad9
 #forward_servers['.'] = list(['172.16.1.1@53','209.244.0.3@53','209.244.0.4@53']) # DEFAULT Eero/Gateway plus fallback level-3
@@ -85,7 +85,7 @@ forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '
 #forward_servers['.'] = list(['156.154.70.2@53','156.154.71.2@53']) # DEFAULT Neustar
 #forward_servers['.'] = list(['8.34.34.34@53', '8.35.35.35.35@53']) # DEFAULT ZScaler Shift
 #forward_servers['.'] = list(['71.243.0.14@53', '68.237.161.14@53']) # DEFAULT Verizon New England area (Boston and NY opt-out)
-#forward_servers['.'] = list(['127.0.0.1@53053']) # DEFAULT Stubby
+forward_servers['.'] = list(['127.0.0.1@53053']) # DEFAULT Stubby
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_addrs = list()
@@ -123,6 +123,7 @@ blacklist = list(['blacklist', 'ads', 'costtraps', 'porn', 'gamble', 'spyware', 
 whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites'])
 
 # Cache Settings
+nocache = False # Don't change this
 cachefile = '/opt/instigator/cache.shelve'
 cachesize = 2048 # Entries
 cache_maintenance_now = False
@@ -130,6 +131,7 @@ cache_maintenance_busy = False
 persistentcache = True
 
 # TTL Settings
+ttlstrategy = 'average' # use 'low' for lowest TTL value, and 'high' for highest value.
 cachettl = 900 # Seconds - For filtered/blacklisted/alias entry caching
 minttl = 30 # Seconds
 maxttl = 1800 # Seconds
@@ -1039,14 +1041,17 @@ def normalize_ttl(qname, rr):
             if len(rr) == 1:
                 ttl = rr[0].ttl
             else:
-                #ttl = min(x.ttl for x in rr) # Lowest TTL
-                #ttl = max(x.ttl for x in rr) # Highest TTL
-                ttl = int(sum(x.ttl for x in rr) / len(rr)) # Average TTL
+                if ttlstrategy == 'low':
+                    ttl = min(x.ttl for x in rr) # Lowest TTL
+                elif ttlstrategy == 'high':
+                    ttl = max(x.ttl for x in rr) # Highest TTL
+                else:
+                    ttl = int(sum(x.ttl for x in rr) / len(rr)) # Average TTL
 
             if ttl < minttl:
-                #ttl = minttl
-                #ttl = random.randint(minttl,maxttl)
-                ttl += minttl
+                #ttl = minttl # Minimum TTL enforced
+                #ttl = random.randint(minttl,maxttl) # Random pick between low and high
+                ttl += minttl # More cachable minimum TTL enforcement
             elif ttl > maxttl:
                 ttl = maxttl
 
@@ -1100,6 +1105,9 @@ def prefetch_it(queryhash):
 
 # Retrieve from cache
 def from_cache(qname, qclass, qtype, id):
+    if nocache:
+        return None
+
     queryhash = query_hash(qname, qclass, qtype)
     cacheentry = cache.get(queryhash, defaultlist)
     if cacheentry == defaultlist or cacheentry == None:
@@ -1160,7 +1168,7 @@ def from_cache(qname, qclass, qtype, id):
 
 # Store into cache
 def to_cache(qname, qclass, qtype, reply, force, newttl):
-    if reply == defaultlist or reply == None:
+    if nocache or reply == defaultlist or reply == None:
         return False
 
     if (not force) and query_hash(qname, qclass, qtype) in cache:
@@ -1386,14 +1394,13 @@ def execute_command(qname):
                 if record[0] != None:
                     log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' [' + str(record[3]) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
 
-        else:
+        if qname == 'resume' and filtering == False:
+            filtering = True
             cache_purge(True)
 
-        if qname == 'resume':
-            filtering = True
-
-        elif qname == 'pause':
+        elif qname == 'pause' and filtering == True:
             filtering = False
+            cache_purge(True)
 
         return True
 
@@ -1435,9 +1442,10 @@ def do_query(request, handler, force):
         reply = request.reply()
         if cip in ('127.0.0.1', '::1'):
             if execute_command(qname):
-                reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+                reply.header.rcode = getattr(RCODE, 'NOERROR')
             else:
-                reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+                reply.header.rcode = getattr(RCODE, 'NOTIMP')
+                reply.add_ar(EDNS0())
         else:
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
@@ -1454,6 +1462,7 @@ def do_query(request, handler, force):
             log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' NOTIMP (' + handler.protocol.upper() + ')')
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
+            reply.add_ar(EDNS0())
 
         elif filtering and blockv4 and (qtype == 'A' or qname.endswith('.in-addr.arpa')):
             log_info('IPV4-HIT: ' + queryname)
