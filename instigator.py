@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.18-20180807 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.185-20180807 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -162,6 +162,12 @@ collapse = True
 # Block IPV4 or IPv6 based queries
 blockv4 = False
 blockv6 = True
+
+# Block undotted names
+blockundotted = True
+
+# Block illegal names
+blockillegal = True
 
 # Block rebinding, meaning that IP-Addresses in responses that match against below ranges,
 # must come from a DNS server with an IP-Address also in below ranges
@@ -943,9 +949,10 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 # DOMAIN
                 elif isdomain.search(entry):
                     entry = normalize_dom(entry)
-                    if entry != '.':
-                        fetched += 1
-                        domlist[entry] = id
+                    if blockillegal and len(entry) < 253 and all(len(x) < 64 for x in entry.split('.')) == False:
+                        if entry != '.':
+                            fetched += 1
+                            domlist[entry] = id
 
                 # IPV4
                 elif ipregex4.search(entry):
@@ -1465,6 +1472,20 @@ def do_query(request, handler, force):
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
             reply.add_ar(EDNS0())
 
+        elif filtering and blockundotted and qname.find('.') == -1:
+            log_info('UNDOTTED-HIT: ' + queryname)
+            reply = generate_response(request, qname, qtype, redirect_addrs, force)
+
+        elif filtering and blockillegal and len(qname) > 252:
+            log_info('ILLEGAL-LENGTH-HIT: ' + queryname)
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'REFUSED')
+
+        elif filtering and blockillegal and all(len(x) < 64 for x in qname.split('.')) == False:
+            log_info('ILLEGAL-LABEL-LENGTH-HIT: ' + queryname)
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'REFUSED')
+
         elif filtering and blockv4 and (qtype == 'A' or qname.endswith('.in-addr.arpa')):
             log_info('IPV4-HIT: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
@@ -1526,11 +1547,12 @@ if __name__ == "__main__":
 
     for domain in forward_servers:
         for addr in forward_servers[domain]:
-            log_info('Whitelisted IP: Forward Server ' + addr + ' for \"' + domain + '\"')
+            address = addr.split('@')[0]
+            log_info('Whitelisted IP: Forward Server ' + address + ' for \"' + domain + '\"')
             if ipregex4.search(addr):
-                wl_ip4[addr] = 'Forward Server \"' + domain + '\"'
+                wl_ip4[address] = 'Forward Server \"' + domain + '\"'
             elif ipregex6.search(addr):
-                wl_ip6[addr] = 'Forward Server \"' + domain + '\"'
+                wl_ip6[address] = 'Forward Server \"' + domain + '\"'
 
             wl_dom[rev_ip(addr)] = 'Forward Server'
 
