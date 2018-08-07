@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.17-20180806 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.18-20180807 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -71,7 +71,7 @@ forward_servers = dict()
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
-#forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '1.0.0.1@53', '8.8.8.8@53', '8.8.4.4@53']) # Default Quad9/CloudFlare/Google (Unfiltered versions)
+forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '1.0.0.1@53', '8.8.8.8@53', '8.8.4.4@53']) # Default Quad9/CloudFlare/Google (Unfiltered versions)
 #forward_servers['.'] = list(['172.16.1.1@53']) # DEFAULT Eero/Gateway
 #forward_servers['.'] = list(['172.16.1.1@53','9.9.9.9@53', '149.112.112.112@53']) # DEFAULT Eero/Gateway fallback Quad9
 #forward_servers['.'] = list(['172.16.1.1@53','209.244.0.3@53','209.244.0.4@53']) # DEFAULT Eero/Gateway plus fallback level-3
@@ -85,7 +85,7 @@ forward_servers = dict()
 #forward_servers['.'] = list(['156.154.70.2@53','156.154.71.2@53']) # DEFAULT Neustar
 #forward_servers['.'] = list(['8.34.34.34@53', '8.35.35.35.35@53']) # DEFAULT ZScaler Shift
 #forward_servers['.'] = list(['71.243.0.14@53', '68.237.161.14@53']) # DEFAULT Verizon New England area (Boston and NY opt-out)
-forward_servers['.'] = list(['127.0.0.1@53053']) # DEFAULT Stubby
+#forward_servers['.'] = list(['127.0.0.1@53053']) # DEFAULT Stubby
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_addrs = list()
@@ -961,61 +961,62 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
 
                 #### !!! From here on there are functional entries, which are always condidered "whitelist"
                 # ALIAS - domain.com=ip or domain.com=otherdomain.com
-                elif entry.find('=') > 0:
-                    elements = entry.split('=')
-                    if len(elements) > 1:
-                        domain = normalize_dom(elements[0])
-                        alias = normalize_dom(elements[1])
-                        if isdomain.search(domain) and (isdomain.search(alias) or ipregex.search(alias)):
-                            fetched += 1
-                            alist[domain] = alias
-                            domlist[domain] = 'Alias' # Whitelist it
+                elif bw == 'Whitelist':
+                    if entry.find('=') > 0:
+                        elements = entry.split('=')
+                        if len(elements) > 1:
+                            domain = normalize_dom(elements[0])
+                            alias = normalize_dom(elements[1])
+                            if isdomain.search(domain) and (isdomain.search(alias) or ipregex.search(alias)):
+                                fetched += 1
+                                alist[domain] = alias
+                                domlist[domain] = 'Alias' # Whitelist it
+                            else:
+                                log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
                         else:
                             log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
-                    else:
-                        log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
 
-                # FORWARD - domain.com>ip
-                elif entry.find('>') > 0:
-                    elements = entry.split('>')
-                    if len(elements) > 1:
-                        domain = normalize_dom(elements[0])
-                        ips = elements[1].strip().lower().strip('.')
-                        if isdomain.search(domain):
-                            domlist[domain] = 'Forward-Domain' # Whitelist it
-                            addrs = list()
-                            for addr in ips.split(','):
-                                if ipportregex.search(addr):
-                                    addrs.append(addr)
-                                else:
-                                    log_err(listname + ' INVALID FORWARD-ADDRESS [' + str(count) + ']: ' + addr)
+                    # FORWARD - domain.com>ip
+                    elif entry.find('>') > 0:
+                        elements = entry.split('>')
+                        if len(elements) > 1:
+                            domain = normalize_dom(elements[0])
+                            ips = elements[1].strip().lower().strip('.')
+                            if isdomain.search(domain):
+                                domlist[domain] = 'Forward-Domain' # Whitelist it
+                                addrs = list()
+                                for addr in ips.split(','):
+                                    if ipportregex.search(addr):
+                                        addrs.append(addr)
+                                    else:
+                                        log_err(listname + ' INVALID FORWARD-ADDRESS [' + str(count) + ']: ' + addr)
         
-                            if addrs:
-                                fetched += 1
-                                flist[domain] = addrs
+                                if addrs:
+                                    fetched += 1
+                                    flist[domain] = addrs
+                            else:
+                                log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
                         else:
                             log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
-                    else:
-                        log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
 
-                # TTLS - domain.com!ttl (TTL = integer)
-                elif entry.find('!') > 0:
-                    elements = entry.split('!')
-                    if len(elements) > 1:
-                        domain = normalize_dom(elements[0])
-                        ttl = elements[1].strip()
-                        if isdomain.search(domain) and ttl.isdecimal():
-                            fetched += 1
-                            tlist[domain] = int(ttl)
-                            domlist[domain] = 'TTL-Override' # Whitelist it
+                    # TTLS - domain.com!ttl (TTL = integer)
+                    elif entry.find('!') > 0:
+                        elements = entry.split('!')
+                        if len(elements) > 1:
+                            domain = normalize_dom(elements[0])
+                            ttl = elements[1].strip()
+                            if isdomain.search(domain) and ttl.isdecimal():
+                                fetched += 1
+                                tlist[domain] = int(ttl)
+                                domlist[domain] = 'TTL-Override' # Whitelist it
+                            else:
+                                log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
                         else:
                             log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
-                    else:
-                        log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
 
                 # BOGUS
                 else:
-                    log_err(listname + ' INVALID LINE [' + str(count) + ']: ' + entry)
+                    log_err(listname + ' INVALID/BOGUS LINE [' + str(count) + ']: ' + entry)
 
     else:
         log_err('ERROR: Cannot open \"' + file + '\" - Does not exist')
@@ -1515,10 +1516,23 @@ if __name__ == "__main__":
 
     # Read Lists
     for addr in redirect_addrs:
+        log_info('Whitelisted IP: Redirect Address ' + addr)
         if ipregex4.search(addr):
-            bl_ip4[addr] = 'Redirect Address'
+            wl_ip4[addr] = 'Redirect Address'
         elif ipregex6.search(addr):
-            bl_ip6[addr] = 'Redirect Address'
+            wl_ip6[addr] = 'Redirect Address'
+
+        wl_dom[rev_ip(addr)] = 'Redirect Address'
+
+    for domain in forward_servers:
+        for addr in forward_servers[domain]:
+            log_info('Whitelisted IP: Forward Server ' + addr + ' for \"' + domain + '\"')
+            if ipregex4.search(addr):
+                wl_ip4[addr] = 'Forward Server \"' + domain + '\"'
+            elif ipregex6.search(addr):
+                wl_ip6[addr] = 'Forward Server \"' + domain + '\"'
+
+            wl_dom[rev_ip(addr)] = 'Forward Server'
 
     if not load_lists(savefile):
         for lst in sorted(lists.keys()):
