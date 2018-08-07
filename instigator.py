@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.185-20180807 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.186-20180807 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -949,10 +949,11 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 # DOMAIN
                 elif isdomain.search(entry):
                     entry = normalize_dom(entry)
-                    if blockillegal and len(entry) < 253 and all(len(x) < 64 for x in entry.split('.')) == False:
-                        if entry != '.':
-                            fetched += 1
-                            domlist[entry] = id
+                    if blockillegal and (len(entry) > 252 or all(len(x) < 64 for x in entry.split('.')) == False):
+                       log_err(listname + ' ILLEGAL/FAULTY Entry [' + str(count) + ']: ' + entry)
+                    elif entry != '.':
+                       fetched += 1
+                       domlist[entry] = id
 
                 # IPV4
                 elif ipregex4.search(entry):
@@ -1477,12 +1478,12 @@ def do_query(request, handler, force):
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
         elif filtering and blockillegal and len(qname) > 252:
-            log_info('ILLEGAL-LENGTH-HIT: ' + queryname)
+            log_err('ILLEGAL-LENGTH-HIT: ' + queryname)
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
         elif filtering and blockillegal and all(len(x) < 64 for x in qname.split('.')) == False:
-            log_info('ILLEGAL-LABEL-LENGTH-HIT: ' + queryname)
+            log_err('ILLEGAL-LABEL-LENGTH-HIT: ' + queryname)
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
