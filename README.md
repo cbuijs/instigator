@@ -46,6 +46,6 @@ Forwarders need to be divided by a greater-then-symbol (>), port numbers can be 
 TTL overrides can be done by using an exclamation (!), example (TTL in seconds):
 
 	google.com!666		# Use TTL of 666 for domain google.com and all sub-domains ending in .google.com
-	chrisbuijs.com!120	# Use a TTL of 120 for domain google.com and all sub-domains ending in .chrisbuijs.com
+	chrisbuijs.com!120	# Use a TTL of 120 for domain chrisbuijs.com and all sub-domains ending in .chrisbuijs.com
 	
 <b>Note:</b> Aliases/Forwarders/TTL-Overrides are automatically "whitelisted", and cannot point to other aliases. For forwarders port-number is optional (default of 53 is assumed).
