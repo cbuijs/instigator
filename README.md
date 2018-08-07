@@ -34,9 +34,9 @@ Aliases need to be divided by an equals-symbol (=), example (domains include sub
 
 	www.google.com=retricted.google.com	# Redirect
 	www.company.com=10.1.2.3		# Hosts-file equivelant, but includes sub-domains as well
-	www.badguys.com=REFUSED			# Return-code refused
-	www.whatisthis.com=NXDOMAIN		# Return-code NXDOMAIN
-	www.goodguys.com=PASSTHRU		# Passthru/whitelist
+	www.badguys.com=REFUSED			# Return-code REFUSED for domain and sub-domains
+	www.whatisthis.com=NXDOMAIN		# Return-code NXDOMAIN for domain and sub-domains
+	www.goodguys.com=PASSTHRU		# Passthru/whitelist domain and sub-domains
 
 Forwarders need to be divided by a greater-then-symbol (>), port numbers can be used using the at-sign (@), example:
 
