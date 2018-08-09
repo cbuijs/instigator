@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.186-20180807 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.188-20180807 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -168,6 +168,9 @@ blockundotted = True
 
 # Block illegal names
 blockillegal = True
+
+# Block weird
+blockweird = True
 
 # Block rebinding, meaning that IP-Addresses in responses that match against below ranges,
 # must come from a DNS server with an IP-Address also in below ranges
@@ -1472,6 +1475,11 @@ def do_query(request, handler, force):
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
             reply.add_ar(EDNS0())
+
+        elif filtering and blockweird and qtype == 'PTR' and qname.endswith('.arpa') == False:
+            log_info('WEIRD-HIT: ' + queryname)
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
         elif filtering and blockundotted and qname.find('.') == -1:
             log_info('UNDOTTED-HIT: ' + queryname)
