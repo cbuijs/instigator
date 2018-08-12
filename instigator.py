@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.191-20180812 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.192-20180812 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1460,7 +1460,7 @@ def do_query(request, handler, force):
     # Quick response when in cache
     reply = None
 
-    if (cip not in allow_query4) and (cip not in allow_query6):
+    if (cip != 'PREFETCHER") and (cip not in allow_query4) and (cip not in allow_query6):
         log_info('ACL-HIT: Request from ' + cip + ' for ' + queryname + ' REFUSED')
         reply = request.reply()
         reply.header.rcode = getattr(RCODE, aclrcode)
