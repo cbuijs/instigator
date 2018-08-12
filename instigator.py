@@ -1460,7 +1460,7 @@ def do_query(request, handler, force):
     # Quick response when in cache
     reply = None
 
-    if (cip != 'PREFETCHER") and (cip not in allow_query4) and (cip not in allow_query6):
+    if (cip != 'PREFETCHER') and (cip not in allow_query4) and (cip not in allow_query6):
         log_info('ACL-HIT: Request from ' + cip + ' for ' + queryname + ' REFUSED')
         reply = request.reply()
         reply.header.rcode = getattr(RCODE, aclrcode)
