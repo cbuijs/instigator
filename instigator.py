@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.19-20180812 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.191-20180812 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -93,7 +93,7 @@ forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '
 #redirect_addrs = list(['172.16.1.1', '0000:0000:0000:0000:0000:0000:0000:0000'])
 redirect_addrs = list(['172.16.1.251'])
 #redirect_addrs = list(['172.16.1.1'])
-#redirect_addrs = list(['blocked.eero.com'])
+#redirect_addrs = list(['blocked.eero.com']) # test with eero-plus stuff
 
 # ACL's
 aclrcode = 'REFUSED'
