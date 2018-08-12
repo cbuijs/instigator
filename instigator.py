@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.188-20180807 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.19-20180812 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -94,6 +94,16 @@ forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '
 redirect_addrs = list(['172.16.1.251'])
 #redirect_addrs = list(['172.16.1.1'])
 #redirect_addrs = list(['blocked.eero.com'])
+
+# ACL's
+aclrcode = 'REFUSED'
+allow_query4 = pytricia.PyTricia(32)
+allow_query4['10.0.0.0/8'] = 'RFC1918 10.0.0.0/8'
+#allow_query4['127.0.0.1/32'] = 'RFC990 Localhost'
+allow_query4['172.16.0.0/12'] = 'RFC1918 172.16.0.0/12'
+allow_query4['192.168.0.0/16'] = 'RFC1918 192.168.0.0/16'
+allow_query6 = pytricia.PyTricia(128)
+allow_query6['::1/128'] = 'RFC4291 Localhost'
 
 # Return-code when query hits a list and cannot be redirected, only use NXDOMAIN or REFUSED
 hitrcode = 'NXDOMAIN'
@@ -1449,6 +1459,11 @@ def do_query(request, handler, force):
 
     # Quick response when in cache
     reply = None
+
+    if (cip not in allow_query4) and (cip not in allow_query6):
+        log_info('ACL-HIT: Request from ' + cip + ' for ' + queryname + ' REFUSED')
+        reply = request.reply()
+        reply.header.rcode = getattr(RCODE, aclrcode)
 
     if command and qname.endswith('.' + command):
         reply = request.reply()
