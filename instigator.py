@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.193-20180813 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.195-20180813 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -13,7 +13,7 @@ This is a little study to build a DNS server in Python including some features:
 
 ... to be elaborated
 
-TODO:
+ToDo/Ideas:
 - Loads ...
 - Use configuration file in easy format to configure Instigator
 - Logging only option (no blocking), partly done.
@@ -21,8 +21,8 @@ TODO:
 - Better Documentation / Remarks / Comments
 - Optimize code for better cache/resolution performance
 - Switch to dnspython or more modern lib as DNS 'engine' (backburner or seperate project)
-- DNSSEC support (validation only)
-- Itterative resolution besides only forwarding (as is today)
+- DNSSEC support (validation only), like DNSMasq
+- Itterative resolution besides only forwarding (as is today), backburner.
 
 =========================================================================================
 '''
@@ -1552,14 +1552,14 @@ class DNS_Instigator(BaseResolver):
         return do_query(request, handler, False)
 
 
-# Main
+# Main beef
 if __name__ == "__main__":
     log_info('-----------------------')
     log_info('Initializing INSTIGATOR')
 
     if debug: log_info('RUNNING INSTIGATOR IN DEBUG MODE')
 
-    # Read Lists
+    # Add redirect-addresses to whitelist
     for addr in redirect_addrs:
         log_info('Whitelisted IP: Redirect Address ' + addr)
         if ipregex4.search(addr):
@@ -1569,6 +1569,7 @@ if __name__ == "__main__":
 
         wl_dom[rev_ip(addr)] = 'Redirect Address'
 
+    # Add forward-servers to whitelist
     for domain in forward_servers:
         for addr in forward_servers[domain]:
             address = addr.split('@')[0]
@@ -1580,6 +1581,7 @@ if __name__ == "__main__":
 
             wl_dom[rev_ip(addr)] = 'Forward Server'
 
+    # Load/Read lists
     if not load_lists(savefile):
         for lst in sorted(lists.keys()):
             if lst in whitelist:
@@ -1589,10 +1591,13 @@ if __name__ == "__main__":
 
         save_lists(savefile)
 
+    # Add command-tld to whitelist
     wl_dom[command] = 'Command-TLD'
 
+    # Show totals in log
     log_total()
 
+    # Load persistent cache
     if not debug:
         load_cache(cachefile)
 
@@ -1657,6 +1662,7 @@ if __name__ == "__main__":
         pass
 
 
+    # Shutdown ports
     for listen in listen_on:
         if ipportregex.search(listen):
             elements = listen.split('@')
@@ -1677,6 +1683,7 @@ if __name__ == "__main__":
                 log_err('ERROR: Unable to stop service on ' + listen_address + ' at port ' + str(listen_port) + ' - ' + str(err))
                 pass
 
+    # Save persistent cache
     save_cache(cachefile)
 
     log_info('INSTIGATOR EXIT')
