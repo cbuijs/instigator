@@ -20,6 +20,7 @@ ToDo/Ideas:
 - Listen on IPv6 or use IPv6 as transport (need help!)
 - Better Documentation / Remarks / Comments
 - Optimize code for better cache/resolution performance
+- Cleanup code and optimize. Some of it is hacky-quick-code.
 - Switch to dnspython or more modern lib as DNS 'engine' (backburner or seperate project)
 - DNSSEC support (validation only), like DNSMasq
 - Itterative resolution besides only forwarding (as is today), backburner.
