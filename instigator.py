@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.198-20180814 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.199-20180822 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -86,7 +86,8 @@ forward_servers = dict()
 #forward_servers['.'] = list(['156.154.70.2@53','156.154.71.2@53']) # DEFAULT Neustar
 #forward_servers['.'] = list(['8.34.34.34@53', '8.35.35.35.35@53']) # DEFAULT ZScaler Shift
 #forward_servers['.'] = list(['71.243.0.14@53', '68.237.161.14@53']) # DEFAULT Verizon New England area (Boston and NY opt-out)
-forward_servers['.'] = list(['127.0.0.1@53001', '127.0.0.1@53002', '127.0.0.1@53003', '127.0.0.1@53004']) # DEFAULT Stubby
+#forward_servers['.'] = list(['127.0.0.1@53001', '127.0.0.1@53002', '127.0.0.1@53003', '127.0.0.1@53004']) # DEFAULT Stubby
+forward_servers['.'] = list(['172.16.1.1@53053']) # Stubby on router
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_addrs = list()
@@ -465,7 +466,8 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
             else:
                 forward_port = 53
     
-            if (forward_address != cip) and (query_hash(forward_address, 'BROKEN-FORWARDER', str(forward_port)) not in cache):
+            #if (forward_address != cip) and (query_hash(forward_address, 'BROKEN-FORWARDER', str(forward_port)) not in cache):
+            if query_hash(forward_address, 'BROKEN-FORWARDER', str(forward_port)) not in cache:
                 log_info('DNS-QUERY [' + id_str(id) + ']: forwarding query from ' + cip + ' to ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
 
                 error = 'None'
