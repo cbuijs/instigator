@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.2-20180823 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.25-20180828 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -174,7 +174,7 @@ collapse = True
 
 # Block IPV4 or IPv6 based queries
 blockv4 = False
-blockv6 = True
+blockv6 = True # Put on False as default
 
 # Block undotted names
 blockundotted = True
@@ -362,6 +362,36 @@ def match_blacklist(rid, type, rrtype, value, log):
         elif prefix:
             if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + wip[prefix] + ')')
             return False
+
+
+    # Check if Reverse-IPv4 is blacklisted
+    elif testvalue.endswith('.in-addr.arpa'):
+        ip = '.'.join(testvalue.split('.')[0:4][::-1])
+        if ipregex4.search(ip):
+            if not ip in wl_ip4:
+                if ip in bl_ip4:
+                    prefix = bl_ip4.get_key(ip)
+                    if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + bl_ip4[prefix] + ')')
+                    return True
+            else:
+                prefix = wl_ip4.get_key(ip)
+                if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + wk_ip4[prefix] + ')')
+                return False
+
+    # Check if Reverse-IPv6 is blacklisted
+    elif testvalue.endswith('.ip6.arpa'):
+        ip = ':'.join(filter(None, regex.split('(.{4,4})',''.join(testvalue.split('.')[0:32][::-1]))))
+        if ipregex6.search(ip):
+            if not ip in wl_ip6:
+                if ip in bl_ip6:
+                    prefix = bl_ip6.get_key(ip)
+                    if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + bl_ip6[prefix] + ')')
+                    return True
+            else:
+                prefix = wl_ip6.get_key(ip)
+                if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + wk_ip6[prefix] + ')')
+                return False
+
 
     # Check against Sub-Domain-Lists
     elif testvalue.find('.') > 0 and isdomain.search(testvalue):
@@ -976,13 +1006,13 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 elif ipregex4.search(entry):
                     fetched += 1
                     iplist4[entry] = id
-                    domlist[rev_ip(entry)] = 'Auto-Reverse ' + entry + ' - ' + id
+                    #domlist[rev_ip(entry)] = 'Auto-Reverse ' + entry + ' - ' + id
 
                 # IPV6
                 elif ipregex6.search(entry):
                     fetched += 1
                     iplist6[entry] = id
-                    domlist[rev_ip(entry)] = 'Auto-Reverse ' + entry + ' - ' + id
+                    #domlist[rev_ip(entry)] = 'Auto-Reverse ' + entry + ' - ' + id
 
                 #### !!! From here on there are functional entries, which are always condidered "whitelist"
                 # ALIAS - domain.com=ip or domain.com=otherdomain.com
@@ -1572,7 +1602,7 @@ if __name__ == "__main__":
         elif ipregex6.search(addr):
             wl_ip6[addr] = 'Redirect Address'
 
-        wl_dom[rev_ip(addr)] = 'Redirect Address'
+        #wl_dom[rev_ip(addr)] = 'Redirect Address'
 
     # Add forward-servers to whitelist
     for domain in forward_servers:
@@ -1584,7 +1614,7 @@ if __name__ == "__main__":
             elif ipregex6.search(addr):
                 wl_ip6[address] = 'Forward Server \"' + domain + '\"'
 
-            wl_dom[rev_ip(addr)] = 'Forward Server'
+            #wl_dom[rev_ip(addr)] = 'Forward Server'
 
     # Load/Read lists
     if not load_lists(savefile):
