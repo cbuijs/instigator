@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.29-20180828 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.32-20180829 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -19,11 +19,12 @@ ToDo/Ideas:
 - Logging only option (no blocking), partly done.
 - Listen on IPv6 or use IPv6 as transport (need help!)
 - Better Documentation / Remarks / Comments
-- Optimize code for better cache/resolution performance
+- Optimize code for better cache/resolution performance, ongoing ...
 - Cleanup code and optimize. Some of it is hacky-quick-code.
 - Switch to dnspython or more modern lib as DNS 'engine' (backburner or seperate project)
 - DNSSEC support (validation only), like DNSMasq
 - Itterative resolution besides only forwarding (as is today), backburner.
+- Add more security-features against hammering, dns-drip, ddos, etc.
 
 =========================================================================================
 '''
@@ -332,14 +333,28 @@ def file_exist(file, isdb):
 #   None = None-listed
 def match_blacklist(rid, type, rrtype, value, log):
     id = id_str(rid)
+
     testvalue = value
 
     itisanip = False
-    if type == 'REPLY':
+
+    if type == 'REQUEST' and rrtype == 'PTR': 
+        ip = False
+        if ip4arpa.search(testvalue):
+            ip = '.'.join(testvalue.split('.')[0:4][::-1])
+        elif ip6arpa.search(testvalue):
+            ip = ':'.join(filter(None, regex.split('(.{4,4})',''.join(testvalue.split('.')[0:32][::-1]))))
+
+        if ip:
+            itisanip = True
+            testvalue = ip
+
+    elif type == 'REPLY':
         if rrtype in ('A', 'AAAA'):
             itisanip = True
         else:
             testvalue = normalize_dom(regex.split('\s+', testvalue)[-1])
+
 
     # Check against IP-Lists
     if itisanip:
@@ -360,38 +375,14 @@ def match_blacklist(rid, type, rrtype, value, log):
         else:
             prefix = wip.get_key(testvalue)
 
+        if testvalue != value:
+            testvalue = value + '/' + testvalue
+
         if found:
             if log: log_info('BLACKLIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + bip[prefix] + ')')
             return True
         elif prefix:
             if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + ' matched against ' + prefix + ' (' + wip[prefix] + ')')
-            return False
-
-
-    # Check if Reverse-IPv4 is blacklisted
-    elif ip4arpa.search(testvalue):
-        ip = '.'.join(testvalue.split('.')[0:4][::-1])
-        if not ip in wl_ip4:
-            if ip in bl_ip4:
-                prefix = bl_ip4.get_key(ip)
-                if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + bl_ip4[prefix] + ')')
-                return True
-        else:
-            prefix = wl_ip4.get_key(ip)
-            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + wk_ip4[prefix] + ')')
-            return False
-
-    # Check if Reverse-IPv6 is blacklisted
-    elif ip6arpa.search(testvalue):
-        ip = ':'.join(filter(None, regex.split('(.{4,4})',''.join(testvalue.split('.')[0:32][::-1]))))
-        if not ip in wl_ip6:
-            if ip in bl_ip6:
-                prefix = bl_ip6.get_key(ip)
-                if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + bl_ip6[prefix] + ')')
-                return True
-        else:
-            prefix = wl_ip6.get_key(ip)
-            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + wk_ip6[prefix] + ')')
             return False
 
 
@@ -407,6 +398,7 @@ def match_blacklist(rid, type, rrtype, value, log):
                 if log: log_info('BLACKLIST-HIT [' + id + ']: ' + type + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
                 return True
     
+
     # Check agains Regex-Lists
     for i in wl_rx.keys():
         rx = wl_rx[i]
@@ -917,32 +909,6 @@ def log_total():
     return True
 
 
-# Reverse IP (Not utilized at the moment)
-def rev_ip(cidr):
-
-    if cidr.find('/') == -1:
-        ip = cidr
-        if cidr.find(':') == -1:
-            bits = 32
-        else:
-            bits = 128
-    else:
-        ip, bits  = cidr.split('/')
-
-    if ip.find(':') == -1:
-        if bits in ('8', '16', '24', '32'):
-            cut = int(int(bits) / 8)
-            arpa = '.'.join('.'.join(ip.split('.')[:cut]).split('.')[::-1]) + '.in-addr.arpa'  # Add IPv4 in-addr.arpa
-        else:
-            arpa = 'dummy-' + cidr
-
-    else:
-        a = ip.replace(':', '')
-        arpa = '.'.join(a[i:i+1] for i in range(0, len(a), 1))[::-1] + '.ip6.arpa'  # Add IPv6 ip6.arpa
-
-    return arpa
-
-
 def normalize_dom(dom):
     return str(dom).strip().strip('.').lower() or '.'
 
@@ -1008,13 +974,11 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 elif ipregex4.search(entry):
                     fetched += 1
                     iplist4[entry] = id
-                    #domlist[rev_ip(entry)] = 'Auto-Reverse ' + entry + ' - ' + id # Not needed, catched in match_blacklist
 
                 # IPV6
                 elif ipregex6.search(entry):
                     fetched += 1
                     iplist6[entry] = id
-                    #domlist[rev_ip(entry)] = 'Auto-Reverse ' + entry + ' - ' + id # Not needed, catched in match_blacklist
 
                 #### !!! From here on there are functional entries, which are always condidered "whitelist"
                 # ALIAS - domain.com=ip or domain.com=otherdomain.com
@@ -1529,16 +1493,16 @@ def do_query(request, handler, force):
             reply.add_ar(EDNS0())
 
         elif filtering and blockweird and qtype == 'PTR' and (not ip4arpa.search(qname) and not ip6arpa.search(qname)):
-            log_info('WEIRD-HIT: ' + queryname)
+            log_info('BLOCK-WEIRD-HIT: ' + queryname)
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
         elif filtering and blockundotted and qname.find('.') == -1:
-            log_info('UNDOTTED-HIT: ' + queryname)
+            log_info('BLOCK-UNDOTTED-HIT: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
         elif filtering and blockillegal and len(qname) > 252:
-            log_err('ILLEGAL-LENGTH-HIT: ' + queryname)
+            log_err('BLOCK-ILLEGAL-LENGTH-HIT: ' + queryname)
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
@@ -1548,11 +1512,11 @@ def do_query(request, handler, force):
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
         elif filtering and blockv4 and (qtype == 'A' or ip4arpa.search(qname)):
-            log_info('IPV4-HIT: ' + queryname)
+            log_info('BLOCK-IPV4-HIT: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
         elif filtering and blockv6 and (qtype == 'AAAA' or ip6arpa.search(qname)):
-            log_info('IPV6-HIT: ' + queryname)
+            log_info('BLOCK-IPV6-HIT: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
         elif filtering and qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
@@ -1604,8 +1568,6 @@ if __name__ == "__main__":
         elif ipregex6.search(addr):
             wl_ip6[addr] = 'Redirect Address'
 
-        #wl_dom[rev_ip(addr)] = 'Redirect Address' # Not needed, catched in match_blacklist
-
     # Add forward-servers to whitelist
     for domain in forward_servers:
         for addr in forward_servers[domain]:
@@ -1615,8 +1577,6 @@ if __name__ == "__main__":
                 wl_ip4[address] = 'Forward Server \"' + domain + '\"'
             elif ipregex6.search(addr):
                 wl_ip6[address] = 'Forward Server \"' + domain + '\"'
-
-            #wl_dom[rev_ip(addr)] = 'Forward Server' # Not needed, catched in match_blacklist
 
     # Load/Read lists
     if not load_lists(savefile):
