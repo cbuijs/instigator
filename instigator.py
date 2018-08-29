@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.25-20180828 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.27-20180828 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -272,6 +272,10 @@ ipportregex4 = regex.compile('^' + ip4portregex_text + '$', regex.I)
 ipportregex6 = regex.compile('^' + ip6portregex_text + '$', regex.I)
 ipportregex = regex.compile('^(' + ip4portregex_text + '|' + ip6portregex_text + ')$', regex.I)
 
+# Regex for arpa's
+ip4arpa = regex.compile('^([0-9]{1,3}\.){4}in-addr\.arpa$', regex.I)
+ip6arpa = regex.compile('^([0-9a-f]\.){32}ip6\.arpa$', regex.I)
+
 # Regex to match domains/hosts in lists
 isdomain = regex.compile('^[a-z0-9\.\_\-]+$', regex.I) # Based on RFC1035 plus underscore
 
@@ -365,32 +369,30 @@ def match_blacklist(rid, type, rrtype, value, log):
 
 
     # Check if Reverse-IPv4 is blacklisted
-    elif testvalue.endswith('.in-addr.arpa'):
+    elif ip4arpa.search(testvalue):
         ip = '.'.join(testvalue.split('.')[0:4][::-1])
-        if ipregex4.search(ip):
-            if not ip in wl_ip4:
-                if ip in bl_ip4:
-                    prefix = bl_ip4.get_key(ip)
-                    if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + bl_ip4[prefix] + ')')
-                    return True
-            else:
-                prefix = wl_ip4.get_key(ip)
-                if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + wk_ip4[prefix] + ')')
-                return False
+        if not ip in wl_ip4:
+            if ip in bl_ip4:
+                prefix = bl_ip4.get_key(ip)
+                if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + bl_ip4[prefix] + ')')
+                return True
+        else:
+            prefix = wl_ip4.get_key(ip)
+            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + wk_ip4[prefix] + ')')
+            return False
 
     # Check if Reverse-IPv6 is blacklisted
-    elif testvalue.endswith('.ip6.arpa'):
+    elif ip6arpa.search(testvalue):
         ip = ':'.join(filter(None, regex.split('(.{4,4})',''.join(testvalue.split('.')[0:32][::-1]))))
-        if ipregex6.search(ip):
-            if not ip in wl_ip6:
-                if ip in bl_ip6:
-                    prefix = bl_ip6.get_key(ip)
-                    if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + bl_ip6[prefix] + ')')
-                    return True
-            else:
-                prefix = wl_ip6.get_key(ip)
-                if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + wk_ip6[prefix] + ')')
-                return False
+        if not ip in wl_ip6:
+            if ip in bl_ip6:
+                prefix = bl_ip6.get_key(ip)
+                if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + bl_ip6[prefix] + ')')
+                return True
+        else:
+            prefix = wl_ip6.get_key(ip)
+            if log: log_info('WHITELIST-IP-HIT [' + id + ']: ' + type + ' ' + testvalue + '/' + ip + ' matched against ' + prefix + ' (' + wk_ip6[prefix] + ')')
+            return False
 
 
     # Check against Sub-Domain-Lists
@@ -1545,11 +1547,11 @@ def do_query(request, handler, force):
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
-        elif filtering and blockv4 and (qtype == 'A' or qname.endswith('.in-addr.arpa')):
+        elif filtering and blockv4 and (qtype == 'A' or ip4arpa.search(qname)):
             log_info('IPV4-HIT: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
-        elif filtering and blockv6 and (qtype == 'AAAA' or qname.endswith('.ip6.arpa')):
+        elif filtering and blockv6 and (qtype == 'AAAA' or ip6arpa.search(qname)):
             log_info('IPV6-HIT: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
