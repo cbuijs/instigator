@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.28-20180828 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.29-20180828 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1528,7 +1528,7 @@ def do_query(request, handler, force):
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
             reply.add_ar(EDNS0())
 
-        elif filtering and blockweird and qtype == 'PTR' and qname.endswith('.arpa') == False:
+        elif filtering and blockweird and qtype == 'PTR' and (not ip4arpa.search(qname) and not ip6arpa.search(qname)):
             log_info('WEIRD-HIT: ' + queryname)
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
