@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.27-20180828 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.28-20180828 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -917,7 +917,7 @@ def log_total():
     return True
 
 
-# Reverse IP
+# Reverse IP (Not utilized at the moment)
 def rev_ip(cidr):
 
     if cidr.find('/') == -1:
@@ -1008,13 +1008,13 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                 elif ipregex4.search(entry):
                     fetched += 1
                     iplist4[entry] = id
-                    #domlist[rev_ip(entry)] = 'Auto-Reverse ' + entry + ' - ' + id
+                    #domlist[rev_ip(entry)] = 'Auto-Reverse ' + entry + ' - ' + id # Not needed, catched in match_blacklist
 
                 # IPV6
                 elif ipregex6.search(entry):
                     fetched += 1
                     iplist6[entry] = id
-                    #domlist[rev_ip(entry)] = 'Auto-Reverse ' + entry + ' - ' + id
+                    #domlist[rev_ip(entry)] = 'Auto-Reverse ' + entry + ' - ' + id # Not needed, catched in match_blacklist
 
                 #### !!! From here on there are functional entries, which are always condidered "whitelist"
                 # ALIAS - domain.com=ip or domain.com=otherdomain.com
@@ -1604,7 +1604,7 @@ if __name__ == "__main__":
         elif ipregex6.search(addr):
             wl_ip6[addr] = 'Redirect Address'
 
-        #wl_dom[rev_ip(addr)] = 'Redirect Address'
+        #wl_dom[rev_ip(addr)] = 'Redirect Address' # Not needed, catched in match_blacklist
 
     # Add forward-servers to whitelist
     for domain in forward_servers:
@@ -1616,7 +1616,7 @@ if __name__ == "__main__":
             elif ipregex6.search(addr):
                 wl_ip6[address] = 'Forward Server \"' + domain + '\"'
 
-            #wl_dom[rev_ip(addr)] = 'Forward Server'
+            #wl_dom[rev_ip(addr)] = 'Forward Server' # Not needed, catched in match_blacklist
 
     # Load/Read lists
     if not load_lists(savefile):
