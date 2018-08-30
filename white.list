@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1535530861                  ###
+### Version: 1535617260                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -679,6 +679,7 @@ alfa-bank.com	Shalla-Banking
 alfransi.com	Shalla-Banking
 alibaba.com	Notracking-Whitelist
 alicdn.com	Notracking-Whitelist
+reputation.alienvault.com	Chris-White
 aliexpress.com	Notracking-Whitelist
 alignedpartners.com	Shalla-Banking
 alipay.com	Adguard-Banks
@@ -808,6 +809,7 @@ balconesbank.com	Shalla-Banking
 baltcosavings.com	Shalla-Banking
 baltimoretrustco.com	Shalla-Banking
 online.baltinvest.com	Adguard-Banks
+osint.bambenekconsulting.com	Chris-White
 bamericano.com	Shalla-Banking
 banamex.com	Shalla-Banking
 bancado.com	Shalla-Banking
@@ -2024,6 +2026,7 @@ gilmercountybank.com	Shalla-Banking
 github.com	Chris-White, Notracking-Whitelist
 githubapp.com	Chris-White
 githubusercontent.com	Chris-White
+gitlab.com	Chris-White
 gizmodo.com	Notracking-Whitelist
 glacierbank.com	Shalla-Banking
 glassdoor.com	Chris-White
@@ -2081,6 +2084,7 @@ habibamericanbank.com	Shalla-Banking
 habibbank.com	Shalla-Banking
 habibbankltd.com	Shalla-Banking
 habibmetro.com	Shalla-Banking
+api.hackertarget.com	Chris-White
 hancockbank.com	Shalla-Banking
 hangseng.com	Shalla-Banking
 hanmi.com	Shalla-Banking
@@ -2237,6 +2241,7 @@ iob.com	Shalla-Banking
 iobsingapore.com	Shalla-Banking
 iowastatebanks.com	Shalla-Banking
 ipchicken.com	Notracking-Whitelist
+ipdeny.com	Chris-White
 i.ipotekabank.com	Adguard-Banks
 secure.ipsp.com	Adguard-Banks
 ironbank.com	Shalla-Banking
@@ -2485,6 +2490,7 @@ meespierson.com	Shalla-Banking
 meetup.com	Notracking-Whitelist
 meib.com	Shalla-Banking
 meinlbank.com	Shalla-Banking
+meizu.com	Notracking-Whitelist
 mejprombank-nl.com	Shalla-Banking
 mellon.com	Shalla-Banking
 melrosecoop.com	Shalla-Banking
@@ -5852,6 +5858,7 @@ sbc.io	Chris-White
 schibsted.io	Notracking-Whitelist
 sentry.io	Notracking-Whitelist
 suspect-networks.io	Source
+zonefiles.io	Chris-White
 cbi.iq	Shalla-Banking
 ib.bank-maskan.ir	Adguard-Banks
 bankmellat.ir	Shalla-Banking
@@ -6303,6 +6310,7 @@ mcm.gov.mo	Shalla-Banking
 clientis-sparkasse-horgen-niederlassung-hirzel.firmen24.mobi	Shalla-Banking
 j.mp	Notracking-Whitelist
 1drv.ms	Notracking-Whitelist
+myip.ms	Chris-White
 bom.intnet.mu	Shalla-Banking
 mcb.mu	Shalla-Banking
 mib.mu	Shalla-Banking
@@ -6602,6 +6610,7 @@ arkbankers.org	Shalla-Banking
 asbaweb.org	Shalla-Banking
 aseanbankers.org	Shalla-Banking
 austinmba.org	Shalla-Banking
+autoshun.org	Chris-White
 azbankers.org	Shalla-Banking
 baft.org	Shalla-Banking
 bai.org	Shalla-Banking
@@ -6787,6 +6796,7 @@ someonewhocares.org	Chris-White
 spamhaus.org	Chris-White
 squidblacklist.org	Chris-White
 stanev.org	Chris-White
+sa-blacklist.stearns.org	Chris-White
 suncoastmba.org	Shalla-Banking
 swissbanking.org	Shalla-Banking
 sysctl.org	Chris-White, Notracking-Whitelist
@@ -8159,7 +8169,7 @@ AS2906	Chris-ASN-White
 2.18.44.0/22	Chris-ASN-White-AS20940
 2.18.56.0/21	Aggregated
 2.18.65.0/24	Chris-ASN-White-AS20940
-2.18.67.0/24	Chris-ASN-White-AS20940
+2.18.66.0/23	Chris-ASN-White-AS20940
 2.18.72.0/21	Aggregated
 2.18.96.0/19	Aggregated
 2.18.128.0/19	Aggregated
@@ -8316,7 +8326,7 @@ AS2906	Chris-ASN-White
 23.1.16.0/20	Aggregated
 23.1.44.0/22	Chris-ASN-White-AS16625
 23.1.48.0/20	Chris-ASN-White-AS16625
-23.1.64.0/19	Aggregated
+23.1.64.0/20	Chris-ASN-White-AS16625
 23.1.112.0/20	Chris-ASN-White-AS16625
 23.1.128.0/20	Chris-ASN-White-AS16625
 23.1.160.0/19	Chris-ASN-White-AS16625
@@ -8356,7 +8366,7 @@ AS2906	Chris-ASN-White
 23.3.90.0/23	Chris-ASN-White-AS20940
 23.3.96.0/21	Aggregated
 23.3.104.0/23	Chris-ASN-White-AS20940
-23.3.128.0/21	Aggregated
+23.3.132.0/22	Chris-ASN-White-AS16625
 23.3.138.0/23	Chris-ASN-White-AS16625
 23.3.140.0/22	Chris-ASN-White-AS16625
 23.3.160.0/19	Chris-ASN-White-AS16625
@@ -8394,7 +8404,6 @@ AS2906	Chris-ASN-White
 23.6.160.0/19	Chris-ASN-White-AS16625
 23.6.192.0/22	Chris-ASN-White-AS20940
 23.6.196.0/23	Chris-ASN-White-AS20940
-23.6.224.0/20	Chris-ASN-White-AS20940
 23.7.32.0/19	Chris-ASN-White-AS16625
 23.7.144.0/20	Chris-ASN-White-AS20940
 23.7.160.0/19	Aggregated
@@ -8472,7 +8481,6 @@ AS2906	Chris-ASN-White
 23.15.135.0/24	Chris-ASN-White-AS20940
 23.15.144.0/20	Chris-ASN-White-AS20940
 23.15.184.0/22	Chris-ASN-White-AS16625
-23.15.190.0/23	Chris-ASN-White-AS20940
 23.15.192.0/23	Chris-ASN-White-AS16625
 23.15.242.0/23	Chris-ASN-White-AS20940
 23.15.244.0/23	Chris-ASN-White-AS20940
@@ -8973,6 +8981,7 @@ AS2906	Chris-ASN-White
 23.67.53.0/24	Chris-ASN-White-AS20940
 23.67.54.0/23	Chris-ASN-White-AS20940
 23.67.56.0/24	Chris-ASN-White-AS20940
+23.67.59.0/24	Chris-ASN-White-AS20940
 23.67.78.0/23	Chris-ASN-White-AS20940
 23.67.112.0/20	Chris-ASN-White-AS16625
 23.67.128.0/20	Chris-ASN-White-AS20940
@@ -9991,7 +10000,7 @@ AS2906	Chris-ASN-White
 103.51.152.0/24	Chris-ASN-White-AS16625
 103.74.6.0/23	Chris-ASN-White-AS20940
 103.74.12.0/23	Chris-ASN-White-AS20940
-103.95.84.0/22	Chris-ASN-White-AS20940
+103.95.84.0/22	Chris-ASN-White-AS16625
 103.224.140.0/23	Chris-ASN-White-AS20940
 103.225.242.0/24	Chris-ASN-White-AS20940
 103.228.80.0/23	Chris-ASN-White-AS20940
@@ -10394,8 +10403,7 @@ AS2906	Chris-ASN-White
 104.102.32.0/19	Chris-ASN-White-AS16625
 104.102.192.0/19	Chris-ASN-White-AS16625
 104.102.241.0/24	Chris-ASN-White-AS20940
-104.102.244.0/24	Chris-ASN-White-AS20940
-104.102.246.0/23	Chris-ASN-White-AS20940
+104.102.244.0/22	Chris-ASN-White-AS20940
 104.103.32.0/19	Chris-ASN-White-AS16625
 104.103.64.0/22	Chris-ASN-White-AS16625
 104.103.68.0/23	Chris-ASN-White-AS16625
