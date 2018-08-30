@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.32-20180829 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.35-20180829 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -185,6 +185,9 @@ blockillegal = True
 
 # Block weird
 blockweird = True
+
+# Block NX-Domain subdomains
+blocknxsub = False
 
 # Block rebinding, meaning that IP-Addresses in responses that match against below ranges,
 # must come from a DNS server with an IP-Address also in below ranges
@@ -609,6 +612,11 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                     log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
 
     else:
+        # Blocking NXDOMAIN subs need work!!!
+        if blocknxsub and rcode == 'NXDOMAIN':
+            log_info('ADD-NXDOMAIN-SUB [' + id_str(id) + ']: ' + queryname + ' = ' + rcode)
+            bl_dom[qname] = 'NXDOMAIN Sub-Domain'
+
         reply = request.reply()
         reply.header.rcode = getattr(RCODE, rcode)
         log_info('REPLY [' + id_str(id) + ']: ' + queryname + ' = ' + rcode)
@@ -1493,30 +1501,30 @@ def do_query(request, handler, force):
             reply.add_ar(EDNS0())
 
         elif filtering and blockweird and qtype == 'PTR' and (not ip4arpa.search(qname) and not ip6arpa.search(qname)):
-            log_info('BLOCK-WEIRD-HIT: ' + queryname)
+            log_info('BLOCK-WEIRD-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
         elif filtering and blockundotted and qname.find('.') == -1:
-            log_info('BLOCK-UNDOTTED-HIT: ' + queryname)
+            log_info('BLOCK-UNDOTTED-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
         elif filtering and blockillegal and len(qname) > 252:
-            log_err('BLOCK-ILLEGAL-LENGTH-HIT: ' + queryname)
+            log_err('BLOCK-ILLEGAL-LENGTH-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
         elif filtering and blockillegal and all(len(x) < 64 for x in qname.split('.')) == False:
-            log_err('ILLEGAL-LABEL-LENGTH-HIT: ' + queryname)
+            log_err('ILLEGAL-LABEL-LENGTH-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
         elif filtering and blockv4 and (qtype == 'A' or ip4arpa.search(qname)):
-            log_info('BLOCK-IPV4-HIT: ' + queryname)
+            log_info('BLOCK-IPV4-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
         elif filtering and blockv6 and (qtype == 'AAAA' or ip6arpa.search(qname)):
-            log_info('BLOCK-IPV6-HIT: ' + queryname)
+            log_info('BLOCK-IPV6-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
         elif filtering and qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
