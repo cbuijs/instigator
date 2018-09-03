@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.35-20180829 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.4-20180903 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -661,7 +661,7 @@ def generate_response(request, qname, qtype, redirect_addrs, force):
                 answer = RR(qname, QTYPE.A, ttl=cachettl, rdata=A(addr))
             elif qtype == 'AAAA' and ipregex6.search(addr):
                 answer = RR(qname, QTYPE.AAAA, ttl=cachettl, rdata=AAAA(addr))
-            elif (qtype in ('A', 'AAAA')) and (not ipregex.search(addr)):
+            elif (qtype in ('A', 'AAAA', 'CNAME')) and (not ipregex.search(addr)):
                 answer = RR(qname, QTYPE.CNAME, ttl=cachettl, rdata=CNAME(addr))
         
             if answer != None:
@@ -1187,13 +1187,31 @@ def from_cache(qname, qclass, qtype, id):
                 redirected = 'REDIRECT->' + rdata
           
         if len(reply.rr) > 0:
+            if redirected == 'STANDARD':
+                log_replies(reply, 'CACHE-REPLY')
+
             log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(len(reply.rr)) + ' RRs for ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + '/' + redirected + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
+
         else:
             log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(RCODE[reply.header.rcode]) + '/' + redirected + ' for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
 
         return reply
 
     return None
+
+
+# Log replies
+def log_replies(reply, title):
+    replycount = 0
+    replynum = len(reply.rr)
+    for record in reply.rr:
+        replycount += 1
+        rqname = normalize_dom(record.rname)
+        rqtype = QTYPE[record.rtype].upper()
+        data = normalize_dom(record.rdata)
+        log_info(title + ' [' + id_str(reply.header.id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data)
+
+    return True
 
 
 # Store into cache
