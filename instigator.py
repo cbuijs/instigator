@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.4-20180903 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.41-20180903 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1523,6 +1523,11 @@ def do_query(request, handler, force):
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
+        elif filtering and blockweird and qtype != 'PTR' and (ip4arpa.search(qname) or ip6arpa.search(qname)):
+            log_info('BLOCK-WEIRD-HIT [' + id_str(rid) + ']: ' + queryname)
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+
         elif filtering and blockundotted and qname.find('.') == -1:
             log_info('BLOCK-UNDOTTED-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
@@ -1537,11 +1542,11 @@ def do_query(request, handler, force):
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
-        elif filtering and blockv4 and (qtype == 'A' or ip4arpa.search(qname)):
+        elif filtering and blockv4 and (qtype == 'A' or (qtype == 'PTR' and ip4arpa.search(qname))):
             log_info('BLOCK-IPV4-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
-        elif filtering and blockv6 and (qtype == 'AAAA' or ip6arpa.search(qname)):
+        elif filtering and blockv6 and (qtype == 'AAAA' or (qtype == 'PTR' and ip6arpa.search(qname))):
             log_info('BLOCK-IPV6-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
