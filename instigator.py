@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.6-20180904 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.61-20180904 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1633,8 +1633,8 @@ def do_query(request, handler, force):
 
         # Cache if REQUEST/Query is filtered
         if queryfiltered:
-            _ = normalize_ttl(qname, reply.rr)
-            to_cache(qname, 'IN', qtype, reply, force, False)
+            ttl = normalize_ttl(qname, reply.rr)
+            to_cache(qname, 'IN', qtype, reply, force, ttl)
 
     log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
 
