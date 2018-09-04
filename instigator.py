@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.61-20180904 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.62-20180904 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1347,7 +1347,7 @@ def cache_purge(flushall):
         hitsneeded = int(round(orgttl / prefetchhitrate))
         rcode = str(RCODE[record[0].header.rcode])
         numrrs = len(record[0].rr)
-        log_info('CACHE-MAINT-EXPIRED: ' + record[2] + ' (RRs: ' + str(numrrs) + ') ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' hits] (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
+        log_info('CACHE-MAINT-EXPIRED: Purged ' + str(numrrs) + ' RRs for ' + record[2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' hits] (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
         del_cache_entry(queryhash)
 
     # Prune cache back to cachesize, removing lowest TTLs first
@@ -1390,7 +1390,7 @@ def add_cache_entry(qname, qclass, qtype, expire, ttl, reply, force):
 
     numrrs = len(cache.get(queryhash, defaultlist)[0].rr)
 
-    log_info('CACHE-UPDATE (' + str(len(cache)) + ' entries): ' + hashname + ' (RRs: ' + str(numrrs) + ') ' + rcode + ' (TTL:' + str(ttl) + ')')
+    log_info('CACHE-UPDATE (' + str(len(cache)) + ' entries): Cached ' + str(numrrs) + ' RRs for ' + hashname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
     return queryhash
 
