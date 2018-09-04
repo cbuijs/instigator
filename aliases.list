@@ -26,6 +26,7 @@
 
 # Lockdown NTP
 pool.ntp.org=north-america.pool.ntp.org
+time.google.com=north-america.pool.ntp.org
 
 # Forwarding example
 #local>192.168.1.1
@@ -43,6 +44,10 @@ localhost=127.0.0.1
 #walled.garden.redirect=192.168.1.250
 #blocked.eero.com=172.16.1.1
 
+# TTL override
+frutch!3600
+iotcplatform.com!3600
+
 # Test examples
 #chrisbuijs.com!666
 #chrisbuijs.com>9.9.9.9,149.112.112.112
@@ -57,6 +62,4 @@ localhost=127.0.0.1
 #www.company.com=PASSTHRU
 #test.company.com=www.googleapis.com
 #.!99999999
-#frutch!3600
-#1.168.192.in-addr.arpa!3600
 # <EOF>
