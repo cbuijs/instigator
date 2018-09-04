@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.57-20180904 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.6-20180904 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -165,6 +165,9 @@ checkresponse = True # When False, only queries are checked and responses are ig
 
 # Minimal Responses
 minresp = True
+
+# Minimum number of dots in a domain-name
+mindots = 1
 
 # Roundrobin of address/forward-records
 roundrobin = True
@@ -1559,8 +1562,8 @@ def do_query(request, handler, force):
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
         # Filter if domain-name is dot-less
-        elif filtering and blockundotted and qname.find('.') == -1:
-            log_info('BLOCK-UNDOTTED-HIT [' + id_str(rid) + ']: ' + queryname)
+        elif filtering and blockundotted and qname.count('.') < mindots:
+            log_info('BLOCK-MINDOTS-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
         # Filter if FQDN is too long
