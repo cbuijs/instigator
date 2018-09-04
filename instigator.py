@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.62-20180904 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.64-20180904 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1166,8 +1166,6 @@ def from_cache(qname, qclass, qtype, id):
 
         numhits = update_hits(queryhash)
 
-        redirected = "STANDARD"
-
         # Gather address and non-address records and do round-robin
         if roundrobin and len(reply.rr) > 1:
             addr = list()
@@ -1183,20 +1181,17 @@ def from_cache(qname, qclass, qtype, id):
             if len(addr) > 1:
                 reply.rr = nonaddr + round_robin(addr)
 
-        elif len(reply.rr) > 0:
-            reply.rr[0].ttl = ttl
-            rdata = str(reply.rr[0].rdata)
-            if rdata in redirect_addrs:
-                redirected = 'REDIRECT->' + rdata
-          
-        if len(reply.rr) > 0:
-            if redirected == 'STANDARD':
-                log_replies(reply, 'CACHE-REPLY')
+        log_replies(reply, 'CACHE-REPLY')
 
-            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(len(reply.rr)) + ' RRs for ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + '/' + redirected + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
+        if len(reply.rr) > 0:
+            numrrs = len(reply.rr)
+            if numrrs == 0:
+                log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(RCODE[reply.header.rcode]) + ' for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
+            else:
+                log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(numrrs) + ' RRs for ' + cacheentry[2] + ' ' + str(RCODE[reply.header.rcode]) + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
 
         else:
-            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(RCODE[reply.header.rcode]) + '/' + redirected + ' for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
+            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(RCODE[reply.header.rcode]) + ' for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
 
         return reply
 
@@ -1207,12 +1202,17 @@ def from_cache(qname, qclass, qtype, id):
 def log_replies(reply, title):
     replycount = 0
     replynum = len(reply.rr)
-    for record in reply.rr:
-        replycount += 1
-        rqname = normalize_dom(record.rname)
-        rqtype = QTYPE[record.rtype].upper()
-        data = normalize_dom(record.rdata)
-        log_info(title + ' [' + id_str(reply.header.id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data)
+    if replynum >0:
+        for record in reply.rr:
+            replycount += 1
+            rqname = normalize_dom(record.rname)
+            rqtype = QTYPE[record.rtype].upper()
+            data = normalize_dom(record.rdata)
+            log_info(title + ' [' + id_str(reply.header.id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data)
+    else:
+        rqname = normalize_dom(reply.q.qname)
+        rqtype = QTYPE[reply.q.qtype].upper()
+        log_info(title + ' [' + id_str(reply.header.id) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + str(RCODE[reply.header.rcode]))
 
     return True
 
@@ -1347,7 +1347,10 @@ def cache_purge(flushall):
         hitsneeded = int(round(orgttl / prefetchhitrate))
         rcode = str(RCODE[record[0].header.rcode])
         numrrs = len(record[0].rr)
-        log_info('CACHE-MAINT-EXPIRED: Purged ' + str(numrrs) + ' RRs for ' + record[2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' hits] (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
+        if numrrs == 0:
+            log_info('CACHE-MAINT-EXPIRED: Purged ' + rcode + ' for ' + record[2] + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' hits] (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
+        else:
+            log_info('CACHE-MAINT-EXPIRED: Purged ' + str(numrrs) + ' RRs for ' + record[2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' hits] (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
         del_cache_entry(queryhash)
 
     # Prune cache back to cachesize, removing lowest TTLs first
@@ -1390,7 +1393,10 @@ def add_cache_entry(qname, qclass, qtype, expire, ttl, reply, force):
 
     numrrs = len(cache.get(queryhash, defaultlist)[0].rr)
 
-    log_info('CACHE-UPDATE (' + str(len(cache)) + ' entries): Cached ' + str(numrrs) + ' RRs for ' + hashname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+    if numrrs == 0:
+        log_info('CACHE-UPDATE (' + str(len(cache)) + ' entries): Cached ' + rcode + ' for ' + hashname + ' (TTL:' + str(ttl) + ')')
+    else:
+        log_info('CACHE-UPDATE (' + str(len(cache)) + ' entries): Cached ' + str(numrrs) + ' RRs for ' + hashname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
 
     return queryhash
 
