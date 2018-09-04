@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.44-20180903 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.57-20180904 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -187,7 +187,7 @@ blockillegal = True
 blockweird = True
 
 # Block NX-Domain subdomains
-blocknxsub = False
+blocknxsub = True
 
 # Block rebinding, meaning that IP-Addresses in responses that match against below ranges,
 # must come from a DNS server with an IP-Address also in below ranges
@@ -612,11 +612,6 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                     log_info('REPLY [' + id_str(id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
 
     else:
-        # Blocking NXDOMAIN subs need work!!!
-        if blocknxsub and rcode == 'NXDOMAIN':
-            log_info('ADD-NXDOMAIN-SUB [' + id_str(id) + ']: ' + queryname + ' = ' + rcode)
-            bl_dom[qname] = 'NXDOMAIN Sub-Domain'
-
         reply = request.reply()
         reply.header.rcode = getattr(RCODE, rcode)
         log_info('REPLY [' + id_str(id) + ']: ' + queryname + ' = ' + rcode)
@@ -1057,41 +1052,46 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
 
 # Normalize TTL's, take either lowest or highest TTL for all records in RRSET
 def normalize_ttl(qname, rr):
+    if filtering:
+        newttl = in_domain(qname, ttls)
+        if newttl:
+            ttl = ttls.get(newttl, nottl)
+            log_info('TTL-HIT: Setting TTL for ' + qname + ' (' + newttl + ') to ' + str(ttl))
+            update_ttl(rr, ttl)
+            return ttl
+
     if rr and len(rr) > 0:
-        overridettl = False
-        if filtering:
-            newttl = in_domain(qname, ttls)
-            if newttl:
-                overridettl = ttls.get(newttl, False)
-        
-        if overridettl:
-            log_info('TTL-HIT: Setting TTL for ' + qname + ' (' + newttl + ') to ' + str(overridettl))
-            ttl = overridettl
+        if len(rr) == 1:
+            ttl = rr[0].ttl
         else:
-            if len(rr) == 1:
-                ttl = rr[0].ttl
+            if ttlstrategy == 'low':
+                ttl = min(x.ttl for x in rr) # Lowest TTL
+            elif ttlstrategy == 'high':
+                ttl = max(x.ttl for x in rr) # Highest TTL
             else:
-                if ttlstrategy == 'low':
-                    ttl = min(x.ttl for x in rr) # Lowest TTL
-                elif ttlstrategy == 'high':
-                    ttl = max(x.ttl for x in rr) # Highest TTL
-                else:
-                    ttl = int(sum(x.ttl for x in rr) / len(rr)) # Average TTL
+                ttl = int(sum(x.ttl for x in rr) / len(rr)) # Average TTL
 
-            if ttl < minttl:
-                #ttl = minttl # Minimum TTL enforced
-                #ttl = random.randint(minttl,maxttl) # Random pick between low and high
-                ttl += minttl # More cachable minimum TTL enforcement
-            elif ttl > maxttl:
-                ttl = maxttl
+        if ttl < minttl:
+            #ttl = minttl # Minimum TTL enforced
+            #ttl = random.randint(minttl,maxttl) # Random pick between low and high
+            ttl += minttl # More cachable minimum TTL enforcement
+        elif ttl > maxttl:
+            ttl = maxttl
 
-        for x in rr:
-            x.ttl = ttl
+        update_ttl(rr, ttl)
 
     else:
         ttl = nottl
 
     return ttl
+
+
+# Update all TTL's
+def update_ttl(rr, ttl):
+    for x in rr:
+        x.ttl = ttl
+
+    return None
 
 
 # Update hits
@@ -1224,12 +1224,18 @@ def to_cache(qname, qclass, qtype, reply, force, newttl):
 
     queryname = qname + '/' + qclass + '/' + qtype
     rcode = str(RCODE[reply.header.rcode])
+    ttl = nottl
 
     if qclass == 'BROKEN-FORWARDER':
         ttl = retryttl # Seconds before trying again
     else:
         if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
-            ttl = rcodettl
+            newttl = in_domain(qname, ttls)
+            if newttl:
+                ttl = ttls.get(newttl, nottl)
+            else:
+                ttl = rcodettl
+
         elif rcode == 'SERVFAIL':
             ttl = failttl
         elif rcode == 'NOERROR' and len(reply.rr) == 0:
@@ -1278,9 +1284,20 @@ def no_noerror_list():
 # Get list of prefetchable items
 def cache_prefetch_list():
     now = int(time.time())
-    # Formula: At least 2 cache-hits, hirate > 0 and hits are above/equal hitrate
+    # Formula: At least 2 cache-hits, hitrate > 0 and hits are above/equal hitrate
     # value list entries: 0:reply - 1:expire - 2:qname/class/type - 3:hits - 4:orgttl
     return list(dict((k,v) for k,v in cache.items() if v[3] > 1 and int(round(v[4] / prefetchhitrate)) > 0 and v[1] - now < int(round(v[4] / prefetchgettime)) and v[3] >= int((round(v[4] / prefetchhitrate)) - (round((v[1] - now) / prefetchhitrate)))).keys())
+
+
+# Get domains in cache
+def cache_dom_list():
+    newlist = set()
+    for x in cache.keys():
+        dom = cache.get(x, None)
+        if dom != None:
+            newlist.add(dom[2].split('/')[0])
+
+    return list(newlist)
 
 
 # Purge cache
@@ -1326,7 +1343,8 @@ def cache_purge(flushall):
         orgttl = record[4]
         hitsneeded = int(round(orgttl / prefetchhitrate))
         rcode = str(RCODE[record[0].header.rcode])
-        log_info('CACHE-MAINT-EXPIRED: ' + record[2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' hits] (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
+        numrrs = len(record[0].rr)
+        log_info('CACHE-MAINT-EXPIRED: ' + record[2] + ' (RRs: ' + str(numrrs) + ') ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' hits] (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
         del_cache_entry(queryhash)
 
     # Prune cache back to cachesize, removing lowest TTLs first
@@ -1367,7 +1385,9 @@ def add_cache_entry(qname, qclass, qtype, expire, ttl, reply, force):
 
     cache[queryhash] = list([reply, expire, hashname, 1, ttl]) # reply - expire - qname/class/type - hits - orgttl
 
-    log_info('CACHE-UPDATE (' + str(len(cache)) + ' entries): ' + hashname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+    numrrs = len(cache.get(queryhash, defaultlist)[0].rr)
+
+    log_info('CACHE-UPDATE (' + str(len(cache)) + ' entries): ' + hashname + ' (RRs: ' + str(numrrs) + ') ' + rcode + ' (TTL:' + str(ttl) + ')')
 
     return queryhash
 
@@ -1502,82 +1522,116 @@ def do_query(request, handler, force):
         else:
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
+
     # Quick response when in cache
-    if reply == None and (not force):
+    if reply == None and force == False:
         reply = from_cache(qname, qclass, qtype, rid)
 
+
+    # Check if parent is in cache as NXDOMAIN
+    if reply == None and force == False and blocknxsub:
+       dom = in_domain(qname, cache_dom_list())
+       if dom and dom != qname:
+           queryhash = query_hash(dom, qclass, qtype)
+           cacheentry = cache.get(queryhash, defaultlist)
+           if cacheentry != defaultlist and cacheentry != None:
+               rcode = str(RCODE[cacheentry[0].header.rcode])
+               if rcode == 'NXDOMAIN':
+                   log_info('CACHE-NXDOMAIN-MATCH: \"' + qname + '\" matches parent \"' + dom + '\" NXDOMAIN')
+                   reply = request.reply()
+                   reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+                   to_cache(qname, qclass, qtype, reply, force, False) # cache it
+
+    # More eleborated filtering on query
     if reply == None:
         queryfiltered = True
 
+        # Filter if qtype = ANY, QCLASS is something else then "IN" and query-type is not supported
         if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
             log_info('BLOCK-UNSUPPORTED-RRTYPE [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' NOTIMP')
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
 
+        # Filter when domain-name is not compliant
         elif filtering and blockillegal and isdomain.search(qname) == False:
             log_err('BLOCK-INVALID-NAME [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' SERVFAIL - INVALID SYNTAX')
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
+        # Filter if domain-name is dot-less
         elif filtering and blockundotted and qname.find('.') == -1:
             log_info('BLOCK-UNDOTTED-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
+        # Filter if FQDN is too long
         elif filtering and blockillegal and len(qname) > 252:
             log_err('BLOCK-ILLEGAL-LENGTH-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
+        # Filter if more domain-name contains more then 63 labels
         elif filtering and blockillegal and all(len(x) < 64 for x in qname.split('.')) == False:
             log_err('ILLEGAL-LABEL-LENGTH-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
+        # Filter if PTR records do not compy with IP-Addresses
         elif filtering and blockweird and qtype == 'PTR' and (not ip4arpa.search(qname) and not ip6arpa.search(qname)):
             log_info('BLOCK-WEIRD-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
+        # Filter if reverse-lookups are not PTR records
         elif filtering and blockweird and qtype != 'PTR' and (ip4arpa.search(qname) or ip6arpa.search(qname)):
             log_info('BLOCK-WEIRD-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
+        # Block IPv4 record-types
         elif filtering and blockv4 and (qtype == 'A' or (qtype == 'PTR' and ip4arpa.search(qname))):
             log_info('BLOCK-IPV4-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
+        # Block IPv6 record-types
         elif filtering and blockv6 and (qtype == 'AAAA' or (qtype == 'PTR' and ip6arpa.search(qname))):
             log_info('BLOCK-IPV6-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
+        # Generate ALIAS response when hit
         elif filtering and qtype in ('A', 'AAAA', 'CNAME') and in_domain(qname, aliases):
             reply = generate_alias(request, qname, qtype, use_tcp, force)
 
+        # Get response and process filtering
         else:
             queryfiltered = False
 
             if filtering:
-                if makequery: # Make query anyway and check it after response instead of before sending query
+                # Make query anyway and check it after response instead of before sending query, response will be checked/filtered
+                # Note: makes filtering based on DNSBL or other services responses
+                if makequery:
                     log_info('MAKEQUERY: ' + queryname)
                     reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
                 else:
+                    # Check against lists
                     ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
                     if ismatch == True: # Blacklisted
                         reply = generate_response(request, qname, qtype, redirect_addrs, force)
                     else:
-                        if ismatch == None and checkresponse:
+                        if ismatch == None and checkresponse: # Not listed
                             reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
-                        else:
+                        else: # Whitelisted
                             reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, True, force)
-            else:
+            else: # Non-filtering
                 reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, False, force)
 
+        # Cleanup NOTIMP responses
         if str(RCODE[reply.header.rcode]) == "NOTIMP":
             reply.add_ar(EDNS0())
 
+        # Cache if REQUEST/Query is filtered
         if queryfiltered:
-            to_cache(qname, 'IN', qtype, reply, force, False) # cache filtered query
+            _ = normalize_ttl(qname, reply.rr)
+            to_cache(qname, 'IN', qtype, reply, force, False)
 
     log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
 
@@ -1683,15 +1737,11 @@ if __name__ == "__main__":
 
 
     # Keep things running
-    count = 0
     try:
         while True:
             time.sleep(1) # Seconds
-            count += 1
-
             if not cache_maintenance_busy:
-                if cache_maintenance_now or count > 29 or cache_expired_list() or cache_prefetch_list():
-                    count = 0
+                if cache_maintenance_now or len(cache_expired_list()) > 0 or len(cache_prefetch_list()) > 0:
                     cache_purge(False)
 
     except (KeyboardInterrupt, SystemExit):
