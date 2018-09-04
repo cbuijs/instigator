@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.41-20180903 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.44-20180903 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1498,7 +1498,7 @@ def do_query(request, handler, force):
                 reply.header.rcode = getattr(RCODE, 'NOERROR')
             else:
                 reply.header.rcode = getattr(RCODE, 'NOTIMP')
-                reply.add_ar(EDNS0())
+                #reply.add_ar(EDNS0())
         else:
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
@@ -1507,24 +1507,15 @@ def do_query(request, handler, force):
         reply = from_cache(qname, qclass, qtype, rid)
 
     if reply == None:
-        if not isdomain.search(qname):
-            log_err('REQUEST [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' SERVFAIL - INVALID SYNTAX (' + handler.protocol.upper() + ')')
-            reply = request.reply()
-            reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+        queryfiltered = True
 
-        elif qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
-            log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' NOTIMP (' + handler.protocol.upper() + ')')
+        if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
+            log_info('BLOCK-UNSUPPORTED-RRTYPE [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' NOTIMP')
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
-            reply.add_ar(EDNS0())
 
-        elif filtering and blockweird and qtype == 'PTR' and (not ip4arpa.search(qname) and not ip6arpa.search(qname)):
-            log_info('BLOCK-WEIRD-HIT [' + id_str(rid) + ']: ' + queryname)
-            reply = request.reply()
-            reply.header.rcode = getattr(RCODE, 'SERVFAIL')
-
-        elif filtering and blockweird and qtype != 'PTR' and (ip4arpa.search(qname) or ip6arpa.search(qname)):
-            log_info('BLOCK-WEIRD-HIT [' + id_str(rid) + ']: ' + queryname)
+        elif filtering and blockillegal and isdomain.search(qname) == False:
+            log_err('BLOCK-INVALID-NAME [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' SERVFAIL - INVALID SYNTAX')
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
@@ -1542,6 +1533,16 @@ def do_query(request, handler, force):
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
+        elif filtering and blockweird and qtype == 'PTR' and (not ip4arpa.search(qname) and not ip6arpa.search(qname)):
+            log_info('BLOCK-WEIRD-HIT [' + id_str(rid) + ']: ' + queryname)
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+
+        elif filtering and blockweird and qtype != 'PTR' and (ip4arpa.search(qname) or ip6arpa.search(qname)):
+            log_info('BLOCK-WEIRD-HIT [' + id_str(rid) + ']: ' + queryname)
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+
         elif filtering and blockv4 and (qtype == 'A' or (qtype == 'PTR' and ip4arpa.search(qname))):
             log_info('BLOCK-IPV4-HIT [' + id_str(rid) + ']: ' + queryname)
             reply = generate_response(request, qname, qtype, redirect_addrs, force)
@@ -1554,6 +1555,8 @@ def do_query(request, handler, force):
             reply = generate_alias(request, qname, qtype, use_tcp, force)
 
         else:
+            queryfiltered = False
+
             if filtering:
                 if makequery: # Make query anyway and check it after response instead of before sending query
                     log_info('MAKEQUERY: ' + queryname)
@@ -1570,6 +1573,11 @@ def do_query(request, handler, force):
             else:
                 reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, False, force)
 
+        if str(RCODE[reply.header.rcode]) == "NOTIMP":
+            reply.add_ar(EDNS0())
+
+        if queryfiltered:
+            to_cache(qname, 'IN', qtype, reply, force, False) # cache filtered query
 
     log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
 
