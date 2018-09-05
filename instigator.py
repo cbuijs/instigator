@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.64-20180904 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.7-20180905 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -63,7 +63,8 @@ if len(sys.argv) > 1: # Any argument on command-line will put debug-mode on, pri
 
 # Listen for queries
 #listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
-listen_on = list(['172.16.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
+#listen_on = list(['172.16.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
+listen_on = list(['@53']) # Listen on all interfaces/ip's
 #listen_on = list(['127.0.0.1@53']) # IPv4 only for now.
 
 # Forwarding queries to
@@ -189,8 +190,8 @@ blockillegal = True
 # Block weird
 blockweird = True
 
-# Block NX-Domain subdomains
-blocknxsub = True
+# Block subdomains for NODATA, NXDOMAIN, REFUSED and SERVFAIL rcodes received for parent
+blocksub = True
 
 # Block rebinding, meaning that IP-Addresses in responses that match against below ranges,
 # must come from a DNS server with an IP-Address also in below ranges
@@ -1232,15 +1233,16 @@ def to_cache(qname, qclass, qtype, reply, force, newttl):
     if qclass == 'BROKEN-FORWARDER':
         ttl = retryttl # Seconds before trying again
     else:
-        if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
+        if not newttl:
             newttl = in_domain(qname, ttls)
             if newttl:
-                ttl = ttls.get(newttl, nottl)
-            else:
-                ttl = rcodettl
+                newttl = ttls.get(newttl, False)
+
+        if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
+            ttl = newttl or rcodettl
 
         elif rcode == 'SERVFAIL':
-            ttl = failttl
+            ttl = newttl or failttl
         elif rcode == 'NOERROR' and len(reply.rr) == 0:
             log_info('CACHE-SKIPPED: ' + queryname + ' ' + rcode + ' (NO ANSWERS)')
             return False
@@ -1248,10 +1250,7 @@ def to_cache(qname, qclass, qtype, reply, force, newttl):
             log_info('CACHE-SKIPPED: ' + queryname + ' ' + rcode)
             return False
         else:
-            if newttl:
-                ttl = newttl
-            else:
-                ttl = reply.rr[0].ttl
+            ttl = newttl or reply.rr[0].ttl
 
     if ttl > 0:
         expire = int(time.time()) + ttl
@@ -1538,17 +1537,17 @@ def do_query(request, handler, force):
 
 
     # Check if parent is in cache as NXDOMAIN
-    if reply == None and force == False and blocknxsub:
+    if reply == None and force == False and blocksub and (in_domain(qname, wl_dom) == False):
        dom = in_domain(qname, cache_dom_list())
        if dom and dom != qname:
            queryhash = query_hash(dom, qclass, qtype)
            cacheentry = cache.get(queryhash, defaultlist)
            if cacheentry != defaultlist and cacheentry != None:
                rcode = str(RCODE[cacheentry[0].header.rcode])
-               if rcode == 'NXDOMAIN':
-                   log_info('CACHE-NXDOMAIN-MATCH: \"' + qname + '\" matches parent \"' + dom + '\" NXDOMAIN')
+               if rcode in ('NODATA', 'NXDOMAIN', 'REFUSED', 'SERVFAIL'):
+                   log_info('CACHE-PARENT-MATCH: \"' + qname + '\" matches parent \"' + dom + '\" ' + rcode)
                    reply = request.reply()
-                   reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+                   reply.header.rcode = getattr(RCODE, rcode)
                    to_cache(qname, qclass, qtype, reply, force, False) # cache it
 
     # More eleborated filtering on query
@@ -1706,16 +1705,18 @@ if __name__ == "__main__":
     tcp_dns_server = dict()
     handler = DNSHandler
     for listen in listen_on:
-        if ipportregex.search(listen):
-            elements = listen.split('@')
-            listen_address = elements[0]
+        elements = listen.split('@')
+        listen_address = elements[0].upper()
+        if ipregex.search(listen_address) or listen_address == '':
             if len(elements) > 1:
                 listen_port = int(elements[1])
             else:
                 listen_port = 53
 
-
-            log_info('Starting DNS Service on ' + listen_address + ' at port ' + str(listen_port) + ' ...')
+            if listen_address == '':
+                log_info('Starting DNS Service at port ' + str(listen_port) + ' ...')
+            else:
+                log_info('Starting DNS Service on ' + listen_address + ' at port ' + str(listen_port) + ' ...')
 
             # Define Service
             #handler = DNSHandler
@@ -1739,7 +1740,11 @@ if __name__ == "__main__":
                 time.sleep(0.5)
 
                 if udp_dns_server[serverhash].isAlive() and tcp_dns_server[serverhash].isAlive():
-                    log_info('DNS Service ready on ' + listen_address + ' at port ' + str(listen_port))
+                    if listen_address == '':
+                        log_info('DNS Service ready at port ' + str(listen_port))
+                        break
+                    else:
+                        log_info('DNS Service ready on ' + listen_address + ' at port ' + str(listen_port))
                 else:
                     log_err('DNS Service did not start, aborting ...')
                     sys.exit(1)
