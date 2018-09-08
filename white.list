@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1536308449                  ###
+### Version: 1536394854                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -8525,7 +8525,7 @@ AS2906	Chris-ASN-White
 23.33.112.0/21	Chris-ASN-White-AS20940
 23.33.128.0/20	Chris-ASN-White-AS20940
 23.33.160.0/20	Chris-ASN-White-AS16625
-23.33.178.0/23	Chris-ASN-White-AS20940
+23.33.178.0/24	Chris-ASN-White-AS20940
 23.33.185.0/24	Chris-ASN-White-AS20940
 23.33.187.0/24	Chris-ASN-White-AS20940
 23.33.238.0/24	Chris-ASN-White-AS20940
@@ -8852,14 +8852,12 @@ AS2906	Chris-ASN-White
 23.57.32.0/19	Chris-ASN-White-AS16625
 23.57.64.0/22	Aggregated
 23.57.69.0/24	Chris-ASN-White-AS20940
-23.57.70.0/23	Chris-ASN-White-AS16625
 23.57.74.0/23	Chris-ASN-White-AS20940
 23.57.76.0/22	Chris-ASN-White-AS20940
 23.57.80.0/22	Chris-ASN-White-AS16625
 23.57.88.0/21	Chris-ASN-White-AS16625
-23.57.112.0/21	Chris-ASN-White-AS16625
+23.57.112.0/22	Chris-ASN-White-AS16625
 23.57.124.0/22	Chris-ASN-White-AS20940
-23.57.128.0/19	Chris-ASN-White-AS16625
 23.57.192.0/18	Aggregated
 23.58.0.0/18	Aggregated
 23.58.64.0/20	Chris-ASN-White-AS20940
@@ -9024,10 +9022,9 @@ AS2906	Chris-ASN-White
 23.74.64.0/19	Chris-ASN-White-AS20940
 23.74.168.0/21	Chris-ASN-White-AS16625
 23.74.176.0/20	Chris-ASN-White-AS16625
-23.74.208.0/20	Chris-ASN-White-AS16625
-23.74.224.0/19	Aggregated
+23.74.192.0/18	Aggregated
 23.75.0.0/20	Chris-ASN-White-AS16625
-23.75.16.0/23	Chris-ASN-White-AS16625
+23.75.16.0/22	Chris-ASN-White-AS16625
 23.75.20.0/23	Chris-ASN-White-AS16625
 23.75.24.0/21	Aggregated
 23.75.32.0/19	Chris-ASN-White-AS16625
@@ -9933,7 +9930,6 @@ AS2906	Chris-ASN-White
 96.6.123.0/24	Chris-ASN-White-AS20940
 96.6.124.0/24	Chris-ASN-White-AS20940
 96.6.160.0/19	Aggregated
-96.6.208.0/20	Chris-ASN-White-AS16625
 96.7.16.0/20	Chris-ASN-White-AS16625
 96.7.40.0/24	Chris-ASN-White-AS20940
 96.7.48.0/24	Chris-ASN-White-AS20940
@@ -9947,9 +9943,7 @@ AS2906	Chris-ASN-White
 96.7.184.0/21	Chris-ASN-White-AS16625
 96.7.192.0/20	Chris-ASN-White-AS16625
 96.7.208.0/22	Chris-ASN-White-AS20940
-96.7.220.0/23	Chris-ASN-White-AS16625
 96.7.222.0/24	Chris-ASN-White-AS20940
-96.7.236.0/22	Chris-ASN-White-AS16625
 96.7.246.0/23	Chris-ASN-White-AS20940
 96.7.248.0/23	Chris-ASN-White-AS20940
 96.7.251.0/24	Chris-ASN-White-AS20940
@@ -10172,7 +10166,7 @@ AS2906	Chris-ASN-White
 104.77.204.0/22	Chris-ASN-White-AS20940
 104.77.208.0/23	Chris-ASN-White-AS20940
 104.77.216.0/22	Chris-ASN-White-AS16625
-104.78.0.0/19	Chris-ASN-White-AS16625
+104.78.0.0/18	Chris-ASN-White-AS16625
 104.78.65.0/24	Chris-ASN-White-AS20940
 104.78.66.0/24	Chris-ASN-White-AS20940
 104.78.68.0/22	Chris-ASN-White-AS20940
@@ -10988,7 +10982,6 @@ AS2906	Chris-ASN-White
 184.84.238.0/23	Chris-ASN-White-AS20940
 184.84.242.0/23	Chris-ASN-White-AS20940
 184.84.245.0/24	Chris-ASN-White-AS20940
-184.85.32.0/20	Chris-ASN-White-AS16625
 184.85.64.0/19	Aggregated
 184.85.112.0/20	Chris-ASN-White-AS20940
 184.85.128.0/20	Chris-ASN-White-AS20940
@@ -11088,6 +11081,7 @@ AS2906	Chris-ASN-White
 204.2.132.64/26	Chris-ASN-White-AS20940
 204.2.146.0/25	Chris-ASN-White-AS20940
 204.2.163.64/26	Chris-ASN-White-AS20940
+204.2.178.128/25	Chris-ASN-White-AS20940
 204.2.179.0/24	Chris-ASN-White-AS20940
 204.2.191.128/25	Chris-ASN-White-AS20940
 204.2.196.0/24	Chris-ASN-White-AS20940
@@ -11098,6 +11092,7 @@ AS2906	Chris-ASN-White
 204.2.254.0/24	Chris-ASN-White-AS20940
 204.93.36.0/22	Chris-ASN-White-AS20940
 204.93.40.0/24	Chris-ASN-White-AS20940
+204.141.231.0/25	Chris-ASN-White-AS20940
 204.156.7.0/24	Chris-ASN-White-AS20940
 204.156.15.0/24	Chris-ASN-White-AS20940
 204.237.142.0/23	Chris-ASN-White-AS20940
