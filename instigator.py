@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.96-20180914 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.97-20180914 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1440,7 +1440,7 @@ def cache_purge(flushall, olderthen, clist, plist):
             lst = list(cache.keys()) or False
         else:
             log_info('CACHE-MAINT: Purging entries with expired TTLs')
-            lst = clist
+            lst = clist or False
 
     if lst:
         for queryhash in lst:
