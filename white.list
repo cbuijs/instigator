@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1536913265                  ###
+### Version: 1536941109                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -6622,6 +6622,7 @@ bankofsudan.org	Shalla-Banking
 baybank.org	Shalla-Banking
 bbb.org	Notracking-Whitelist
 bcu.org	Adguard-Banks
+buffalo.biodome.org	Source
 bis.org	Shalla-Banking
 bitbucket.org	Chris-White
 bmane.org	Shalla-Banking
@@ -9636,6 +9637,7 @@ AS2906	Chris-ASN-White
 67.195.192.0/19	Chris-ASN-White-AS26101
 67.195.236.0/22	Chris-ASN-White-AS26101
 67.220.142.0/23	Chris-ASN-White-AS20940
+68.142.216.0/21	Chris-ASN-White-AS26101
 68.142.224.0/20	Chris-ASN-White-AS26101
 69.31.11.0/24	Chris-ASN-White-AS20940
 69.31.25.0/24	Chris-ASN-White-AS20940
