@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1536941109                  ###
+### Version: 1536946485                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -5853,6 +5853,7 @@ beac.int	Shalla-Banking
 ecb.int	Shalla-Banking
 who.int	Notracking-Whitelist
 domraider.io	Notracking-Whitelist
+zerodot1.gitlab.io	Source
 advertising.oriel.io	EasyList-White
 sbc.io	Chris-White
 schibsted.io	Notracking-Whitelist
