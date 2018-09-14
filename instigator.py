@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.94-20180914 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.95-20180914 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -306,7 +306,10 @@ def log_info(message):
     if debug:
         print(time.strftime('%a %d-%b-%Y %H:%M:%S') + ' ' + message)
         sys.stdout.flush()
-    syslog.syslog(syslog.LOG_INFO, message) # !!! Fix SYSLOG on MacOS
+    if sys.platform.startswith('darwin'):
+        syslog.syslog(syslog.LOG_ALERT, message) # MacOS doesn't log below level ALERT
+    else:
+        syslog.syslog(syslog.LOG_INFO, message)
     return True
 
 
