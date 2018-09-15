@@ -1432,15 +1432,20 @@ def cache_purge(flushall, olderthen, clist, plist):
 
     # Remove expired entries
     if flushall:
-        log_info('CACHE-MAINT: Flush All')
         lst = list(cache.keys()) or False
+        if lst:
+            log_info('CACHE-MAINT: Flush All')
     else:
         if olderthen:
-            log_info('CACHE-MAINT: Purging entries with TTL higher then ' + str(olderthen) + ' seconds left')
             lst = list(cache.keys()) or False
+            if lst:
+                log_info('CACHE-MAINT: Purging entries with TTL higher then ' + str(olderthen) + ' seconds left')
         else:
-            log_info('CACHE-MAINT: Purging entries with expired TTLs')
             lst = clist or False
+            if lst:
+                log_info('CACHE-MAINT: Purging entries with expired TTLs')
+
+    totalrrs = 0
 
     if lst:
         for queryhash in lst:
@@ -1468,6 +1473,7 @@ def cache_purge(flushall, olderthen, clist, plist):
                         log_info('CACHE-MAINT-EXPIRED: Purged ' + rcode + ' for ' + record[2] + ' (TTL-EXPIRED:' + str(orgttl) + ')')
                     else:
                         log_info('CACHE-MAINT-EXPIRED: Purged ' + str(numrrs) + ' RRs for ' + record[2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' hits] (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
+                        totalrrs += numrrs
                     del_cache_entry(queryhash)
 
     # Prune cache back to cachesize, removing lowest TTLs first
@@ -1485,7 +1491,11 @@ def cache_purge(flushall, olderthen, clist, plist):
     after = len(cache)
 
     if before != after:
-        log_info('CACHE-STATS: purged ' + str(before - after) + ' entries, ' + str(after) + ' left in cache')
+        if totalrrs == 0:
+            log_info('CACHE-STATS: purged ' + str(before - after) + ' entries, ' + str(after) + ' left in cache')
+        else:
+            log_info('CACHE-STATS: purged ' + str(before - after) + ' entries (' + str(totalrrs) + ' RRs), ' + str(after) + ' left in cache')
+
         save_cache(cachefile)
 
     if debug: log_info('CACHE-MAINT: FINISH')
