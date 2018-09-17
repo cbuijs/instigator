@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.98-20180917 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.985-20180917 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1212,9 +1212,9 @@ def update_hits(queryhash):
 def prefetch_it(queryhash):
     record = cache.get(queryhash, defaultlist)
     expire = record[1]
-    if expire != 0 and record[0].rr:
+    if expire >= 0 and len(record[0].rr) > 0:
         rcode = str(RCODE[record[0].header.rcode])
-        if len(record[0].rr) > 0 and rcode == 'NOERROR':
+        if len(record[0].rr) > 0 and rcode in ('NOERROR', 'NXDOMAIN', 'SERVFAIL'):
             now = int(time.time())
             ttlleft = expire - now
             queryname = record[2]
@@ -1252,9 +1252,9 @@ def from_cache(qname, qclass, qtype, id):
     ttl = expire - now
 
     # If expired, remove from cache
+    orgttl = cacheentry[4]
+    hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
     if ttl < 1:
-        orgttl = cacheentry[4]
-        hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
         rcode = str(RCODE[cacheentry[0].header.rcode])
         numrrs = len(cacheentry[0].rr)
         if numrrs > 0 or (numrrs == 0 and rcode != 'NOERROR'):
@@ -1293,9 +1293,9 @@ def from_cache(qname, qclass, qtype, id):
         numrrs = len(reply.rr)
         rcode = str(RCODE[reply.header.rcode])
         if numrrs == 0 and rcode == 'NOERROR':
-            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved NODATA for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
+            log_info('CACHE-HIT (' + str(numhits) + '/' + str(hitsneeded) + ' hits) : Retrieved NODATA for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
         else:
-            log_info('CACHE-HIT (' + str(numhits) + ' hits) : Retrieved ' + str(numrrs) + ' RRs for ' + cacheentry[2] + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
+            log_info('CACHE-HIT (' + str(numhits) + '/' + str(hitsneeded) + ' hits) : Retrieved ' + str(numrrs) + ' RRs for ' + cacheentry[2] + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
 
         log_replies(reply, 'CACHE-REPLY')
 
@@ -1431,6 +1431,7 @@ def cache_purge(flushall, olderthen, clist, plist):
             prefetch_it(queryhash)
 
     # Remove expired entries
+    lst = False
     if flushall:
         lst = list(cache.keys()) or False
         if lst:
@@ -1445,36 +1446,43 @@ def cache_purge(flushall, olderthen, clist, plist):
             if lst:
                 log_info('CACHE-MAINT: Purging entries with expired TTLs')
 
+    if plist:
+        elist = plist
+    else:
+        elist = list()
+
     totalrrs = 0
 
     if lst:
         for queryhash in lst:
             record = cache.get(queryhash, None)
-            if record != None:
-                now = int(time.time())
-                if flushall:
-                    expire = now
-                else:
-                    expire = record[1]
-
-                ttlleft = expire - now
-                if olderthen and ttlleft > 0:
-                    if ttlleft > olderthen:
-                        ttlleft = 0
-
-                if ttlleft <1:
-                    orgttl = record[4]
-                    hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
-                    rcode = str(RCODE[record[0].header.rcode])
-                    numrrs = len(record[0].rr)
-                    if numrrs == 0:
-                        if rcode == 'NOERROR':
-                            rcode = 'NODATA'
-                        log_info('CACHE-MAINT-EXPIRED: Purged ' + rcode + ' for ' + record[2] + ' (TTL-EXPIRED:' + str(orgttl) + ')')
+            if queryhash not in elist:
+                if record != None:
+                    now = int(time.time())
+                    if flushall:
+                        expire = now
                     else:
-                        log_info('CACHE-MAINT-EXPIRED: Purged ' + str(numrrs) + ' RRs for ' + record[2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' hits] (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
-                        totalrrs += numrrs
-                    del_cache_entry(queryhash)
+                        expire = record[1]
+
+                    ttlleft = expire - now
+                    if olderthen and ttlleft > 0:
+                        if ttlleft > olderthen:
+                            ttlleft = 0
+
+                    if ttlleft <1:
+                        orgttl = record[4]
+                        hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
+                        rcode = str(RCODE[record[0].header.rcode])
+                        numrrs = len(record[0].rr)
+                        if numrrs == 0:
+                            if rcode == 'NOERROR':
+                                rcode = 'NODATA'
+                            log_info('CACHE-MAINT-EXPIRED: Purged ' + rcode + ' for ' + record[2] + ' (TTL-EXPIRED:' + str(orgttl) + ')')
+                        else:
+                            log_info('CACHE-MAINT-EXPIRED: Purged ' + str(numrrs) + ' RRs for ' + record[2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' hits] (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
+                            totalrrs += numrrs
+
+                        del_cache_entry(queryhash)
 
     # Prune cache back to cachesize, removing lowest TTLs first
     size = len(cache)
@@ -1605,11 +1613,13 @@ def execute_command(qname, log):
                 if record[0] != None:
                     rcode = str(RCODE[record[0].header.rcode])
                     numrrs = len(record[0].rr)
+                    orgttl = record[4]
+                    hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
                     if rcode == 'NOERROR' and numrrs == 0:
                         rcode = 'NODATA'
-                        log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' NODATA [' + str(record[3]) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
+                        log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' NODATA [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
                     else:
-                        log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + str(numrrs) + ' RRs for ' + cache[i][2] + ' ' + rcode + ' [' + str(record[3]) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
+                        log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + str(numrrs) + ' RRs for ' + cache[i][2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
 
         if qname == 'resume' and filtering == False:
             filtering = True
@@ -1973,10 +1983,7 @@ if __name__ == '__main__':
             time.sleep(1) # Seconds
             if not cache_maintenance_busy:
                 cachelist = cache_expired_list()
-                if cachelist:
-                    prefetchlist = False
-                else:
-                    prefetchlist = cache_prefetch_list()
+                prefetchlist = cache_prefetch_list()
 
                 if cache_maintenance_now or cachelist or prefetchlist:
                     cache_purge(False, False, cachelist, prefetchlist)
