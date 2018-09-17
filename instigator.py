@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.985-20180917 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.986-20180917 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -170,8 +170,8 @@ nottl = 0 # Seconds - when no TTL or zero ttl
 # Filtering on or off
 filtering = True
 
-# Make queries anyway and check response (including request) after, e.g. query is ALWAYS done
-makequery = True
+# Force to make queries anyway and check response (including request) after, e.g. query is ALWAYS done
+forcequery = True
 
 # Check responses
 checkresponse = True # When False, only queries are checked and responses are ignored (passthru)
@@ -610,7 +610,7 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                     reply = generate_alias(request, rqname, rqtype, use_tcp, force)
                     break
 
-                if replycount > 1: #or makequery: # Request itself should already be caught during request/query phase
+                if replycount > 1: #or forcequery: # Request itself should already be caught during request/query phase
                     matchreq = match_blacklist(id, 'CHAIN', rqtype, rqname, True)
                     if matchreq == False:
                         break
@@ -1778,8 +1778,8 @@ def do_query(request, handler, force):
             if filtering:
                 # Make query anyway and check it after response instead of before sending query, response will be checked/filtered
                 # Note: makes filtering based on DNSBL or other services responses possible
-                if makequery:
-                    log_info('MAKEQUERY: ' + queryname)
+                if forcequery:
+                    log_info('FORCE-QUERY: ' + queryname)
                     reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
                 else:
                     # Check against lists
