@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.97-20180914 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.98-20180917 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -171,7 +171,7 @@ nottl = 0 # Seconds - when no TTL or zero ttl
 filtering = True
 
 # Make queries anyway and check response (including request) after, e.g. query is ALWAYS done
-makequery = False
+makequery = True
 
 # Check responses
 checkresponse = True # When False, only queries are checked and responses are ignored (passthru)
@@ -610,22 +610,22 @@ def dns_query(request, qname, qtype, use_tcp, id, cip, checkbl, checkalias, forc
                     reply = generate_alias(request, rqname, rqtype, use_tcp, force)
                     break
 
-                if replycount > 1 or makequery: # Request itself should already be caught during request/query phase
+                if replycount > 1: #or makequery: # Request itself should already be caught during request/query phase
                     matchreq = match_blacklist(id, 'CHAIN', rqtype, rqname, True)
                     if matchreq == False:
                         break
                     elif matchreq == True:
                         blockit = True
                 else:
-                    log_info('REPLY-QUERY-SKIP: ' + rqname + '/IN/' + rqtype)
+                    if debug: log_info('REPLY-QUERY-SKIP: ' + rqname + '/IN/' + rqtype)
 
                 if blockit == False:
                     if blockrebind and ((rqtype == 'A' and data in rebind4) or (rqtype == 'AAAA' and data in rebind6)):
-                        if useip6 and forward_address not in rebind6:
+                        if rqtype == 'AAAA' and forward_address not in rebind6:
                             blockit = True
                             prefix = rebind6.get_key(data)
                             desc = rebind6.get(data, 'None')
-                        elif forward_address not in rebind4:
+                        elif rqtype == 'A' and forward_address not in rebind4:
                             blockit = True
                             prefix = rebind4.get_key(data)
                             desc = rebind4.get(data, 'None')
