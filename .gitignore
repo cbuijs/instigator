@@ -1,6 +1,7 @@
 *.sh
 *.backup.*
 shallalist
+*.log
 *.file
 *.pickle
 *.db
