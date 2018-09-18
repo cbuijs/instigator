@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.0-20180917 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.01-20180917 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -125,7 +125,7 @@ hitrcode = 'NXDOMAIN'
 #hitrcode = 'REFUSED'
 
 # Only load cached/fast files when not older then maxfileage
-maxfileage = 1800 # Seconds
+maxfileage = 43200 # Seconds
 
 # Files / Lists
 savefile = '/opt/instigator/save.shelve'
@@ -550,11 +550,12 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                         if reply.auth and rcode != 'NOERROR':
                             rcttl = normalize_ttl(qname, reply.auth)
                             if rcttl:
-                                log_info('SOA-TTL: Taking TTL={1} of SOA \"{0}\" for {2} {3}'.format(regex.split('\s+',str(reply.auth[0]))[0].strip('.'), rcttl, queryname, rcode))
+                                log_info('SOA-TTL: Taking TTL={1} of SOA \"{0}\" for {2} {3}'.format(regex.split('\s+', str(reply.auth[0]))[0].strip('.'), rcttl, queryname, rcode))
                         else:
                             _ = normalize_ttl(qname, reply.rr)
-                            
+
                         break
+
                     else:
                         error = 'SERVFAIL'
                         failed = True
@@ -1005,7 +1006,7 @@ def load_lists(file):
     return True
 
 
-def log_total():
+def log_totals():
     log_info('WHITELIST-TOTALS: ' + str(len(wl_rx)) + ' REGEXes, ' + str(len(wl_ip4)) + ' IPv4 CIDRs, ' + str(len(wl_ip6)) + ' IPv6 CIDRs, ' + str(len(wl_dom)) + ' DOMAINs, ' + str(len(aliases)) + ' ALIASes, ' + str(len(forward_servers)) + ' FORWARDs and ' + str(len(ttls)) + ' TTLs')
     log_info('BLACKLIST-TOTALS: ' + str(len(bl_rx)) + ' REGEXes, ' + str(len(bl_ip4)) + ' IPv4 CIDRs, ' + str(len(bl_ip6)) + ' IPv6 CIDRs and ' + str(len(bl_dom)) + ' DOMAINs')
     log_info('CACHE-TOTALS: ' + str(len(cache)) + ' Cache Entries')
@@ -1946,7 +1947,7 @@ if __name__ == '__main__':
         log_info('CACHE-LOAD: Not retrieving persistent CACHE, lists have changed')
 
     # Show totals in log
-    log_total()
+    log_totals()
 
     # DNS-Server/Resolver
     logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=False)
@@ -2005,14 +2006,14 @@ if __name__ == '__main__':
         while True:
             time.sleep(1) # Seconds
             if cache_maintenance_busy is False and prefetching_busy is False:
-                     cachelist = cache_expired_list()
-                     prefetchlist = cache_prefetch_list()
+                cachelist = cache_expired_list()
+                prefetchlist = cache_prefetch_list()
 
-                     if cache_maintenance_now or cachelist or prefetchlist:
-                        cache_purge(False, False, cachelist, prefetchlist)
+                if cache_maintenance_now or cachelist or prefetchlist:
+                    cache_purge(False, False, cachelist, prefetchlist)
 
     except (KeyboardInterrupt, SystemExit):
-        log_info('SHUTTING DOWN')
+        log_info('INSTIGATOR SHUTTING DOWN')
 
 
     # Shutdown ports
@@ -2020,6 +2021,7 @@ if __name__ == '__main__':
         if ipportregex.search(listen):
             elements = listen.split('@')
             listen_address = elements[0]
+
             if len(elements) > 1:
                 listen_port = int(elements[1])
             else:
@@ -2032,6 +2034,7 @@ if __name__ == '__main__':
             try:
                 udp_dns_server[serverhash].stop() # UDP
                 tcp_dns_server[serverhash].stop() # TCP
+
             except BaseException as err:
                 log_err('ERROR: Unable to stop service on ' + listen_address + ' at port ' + str(listen_port) + ' - ' + str(err))
                 pass
