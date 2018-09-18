@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.996-20180917 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v3.997-20180917 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -28,6 +28,7 @@ ToDo/Ideas:
 - Itterative resolution besides only forwarding (as is today). Status: Backburner.
 - Add more security-features against hammering, dns-drip, ddos, etc. Status: Backburner.
 - Fix SYSLOG on MacOS. Status: To-be-done.
+- Convert all concatenated strings into .format ones. Status: In Progress
 
 =========================================================================================
 '''
@@ -234,9 +235,9 @@ rebind6['ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/128'] = True
 
 # Prefetch
 prefetch = True
-prefetching = False
+prefetching_busy = False
 prefetchgettime = 10 # Fetch at 1/x-th of TTL time
-prefetchhitrate = 300 # 1 cache-hit per xx seconds needed to get prefetched
+prefetchhitrate = 120 # 1 cache-hit per xx seconds needed to get prefetched
 
 # Command TLD to interpert as instructions, only allowed from localhost
 command = 'command'
@@ -306,20 +307,17 @@ isasn = regex.compile('^AS[0-9]+$', regex.I)
 # Log INFO messages to syslog
 def log_info(message):
     if debug:
-        print(time.strftime('%a %d-%b-%Y %H:%M:%S') + ' ' + message)
+        print('{0} {1}'.format(time.strftime('%a %d-%b-%Y %H:%M:%S'), message))
         sys.stdout.flush()
-    if sys.platform.startswith('darwin'):
-        syslog.syslog(syslog.LOG_ALERT, message) # MacOS doesn't log below level ALERT
-    else:
-        syslog.syslog(syslog.LOG_INFO, message)
+    syslog.syslog(syslog.LOG_INFO, message) # !!! Fix SYSLOG on MacOS
     return True
 
 
 # Log ERR messages to syslog
 def log_err(message):
-    message = '!!! STRESS: ' + message
+    message = '!!! STRESS: {0}'.format(message)
     if debug:
-        print(time.strftime('%a %d-%b-%Y %H:%M:%S') + ' ' + message)
+        print('{0} {1}'.format(time.strftime('%a %d-%b-%Y %H:%M:%S'), message))
         sys.stdout.flush()
     syslog.syslog(syslog.LOG_ERR, message) # !!! Fix SYSLOG on MacOS
     return True
@@ -1210,25 +1208,25 @@ def update_hits(queryhash):
 
 # Prefetch/Update cache on almost expired items with enough hits
 def prefetch_it(queryhash):
-    global prefetching
+    global prefetching_busy
 
-    if prefetching:
+    if prefetching_busy:
         return False
 
-    prefetching = True
+    prefetching_busy = True
 
-    record = cache.get(queryhash, defaultlist)
-    expire = record[1]
-    rcode = str(RCODE[record[0].header.rcode])
-    if rcode in ('NOERROR', 'NXDOMAIN', 'SERVFAIL'):
+    record = cache.get(queryhash, None)
+    if record is not None:
         now = int(time.time())
+        expire = record[1]
+        rcode = str(RCODE[record[0].header.rcode])
         ttlleft = expire - now
         queryname = record[2]
         hits = record[3]
         orgttl = record[4]
         hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
 
-        log_info('CACHE-PREFETCH: ' + queryname + ' ' + rcode + ' [' + str(hits) + '/' + str(hitsneeded) + ' hits] (TTL-LEFT:' + str(ttlleft) + '/' + str(orgttl) + ')')
+        log_info('CACHE-PREFETCH: {0} {1} [{2}/{3} hits] (TTL-LEFT: {4}/{5})'.format(queryname, rcode, hits, hitsneeded, ttlleft, orgttl))
 
         _ = cache.pop(queryhash, None)
         qname, qclass, qtype = queryname.split('/')
@@ -1239,10 +1237,10 @@ def prefetch_it(queryhash):
         handler.client_address = '\'PREFETCHER\''
         _ = do_query(request, handler, True) # Query and update cache
 
-        prefetching = False
+        prefetching_busy = False
         return True
 
-    prefetching = False
+    prefetching_busy = False
     return False
 
 
@@ -1398,7 +1396,7 @@ def cache_prefetch_list():
     now = int(time.time())
     # Formula: At least 2 cache-hits, hitrate > 0 and hits are above/equal hitrate
     # value list entries: 0:reply - 1:expire - 2:qname/class/type - 3:hits - 4:orgttl - 5:domainname
-    return list(dict((k, v) for k, v in cache.items() if v[3] > 1 and int(round(v[4] / prefetchhitrate)) > 0 and v[1] - now < int(round(v[4] / prefetchgettime)) and v[3] >= int((round(v[4] / prefetchhitrate)) - (round((v[1] - now) / prefetchhitrate)))).keys()) or False
+    return list(dict((k, v) for k, v in cache.items() if v[3] > 1 and int(round(v[4] / prefetchhitrate)) > 0 and v[1] - now <= int(round(v[4] / prefetchgettime)) and v[3] >= int((round(v[4] / prefetchhitrate)) - (round((v[1] - now) / prefetchhitrate)))).keys()) or False
 
 
 # Get list of domains in cache
@@ -1429,7 +1427,7 @@ def cache_purge(flushall, olderthen, clist, plist):
     for p in list(dict((k, v) for k, v in pending.items() if int(time.time()) - v > 10).keys()):
         timestamp = pending.get(p, False)
         if timestamp and int(time.time()) - timestamp > 10: #Seconds
-            log_info('PENDING: Removed stale UID ' + str(p))
+            log_info('PENDING: Removed stale UID {0}'.format(p))
             _ = pending.pop(p, None)
 
     before = len(cache)
@@ -1443,8 +1441,8 @@ def cache_purge(flushall, olderthen, clist, plist):
             log_info('CACHE-MAINT: Flush All')
     else:
         # Prefetch
-        if plist and prefetching is False:
-            log_info('CACHE-PREFETCH: Prefetching entries that qualify (' + str(len(plist)) + ' potential entries)')
+        if plist and prefetching_busy is False:
+            log_info('CACHE-PREFETCH: Prefetching entries that qualify ({0} potential entries)'.format(len(plist)))
             for queryhash in list(plist):
                 if not prefetch_it(queryhash):
                     plist.remove(queryhash)
@@ -1452,11 +1450,11 @@ def cache_purge(flushall, olderthen, clist, plist):
         if olderthen:
             lst = list(cache.keys()) or False
             if lst:
-                log_info('CACHE-MAINT: Purging entries with TTL higher then ' + str(olderthen) + ' seconds left')
+                log_info('CACHE-MAINT: Purging entries with TTL higher then {0} seconds left'.format(olderthen))
         else:
             lst = clist or False
             if lst:
-                log_info('CACHE-MAINT: Purging entries with expired TTLs (' + str(len(clist)) + ' potential entries)')
+                log_info('CACHE-MAINT: Purging entries with expired TTLs ({0} potential entries)'.format(len(clist)))
 
         if plist:
             elist = plist
@@ -1487,9 +1485,9 @@ def cache_purge(flushall, olderthen, clist, plist):
                         if numrrs == 0:
                             if rcode == 'NOERROR':
                                 rcode = 'NODATA'
-                            log_info('CACHE-MAINT-EXPIRED: Purged ' + rcode + ' for ' + record[2] + ' (TTL-EXPIRED:' + str(orgttl) + ')')
+                            log_info('CACHE-MAINT-EXPIRED: Purged {0} for {1} (TTL-EXPIRED:{2})'.format(rcode, record[2], orgttl))
                         else:
-                            log_info('CACHE-MAINT-EXPIRED: Purged ' + str(numrrs) + ' RRs for ' + record[2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' hits] (TTL-EXPIRED:' + str(ttlleft) + '/' + str(orgttl) + ')')
+                            log_info('CACHE-MAINT-EXPIRED: Purged {0} RRs for {1} {2} [{3}/{4} hits] (TTL-EXPIRED:{5}/{6})'.format(numrrs, record[2], rcode, record[3], hitsneeded, ttlleft, orgttl))
                             totalrrs += numrrs
 
                         del_cache_entry(queryhash)
@@ -1503,16 +1501,16 @@ def cache_purge(flushall, olderthen, clist, plist):
             expire[queryhash] = cache.get(queryhash, defaultlist)[1] - now
 
         for queryhash in list(sorted(expire, key=expire.get))[0:size-cachesize]:
-            log_info('CACHE-MAINT-EXPULSION: ' + cache.get(queryhash, defaultlist)[2] + ' (TTL-LEFT:' + str(expire[queryhash]) + ')')
+            log_info('CACHE-MAINT-EXPULSION: {0} (TTL-LEFT:{1})'.format(cache.get(queryhash, defaultlist)[2], expire[queryhash]))
             del_cache_entry(queryhash)
 
     after = len(cache)
 
     if before != after:
         if totalrrs == 0:
-            log_info('CACHE-STATS: purged ' + str(before - after) + ' entries, ' + str(after) + ' left in cache')
+            log_info('CACHE-STATS: purged {0} entries, {1} left in cache'.format(before - after, after))
         else:
-            log_info('CACHE-STATS: purged ' + str(before - after) + ' entries (' + str(totalrrs) + ' RRs), ' + str(after) + ' left in cache')
+            log_info('CACHE-STATS: purged {0} entries ({1} RRs), {2} left in cache'.format(before - after, totalrrs, after))
 
         save_cache(cachefile)
 
@@ -1994,16 +1992,15 @@ if __name__ == '__main__':
     try:
         while True:
             time.sleep(1) # Seconds
-            if not cache_maintenance_busy:
-                cachelist = cache_expired_list()
-                if not prefetching:
+            if cache_maintenance_busy is False and prefetching_busy is False:
+                     cachelist = cache_expired_list()
                      prefetchlist = cache_prefetch_list()
 
                      if cache_maintenance_now or cachelist or prefetchlist:
                         cache_purge(False, False, cachelist, prefetchlist)
 
     except (KeyboardInterrupt, SystemExit):
-        pass
+        log_info('SHUTTING DOWN')
 
 
     # Shutdown ports
