@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v3.997-20180917 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.0-20180917 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -163,7 +163,7 @@ persistentcache = True
 ttlstrategy = 'average' # average/lowest/highest/random - Egalize TTL on all RRs in RRSET
 filterttl = 900 # Seconds - For filtered/blacklisted/alias entry caching
 minttl = 30 # Seconds
-maxttl = 1800 # Seconds
+maxttl = 86400 # Seconds - 3600 = 1 Hour, 86400 = 1 Day, 604800 = 1 Week
 rcodettl = 30 # Seconds - For return-codes caching
 failttl = 10 # Seconds - When failure/error happens
 retryttl = 5 # Seconds - Retry time
@@ -513,6 +513,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     #
     #        labelcount += 1
 
+    rcttl = False
 
     forward_server = forward_servers.get(server, False)
     if forward_server:
@@ -546,7 +547,13 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                     reply = DNSRecord.parse(q)
                     rcode = str(RCODE[reply.header.rcode])
                     if rcode != 'SERVFAIL':
-                        _ = normalize_ttl(qname, reply.rr)
+                        if reply.auth and rcode != 'NOERROR':
+                            rcttl = normalize_ttl(qname, reply.auth)
+                            if rcttl:
+                                log_info('SOA-TTL: Taking TTL={1} of SOA \"{0}\" for {2} {3}'.format(regex.split('\s+',str(reply.auth[0]))[0].strip('.'), rcttl, queryname, rcode))
+                        else:
+                            _ = normalize_ttl(qname, reply.rr)
+                            
                         break
                     else:
                         error = 'SERVFAIL'
@@ -676,6 +683,8 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     # Stash in cache
     if blockit:
         to_cache(qname, 'IN', qtype, reply, force, filterttl)
+    elif rcttl:
+        to_cache(qname, 'IN', qtype, reply, force, rcttl)
     else:
         to_cache(qname, 'IN', qtype, reply, force, False)
 
@@ -889,7 +898,7 @@ def load_cache(file):
             log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
             return False
 
-        #cache_purge(False, 60, False, False) # Purge everything with has a ttl higher then 60 seconds left
+        cache_purge(False, maxttl, False, False) # Purge everything with has a ttl higher then 60 seconds left
 
     else:
         log_info('CACHE-LOAD: Skip loading cache from \"' + file + '\" - non-existant or older then ' + str(maxfileage) + ' seconds')
@@ -1351,7 +1360,7 @@ def to_cache(qname, qclass, qtype, reply, force, newttl):
             newttl = ttls.get(newttl, False)
 
     # Cache return-codes
-    if rcode in ('NODATA', 'NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
+    if rcode in ('NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
         ttl = newttl or rcodettl
     elif rcode == 'NOERROR' and len(reply.rr) == 0: # NODATA
         ttl = newttl or rcodettl
@@ -1632,12 +1641,15 @@ def execute_command(qname, log):
                         else:
                             log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
 
-        if qname == 'resume' and filtering is False:
+        elif qname == 'resume' and filtering is False:
             filtering = True
             cache_purge(True, False, False, False)
 
         elif qname == 'pause' and filtering is True:
             filtering = False
+            cache_purge(True, False, False, False)
+
+        elif qname in ('flush', 'purge'):
             cache_purge(True, False, False, False)
 
         return True
