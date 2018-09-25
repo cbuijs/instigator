@@ -1,11 +1,13 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1537863732                  ###
+### Version: 1537880320                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
 
 ### SAFELIST DOMAINS ###
+bank!	Safelist-Chris-White-TLDS
+insurance!	Safelist-Chris-White-TLDS
 ntp.org!	Chris-Exclude
 ### SAFEUNWHITELIST DOMAINS ###
 ### WHITELIST REGEXES ###
