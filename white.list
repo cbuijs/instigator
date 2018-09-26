@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1537950120                  ###
+### Version: 1537971330                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -8074,6 +8074,7 @@ boz.zm	Shalla-Banking
 cavmont.com.zm	Shalla-Banking
 rbz.co.zw	Shalla-Banking
 ### WHITELIST ASN ###
+AS36459	Chris-ASN-White
 ### WHITELIST IPv4 ###
 1.0.0.1/32	Chris-White
 1.1.1.1/32	Chris-White
@@ -8081,11 +8082,12 @@ rbz.co.zw	Shalla-Banking
 8.8.8.8/32	Chris-White
 9.9.9.9/32	Chris-White
 95.56.246.182/32	Adguard-Banks
+140.82.112.0/20	Chris-ASN-White-AS36459
 149.112.112.112/32	Chris-White
 176.103.130.130/31	Aggregated
 176.103.130.132/32	Chris-White
 176.103.130.134/32	Chris-White
-192.30.253.112/31	Chris-White
+192.30.252.0/22	Chris-ASN-White-AS36459
 192.168.1.0/24	Chris-White
 192.168.100.0/25	Chris-White
 194.105.148.87/32	Adguard-Banks
