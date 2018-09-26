@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1537971330                  ###
+### Version: 1537973350                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -811,7 +811,7 @@ balconesbank.com	Shalla-Banking
 baltcosavings.com	Shalla-Banking
 baltimoretrustco.com	Shalla-Banking
 online.baltinvest.com	Adguard-Banks
-osint.bambenekconsulting.com	Chris-White
+osint.bambenekconsulting.com	Source
 bamericano.com	Shalla-Banking
 banamex.com	Shalla-Banking
 bancado.com	Shalla-Banking
@@ -8075,22 +8075,51 @@ cavmont.com.zm	Shalla-Banking
 rbz.co.zw	Shalla-Banking
 ### WHITELIST ASN ###
 AS36459	Chris-ASN-White
+AS54113	Chris-ASN-White
 ### WHITELIST IPv4 ###
 1.0.0.1/32	Chris-White
 1.1.1.1/32	Chris-White
 8.8.4.4/32	Chris-White
 8.8.8.8/32	Chris-White
 9.9.9.9/32	Chris-White
+23.185.0.0/24	Chris-ASN-White-AS54113
+23.235.32.0/21	Chris-ASN-White-AS54113
+23.235.40.0/24	Chris-ASN-White-AS54113
+23.235.42.0/23	Chris-ASN-White-AS54113
+23.235.46.0/23	Chris-ASN-White-AS54113
+43.249.72.0/24	Chris-ASN-White-AS54113
+43.249.75.0/24	Chris-ASN-White-AS54113
 95.56.246.182/32	Adguard-Banks
+103.245.223.0/24	Chris-ASN-White-AS54113
+104.156.80.0/23	Chris-ASN-White-AS54113
+104.156.83.0/24	Chris-ASN-White-AS54113
+104.156.84.0/22	Chris-ASN-White-AS54113
+104.156.88.0/22	Chris-ASN-White-AS54113
+104.156.92.0/24	Chris-ASN-White-AS54113
+104.156.94.0/23	Chris-ASN-White-AS54113
 140.82.112.0/20	Chris-ASN-White-AS36459
 149.112.112.112/32	Chris-White
+151.101.0.0/16	Chris-ASN-White-AS54113
+157.52.64.0/19	Chris-ASN-White-AS54113
+157.52.96.0/22	Chris-ASN-White-AS54113
+157.52.101.0/24	Chris-ASN-White-AS54113
+157.52.102.0/24	Chris-ASN-White-AS54113
+157.52.104.0/23	Chris-ASN-White-AS54113
+172.111.64.0/18	Chris-ASN-White-AS54113
 176.103.130.130/31	Aggregated
 176.103.130.132/32	Chris-White
 176.103.130.134/32	Chris-White
+185.31.16.0/22	Chris-ASN-White-AS54113
+185.199.108.0/22	Chris-ASN-White-AS54113
 192.30.252.0/22	Chris-ASN-White-AS36459
 192.168.1.0/24	Chris-White
 192.168.100.0/25	Chris-White
 194.105.148.87/32	Adguard-Banks
+199.27.72.0/24	Chris-ASN-White-AS54113
+199.27.74.0/23	Chris-ASN-White-AS54113
+199.27.76.0/23	Chris-ASN-White-AS54113
+199.27.79.0/24	Chris-ASN-White-AS54113
+199.232.0.0/16	Chris-ASN-White-AS54113
 213.135.106.194/32	Adguard-Banks
 213.230.210.230/32	Chris-White
 ### WHITELIST IPv6 ###
