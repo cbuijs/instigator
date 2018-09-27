@@ -162,7 +162,7 @@ persistentcache = True
 # TTL Settings
 ttlstrategy = 'average' # average/lowest/highest/random - Egalize TTL on all RRs in RRSET
 filterttl = 900 # Seconds - For filtered/blacklisted/alias entry caching
-minttl = 30 # Seconds
+minttl = 1 # Seconds
 maxttl = 86400 # Seconds - 3600 = 1 Hour, 86400 = 1 Day, 604800 = 1 Week
 rcodettl = 30 # Seconds - For return-codes caching
 failttl = 10 # Seconds - When failure/error happens
