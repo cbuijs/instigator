@@ -1650,40 +1650,43 @@ def execute_command(qname, log):
 
     if log: log_info('COMMAND: \"' + qname + '\"')
 
-    if qname in ('flush', 'pause', 'purge', 'resume', 'show'):
+    flush = True
+    orgfiltering = filtering
+
+    if qname in ('list', 'show'):
         now = int(time.time())
-
-        if qname == 'show':
-            count = 0
-            total = str(len(cache))
-            for i in list(cache.keys()):
-                count += 1
-                record = cache.get(i, defaultlist)
-                if record[0] is not None:
-                    rcode = str(RCODE[record[0].header.rcode])
-                    numrrs = len(record[0].rr)
-                    orgttl = record[4]
-                    hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
-                    if rcode == 'NOERROR' and numrrs == 0:
-                        rcode = 'NODATA'
-                        log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' NODATA [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
+        count = 0
+        total = str(len(cache))
+        for i in list(cache.keys()):
+            count += 1
+            record = cache.get(i, defaultlist)
+            if record[0] is not None:
+                rcode = str(RCODE[record[0].header.rcode])
+                numrrs = len(record[0].rr)
+                orgttl = record[4]
+                hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
+                if rcode == 'NOERROR' and numrrs == 0:
+                    rcode = 'NODATA'
+                    log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' NODATA [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
+                else:
+                    if numrrs != 0:
+                        log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + str(numrrs) + ' RRs for ' + cache[i][2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
                     else:
-                        if numrrs != 0:
-                            log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + str(numrrs) + ' RRs for ' + cache[i][2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
-                        else:
-                            log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
+                        log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
 
-        elif qname == 'resume' and filtering is False:
-            filtering = True
-            cache_purge(True, False, False, False)
+        return True
 
-        elif qname == 'pause' and filtering is True:
-            filtering = False
-            cache_purge(True, False, False, False)
+    elif qname in ('continue', 'resume'):
+        filtering = True
 
-        elif qname in ('flush', 'purge'):
-            cache_purge(True, False, False, False)
+    elif qname in ('pause', 'stop'):
+        filtering = False
 
+    elif qname not in ('flush', 'purge', 'wipe'):
+        flush = False
+
+    if flush or filtering != orgfiltering:
+        cache_purge(True, False, False, False)
         return True
 
     log_err('COMMAND: ' + qname + ' UNKNOWN/FAILED')
