@@ -8,7 +8,7 @@
 # Where domain-name is a FQDN and target is a FQDN, IP-Address, Return-Code or Op-Code.
 # Aliases cannot point to other aliases and are concidered WHITELISTed entries (not forwards)
 # Return-Codes: NODATA, NOTAUTH, NXDOMAIN and REFUSED
-# Op-Codes: PASSTHRU
+# Op-Codes: PASSTHRU (Whitelist) or RANDOM (Generate random IP anwer for A/AAAA and random names for CNAME requests)
 # NOTE: don't use blanks/spaces in the definitions, above syntax uses them for clarity.
 
 # SafeSearch Google
@@ -64,7 +64,9 @@ iotcplatform.com!3600
 #www.company.com=PASSTHRU
 #test.company.com=www.googleapis.com
 #.!99999999
-# <EOF>
+test.chrisbuijs.com=RANDOM
 
 # Search domain
 frutch*
+
+# <EOF>
