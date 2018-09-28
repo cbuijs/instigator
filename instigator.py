@@ -1679,11 +1679,17 @@ def execute_command(qname, log):
 
     elif qname in ('continue', 'resume'):
         log_info('COMMAND: Filtering ENABLED')
-        filtering = True
+        if filtering:
+            flush = False
+        else:
+            filtering = True
 
     elif qname in ('pause', 'stop'):
         log_info('COMMAND: Filtering DISABLED')
-        filtering = False
+        if filtering:
+            filtering = False
+        else:
+            flush = False
 
     elif qname not in ('flush', 'purge', 'wipe'):
         log_info('COMMAND: Flush CACHE')
