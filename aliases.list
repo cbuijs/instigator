@@ -3,11 +3,13 @@
 # Syntax:
 #   for aliases: <domain-name> = <target>
 #   for forwarding: <domain-name> > <ip>[,<another-ip>...]
+#   for ttl-override: <domain-name> ! <ttl>
+#   for search-domain: <domain-name> *
 # Where domain-name is a FQDN and target is a FQDN, IP-Address, Return-Code or Op-Code.
 # Aliases cannot point to other aliases and are concidered WHITELISTed entries (not forwards)
-# Return-Codes: NOTAUTH, NXDOMAIN and REFUSED
+# Return-Codes: NODATA, NOTAUTH, NXDOMAIN and REFUSED
 # Op-Codes: PASSTHRU
-# Note: don't use blanks/spaces in the definitions
+# NOTE: don't use blanks/spaces in the definitions, above syntax uses them for clarity.
 
 # SafeSearch Google
 #www.google.com=forcesafesearch.google.com
