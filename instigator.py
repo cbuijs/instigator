@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.05-20180928 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.06-20180928 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1654,6 +1654,7 @@ def execute_command(qname, log):
     orgfiltering = filtering
 
     if qname in ('list', 'show'):
+        if log: log_info('COMMAND: Show CACHE entries')
         now = int(time.time())
         count = 0
         total = str(len(cache))
@@ -1677,12 +1678,15 @@ def execute_command(qname, log):
         return True
 
     elif qname in ('continue', 'resume'):
+        log_info('COMMAND: Filtering ENABLED')
         filtering = True
 
     elif qname in ('pause', 'stop'):
+        log_info('COMMAND: Filtering DISABLED')
         filtering = False
 
     elif qname not in ('flush', 'purge', 'wipe'):
+        log_info('COMMAND: Flush CACHE')
         flush = False
 
     if flush or filtering != orgfiltering:
