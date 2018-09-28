@@ -1646,15 +1646,15 @@ def collapse_cname(request, reply, rid):
 def execute_command(qname, log):
     global filtering
 
-    qname = regex.sub('\.' + command + '$', '', qname)
+    qname = regex.sub('\.' + command + '$', '', qname).upper()
 
     if log: log_info('COMMAND: \"' + qname + '\"')
 
     flush = True
-    orgfiltering = filtering
 
-    if qname in ('list', 'show'):
+    if qname in ('LIST', 'SHOW'):
         if log: log_info('COMMAND: Show CACHE entries')
+        flush = False
         now = int(time.time())
         count = 0
         total = str(len(cache))
@@ -1675,32 +1675,33 @@ def execute_command(qname, log):
                     else:
                         log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
 
-        return True
-
-    elif qname in ('continue', 'resume'):
-        log_info('COMMAND: Filtering ENABLED')
+    elif qname in ('CONTINUE', 'RESUME'):
         if filtering:
+            log_info('COMMAND: Filtering already ENABLED')
             flush = False
         else:
+            log_info('COMMAND: Filtering ENABLED')
             filtering = True
 
-    elif qname in ('pause', 'stop'):
-        log_info('COMMAND: Filtering DISABLED')
+    elif qname in ('PAUSE', 'STOP'):
         if filtering:
+            log_info('COMMAND: Filtering DISABLED')
             filtering = False
         else:
+            log_info('COMMAND: Filtering already DISABLED')
             flush = False
 
-    elif qname not in ('flush', 'purge', 'wipe'):
+    elif qname in ('CLEAR', 'FLUSH', 'PURGE', 'WIPE'):
         log_info('COMMAND: Flush CACHE')
-        flush = False
 
-    if flush or filtering != orgfiltering:
+    else:
+        log_err('COMMAND: Unknown/Failed command \"' + qname + '\"')
+        return False
+
+    if flush:
         cache_purge(True, False, False, False)
-        return True
 
-    log_err('COMMAND: ' + qname + ' UNKNOWN/FAILED')
-    return False
+    return True
 
 
 # Track if name already seen
