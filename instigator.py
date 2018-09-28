@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.01-20180917 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.05-20180928 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -146,7 +146,7 @@ lists['malicious-ip'] = '/opt/instigator/malicious-ip.list'
 #lists['warez'] = '/opt/instigator/shallalist/warez/domains'
 blacklist = list(['blacklist', 'ads', 'costtraps', 'porn', 'gamble', 'spyware', 'warez', 'malicious-ip'])
 whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites'])
-
+searchdom = set()
 
 # Root servers # !!! WIP
 #root_servers = list(['198.41.0.4', '2001:503:ba3e::2:30', '199.9.14.201', '2001:500:200::b', '192.33.4.12', '2001:500:2::c', '199.7.91.13', '2001:500:2d::d', '192.203.230.10', '2001:500:a8::e', '192.5.5.241', '2001:500:2f::f', '192.112.36.4', '2001:500:12::d0d', '198.97.190.53', '2001:500:1::53', '192.36.148.17', '2001:7fe::53', '192.58.128.30', '2001:503:c27::2:30', '193.0.14.129', '2001:7fd::1', '199.7.83.42', '2001:500:9f::42', '202.12.27.33', '2001:dc3::35'])
@@ -206,6 +206,9 @@ blockweird = True
 
 # Block subdomains for NODATA, NXDOMAIN, REFUSED and SERVFAIL rcodes received for parent
 blocksub = True
+
+# Block queries in search-domains (from /etc/resolv.conf) if entry already exist in cache without searchdomain
+blocksearchdom = True
 
 # Block rebinding, meaning that IP-Addresses in responses that match against below ranges,
 # must come from a DNS server with an IP-Address also in below ranges
@@ -408,6 +411,14 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
     # Check against Sub-Domain-Lists
     elif testvalue.find('.') > 0 and isdomain.search(testvalue):
+        if blocksearchdom:
+            for sdom in searchdom:
+                if testvalue.endswith('.' + sdom):
+                    dname = testvalue.rstrip('.' + sdom)
+                    if in_cache(dname, 'IN', rrtype):
+                        if log: log_info('BLACKLIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched \"' + dname + ' . ' + sdom + '\" search-domain')
+                        return True
+            
         wl_found = in_domain(testvalue, wl_dom)
         if wl_found is not False:
             if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
@@ -533,7 +544,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                 forward_port = 53
 
             #if (forward_address != cip) and (query_hash(forward_address, 'BROKEN-FORWARDER', str(forward_port)) not in cache):
-            if query_hash(forward_address, 'BROKEN-FORWARDER', str(forward_port)) not in cache:
+            if not in_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port)):
                 log_info('DNS-QUERY [' + id_str(tid) + ']: forwarding query from ' + cip + ' to ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
 
                 error = 'None'
@@ -1149,6 +1160,17 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
                         else:
                             log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
 
+                    # Search Domains
+                    elif entry.endswith('*'):
+                        sdom = normalize_dom(entry.rstrip('*'))
+                        if isdomain.search(sdom):
+                            if (sdom not in searchdom):
+                                fetched += 1
+                                searchdom.add(sdom)
+                                if debug: log_info('ALIAS-SEARCH-DOMAIN: \"' + sdom + '\"')
+                        else:
+                            log_err(listname + ' INVALID SEARCH-DOMAIN [' + str(count) + ']: ' + entry)
+
                 # Invalid/Unknown Syntax or BOGUS entry
                 else:
                     log_err(listname + ' INVALID/BOGUS LINE [' + str(count) + ']: ' + entry)
@@ -1343,12 +1365,21 @@ def log_replies(reply, title):
     return True
 
 
+# Check if in cache
+def in_cache(qname, qclass, qtype):
+    if query_hash(qname, qclass, qtype) in cache:
+        if debug: log_info('IN-CACHE-HIT: ' + qname + '/' + qclass + '/' + qtype)
+        return True
+
+    return False
+
+
 # Store into cache
 def to_cache(qname, qclass, qtype, reply, force, newttl):
     if nocache or reply == defaultlist or reply is None:
         return False
 
-    if (not force) and query_hash(qname, qclass, qtype) in cache:
+    if (not force) and in_cache(qname, qclass, qtype):
         return True
 
     queryname = qname + '/' + qclass + '/' + qtype
@@ -1879,13 +1910,33 @@ def read_config(file):
 
         except BaseException as err:
             log_err('ERROR: Unable to open/read/process file \"' + file + '\" - ' + str(err))
-            return False
 
     else:
         log_info('CONFIG: Skipping config from file, config-file \"' + file + '\" does not exist')
-        return False
 
-    return True
+    if blocksearchdom and file_exist('/etc/resolv.conf', False):
+        log_info('CONFIG: Loading domains from \"/etc/resolv.conf\"')
+        try:
+            f = open('/etc/resolv.conf')
+            for line in f:
+                entry = regex.split('#', line)[0].strip().lower()
+                if len(entry) > 0:
+                    elements = regex.split('\s+', entry)
+                    if elements[0] == 'domain' or elements[0] == 'search':
+                        for dom in elements[1:]:
+                            if dom not in searchdom:
+                                log_info('CONFIG: Fetched ' + elements[0] + ' \"' + dom + '\"')
+                                searchdom.add(dom)
+
+            f.close()
+
+        except BaseException as err:
+            log_err('ERROR: Unable to open/read/process file \"/etc/resolv.conf\" - ' + str(err))
+       
+    else:
+        log_info('CONFIG: Skipping getting domains from \"/etc/resolv.conf\", file does not exist')
+
+    return
 
 
 # Add addresses from DICT/LIST to Whitelist
