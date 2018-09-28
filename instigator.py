@@ -1162,9 +1162,9 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, alist, flis
 
                     # Search Domains
                     elif entry.endswith('*'):
-                        sdom = normalize_dom(entry.rstrip('*'))
+                        sdom = normalize_dom(entry.rstrip('*').strip())
                         if isdomain.search(sdom):
-                            if (sdom not in searchdom):
+                            if sdom not in searchdom:
                                 fetched += 1
                                 searchdom.add(sdom)
                                 if debug: log_info('ALIAS-SEARCH-DOMAIN: \"' + sdom + '\"')
