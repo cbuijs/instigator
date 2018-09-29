@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.07-20180929 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.08-20180929 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -675,7 +675,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     reply.header.id = tid
 
     # Collapse CNAME
-    if collapse and qtype == 'CNAME':
+    if collapse:
         reply = collapse_cname(request, reply, tid)
 
     # Minimum responses
