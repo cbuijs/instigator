@@ -381,15 +381,15 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
     # Check against IP-Lists
     if itisanip:
-        found = False
-        prefix = False
-
         if testvalue.find(':') == -1:
             wip = wl_ip4
             bip = bl_ip4
         else:
             wip = wl_ip6
             bip = bl_ip6
+
+        found = False
+        prefix = False
 
         if not testvalue in wip:
             if testvalue in bip:
@@ -473,12 +473,12 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     while uid in pending:
         count += 1
         if count > 2: # Disembark after 3 seconds
-            log_info('DNS-QUERY [' + id_str(tid) + ']: Skipping query for ' + queryname + ' - ID already processing, takes more then 3 secs')
+            log_info('DNS-QUERY [' + id_str(tid) + ']: Skipping query for ' + queryname + ' - ID (' + id_str(tid) + ') already processing, takes more then 3 secs')
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
             return reply
 
-        log_info('DNS-QUERY [' + id_str(tid) + ']: delaying (' + str(count) + ') query for ' + queryname + ' - ID already in progress, waiting to finish')
+        log_info('DNS-QUERY [' + id_str(tid) + ']: delaying (' + str(count) + ') query for ' + queryname + ' - ID (' + id_str(tid) + ') already in progress, waiting to finish')
         time.sleep(1) # Seconds
 
     # Get from cache if any
@@ -535,7 +535,6 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
             else:
                 forward_port = 53
 
-            #if (forward_address != cip) and (query_hash(forward_address, 'BROKEN-FORWARDER', str(forward_port)) not in cache):
             if not in_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port)):
                 log_info('DNS-QUERY [' + id_str(tid) + ']: forwarding query from ' + cip + ' to ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
 
@@ -589,6 +588,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
         reply.header.rcode = getattr(RCODE, 'SERVFAIL')
         _ = pending.pop(uid, None)
         return reply
+
     else:
         # Clear broken-forwarder cache entries
         if broken_exist():
@@ -675,7 +675,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     reply.header.id = tid
 
     # Collapse CNAME
-    if collapse:
+    if collapse and qtype == 'CNAME':
         reply = collapse_cname(request, reply, tid)
 
     # Minimum responses
@@ -1604,7 +1604,7 @@ def collapse_cname(request, reply, rid):
             qname = normalize_dom(reply.rr[0].rname)
             ttl = reply.rr[0].ttl
             addr = list()
-            for record in reply.rr:
+            for record in reply.rr[1:]:
                 qtype = QTYPE[record.rtype].upper()
                 if qtype in ('A', 'AAAA'):
                     ip = str(record.rdata).lower()
