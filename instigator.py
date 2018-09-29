@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.06-20180928 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.07-20180929 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -411,14 +411,6 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
     # Check against Sub-Domain-Lists
     elif testvalue.find('.') > 0 and isdomain.search(testvalue):
-        if blocksearchdom:
-            for sdom in searchdom:
-                if testvalue.endswith('.' + sdom):
-                    dname = testvalue.rstrip('.' + sdom)
-                    if in_cache(dname, 'IN', rrtype):
-                        if log: log_info('BLACKLIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched \"' + dname + ' . ' + sdom + '\" search-domain')
-                        return True
-            
         wl_found = in_domain(testvalue, wl_dom)
         if wl_found is not False:
             if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
@@ -1842,26 +1834,36 @@ def do_query(request, handler, force):
 
         # Get response and process filtering
         else:
-            queryfiltered = False
-
-            if filtering:
-                # Make query anyway and check it after response instead of before sending query, response will be checked/filtered
-                # Note: makes filtering based on DNSBL or other services responses possible
-                if forcequery:
-                    log_info('FORCE-QUERY: ' + queryname)
-                    reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
-                else:
-                    # Check against lists
-                    ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
-                    if ismatch is True: # Blacklisted
-                        reply = generate_response(request, qname, qtype, redirect_addrs, force)
+            if filtering and blocksearchdom and searchdom:
+                for sdom in searchdom:
+                    if qname.endswith('.' + sdom):
+                        dname = qname.rstrip('.' + sdom)
+                        if in_cache(dname, 'IN', qtype):
+                            log_info('SEARCH-HIT [' + id_str(rid) + ']: \"' + qname + '\" matched \"' + dname + ' . ' + sdom + '\"')
+                            reply = request.reply()
+                            reply.header.rcode = getattr(RCODE, 'NOERROR') # Empty response, NXDOMAIN provides other search-requests
+                            break
+            
+            if reply is None:
+                queryfiltered = False
+                if filtering:
+                    # Make query anyway and check it after response instead of before sending query, response will be checked/filtered
+                    # Note: makes filtering based on DNSBL or other services responses possible
+                    if forcequery:
+                        log_info('FORCE-QUERY: ' + queryname)
+                        reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
                     else:
-                        if ismatch is None and checkresponse: # Not listed
-                            reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
-                        else: # Whitelisted
-                            reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, True, force)
-            else: # Non-filtering
-                reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, False, force)
+                        # Check against lists
+                        ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
+                        if ismatch is True: # Blacklisted
+                            reply = generate_response(request, qname, qtype, redirect_addrs, force)
+                        else:
+                            if ismatch is None and checkresponse: # Not listed
+                                reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
+                            else: # Whitelisted
+                                reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, True, force)
+                else: # Non-filtering
+                    reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, False, force)
 
         # Cache if REQUEST/Query is filtered
         if queryfiltered:
@@ -1889,6 +1891,7 @@ class DNS_Instigator(BaseResolver):
 # Basically every global variable used can be altered/configured:
 # String: <varname> = '<value>'
 # Number: <varname> = <value>
+# Boolean: <varname> = <True|False>
 # List: <varname> = <value1>,<value2>,<value3>, ...
 # Dictionary (with list values): <varname> = <key> > <value1>,<value2>,<value3>, ...
 def read_config(file):
@@ -1912,7 +1915,13 @@ def read_config(file):
                                 globals()[var] = {key : regex.split('\s*,\s*', val)}
                             elif val.startswith('\'') and val.endswith('\''):
                                 log_info('CONFIG-SETTING-STR: ' + var + ' = ' + val)
-                                globals()[var] = str(regex.split('\'', val)[0].strip())
+                                globals()[var] = str(regex.split('\'', val)[1].strip())
+                            elif val.lower() in ('false', 'none', 'true'):
+                                log_info('CONFIG-SETTING-BOOL: ' + var + ' = ' + val)
+                                if val.lower() == 'true':
+                                    globals()[var] = bool(1)
+                                else:
+                                    globals()[var] = bool(0)
                             elif regex.match('^[0-9]+$', val):
                                 log_info('CONFIG-SETTING-INT: ' + var + ' = ' + val)
                                 globals()[var] = int(val)
