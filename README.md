@@ -40,6 +40,8 @@ Aliases need to be divided by an equals-symbol (=), example (domains include sub
 	www.whatisthis.com=NXDOMAIN		# Return-code NXDOMAIN for domain and sub-domains
 	www.goodguys.com=PASSTHRU		# Passthru/whitelist domain and sub-domains
 
+        Note: Aliases only work on queries/requests.
+
 Forwarders need to be divided by a greater-then-symbol (>), port numbers can be used using the at-sign (@), example:
 
 	google.com>8.8.8.8@53,8.8.4.4@53		# Use google dns for all domains ending in google.com
