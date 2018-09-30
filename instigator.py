@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.08-20180929 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.10-20180930 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -33,7 +33,7 @@ ToDo/Ideas:
 =========================================================================================
 '''
 
-# sys module and path
+# sys module and path, adapt for your system. Below if for Debian 9.5 Stable
 import sys
 sys.path.append('/usr/local/lib/python3.5/dist-packages/')
 
@@ -66,13 +66,16 @@ debug = False
 if len(sys.argv) > 1: # Any argument on command-line will put debug-mode on, printing all messages to TTY.
     debug = True
 
+# Base/Work dirs
+basedir = '/'.join(os.path.realpath(__file__).split('/')[0:-1]) + '/'
+
 # Config
-configfile = '/opt/instigator/instigator.conf'
+configfile = basedir + 'instigator.conf'
 
 # Listen for queries
 #listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
-listen_on = list(['172.16.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
-#listen_on = list(['@53']) # Listen on all interfaces/ip's
+#listen_on = list(['172.16.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
+listen_on = list(['@53']) # Listen on all interfaces/ip's
 #listen_on = list(['127.0.0.1@53']) # IPv4 only for now.
 
 # Forwarding queries to
@@ -82,7 +85,7 @@ forward_servers = dict()
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
-#forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '1.0.0.1@53', '8.8.8.8@53', '8.8.4.4@53']) # Default Quad9/CloudFlare/Google (Unfiltered versions)
+forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '1.0.0.1@53', '8.8.8.8@53', '8.8.4.4@53']) # Default Quad9/CloudFlare/Google (Unfiltered versions)
 #forward_servers['.'] = list(['172.16.1.1@53']) # DEFAULT Eero/Gateway
 #forward_servers['.'] = list(['172.16.1.1@53','9.9.9.9@53', '149.112.112.112@53']) # DEFAULT Eero/Gateway fallback Quad9
 #forward_servers['.'] = list(['172.16.1.1@53','209.244.0.3@53','209.244.0.4@53']) # DEFAULT Eero/Gateway plus fallback level-3
@@ -97,7 +100,7 @@ forward_servers = dict()
 #forward_servers['.'] = list(['8.34.34.34@53', '8.35.35.35.35@53']) # DEFAULT ZScaler Shift
 #forward_servers['.'] = list(['71.243.0.14@53', '68.237.161.14@53']) # DEFAULT Verizon New England area (Boston and NY opt-out)
 #forward_servers['.'] = list(['127.0.0.1@53001', '127.0.0.1@53002', '127.0.0.1@53003', '127.0.0.1@53004']) # DEFAULT Stubby
-forward_servers['.'] = list(['172.16.1.1@53053']) # Stubby on router
+#forward_servers['.'] = list(['172.16.1.1@53053']) # Stubby on router
 
 # Redirect Address, leave empty to generete REFUSED
 #redirect_addrs = list()
@@ -120,21 +123,21 @@ allow_query6 = pytricia.PyTricia(128)
 allow_query6['::1/128'] = 'RFC4291 Localhost'
 
 # Return-code when query hits a list and cannot be redirected, only use NODATA, NXDOMAIN or REFUSED
-#hitrcode = 'NODATA'
-hitrcode = 'NXDOMAIN'
+hitrcode = 'NODATA'
+#hitrcode = 'NXDOMAIN'
 #hitrcode = 'REFUSED'
 
 # Only load cached/fast files when not older then maxfileage
 maxfileage = 43200 # Seconds
 
 # Files / Lists
-savefile = '/opt/instigator/save.shelve'
+savefile = basedir + 'save.shelve'
 defaultlist = list([None, 0, '', 0, 0]) # reply - expire - qname/class/type - hits - orgttl
 lists = dict()
-lists['blacklist'] = '/opt/instigator/black.list'
-lists['whitelist'] = '/opt/instigator/white.list'
-lists['aliases'] = '/opt/instigator/aliases.list'
-lists['malicious-ip'] = '/opt/instigator/malicious-ip.list'
+lists['blacklist'] = basedir + 'black.list'
+lists['whitelist'] = basedir + 'white.list'
+lists['aliases'] = basedir + 'aliases.list'
+lists['malicious-ip'] = basedir + 'malicious-ip.list'
 #lists['ads'] = '/opt/instigator/shallalist/adv/domains'
 #lists['banking'] = '/opt/instigator/shallalist/finance/banking/domains'
 #lists['costtraps'] = '/opt/instigator/shallalist/costtraps/domains'
@@ -153,7 +156,7 @@ searchdom = set()
 
 # Cache Settings
 nocache = False # Don't change this
-cachefile = '/opt/instigator/cache.shelve'
+cachefile = basedir + 'cache.shelve'
 cachesize = 2048 # Entries
 cache_maintenance_now = False
 cache_maintenance_busy = False
@@ -266,7 +269,7 @@ pending = dict()
 ## Regexes
 
 # Use fast (less precisie, sometimes faster) versions of regexes
-fastregex = False
+fastregex = False # Leave False unless really slow system or (very) large datasets
 
 # Regex to filter IP CIDR's out
 if fastregex:
@@ -913,13 +916,14 @@ def load_cache(file):
     return True
 
 
+# iplist is a Pytricia dict
 def to_dict(iplist):
     newdict = dict()
     for i in iplist.keys():
         newdict[i] = iplist[i]
     return newdict
 
-
+# toist is a Pytricia dict.
 def from_dict(fromlist, tolist):
     for i in fromlist.keys():
         tolist[i] = fromlist[i]
@@ -1899,63 +1903,66 @@ def read_config(file):
         log_info('CONFIG: Loading config from config-file \"' + file + '\"')
         try:
             f = open(file, 'r')
-            for line in f:
-                entry = line.strip()
-                if (not entry.startswith('#')) and len(entry) > 0:
-                    elements = regex.split('\s*=\s*', entry)
-                    if len(elements) > 1:
-                        var = str(elements[0])
-                        val = elements[1].strip()
-                        if len(val) > 0:
-                            if val.find('>') != -1:
-                                dictelements = regex.split('\s*>\s*', val)
-                                key = dictelements[0]
-                                val = dictelements[1]
-                                log_info('CONFIG-SETTING-DICT: ' + var + '[' + key + '] = ' + val)
-                                globals()[var] = {key : regex.split('\s*,\s*', val)}
-                            elif val.startswith('\'') and val.endswith('\''):
-                                log_info('CONFIG-SETTING-STR: ' + var + ' = ' + val)
-                                globals()[var] = str(regex.split('\'', val)[1].strip())
-                            elif val.lower() in ('false', 'none', 'true'):
-                                log_info('CONFIG-SETTING-BOOL: ' + var + ' = ' + val)
-                                if val.lower() == 'true':
-                                    globals()[var] = bool(1)
-                                else:
-                                    globals()[var] = bool(0)
-                            elif regex.match('^[0-9]+$', val):
-                                log_info('CONFIG-SETTING-INT: ' + var + ' = ' + val)
-                                globals()[var] = int(val)
-                            else:
-                                log_info('CONFIG-SETTING-LIST: ' + var + ' = ' + val)
-                                globals()[var] = regex.split('\s*,\s*', val)
-
+            lines = f.readlines()
             f.close()
 
         except BaseException as err:
             log_err('ERROR: Unable to open/read/process file \"' + file + '\" - ' + str(err))
 
+        for line in lines:
+            entry = line.strip()
+            if (not entry.startswith('#')) and len(entry) > 0:
+                elements = regex.split('\s*=\s*', entry)
+                if len(elements) > 1:
+                    var = str(elements[0])
+                    val = elements[1].strip()
+                    if len(val) > 0:
+                        if val.find('>') != -1:
+                            dictelements = regex.split('\s*>\s*', val)
+                            key = dictelements[0]
+                            val = dictelements[1]
+                            log_info('CONFIG-SETTING-DICT: ' + var + '[' + key + '] = ' + val)
+                            globals()[var] = {key : regex.split('\s*,\s*', val)}
+                        elif val.startswith('\'') and val.endswith('\''):
+                            log_info('CONFIG-SETTING-STR: ' + var + ' = ' + val)
+                            globals()[var] = str(regex.split('\'', val)[1].strip())
+                        elif val.lower() in ('false', 'none', 'true'):
+                            log_info('CONFIG-SETTING-BOOL: ' + var + ' = ' + val)
+                            if val.lower() == 'true':
+                                globals()[var] = bool(1)
+                            else:
+                                globals()[var] = bool(0)
+                        elif regex.match('^[0-9]+$', val):
+                            log_info('CONFIG-SETTING-INT: ' + var + ' = ' + val)
+                            globals()[var] = int(val)
+                        else:
+                            log_info('CONFIG-SETTING-LIST: ' + var + ' = ' + val)
+                            globals()[var] = regex.split('\s*,\s*', val)
+
     else:
         log_info('CONFIG: Skipping config from file, config-file \"' + file + '\" does not exist')
+
 
     if blocksearchdom and file_exist('/etc/resolv.conf', False):
         log_info('CONFIG: Loading domains from \"/etc/resolv.conf\"')
         try:
             f = open('/etc/resolv.conf')
-            for line in f:
-                entry = regex.split('#', line)[0].strip().lower()
-                if len(entry) > 0:
-                    elements = regex.split('\s+', entry)
-                    if elements[0] == 'domain' or elements[0] == 'search':
-                        for dom in elements[1:]:
-                            if dom not in searchdom:
-                                log_info('CONFIG: Fetched ' + elements[0] + ' \"' + dom + '\"')
-                                searchdom.add(dom)
-
+            lines = f.readlines()
             f.close()
 
         except BaseException as err:
             log_err('ERROR: Unable to open/read/process file \"/etc/resolv.conf\" - ' + str(err))
-       
+
+        for line in lines:
+            entry = regex.split('#', line)[0].strip().lower()
+            if len(entry) > 0:
+                elements = regex.split('\s+', entry)
+                if elements[0] == 'domain' or elements[0] == 'search':
+                    for dom in elements[1:]:
+                        if dom not in searchdom:
+                            log_info('CONFIG: Fetched ' + elements[0] + ' \"' + dom + '\"')
+                            searchdom.add(dom)
+
     else:
         log_info('CONFIG: Skipping getting domains from \"/etc/resolv.conf\", file does not exist')
 
@@ -1992,6 +1999,8 @@ if __name__ == '__main__':
 
     if debug: log_info('RUNNING INSTIGATOR IN *DEBUG* MODE')
 
+    log_info('BASE-DIR: ' + basedir)
+
     read_config(configfile)
 
     # Load/Read lists
@@ -2024,7 +2033,11 @@ if __name__ == '__main__':
     log_totals()
 
     # DNS-Server/Resolver
-    logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=False)
+    if debug:
+        logger = DNSLogger(log='-recv,-send,+request,+reply,+error,+truncated,+data', prefix='INSTIGATOR')
+    else:
+        logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix='INSTIGATOR')
+
     udp_dns_server = dict()
     tcp_dns_server = dict()
     handler = DNSHandler
