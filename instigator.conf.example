@@ -1,0 +1,104 @@
+### Example INSTIGATOR config file. !!! WIP !!!
+
+# Debugging, True or False
+debug=False
+
+# Listen on
+listen_on=@53
+#listen_on=127.0.0.1@53,192.168.1.1@53
+
+# Forwarding Settings
+forward_timeout=5
+forward_servers=.>9.9.9.10@53,149.112.112.10@53,1.1.1.1@53,1.0.0.1@53,8.8.8.8@53,8.8.4.4@53
+
+# Redirect Settings
+redirect_addrs=NODATA
+#redirect_addr=0.0.0.0,0000:0000:0000:0000:0000:0000:0000:0000
+
+# Return-Code settings
+aclrcode='REFUSED'
+hitrcode='NODATA'
+
+# Lists
+maxfileage = 43200
+list=blacklist>/opt/instigator/black.list
+list=whitelist>/opt/instigator/white.list
+list=aliases>/opt/instigator/aliases.list
+list=malicious-ip>/opt/instigator/malicious-ip.list
+blacklist=blacklist,malicious-ip
+whitelist=whitelist,aliases
+savefile='/opt/instigator/save.shelve'
+
+# Cache Settings
+nocache=False
+cachefile='/opt/instigator/cache.shelve'
+cachesize=2048
+persistentcache=True
+
+# TTL Settings
+ttlstrategy='average'
+filterttl=900
+minttl=60
+maxttl=86400
+failttl=10
+retryttl=5
+rcodettl=30
+nottl=0
+
+# Roundrobin of address/forward-records
+roundrobin=True
+forwardroundrobin=True
+
+# Collapse/Flatten CNAME Chains
+collapse=True
+
+# Filtering on or off
+filtering=True
+
+# Force to make queries anyway and check response (including request) after, e.g. query is ALWAYS done
+forcequery=False
+
+# Check responses
+# When False, only queries are checked and responses are ignored (passthru)
+checkresponse=True
+
+# Minimal Responses
+minresp=True
+
+# Minimum number of dots in a domain-name
+mindots=1
+
+# Block IPV4 or IPv6 based queries
+blockv4=False
+blockv6=False
+
+# Block undotted names
+blockundotted=True
+
+# Block illegal names
+blockillegal=True
+
+# Block weird
+blockweird=True
+
+# Block subdomains for NODATA, NXDOMAIN, REFUSED and SERVFAIL rcodes received for parent
+blocksub=True
+
+# Block queries in search-domains (from /etc/resolv.conf) if entry already exist in cache without searchdomain
+blocksearchdom=True
+
+# Block rebinding, meaning that IP-Addresses in responses that match against private ranges,
+# must come from a DNS server with an IP-Address also in private ranges
+blockrebind=True
+
+# Prefetch
+prefetch=True
+prefetchgettime=10
+prefetchhitrate=120
+
+# Command TLD to interpert as instructions, only allowed from localhost
+command='command'
+
+# Use fast (less precisie, sometimes faster) versions of regexes
+fastregex=False
+
