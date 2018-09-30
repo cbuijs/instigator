@@ -39,6 +39,7 @@ Aliases need to be divided by an equals-symbol (=), example (domains include sub
 	www.badguys.com=REFUSED			# Return-code REFUSED for domain and sub-domains
 	www.whatisthis.com=NXDOMAIN		# Return-code NXDOMAIN for domain and sub-domains
 	www.goodguys.com=PASSTHRU		# Passthru/whitelist domain and sub-domains
+	blahblah.com=RANDOM			# Generate random answers (A, AAAA and CNAME) for domain and sub-domains
 
 	Note: Aliases only work on queries/requests.
 
