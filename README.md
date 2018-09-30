@@ -49,5 +49,14 @@ TTL overrides can be done by using an exclamation (!), example (TTL in seconds):
 
 	google.com!666		# Use TTL of 666 for domain google.com and all sub-domains ending in .google.com
 	chrisbuijs.com!120	# Use a TTL of 120 for domain chrisbuijs.com and all sub-domains ending in .chrisbuijs.com
+
+Defining search-domains can be doe using an asterix (*) and the end of the domain-name, example:
+
+	lan*		# .lan search-domain
+	company.com*	# .company.com search-domain
+
+	<b>Note</b>: When search-domains are defined, domains that are already in cache (example: www.blah.com), will not be
+	      forwarded when ending in a search-domain (example: www.blah.com.company.com).
+
 	
 <b>Note:</b> Aliases/Forwarders/TTL-Overrides are automatically "whitelisted", and cannot point to other aliases. For forwarders port-number is optional (default of 53 is assumed).
