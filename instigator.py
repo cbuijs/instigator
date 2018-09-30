@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.10-20180930 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.11-20180930 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -619,10 +619,9 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                 rqtype = QTYPE[record.rtype].upper()
                 data = normalize_dom(record.rdata)
 
-                #if checkalias and rqtype in ('A', 'AAAA', 'CNAME') and in_domain(rqname, aliases):
-                if checkalias and in_domain(rqname, aliases):
-                    reply = generate_alias(request, rqname, rqtype, use_tcp, force)
-                    break
+                #if checkalias and in_domain(rqname, aliases):
+                #    reply = generate_alias(request, rqname, rqtype, use_tcp, force)
+                #    break
 
                 if replycount > 1: #or forcequery: # Request itself should already be caught during request/query phase
                     matchreq = match_blacklist(tid, 'CHAIN', rqtype, rqname, True)
