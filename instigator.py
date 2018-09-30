@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.16-20180930 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.20-20180930 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -196,7 +196,7 @@ collapse = True
 
 # Block IPV4 or IPv6 based queries
 blockv4 = False
-blockv6 = True # Put on False as default
+blockv6 = False
 
 # Block undotted names
 blockundotted = True
@@ -838,16 +838,15 @@ def generate_alias(request, qname, qtype, use_tcp, force):
 
                 ttl = normalize_ttl(aliasqname, subreply.rr)
 
-                if subreply.rr:
-                    for record in subreply.rr:
-                        rqtype = QTYPE[record.rtype]
-                        data = normalize_dom(record.rdata)
-                        if rqtype == 'A':
-                            answer = RR(aliasqname, QTYPE.A, ttl=ttl, rdata=A(data))
-                            reply.add_answer(answer)
-                        if rqtype == 'AAAA':
-                            answer = RR(aliasqname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(data))
-                            reply.add_answer(answer)
+                for record in subreply.rr:
+                    rqtype = QTYPE[record.rtype]
+                    data = normalize_dom(record.rdata)
+                    if rqtype == 'A':
+                        answer = RR(aliasqname, QTYPE.A, ttl=ttl, rdata=A(data))
+                        reply.add_answer(answer)
+                    if rqtype == 'AAAA':
+                        answer = RR(aliasqname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(data))
+                        reply.add_answer(answer)
 
             else:
                 reply = request.reply()
@@ -1376,7 +1375,7 @@ def to_cache(qname, qclass, qtype, reply, force, newttl):
     if nocache or reply == defaultlist or reply is None:
         return False
 
-    if (not force) and in_cache(qname, qclass, qtype):
+    if force is False and in_cache(qname, qclass, qtype):
         return True
 
     queryname = qname + '/' + qclass + '/' + qtype
