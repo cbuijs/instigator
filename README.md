@@ -55,7 +55,7 @@ Defining search-domains can be doe using an asterix (*) and the end of the domai
 	lan*		# .lan search-domain
 	company.com*	# .company.com search-domain
 
-	<b>Note</b>: When search-domains are defined, domains that are already in cache (example: www.blah.com), will not be
+	Note: When search-domains are defined, domains that are already in cache (example: www.blah.com), will not be
 	      forwarded when ending in a search-domain (example: www.blah.com.company.com).
 
 	
