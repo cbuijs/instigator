@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.11-20180930 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.12-20180930 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -313,7 +313,8 @@ isasn = regex.compile('^AS[0-9]+$', regex.I)
 # Log INFO messages to syslog
 def log_info(message):
     if debug:
-        print('{0} {1}'.format(time.strftime('%a %d-%b-%Y %H:%M:%S'), message))
+        #print('{0} {1}'.format(time.strftime('%a %d-%b-%Y %H:%M:%S'), message))
+        print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message))
         sys.stdout.flush()
     syslog.syslog(syslog.LOG_INFO, message) # !!! Fix SYSLOG on MacOS
     return True
@@ -323,7 +324,8 @@ def log_info(message):
 def log_err(message):
     message = '!!! STRESS: {0}'.format(message)
     if debug:
-        print('{0} {1}'.format(time.strftime('%a %d-%b-%Y %H:%M:%S'), message))
+        #print('{0} {1}'.format(time.strftime('%a %d-%b-%Y %H:%M:%S'), message))
+        print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message))
         sys.stdout.flush()
     syslog.syslog(syslog.LOG_ERR, message) # !!! Fix SYSLOG on MacOS
     return True
@@ -2033,9 +2035,9 @@ if __name__ == '__main__':
 
     # DNS-Server/Resolver
     if debug:
-        logger = DNSLogger(log='-recv,-send,+request,+reply,+error,+truncated,+data', prefix='INSTIGATOR')
+        logger = DNSLogger(log='-recv,-send,+request,+reply,+error,+truncated,+data', prefix=True)
     else:
-        logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix='INSTIGATOR')
+        logger = DNSLogger(log='-recv,-send,-request,-reply,+error,+truncated,-data', prefix=True)
 
     udp_dns_server = dict()
     tcp_dns_server = dict()
