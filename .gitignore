@@ -6,6 +6,7 @@ shallalist
 *.pickle
 *.db
 *.shelve
+*.conf
 __pycache__/
 dist/
 stats.*
