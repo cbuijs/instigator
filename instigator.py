@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.12-20180930 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.15-20180930 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1876,8 +1876,11 @@ def do_query(request, handler, force):
             to_cache(qname, 'IN', qtype, reply, force, filterttl)
 
     # Cleanup NOTIMP responses
-    if str(RCODE[reply.header.rcode]) == 'NOTIMP':
+    if reply and str(RCODE[reply.header.rcode]) == 'NOTIMP':
         reply.add_ar(EDNS0())
+
+    if reply is None:
+        log_err('REPLY-NONE [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
 
     log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
 
