@@ -59,4 +59,4 @@ Defining search-domains can be doe using an asterix (*) and the end of the domai
 	      forwarded when ending in a search-domain (example: www.blah.com.company.com).
 
 	
-<b>Note:</b> Aliases/Forwarders/TTL-Overrides are automatically "whitelisted", and cannot point to other aliases. For forwarders port-number is optional (default of 53 is assumed).
+<b>Note:</b> Aliases/Forwarders/TTL-Overrides/Search-Domains are automatically "whitelisted", and cannot point to other aliases. For forwarders port-number is optional (default of 53 is assumed).
