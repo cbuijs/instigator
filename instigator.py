@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.15-20180930 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.16-20180930 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
