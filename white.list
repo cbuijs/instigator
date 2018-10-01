@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1538327540                  ###
+### Version: 1538382142                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -598,6 +598,7 @@ t.co	Notracking-Whitelist
 1stsource.com	Shalla-Banking
 2checkout.com	Adguard-Banks
 356bank.com	Shalla-Banking
+netlab.360.com	Chris-White
 dl.360safe.com	Notracking-Whitelist
 4lnb.com	Shalla-Banking
 4sq.com	Chris-White
@@ -5553,6 +5554,7 @@ cryoutcreations.eu	Notracking-Whitelist
 e-norvik.eu	Adguard-Banks
 europa.eu	Notracking-Whitelist
 ib.expobank.eu	Adguard-Banks
+h3x.eu	Chris-White
 epayment.nets.eu	Adguard-Banks
 acs-visa.norvik.eu	Adguard-Banks
 onlinebanking-herzogpark.eu	Adguard-Banks
