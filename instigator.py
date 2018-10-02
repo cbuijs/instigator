@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.30-20181002 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.31-20181002 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -71,6 +71,9 @@ basedir = '/'.join(os.path.realpath(__file__).split('/')[0:-1]) + '/'
 
 # Config
 configfile = basedir + 'instigator.conf'
+
+# Resolv.conf file
+resolvfile = '/etc/resolv.conf'
 
 # Listen for queries
 #listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
@@ -367,14 +370,17 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
     itisanip = False
 
-    if rtype == 'REQUEST' and rrtype == 'PTR' and (not in_domain(testvalue, wl_dom)):
+    # Block on IP-Address when reverse-domain is not white/blacklisted
+    if rtype == 'REQUEST' and rrtype == 'PTR' and (not in_domain(testvalue, wl_dom)) and (not in_domain(testvalue, bl_dom)):
         ip = False
         if ip4arpa.search(testvalue):
             ip = '.'.join(testvalue.split('.')[0:4][::-1])
         elif ip6arpa.search(testvalue):
             ip = ':'.join(filter(None, regex.split('(.{4,4})', ''.join(testvalue.split('.')[0:32][::-1]))))
 
+
         if ip:
+            log_info('MATCHING: Matching against IP \"' + ip + '\" instead of domain \"' + testvalue + '\"')
             itisanip = True
             testvalue = ip
 
@@ -1153,7 +1159,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                     fetched += 1
                                     alist[domain] = alias
                                     if alias.upper() != 'RANDOM':
-                                        domlist[domain] = 'Alias' # Whitelist it
+                                        domlist[domain] = 'Alias-Domain' # Whitelist it
                                     if debug: log_info('ALIAS-ALIAS: \"' + domain + '\" = \"' + alias + '\"')
                                 else:
                                     log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
@@ -1205,6 +1211,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                         sdom = normalize_dom(entry.rstrip('*').strip())
                         if isdomain.search(sdom):
                             if sdom not in searchdom:
+                                if sdom not in wl_dom:
+                                    domlist[sdom] = 'Search-Domain'
                                 fetched += 1
                                 searchdom.add(sdom)
                                 if debug: log_info('ALIAS-SEARCH-DOMAIN: \"' + sdom + '\"')
@@ -2017,15 +2025,15 @@ def read_config(file):
         log_info('CONFIG: Skipping config from file, config-file \"' + file + '\" does not exist')
 
 
-    if blocksearchdom and file_exist('/etc/resolv.conf', False):
-        log_info('CONFIG: Loading domains from \"/etc/resolv.conf\"')
+    if blocksearchdom and file_exist(resolvfile, False):
+        log_info('CONFIG: Loading domains from \"' + resolvfile + '\"')
         try:
-            f = open('/etc/resolv.conf')
+            f = open(resolvfile)
             lines = f.readlines()
             f.close()
 
         except BaseException as err:
-            log_err('ERROR: Unable to open/read/process file \"/etc/resolv.conf\" - ' + str(err))
+            log_err('ERROR: Unable to open/read/process file \"' + resolvfile + '\" - ' + str(err))
 
         for line in lines:
             entry = regex.split('#', line)[0].strip().lower()
@@ -2034,11 +2042,11 @@ def read_config(file):
                 if elements[0] == 'domain' or elements[0] == 'search':
                     for dom in elements[1:]:
                         if dom not in searchdom:
-                            log_info('CONFIG: Fetched ' + elements[0] + ' \"' + dom + '\"')
+                            log_info('CONFIG: Fetched ' + elements[0] + ' \"' + dom + '\" from \"' + resolvfile + '\"')
                             searchdom.add(dom)
 
     else:
-        log_info('CONFIG: Skipping getting domains from \"/etc/resolv.conf\", file does not exist')
+        log_info('CONFIG: Skipping getting domains from \"' + resolvfile + '\", file does not exist')
 
     return
 
@@ -2073,26 +2081,32 @@ if __name__ == '__main__':
         if ipregex.search(ip) and (ip not in wl_ip4) and (ip not in wl_ip6):
             log_info('WHITELIST: Added Redirect-Address \"' + ip + '\"')
             if ip.find(':') == -1:
-                wl_ip4[ip] = 'Redirect Address'
+                wl_ip4[ip] = 'Redirect-Address'
             else:
-                wl_ip6[ip] = 'Redirect Address'
+                wl_ip6[ip] = 'Redirect-Address'
 
     for dom in forward_servers.keys():
         if not in_domain(dom, wl_dom) and (dom != '.'):
             log_info('WHITELIST: Added Forward-Domain \"' + dom + '\"')
-            wl_dom[dom] = 'Forward Domain'
+            wl_dom[dom] = 'Forward-Domain'
         for ip in forward_servers[dom]:
             if ipregex.search(ip) and (ip not in wl_ip4) and (ip not in wl_ip6):
                 log_info('WHITELIST: Added Forward-Address \"' + ip + '\"')
                 if ip.find(':') == -1:
-                    wl_ip4[ip] = 'Forward Address'
+                    wl_ip4[ip] = 'Forward-Address'
                 else:
-                    wl_ip6[ip] = 'Forward Address'
+                    wl_ip6[ip] = 'Forward-Address'
 
     for dom in aliases.keys():
         if not in_domain(dom, wl_dom) and (dom != '.'):
             log_info('WHITELIST: Added Alias-Domain \"' + dom + '\"')
-            wl_dom[dom] = 'Alias Domain'
+            wl_dom[dom] = 'Alias-Domain'
+
+    for dom in searchdom:
+        if not in_domain(dom, wl_dom) and (dom != '.'):
+            log_info('WHITELIST: Added Search-Domain \"' + dom + '\"')
+            wl_dom[dom] = 'Search-Domain'
+
 
     # Add command-tld to whitelist
     log_info('WHITELIST: Added Command-Domain \"' + command + '\"')
