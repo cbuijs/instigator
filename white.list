@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1538382142                  ###
+### Version: 1538468522                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -1577,7 +1577,7 @@ ebsb.com	Shalla-Banking
 ecbbancorp.com	Shalla-Banking
 ecitizensnationalbank.com	Shalla-Banking
 ecobank.com	Shalla-Banking
-terminal.ecommpay.com	Adguard-Banks
+ecommpay.com	Adguard-Banks
 economist.com	Notracking-Whitelist
 secure.ecopayz.com	Adguard-Banks
 edbi-iran.com	Shalla-Banking
@@ -2024,6 +2024,7 @@ gibonline.com	Shalla-Banking
 gibraltarbank.com	Shalla-Banking
 gibslandbank.com	Shalla-Banking
 giffordbank.com	Shalla-Banking
+gigsky.com	Chris-White
 gilbertbank.com	Shalla-Banking
 gilmercountybank.com	Shalla-Banking
 github.com	Chris-White, Notracking-Whitelist
@@ -6580,10 +6581,18 @@ nettbanken.nordea.no	Adguard-Banks
 norges-bank.no	Shalla-Banking
 nrb.org.np	Shalla-Banking
 hostsfile.mine.nu	Chris-White
+anz.co.nz	Adguard-Banks
+asb.co.nz	Adguard-Banks
 asbbank.co.nz	Shalla-Banking
+bnz.co.nz	Adguard-Banks
+co-operativebank.co.nz	Adguard-Banks
 fanboy.co.nz	Chris-White
-kiwibank.co.nz	Shalla-Banking
+kiwibank.co.nz	Shalla-Banking, Adguard-Banks
+rabobank.co.nz	Adguard-Banks
+sbsbank.co.nz	Adguard-Banks
 advertising.scoop.co.nz	EasyList-White
+tsb.co.nz	Adguard-Banks
+westpac.co.nz	Adguard-Banks
 rbnz.govt.nz	Shalla-Banking
 fsf.org.nz	Shalla-Banking
 nzba.org.nz	Shalla-Banking
