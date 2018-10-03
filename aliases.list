@@ -48,6 +48,9 @@ localhost=127.0.0.1
 
 # TTL override
 frutch!3600
+1.1.10.in-addr.arpa!3600
+1.16.172.in-addr.arpa!3600
+1.168.192.in-addr.arpa!3600
 iotcplatform.com!3600
 
 # Test examples
