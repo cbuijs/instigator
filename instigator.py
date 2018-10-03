@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.33-20181002 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.34-20181003 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1010,6 +1010,7 @@ def load_lists(file):
     global wl_ip6
     global wl_rx
     global aliases
+    global aliases_rx
     global forward_servers
     global ttls
 
