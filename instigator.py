@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.32-20181002 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.33-20181002 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -489,9 +489,9 @@ def in_regex(name, rxlist, isalias, log):
             if rx.search(name):
                 result = regex.sub(rx, rxlist[r], name)
                 if log: log_info('GENERATOR-MATCH: ' + name + ' matches \"' + r + '\" -> \"' + result + '\"')
-                if name not in wl_dom:
-                    wl_dom[name] = 'Generator-Match'
-                    wl_dom[result] = 'Generator-Result'
+                #if name not in wl_dom:
+                #    wl_dom[name] = 'Generator-Match'
+                #    wl_dom[result] = 'Generator-Result'
                 return result
 
     else:
@@ -984,6 +984,7 @@ def save_lists(file):
         s['wl_ip6'] = to_dict(wl_ip6)
         s['wl_rx'] = wl_rx
         s['aliases'] = aliases
+        s['aliases_rx'] = aliases_rx
         s['forward_servers'] = forward_servers
         s['ttls'] = ttls
 
@@ -1032,6 +1033,7 @@ def load_lists(file):
             from_dict(s['wl_ip6'], wl_ip6)
             wl_rx = s['wl_rx']
             aliases = s['aliases']
+            aliases_rx = s['aliases_rx']
             forward_servers = s['forward_servers']
             ttls = s['ttls']
 
@@ -2071,41 +2073,42 @@ if __name__ == '__main__':
             else:
                 bl_dom, bl_ip4, bl_ip6, bl_rx, _, _, _, _ = read_list(lists[lst], lst, 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(),  dict(), dict(), dict())
 
+        # Whitelist used addresses to unbreak services
+        for ip in redirect_addrs:
+            ip = ip.split('@')[0]
+            if ipregex.search(ip) and (ip not in wl_ip4) and (ip not in wl_ip6):
+                log_info('WHITELIST: Added Redirect-Address \"' + ip + '\"')
+                if ip.find(':') == -1:
+                    wl_ip4[ip] = 'Redirect-Address'
+                else:
+                    wl_ip6[ip] = 'Redirect-Address'
+
+        for dom in forward_servers.keys():
+            if not in_domain(dom, wl_dom) and (dom != '.'):
+                log_info('WHITELIST: Added Forward-Domain \"' + dom + '\"')
+                wl_dom[dom] = 'Forward-Domain'
+            for ip in forward_servers[dom]:
+                if ipregex.search(ip) and (ip not in wl_ip4) and (ip not in wl_ip6):
+                    log_info('WHITELIST: Added Forward-Address \"' + ip + '\"')
+                    if ip.find(':') == -1:
+                        wl_ip4[ip] = 'Forward-Address'
+                    else:
+                        wl_ip6[ip] = 'Forward-Address'
+
+        for dom in aliases.keys():
+            if not in_domain(dom, wl_dom) and (dom != '.'):
+                log_info('WHITELIST: Added Alias-Domain \"' + dom + '\"')
+                wl_dom[dom] = 'Alias-Domain'
+
+        for dom in searchdom:
+            if not in_domain(dom, wl_dom) and (dom != '.'):
+                log_info('WHITELIST: Added Search-Domain \"' + dom + '\"')
+                wl_dom[dom] = 'Search-Domain'
+
         save_lists(savefile)
+
     else:
         loadcache = True # Only load cache if savefile didn't change
-
-    # Whitelist used addresses to unbreak services
-    for ip in redirect_addrs:
-        ip = ip.split('@')[0]
-        if ipregex.search(ip) and (ip not in wl_ip4) and (ip not in wl_ip6):
-            log_info('WHITELIST: Added Redirect-Address \"' + ip + '\"')
-            if ip.find(':') == -1:
-                wl_ip4[ip] = 'Redirect-Address'
-            else:
-                wl_ip6[ip] = 'Redirect-Address'
-
-    for dom in forward_servers.keys():
-        if not in_domain(dom, wl_dom) and (dom != '.'):
-            log_info('WHITELIST: Added Forward-Domain \"' + dom + '\"')
-            wl_dom[dom] = 'Forward-Domain'
-        for ip in forward_servers[dom]:
-            if ipregex.search(ip) and (ip not in wl_ip4) and (ip not in wl_ip6):
-                log_info('WHITELIST: Added Forward-Address \"' + ip + '\"')
-                if ip.find(':') == -1:
-                    wl_ip4[ip] = 'Forward-Address'
-                else:
-                    wl_ip6[ip] = 'Forward-Address'
-
-    for dom in aliases.keys():
-        if not in_domain(dom, wl_dom) and (dom != '.'):
-            log_info('WHITELIST: Added Alias-Domain \"' + dom + '\"')
-            wl_dom[dom] = 'Alias-Domain'
-
-    for dom in searchdom:
-        if not in_domain(dom, wl_dom) and (dom != '.'):
-            log_info('WHITELIST: Added Search-Domain \"' + dom + '\"')
-            wl_dom[dom] = 'Search-Domain'
 
 
     # Add command-tld to whitelist
