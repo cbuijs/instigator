@@ -64,9 +64,9 @@ iotcplatform.com!3600
 #www.company.com=PASSTHRU
 #test.company.com=www.googleapis.com
 #.!99999999
-test.chrisbuijs.com=RANDOM
-/^([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)\.in-addr\.arpa$/=\4-\3-\2-\1.blackhole.invalid
-ip6.arpa=blackhole.invalid
+#test.chrisbuijs.com=RANDOM
+/^(.*\.)((?!(in-addr|ip6)).)*\.arpa$/=blackhole.invalid
+/^(.*)\.(in-addr|ip6)\.arpa$/=\1.blackhole.invalid
 
 # Search domain
 frutch*
