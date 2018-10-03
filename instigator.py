@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.40-20181003 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.6-20181003 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -59,6 +59,9 @@ import regex
 # Use module PyTricia for CIDR/Subnet stuff
 import pytricia
 
+# Use cymruwhois for SafeDNS ASN lookups
+from cymruwhois import Client
+
 ###################
 
 # Debugging
@@ -82,7 +85,7 @@ listen_on = list(['@53']) # Listen on all interfaces/ip's
 #listen_on = list(['127.0.0.1@53']) # IPv4 only for now.
 
 # Forwarding queries to
-forward_timeout = 5 # Seconds
+forward_timeout = 5 # Seconds, keep on 5 seconds or higher
 forward_servers = dict()
 #forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
@@ -178,10 +181,10 @@ nottl = 0 # Seconds - when no TTL or zero ttl
 # Filtering on or off
 filtering = True
 
-# Force to make queries anyway and check response (including request) after, e.g. query is ALWAYS done
-forcequery = False
+# Check requests/queries
+checkrequest = True
 
-# Check responses
+# Check responses/answers
 checkresponse = True # When False, only queries are checked and responses are ignored (passthru)
 
 # Minimal Responses
@@ -215,6 +218,13 @@ blocksub = True
 
 # Block queries in search-domains (from /etc/resolv.conf) if entry already exist in cache without searchdomain
 blocksearchdom = True
+
+# SafeDNS
+safedns = True
+safednsmononly = True
+safednsratio = 33 # Percent
+ipasn4 = pytricia.PyTricia(32)
+ipasn6 = pytricia.PyTricia(128)
 
 # Block rebinding, meaning that IP-Addresses in responses that match against below ranges,
 # must come from a DNS server with an IP-Address also in below ranges
@@ -269,6 +279,9 @@ cache = dict()
 
 # Pending IDs
 pending = dict()
+
+# Broken forwarders flag
+broken_exist = False
 
 ## Regexes
 
@@ -504,6 +517,8 @@ def in_regex(name, rxlist, isalias, log):
 
 # Do query
 def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, force):
+    global broken_exist
+
     queryname = qname + '/IN/' + qtype
 
     if debug and checkbl: queryname = 'BL:' + queryname
@@ -530,6 +545,13 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
         if reply is not None:
             return reply
 
+    # SafeDNS stuff
+    firstreply = None
+    asnstack = set()
+
+    reply = None
+    rcttl = False
+
     pending[uid] = int(time.time())
 
     server = in_domain(qname, forward_servers)
@@ -538,28 +560,6 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     else:
         server = '.'
         servername = 'DEFAULT'
-
-    reply = None
-
-    #if recursion: # !!! WIP
-    #    labelcount = 0
-    #    labels = qname.split('.')[::-1]
-    #    auth_servers = list()
-    #    while labelcount < len(labels) - 1:
-    #        if labelcount is 0:
-    #            parent = "."
-    #            domain = labels[labelcount]
-    #            ns = root_servers
-    #        else:
-    #            parent = labels[labelcount - 1]
-    #            domain = labels[labelcount]
-    #            ns = auth_servers
-    #
-    #        log_info('RECURSION: Asking \"' + parent + '\" servers for NS of \"' + domain + '\"')
-    #
-    #        labelcount += 1
-
-    rcttl = False
 
     forward_server = forward_servers.get(server, False)
     if forward_server:
@@ -581,16 +581,25 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
             if not in_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port)):
                 log_info('DNS-QUERY [' + id_str(tid) + ']: forwarding query from ' + cip + ' to ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
 
-                error = 'None'
-                failed = False
-                try:
-                    useip6 = False
-                    if forward_address.find(':') > 0:
-                        useip6 = True
+                useip6 = False
+                if forward_address.find(':') > 0:
+                    useip6 = True
 
+                error = 'UNKNOWN-ERROR'
+                success = True
+
+                reply = None
+
+                try:
                     q = query.send(forward_address, forward_port, tcp=use_tcp, timeout=forward_timeout, ipv6=useip6)
                     reply = DNSRecord.parse(q)
+
+                except BaseException as error:
+                    success = False
+
+                if success is True:
                     rcode = str(RCODE[reply.header.rcode])
+                    error = rcode
                     if rcode != 'SERVFAIL':
                         if reply.auth and rcode != 'NOERROR':
                             rcttl = normalize_ttl(qname, reply.auth)
@@ -599,49 +608,124 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                         else:
                             _ = normalize_ttl(qname, reply.rr)
 
-                        break
+                        if safedns:
+                            if firstreply is None:
+                                firstreply = reply
+
+                            if len(reply.rr) > 0:
+                                for record in reply.rr:
+                                    rqtype = QTYPE[record.rtype]
+                                    if rqtype in ('A', 'AAAA'):
+                                        ip = str(record.rdata)
+                                        if ipregex.search(ip):
+                                            if ip.find(':') == -1:
+                                                ipasn = ipasn4
+                                            else:
+                                                ipasn = ipasn6
+
+                                            #if ip in ipasn:
+                                            #    prefix = ipasn.get_key(ip)
+                                            #    asn = ipasn.get(prefix, None)
+                                            #else:
+                                            #    prefix = 'NONE'
+                                            #    asn = 'NONE'
+                                            #    owner = 'NONE'
+
+                                            asn = False
+                                            if ip in ipasn:
+                                                 prefix = ipasn.get_key(ip)
+                                                 elements = regex.split('\s+', ipasn.get(prefix, None))
+                                                 if len(elements) > 2:
+                                                     if debug: log_info('SAFEDNS-CACHE-HIT: ' + queryname)
+                                                     asn = elements[0]
+                                                     prefix = elements[1]
+                                                     owner = ' '.join(elements[2:])
+
+                                            if asn is False: 
+                                                whois = Client()
+                                                lookup = whois.lookup(ip)
+                                                asn = lookup.asn
+                                                if asn and asn != '' and asn != 'NA':
+                                                    if debug: log_info('SAFEDNS-WHOIS: ' + queryname)
+                                                    prefix = lookup.prefix
+                                                    owner = lookup.owner.upper()
+                                                    if ip.find(':') == -1:
+                                                        ipasn4[ip] = asn + ' ' + prefix + ' ' + owner
+                                                    else:
+                                                        ipasn6[ip] = asn + ' ' + prefix + ' ' + owner
+                                                else:
+                                                    if debug: log_info('SAFEDNS-UNKNOWN: ' + queryname)
+                                                    asn = 'NONE'
+                                                    prefix = 'NONE'
+                                                    owner = 'NONE'
+                                  
+                                            if asnstack and asn in asnstack:
+                                                if debug: log_info('SAFEDNS: ' + queryname + ' Found same ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
+                                            else:
+                                                asnstack.add(asn)
+                                                if debug: log_info('SAFEDNS: ' + queryname + ' Found new ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
+
+                        else:
+                            break
 
                     else:
-                        error = 'SERVFAIL'
-                        failed = True
+                        success = False
 
-                #except socket.timeout:
-                except BaseException as err:
-                    error = err
-                    failed = True
-
-                if failed:
+                if success is False or reply is None:
                     log_err('DNS-QUERY [' + id_str(tid) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + '@' + str(forward_port) + ' - ' + str(error))
                     if error != 'SERVFAIL':
+                        broken_exist = True
                         to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force, retryttl)
 
-                    reply = None
-
-            if debug: log_info('DNS-QUERY [' + id_str(tid) + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port))
+            if debug and safedns is False: log_info('DNS-QUERY [' + id_str(tid) + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port))
 
     else:
         log_err('DNS-QUERY [' + id_str(tid) + ']: ERROR Resolving ' + queryname + ' (' + servername + ') - NO DNS SERVERS AVAILBLE!')
 
-    # No response, generate servfail
-    if reply is None:
-        log_err('DNS-QUERY [' + id_str(tid) + ']: ERROR Resolving ' + queryname)
+
+    if safedns and firstreply is not None and asnstack:
+        ratio = int(100 / len(asnstack))
+        if len(asnstack) > 1 and ratio < safednsratio:
+            # !!! Calculate difference ratio, 100 divided by number of ANS's
+            if safednsmononly:
+                reply = firstreply
+            else:
+                reply = False
+
+            log_info('SAFEDNS: ' + queryname + ' UNSAFE! Multiple ASNs (Ratio: ' + str(ratio) + '% < ' + str(safednsratio) + '%) ASNs: ' + ', '.join(asnstack))
+        else:
+            reply = firstreply
+            log_info('SAFEDNS: ' + queryname + ' is SAFE (Ratio: ' + str(ratio) + '% >= ' + str(safednsratio) + '%) ASNs: ' + ', '.join(asnstack))
+
+
+    # No response or SafeDNS interception
+    if reply is None or reply is False:
         cache.clear()
         reply = query.reply()
         reply.header.id = tid
-        reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+        if reply is False:
+            log_err('DNS-QUERY [' + id_str(tid) + ']: SafeDNS Block ' + queryname + ' ' + str(hitrcode))
+            if hitrcode == 'NODATA':
+                reply.header.rcode = getattr(RCODE, 'NOERROR')
+            else:
+                reply.header.rcode = getattr(RCODE, hitrcode)
+        else:
+            log_err('DNS-QUERY [' + id_str(tid) + ']: ERROR Resolving ' + queryname + ' ' + str(hitrcode))
+            reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+
         _ = pending.pop(uid, None)
         return reply
 
-    else:
-        # Clear broken-forwarder cache entries
-        if broken_exist():
-            for queryhash in no_noerror_list():
-                record = cache.get(queryhash, None)
-                if record is not None:
-                    rcode = str(RCODE[record[0].header.rcode])
-                    log_info('CACHE-MAINT-PURGE: ' + record[2] + ' ' + rcode + ' (One or more DNS Servers responding again)')
-                    del_cache_entry(queryhash)
-
+    # Clear broken-forwarder cache entries
+    elif broken_exist:
+        broken_exist = False
+        for queryhash in no_noerror_list():
+            record = cache.get(queryhash, None)
+            if record is not None:
+                rcode = str(RCODE[record[0].header.rcode])
+                log_info('CACHE-MAINT-PURGE: ' + record[2] + ' ' + rcode + ' (Unbroken DNS Servers)')
+                del_cache_entry(queryhash)
+            
 
     blockit = False
 
@@ -663,7 +747,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                 #    reply = generate_alias(request, rqname, rqtype, use_tcp, force)
                 #    break
 
-                if replycount > 1: #or forcequery: # Request itself should already be caught during request/query phase
+                if replycount > 1:
                     matchreq = match_blacklist(tid, 'CHAIN', rqtype, rqname, True)
                     if matchreq is False:
                         break
@@ -705,12 +789,8 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
 
     else:
         reply = request.reply()
-        if len(reply.rr) > 0 or (len(reply.rr) == 0 and rcode != 'NOERROR'):
-            reply.header.rcode = getattr(RCODE, rcode)
-            log_info('REPLY [' + id_str(tid) + ']: ' + queryname + ' = ' + rcode)
-        else:
-            reply.header.rcode = getattr(RCODE, 'NOERROR')
-            log_info('REPLY [' + id_str(tid) + ']: ' + queryname + ' = NODATA')
+        reply.header.rcode = getattr(RCODE, rcode)
+        log_info('RCODE-REPLY [' + id_str(tid) + ']: ' + queryname + ' = ' + rcode)
 
 
     # Match up ID
@@ -763,7 +843,7 @@ def generate_response(request, qname, qtype, redirect_addrs, force):
             reply.header.rcode = getattr(RCODE, hitrcode)
 
     else:
-        addanswer = list()
+        addanswer = set()
         for addr in redirect_addrs:
             answer = None
             if qtype == 'A' and ipregex4.search(addr):
@@ -776,7 +856,7 @@ def generate_response(request, qname, qtype, redirect_addrs, force):
                 answer = RR(qname, QTYPE.CNAME, ttl=filterttl, rdata=CNAME(addr))
 
             if answer is not None:
-                addanswer.append(addr)
+                addanswer.add(addr)
                 answer.set_rname(request.q.qname)
                 reply.add_answer(answer)
 
@@ -988,6 +1068,10 @@ def save_lists(file):
         s['forward_servers'] = forward_servers
         s['ttls'] = ttls
 
+        if safedns:
+            s['ipasn4'] = to_dict(ipasn4)
+            s['ipasn6'] = to_dict(ipasn6)
+
         s['bl_dom'] = bl_dom
         s['bl_ip4'] = to_dict(bl_ip4)
         s['bl_ip6'] = to_dict(bl_ip6)
@@ -1013,6 +1097,9 @@ def load_lists(file):
     global aliases_rx
     global forward_servers
     global ttls
+    
+    global ipasn4
+    global ipasn6
 
     global bl_dom
     global bl_ip4
@@ -1037,6 +1124,10 @@ def load_lists(file):
             aliases_rx = s['aliases_rx']
             forward_servers = s['forward_servers']
             ttls = s['ttls']
+
+            if safedns:
+                from_dict(s['ipasn4'], ipasn4)
+                from_dict(s['ipasn6'], ipasn6)
 
             bl_dom = s['bl_dom']
             bl_ip4 = pytricia.PyTricia(32)
@@ -1162,11 +1253,12 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                 fetched += 1
                                 rx = elements[0].strip('/')
                                 alias = elements[1].strip()
-                                #arxlist[rx] = alias
+
                                 try:
                                     arxlist[name + ': ' + alias] = regex.compile(rx, regex.I)
                                 except BaseException as err:
                                     log_err(listname + ' INVALID REGEX [' + str(count) + ']: ' + entry + ' - ' + str(err))
+
                                 log_info('ALIAS-GENERATOR: \"' + rx + '\" = \"' + alias + '\"')
     
                             else:
@@ -1177,7 +1269,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                     alist[domain] = alias
                                     if alias.upper() != 'RANDOM':
                                         domlist[domain] = 'Alias-Domain' # Whitelist it
-                                    if debug: log_info('ALIAS-ALIAS: \"' + domain + '\" = \"' + alias + '\"')
+                                    log_info('ALIAS-ALIAS: \"' + domain + '\" = \"' + alias + '\"')
                                 else:
                                     log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
                         else:
@@ -1197,7 +1289,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                 for addr in regex.split('\s*,\s*', ips):
                                     if ipportregex.search(addr):
                                         addrs.append(addr)
-                                        if debug: log_info('ALIAS-FORWARDER: \"' + domain + '\" to ' + addr)
+                                        log_info('ALIAS-FORWARDER: \"' + domain + '\" to ' + addr)
                                     else:
                                         log_err(listname + ' INVALID FORWARD-ADDRESS [' + str(count) + ']: ' + addr)
 
@@ -1220,7 +1312,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                 fetched += 1
                                 tlist[domain] = int(ttl)
                                 domlist[domain] = 'TTL-Override' # Whitelist it
-                                if debug: log_info('ALIAS-TTL: \"' + domain + '\" = ' + ttl)
+                                log_info('ALIAS-TTL: \"' + domain + '\" = ' + ttl)
                             else:
                                 log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
                         else:
@@ -1235,7 +1327,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                     domlist[sdom] = 'Search-Domain'
                                 fetched += 1
                                 searchdom.add(sdom)
-                                if debug: log_info('ALIAS-SEARCH-DOMAIN: \"' + sdom + '\"')
+                                log_info('ALIAS-SEARCH-DOMAIN: \"' + sdom + '\"')
                         else:
                             log_err(listname + ' INVALID SEARCH-DOMAIN [' + str(count) + ']: ' + entry)
 
@@ -1489,10 +1581,10 @@ def cache_expired_list():
 
 
 # Check if we have broken forwarders
-def broken_exist():
-    if len(list(dict((k, v) for k, v in cache.items() if v[2].find('/BROKEN-FORWARDER/') > 0).keys())) > 0:
-        return True
-    return False
+#def broken_exist():
+#    if len(list(dict((k, v) for k, v in cache.items() if v[2].find('/BROKEN-FORWARDER/') > 0).keys())) > 0:
+#        return True
+#    return False
 
 
 # Return all no-noerror list
@@ -1542,7 +1634,7 @@ def cache_purge(flushall, olderthen, clist, plist):
     before = len(cache)
 
     # Remove expired entries
-    elist = list()
+    elist = set()
     lst = False
     if flushall:
         lst = list(cache.keys()) or False
@@ -1679,12 +1771,12 @@ def collapse_cname(request, reply, rid):
         if firstqtype == 'CNAME':
             qname = normalize_dom(reply.rr[0].rname)
             ttl = reply.rr[0].ttl
-            addr = list()
+            addr = set()
             for record in reply.rr[1:]:
                 qtype = QTYPE[record.rtype].upper()
                 if qtype in ('A', 'AAAA'):
                     ip = str(record.rdata).lower()
-                    addr.append(ip)
+                    addr.add(ip)
 
             if len(addr) > 0:
                 reply = request.reply()
@@ -1925,8 +2017,8 @@ def do_query(request, handler, force):
                 if filtering:
                     # Make query anyway and check it after response instead of before sending query, response will be checked/filtered
                     # Note: makes filtering based on DNSBL or other services responses possible
-                    if forcequery:
-                        log_info('FORCE-QUERY: ' + queryname)
+                    if checkrequest is False:
+                        log_info('UNFILTERED-QUERY: ' + queryname)
                         reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
                     else:
                         # Check against lists
