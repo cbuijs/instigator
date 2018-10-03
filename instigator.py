@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.34-20181003 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.40-20181003 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -379,7 +379,7 @@ def match_blacklist(rid, rtype, rrtype, value, log):
             ip = ':'.join(filter(None, regex.split('(.{4,4})', ''.join(testvalue.split('.')[0:32][::-1]))))
 
 
-        if ip:
+        if ipregex.search(ip):
             log_info('MATCHING: Matching against IP \"' + ip + '\" instead of domain \"' + testvalue + '\"')
             itisanip = True
             testvalue = ip
@@ -1146,7 +1146,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                 # ALIAS - domain.com=ip or domain.com=otherdomain.com
                 elif bw == 'Whitelist':
                     if entry.find('=') > 0:
-                        elements = entry.split('=')
+                        #elements = entry.split('=')
+                        elements = regex.split('\s*=\s*', entry)
                         if len(elements) > 1:
                             if isregex.search(elements[0]):
                                 fetched += 1
@@ -1171,14 +1172,16 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
 
                     # FORWARD - domain.com>ip
                     elif entry.find('>') > 0:
-                        elements = entry.split('>')
+                        #elements = entry.split('>')
+                        elements = regex.split('\s*>\s*', entry)
                         if len(elements) > 1:
                             domain = normalize_dom(elements[0])
                             ips = elements[1].strip().lower().strip('.')
                             if isdomain.search(domain):
                                 domlist[domain] = 'Forward-Domain' # Whitelist it
                                 addrs = list()
-                                for addr in ips.split(','):
+                                #for addr in ips.split(','):
+                                for addr in regex.split('\s*,\s*', ips):
                                     if ipportregex.search(addr):
                                         addrs.append(addr)
                                         if debug: log_info('ALIAS-FORWARDER: \"' + domain + '\" to ' + addr)
@@ -1195,7 +1198,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
 
                     # TTLS - domain.com!ttl (TTL = integer)
                     elif entry.find('!') > 0:
-                        elements = entry.split('!')
+                        #elements = entry.split('!')
+                        elements = regex.split('\s*!\s*', entry)
                         if len(elements) > 1:
                             domain = normalize_dom(elements[0])
                             ttl = elements[1].strip()
