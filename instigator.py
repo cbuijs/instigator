@@ -371,7 +371,7 @@ def match_blacklist(rid, rtype, rrtype, value, log):
     itisanip = False
 
     # Block on IP-Address when reverse-domain is not white/blacklisted
-    if rtype == 'REQUEST' and rrtype == 'PTR' and (not in_domain(testvalue, wl_dom)) and (not in_domain(testvalue, bl_dom)):
+    if rtype == 'REQUEST' and rrtype == 'PTR' and (not in_domain(testvalue, wl_dom)) and (not in_domain(testvalue, bl_dom)) and (not in_regex(testvalue, aliases_rx, True, False)):
         ip = False
         if ip4arpa.search(testvalue):
             ip = '.'.join(testvalue.split('.')[0:4][::-1])
@@ -483,27 +483,24 @@ def in_domain(name, domlist):
 
 # Check if name is matching regex
 def in_regex(name, rxlist, isalias, log):
-    if isalias:
-        for r in rxlist.keys():
-            rx = regex.compile(r, regex.I)
-            if rx.search(name):
-                result = regex.sub(rx, rxlist[r], name)
-                if log: log_info('GENERATOR-MATCH: ' + name + ' matches \"' + r + '\" -> \"' + result + '\"')
-                #if name not in wl_dom:
-                #    wl_dom[name] = 'Generator-Match'
-                #    wl_dom[result] = 'Generator-Result'
-                return result
+    for i in rxlist.keys():
+        rx = rxlist[i]
+        if rx.search(name):
+            elements = regex.split(':\s+', i)
+            lst = elements[0]
+            rx2 = ' '.join(elements[1:])
+            result = False
+            if isalias:
+                result = regex.sub(rx, rx2, name)
+                if log: log_info('GENERATOR-MATCH: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx2 + '\" -> \"' + result + '\" (' + lst + ')')
+            else:
+                result = '\"' + rx2 + '\" (' + lst + ')'
+                if log: log_info('REGEX-MATCH: ' + name + ' matches ' + result)
 
-    else:
-        for i in rxlist.keys():
-            rx = rxlist[i]
-            if rx.search(name):
-                lst = regex.split(':\s+', i)[0]
-                rxn = ' '.join(regex.split(':\s+', i)[1:])
-                if log: log_info('REGEX-MATCH: ' + name + ' matches ' + rxn + ' (' + lst + ')')
-                return '\"' + rxn + '\" (' + lst + ')'
+            return result
 
     return False
+
 
 # Do query
 def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, force):
@@ -837,14 +834,17 @@ def generate_alias(request, qname, qtype, use_tcp, force):
             log_info('ALIAS-HIT: ' + queryname + ' = RANDOM: \"' + alias + '\"')
 
     aliasqname = False
-    if alias.upper() in ('NOTAUTH', 'NXDOMAIN', 'RANDOM', 'REFUSED'):
+    if alias.upper() in ('NODATA', 'NOTAUTH', 'NXDOMAIN', 'RANDOM', 'REFUSED'):
         reply = request.reply()
         if alias.upper() == 'RANDOM':
             log_info('ALIAS-HIT: ' + queryname + ' = RANDOM-NXDOMAIN')
             reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
         else:
             log_info('ALIAS-HIT: ' + queryname + ' = ' + alias.upper())
-            reply.header.rcode = getattr(RCODE, alias.upper())
+            if alias.upper() == 'NODATA':
+                reply.header.rcode = getattr(RCODE, 'NOERROR')
+            else:
+                reply.header.rcode = getattr(RCODE, alias.upper())
 
     elif ipregex.search(alias) and qtype in ('A', 'AAAA', 'CNAME'):
         log_info('ALIAS-HIT: ' + queryname + ' = REDIRECT-TO-IP -> ' + alias)
@@ -901,7 +901,7 @@ def generate_alias(request, qname, qtype, use_tcp, force):
 
 
     if str(RCODE[reply.header.rcode]) == 'NOERROR':
-        log_info('ALIAS-HIT: ' + qname + ' -> ' + alias + ' ' + str(RCODE[reply.header.rcode]))
+        log_info('ALIAS-HIT: ' + qname + ' -> ' + alias + ' NOERROR')
         if collapse and aliasqname:
             log_info('ALIAS-HIT: COLLAPSE ' + qname + '/IN/CNAME')
     else:
@@ -1068,7 +1068,13 @@ def log_totals():
 
 
 def normalize_dom(dom):
-    return str(dom).strip().strip('.').lower() or '.'
+    sdom = str(dom)
+    if sdom.find('.') == -1:
+        return sdom.strip().strip('.').upper()
+    else:
+        return sdom.strip().strip('.').lower() or '.'
+
+    return dom
 
 
 # Read filter lists, see "accomplist" to provide ready-2-use lists:
@@ -1117,7 +1123,10 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                 if isregex.search(entry):
                     fetched += 1
                     rx = entry.strip('/')
-                    rxlist[name + ': ' + rx] = regex.compile(rx, regex.I)
+                    try:
+                        rxlist[name + ': ' + rx] = regex.compile(rx, regex.I)
+                    except BaseException as err:
+                        log_err(listname + ' INVALID REGEX [' + str(count) + ']: ' + entry + ' - ' + str(err))
 
                 # ASN
                 elif isasn.search(entry):
@@ -1153,8 +1162,12 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                 fetched += 1
                                 rx = elements[0].strip('/')
                                 alias = elements[1].strip()
-                                arxlist[rx] = alias
-                                log_info('ALIAS-GENERATOR [' + str(count) + ']: ' + entry)
+                                #arxlist[rx] = alias
+                                try:
+                                    arxlist[name + ': ' + alias] = regex.compile(rx, regex.I)
+                                except BaseException as err:
+                                    log_err(listname + ' INVALID REGEX [' + str(count) + ']: ' + entry + ' - ' + str(err))
+                                log_info('ALIAS-GENERATOR: \"' + rx + '\" = \"' + alias + '\"')
     
                             else:
                                 domain = normalize_dom(elements[0])
