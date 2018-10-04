@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.71-20181004 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.73-20181004 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -544,7 +544,7 @@ def who_is(ip, desc):
          if elements:
              asn = elements[0]
              owner = ' '.join(elements[1:])
-             log_info('WHOIS-CACHE-HIT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
+             if debug: log_info('WHOIS-CACHE-HIT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
 
     else:
         if debug: log_info('WHOIS-LOOKUP: ' + desc + ' ' + ip)
@@ -559,7 +559,7 @@ def who_is(ip, desc):
         if asn != 'NONE' and asn != '' and asn != 'NA' and asn is not None:
             prefix = lookup.prefix
             owner = lookup.owner.upper()
-            log_info('WHOIS-RESULT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
+            if debug: log_info('WHOIS-RESULT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
             ipasn[prefix] = asn + ' ' + owner
         else:
             log_info('WHOIS-UNKNOWN: ' + ip)
@@ -618,7 +618,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     if forward_server:
         query = DNSRecord(q=DNSQuestion(qname, getattr(QTYPE, qtype)))
 
-        if forwardroundrobin and len(forward_server) > 1:
+        if forwardroundrobin and len(forward_server) > 1 and safedns is False:
             addrs = round_robin(forward_server)
             forward_servers[server] = list(addrs)
         else:
@@ -658,10 +658,12 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                     rcode = str(RCODE[reply.header.rcode])
                     error = rcode
                     if rcode != 'SERVFAIL':
-                        if reply.auth and rcode != 'NOERROR' and reply.auth[0].rtype == 6: # SOA
-                            rcttl = normalize_ttl(qname, reply.auth)
-                            if rcttl and firstreply is None:
-                                log_info('SOA-TTL: Taking TTL={1} of SOA \"{0}\" for {2} {3}'.format(regex.split('\s+', str(reply.auth[0]))[0].strip('.') or '.', rcttl, queryname, rcode))
+                        if reply.auth and rcode != 'NOERROR' and firstreply is None and QTYPE[reply.auth[0].rtype] == 'SOA':
+                            soadom = regex.split('\s+', str(reply.auth[0]))[0].strip('.') or '.'
+                            if soadom != ".":
+                                rcttl = normalize_ttl(qname, reply.auth)
+                                if rcttl:
+                                    log_info('SOA-TTL: Taking TTL={1} of SOA \"{0}\" for {2} {3}'.format(soadom , rcttl, queryname, rcode))
                         else:
                             if firstreply is None:
                                 _ = normalize_ttl(qname, reply.rr)
@@ -681,7 +683,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                                   
                                             if asnstack and asn in asnstack:
                                                 if debug: log_info('SAFEDNS: ' + queryname + ' Found same ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
-                                            else:
+                                            elif asn != 'NONE':
                                                 asnstack.add(asn)
                                                 if debug: log_info('SAFEDNS: ' + queryname + ' Found new ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
 
@@ -714,7 +716,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
 
                 log_info('SAFEDNS: ' + queryname + ' UNSAFE! Multiple ASNs (Ratio: ' + str(ratio) + '% < ' + str(safednsratio) + '%) ASNs (' + str(len(asnstack)) + '): ' + astack)
         else:
-            log_info('SAFEDNS: ' + queryname + ' is SAFE (Ratio: 100% >= ' + str(safednsratio) + '%) ASNs (' + str(len(asnstack)) + '): ' + astack)
+            log_info('SAFEDNS: ' + queryname + ' is SAFE (Ratio: 100% >= ' + str(safednsratio) + '%) ASN: ' + astack)
 
 
     # No response or SafeDNS interception
