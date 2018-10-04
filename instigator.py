@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.69-20181004 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.71-20181004 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -410,9 +410,6 @@ def match_blacklist(rid, rtype, rrtype, value, log):
     # Check against IP-Lists
     if itisanip:
         asn, prefix, owner = who_is(testvalue, '[' + tid + '] ' + rtype)
-        print('WHOIS-RESULT:')
-        print(asn)
-        print(prefix)
         if asn != 'NONE':
             if asn in wl_asn:
                 if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"AS' + asn + '\" (' + prefix + ') - ' + owner)
@@ -544,11 +541,10 @@ def who_is(ip, desc):
     if ip in ipasn:
          prefix = ipasn.get_key(ip)
          elements = regex.split('\s+', ipasn.get(prefix, None))
-         print(elements)
          if elements:
              asn = elements[0]
              owner = ' '.join(elements[1:])
-             if debug: log_info('WHOIS-CACHE-HIT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
+             log_info('WHOIS-CACHE-HIT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
 
     else:
         if debug: log_info('WHOIS-LOOKUP: ' + desc + ' ' + ip)
@@ -563,7 +559,7 @@ def who_is(ip, desc):
         if asn != 'NONE' and asn != '' and asn != 'NA' and asn is not None:
             prefix = lookup.prefix
             owner = lookup.owner.upper()
-            if debug: log_info('WHOIS-RESULT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
+            log_info('WHOIS-RESULT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
             ipasn[prefix] = asn + ' ' + owner
         else:
             log_info('WHOIS-UNKNOWN: ' + ip)
@@ -604,6 +600,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     # SafeDNS stuff
     firstreply = None
     asnstack = set()
+    ipstack = set()
 
     reply = None
     rcttl = False
@@ -661,12 +658,13 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                     rcode = str(RCODE[reply.header.rcode])
                     error = rcode
                     if rcode != 'SERVFAIL':
-                        if reply.auth and rcode != 'NOERROR':
+                        if reply.auth and rcode != 'NOERROR' and reply.auth[0].rtype == 6: # SOA
                             rcttl = normalize_ttl(qname, reply.auth)
-                            if rcttl:
-                                log_info('SOA-TTL: Taking TTL={1} of SOA \"{0}\" for {2} {3}'.format(regex.split('\s+', str(reply.auth[0]))[0].strip('.'), rcttl, queryname, rcode))
+                            if rcttl and firstreply is None:
+                                log_info('SOA-TTL: Taking TTL={1} of SOA \"{0}\" for {2} {3}'.format(regex.split('\s+', str(reply.auth[0]))[0].strip('.') or '.', rcttl, queryname, rcode))
                         else:
-                            _ = normalize_ttl(qname, reply.rr)
+                            if firstreply is None:
+                                _ = normalize_ttl(qname, reply.rr)
 
                         if safedns:
                             if firstreply is None:
@@ -677,13 +675,15 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                                     rqtype = QTYPE[record.rtype]
                                     if rqtype in ('A', 'AAAA'):
                                         ip = str(record.rdata)
-                                        asn, prefix, owner = who_is(ip, queryname)
+                                        if ip not in ipstack:
+                                            ipstack.add(ip)
+                                            asn, prefix, owner = who_is(ip, queryname)
                                   
-                                        if asnstack and asn in asnstack:
-                                            if debug: log_info('SAFEDNS: ' + queryname + ' Found same ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
-                                        else:
-                                            asnstack.add(asn)
-                                            if debug: log_info('SAFEDNS: ' + queryname + ' Found new ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
+                                            if asnstack and asn in asnstack:
+                                                if debug: log_info('SAFEDNS: ' + queryname + ' Found same ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
+                                            else:
+                                                asnstack.add(asn)
+                                                if debug: log_info('SAFEDNS: ' + queryname + ' Found new ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
 
                         else:
                             break
@@ -704,18 +704,17 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
 
 
     if safedns and firstreply is not None and asnstack:
-        ratio = int(100 / len(asnstack))
-        if len(asnstack) > 1 and ratio < safednsratio:
-            # !!! Calculate difference ratio, 100 divided by number of ANS's
-            if safednsmononly:
-                reply = firstreply
-            else:
-                reply = False
+        reply = firstreply
+        astack = ', '.join(sorted(asnstack, key=int))
+        if len(asnstack) > 1:
+            ratio = int(100 / len(asnstack))
+            if ratio < safednsratio:
+                if not safednsmononly:
+                    reply = False
 
-            log_info('SAFEDNS: ' + queryname + ' UNSAFE! Multiple ASNs (Ratio: ' + str(ratio) + '% < ' + str(safednsratio) + '%) ASNs: ' + ', '.join(asnstack))
+                log_info('SAFEDNS: ' + queryname + ' UNSAFE! Multiple ASNs (Ratio: ' + str(ratio) + '% < ' + str(safednsratio) + '%) ASNs (' + str(len(asnstack)) + '): ' + astack)
         else:
-            reply = firstreply
-            log_info('SAFEDNS: ' + queryname + ' is SAFE (Ratio: ' + str(ratio) + '% >= ' + str(safednsratio) + '%) ASNs: ' + ', '.join(asnstack))
+            log_info('SAFEDNS: ' + queryname + ' is SAFE (Ratio: 100% >= ' + str(safednsratio) + '%) ASNs (' + str(len(asnstack)) + '): ' + astack)
 
 
     # No response or SafeDNS interception
