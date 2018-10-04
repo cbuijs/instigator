@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.6-20181003 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.66-20181003 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -220,9 +220,10 @@ blocksub = True
 blocksearchdom = True
 
 # SafeDNS
-safedns = True
+safedns = False
 safednsmononly = True
-safednsratio = 33 # Percent
+safednsratio = 50 # Percent
+ipasnfile = '/opt/ipasn/ipasn-all-cidr-aggregated-complete.dat'
 ipasn4 = pytricia.PyTricia(32)
 ipasn6 = pytricia.PyTricia(128)
 
@@ -270,6 +271,8 @@ wl_ip6 = pytricia.PyTricia(128) # IPv6 Whitelist
 bl_ip6 = pytricia.PyTricia(128) # IPv6 Blacklist
 wl_rx = dict() # Regex Whitelist
 bl_rx = dict() # Regex Blacklist
+wl_asn = dict()
+bl_asn = dict()
 aliases = dict()
 aliases_rx = dict()
 ttls = dict()
@@ -406,6 +409,18 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
     # Check against IP-Lists
     if itisanip:
+        asn, prefix, owner = who_is(testvalue, '[' + tid + '] ' + rtype)
+        print('WHOIS-RESULT:')
+        print(asn)
+        print(prefix)
+        if asn != 'NONE':
+            if asn in wl_asn:
+                if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"AS' + asn + '\" (' + prefix + ') - ' + owner)
+                return False
+            elif asn in bl_asn:
+                if log: log_info('BLACKLIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"AS' + asn + '\" (' + prefix + ') - ' + owner)
+                return True
+
         if testvalue.find(':') == -1:
             wip = wl_ip4
             bip = bl_ip4
@@ -515,6 +530,47 @@ def in_regex(name, rxlist, isalias, log):
     return False
 
 
+# Whois lookup
+def who_is(ip, desc):
+    asn = 'NONE'
+    prefix = 'NONE'
+    owner = 'NONE'
+
+    if ip.find(':') == -1:
+        ipasn = ipasn4
+    else:
+        ipasn = ipasn6
+
+    if ip in ipasn:
+         prefix = ipasn.get_key(ip)
+         elements = regex.split('\s+', ipasn.get(prefix, None))
+         print(elements)
+         if elements:
+             asn = elements[0]
+             owner = ' '.join(elements[1:])
+             if debug: log_info('WHOIS-CACHE-HIT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
+
+    else:
+        if debug: log_info('WHOIS-LOOKUP: ' + desc + ' ' + ip)
+        try:
+            whois = Client()
+            lookup = whois.lookup(ip)
+            asn = lookup.asn
+        except BaseException as err:
+            log_err('WHOIS-ERROR: ' + desc + ' ' + ip + ' - ' + str(err))
+            asn = 'NONE'
+
+        if asn != 'NONE' and asn != '' and asn != 'NA' and asn is not None:
+            prefix = lookup.prefix
+            owner = lookup.owner.upper()
+            if debug: log_info('WHOIS-RESULT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
+            ipasn[prefix] = asn + ' ' + owner
+        else:
+            log_info('WHOIS-UNKNOWN: ' + ip)
+
+    return asn, prefix, owner
+
+
 # Do query
 def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, force):
     global broken_exist
@@ -617,53 +673,13 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                                     rqtype = QTYPE[record.rtype]
                                     if rqtype in ('A', 'AAAA'):
                                         ip = str(record.rdata)
-                                        if ipregex.search(ip):
-                                            if ip.find(':') == -1:
-                                                ipasn = ipasn4
-                                            else:
-                                                ipasn = ipasn6
-
-                                            #if ip in ipasn:
-                                            #    prefix = ipasn.get_key(ip)
-                                            #    asn = ipasn.get(prefix, None)
-                                            #else:
-                                            #    prefix = 'NONE'
-                                            #    asn = 'NONE'
-                                            #    owner = 'NONE'
-
-                                            asn = False
-                                            if ip in ipasn:
-                                                 prefix = ipasn.get_key(ip)
-                                                 elements = regex.split('\s+', ipasn.get(prefix, None))
-                                                 if len(elements) > 2:
-                                                     if debug: log_info('SAFEDNS-CACHE-HIT: ' + queryname)
-                                                     asn = elements[0]
-                                                     prefix = elements[1]
-                                                     owner = ' '.join(elements[2:])
-
-                                            if asn is False: 
-                                                whois = Client()
-                                                lookup = whois.lookup(ip)
-                                                asn = lookup.asn
-                                                if asn and asn != '' and asn != 'NA':
-                                                    if debug: log_info('SAFEDNS-WHOIS: ' + queryname)
-                                                    prefix = lookup.prefix
-                                                    owner = lookup.owner.upper()
-                                                    if ip.find(':') == -1:
-                                                        ipasn4[ip] = asn + ' ' + prefix + ' ' + owner
-                                                    else:
-                                                        ipasn6[ip] = asn + ' ' + prefix + ' ' + owner
-                                                else:
-                                                    if debug: log_info('SAFEDNS-UNKNOWN: ' + queryname)
-                                                    asn = 'NONE'
-                                                    prefix = 'NONE'
-                                                    owner = 'NONE'
+                                        asn, prefix, owner = who_is(ip, queryname)
                                   
-                                            if asnstack and asn in asnstack:
-                                                if debug: log_info('SAFEDNS: ' + queryname + ' Found same ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
-                                            else:
-                                                asnstack.add(asn)
-                                                if debug: log_info('SAFEDNS: ' + queryname + ' Found new ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
+                                        if asnstack and asn in asnstack:
+                                            if debug: log_info('SAFEDNS: ' + queryname + ' Found same ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
+                                        else:
+                                            asnstack.add(asn)
+                                            if debug: log_info('SAFEDNS: ' + queryname + ' Found new ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
 
                         else:
                             break
@@ -1063,6 +1079,7 @@ def save_lists(file):
         s['wl_ip4'] = to_dict(wl_ip4)
         s['wl_ip6'] = to_dict(wl_ip6)
         s['wl_rx'] = wl_rx
+        s['wl_asn'] = wl_asn
         s['aliases'] = aliases
         s['aliases_rx'] = aliases_rx
         s['forward_servers'] = forward_servers
@@ -1076,6 +1093,7 @@ def save_lists(file):
         s['bl_ip4'] = to_dict(bl_ip4)
         s['bl_ip6'] = to_dict(bl_ip6)
         s['bl_rx'] = bl_rx
+        s['bl_asn'] = bl_asn
 
         s.close()
 
@@ -1087,12 +1105,62 @@ def save_lists(file):
     return True
 
 
+# Load IPASN
+def load_asn(file, asn4, asn6):
+    log_info('ASN: Loading IPASN from \"' + file + '\"')
+
+    if file_exist(file, False):
+        try:
+            f = open(file, 'r')
+            lines = f.readlines()
+            f.close()
+
+        except BaseException as err:
+            log_err('ERROR: Unable to open/read/process ASN file \"' + file + '\" - ' + str(err))
+            return False
+
+        count = 0
+        for line in lines:
+            count += 1
+
+            elements = regex.split('\s+', line.strip())
+            if len(elements) > 1:
+                prefix = elements[0]
+                if ipregex.search(prefix):
+                    asn = elements[1].upper().lstrip('AS')
+                    if isasn.search('AS' + asn):
+                        if len(elements) > 2:
+                           owner = ' '.join(elements[2:]).upper()
+                        else:
+                           owner = 'IPASN'
+
+                        if prefix.find(':') == -1:
+                           asnd = asn4
+                        else:
+                           asnd = asn6
+
+                        asnd[prefix] = asn + ' ' + owner
+                    else:
+                        log_err('ASN-ERROR [' + str(count) + ']: Invalid ASN - ' + line)
+
+                else:
+                    log_err('ASN-ERROR [' + str(count) + ']: Invalid IP - ' + line)
+
+    else:
+        log_err('ERROR: Unable to open/read/process ASN file \"' + file + '\" - File does not exists')
+
+    log_info('ASN: Fetched ' + str(len(asn4)) + ' IPv4 and ' + str(len(asn6)) + ' IPv6 ASNs')
+
+    return asn4, asn6
+
+
 def load_lists(file):
 
     global wl_dom
     global wl_ip4
     global wl_ip6
     global wl_rx
+    global wl_asn
     global aliases
     global aliases_rx
     global forward_servers
@@ -1105,6 +1173,7 @@ def load_lists(file):
     global bl_ip4
     global bl_ip6
     global bl_rx
+    global bl_asn
 
     global cache
 
@@ -1120,6 +1189,7 @@ def load_lists(file):
             wl_ip6 = pytricia.PyTricia(128)
             from_dict(s['wl_ip6'], wl_ip6)
             wl_rx = s['wl_rx']
+            wl_asn = s['wl_asn']
             aliases = s['aliases']
             aliases_rx = s['aliases_rx']
             forward_servers = s['forward_servers']
@@ -1136,6 +1206,7 @@ def load_lists(file):
             from_dict(s['bl_ip6'], bl_ip6)
 
             bl_rx = s['bl_rx']
+            bl_asn = s['bl_asn']
 
             s.close()
 
@@ -1151,8 +1222,8 @@ def load_lists(file):
 
 
 def log_totals():
-    log_info('WHITELIST-TOTALS: ' + str(len(wl_rx)) + ' REGEXes, ' + str(len(wl_ip4)) + ' IPv4 CIDRs, ' + str(len(wl_ip6)) + ' IPv6 CIDRs, ' + str(len(wl_dom)) + ' DOMAINs, ' + str(len(aliases)) + ' ALIASes, ' + str(len(forward_servers)) + ' FORWARDs and ' + str(len(ttls)) + ' TTLs')
-    log_info('BLACKLIST-TOTALS: ' + str(len(bl_rx)) + ' REGEXes, ' + str(len(bl_ip4)) + ' IPv4 CIDRs, ' + str(len(bl_ip6)) + ' IPv6 CIDRs and ' + str(len(bl_dom)) + ' DOMAINs')
+    log_info('WHITELIST-TOTALS: ' + str(len(wl_rx)) + ' REGEXes, ' + str(len(wl_ip4)) + ' IPv4 CIDRs, ' + str(len(wl_ip6)) + ' IPv6 CIDRs, ' + str(len(wl_dom)) + ' DOMAINs, ' + str(len(aliases)) + ' ALIASes, ' + str(len(forward_servers)) + ' FORWARDs, ' + str(len(ttls)) + ' TTLs and ' + str(len(wl_asn)) + ' ASNs')
+    log_info('BLACKLIST-TOTALS: ' + str(len(bl_rx)) + ' REGEXes, ' + str(len(bl_ip4)) + ' IPv4 CIDRs, ' + str(len(bl_ip6)) + ' IPv6 CIDRs, ' + str(len(bl_dom)) + ' DOMAINs and ' + str(len(bl_asn)) + ' ASNs')
     log_info('CACHE-TOTALS: ' + str(len(cache)) + ' Cache Entries')
 
     return True
@@ -1170,7 +1241,7 @@ def normalize_dom(dom):
 
 # Read filter lists, see "accomplist" to provide ready-2-use lists:
 # https://github.com/cbuijs/accomplist
-def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, alist, flist, tlist):
+def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, alist, flist, tlist, asnlist):
     listname = listname.upper()
     log_info('Fetching ' + bw + ' \"' + listname + '\" entries from \"' + file + '\"')
 
@@ -1184,7 +1255,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
             f.close()
 
         except BaseException as err:
-            log_err('ERROR: Unable to open/read/process file \"' + file + '\" - ' + str(err))
+            log_err('ERROR: Unable to open/read/process list-file \"' + file + '\" - ' + str(err))
 
         for line in lines:
             count += 1
@@ -1221,7 +1292,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
 
                 # ASN
                 elif isasn.search(entry):
-                    _ = entry
+                    fetched += 1
+                    asnlist[entry.upper().lstrip('AS')] = name
 
                 # DOMAIN
                 elif isdomain.search(entry):
@@ -1340,7 +1412,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
 
     log_info(listname + ' Processed ' + str(count) + ' lines and used ' + str(fetched))
 
-    return domlist, iplist4, iplist6, rxlist, arxlist, alist, flist, tlist
+    return domlist, iplist4, iplist6, rxlist, arxlist, alist, flist, tlist, asnlist
 
 
 # Normalize TTL's, all RR's in a RRSET will get the same TTL based on strategy (see below)
@@ -2179,9 +2251,13 @@ if __name__ == '__main__':
     if not load_lists(savefile):
         for lst in sorted(lists.keys()):
             if lst in whitelist:
-                wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, aliases_rx, forward_servers, ttls = read_list(lists[lst], lst, 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases_rx, aliases, forward_servers, ttls)
+                wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, aliases_rx, forward_servers, ttls, wl_asn = read_list(lists[lst], lst, 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases_rx, aliases, forward_servers, ttls, wl_asn)
             else:
-                bl_dom, bl_ip4, bl_ip6, bl_rx, _, _, _, _ = read_list(lists[lst], lst, 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(),  dict(), dict(), dict())
+                bl_dom, bl_ip4, bl_ip6, bl_rx, _, _, _, _, bl_asn = read_list(lists[lst], lst, 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(),  dict(), dict(), dict(), bl_asn)
+
+        # Load IPASN
+        if ipasnfile:
+            ipasn4, ipasn6 = load_asn(ipasnfile, ipasn4, ipasn6)
 
         # Whitelist used addresses to unbreak services
         for ip in redirect_addrs:
