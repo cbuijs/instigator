@@ -68,8 +68,10 @@ iotcplatform.com!3600
 #test.company.com=www.googleapis.com
 #.!99999999
 #test.chrisbuijs.com=RANDOM
-/^(.*\.)((?!(in-addr|ip6)).)*\.arpa$/=blackhole.invalid
-/^(.*)\.(in-addr|ip6)\.arpa$/=\1.blackhole.invalid
+#/^(.*\.)((?!(in-addr|ip6)).)*\.arpa$/=blackhole.invalid
+#/^(.*)\.(in-addr|ip6)\.arpa$/=\1.blackhole.invalid
+/^([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$/=\1.\2.\3.\4
+
 
 # Search domain
 frutch*
