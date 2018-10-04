@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.66-20181003 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.69-20181004 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -627,6 +627,9 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
         else:
             addrs = forward_server
 
+        if safedns:
+            log_info('SAFEDNS-QUERY [' + id_str(tid) + ']: forwarding query from ' + cip + ' to all forwarders for ' + queryname)
+
         for addr in addrs:
             forward_address = addr.split('@')[0]
             if addr.find('@') > 0:
@@ -635,7 +638,8 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                 forward_port = 53
 
             if not in_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port)):
-                log_info('DNS-QUERY [' + id_str(tid) + ']: forwarding query from ' + cip + ' to ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
+                if not safedns:
+                    log_info('DNS-QUERY [' + id_str(tid) + ']: forwarding query from ' + cip + ' to ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
 
                 useip6 = False
                 if forward_address.find(':') > 0:
