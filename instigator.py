@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.75-20181005 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.80-20181005 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -78,6 +78,10 @@ configfile = basedir + 'instigator.conf'
 # Resolv.conf file
 resolvfile = '/etc/resolv.conf'
 
+# TLDList
+tldfile = basedir + 'iana-tlds.list'
+tldlist = set()
+
 # Listen for queries
 #listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
 #listen_on = list(['172.16.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
@@ -144,7 +148,6 @@ lists['blacklist'] = basedir + 'black.list'
 lists['whitelist'] = basedir + 'white.list'
 lists['aliases'] = basedir + 'aliases.list'
 lists['malicious-ip'] = basedir + 'malicious-ip.list'
-lists['nx-tld'] = 'nx-tld.list'
 #lists['ads'] = '/opt/instigator/shallalist/adv/domains'
 #lists['banking'] = '/opt/instigator/shallalist/finance/banking/domains'
 #lists['costtraps'] = '/opt/instigator/shallalist/costtraps/domains'
@@ -154,7 +157,7 @@ lists['nx-tld'] = 'nx-tld.list'
 #lists['trackers'] = '/opt/instigator/shallalist/tracker/domains'
 #lists['updatesites'] = '/opt/instigator/shallalist/updatesites/domains'
 #lists['warez'] = '/opt/instigator/shallalist/warez/domains'
-blacklist = list(['blacklist', 'ads', 'costtraps', 'porn', 'gamble', 'spyware', 'warez', 'malicious-ip', 'nx-tld'])
+blacklist = list(['blacklist', 'ads', 'costtraps', 'porn', 'gamble', 'spyware', 'warez', 'malicious-ip'])
 whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites'])
 searchdom = set()
 
@@ -335,7 +338,7 @@ def log_info(message):
     '''Log INFO messages to syslog'''
     if debug:
         #print('{0} {1}'.format(time.strftime('%a %d-%b-%Y %H:%M:%S'), message))
-        print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message))
+        print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message)[:256])
         sys.stdout.flush()
     syslog.syslog(syslog.LOG_INFO, message) # !!! Fix SYSLOG on MacOS
     return True
@@ -346,7 +349,7 @@ def log_err(message):
     message = '!!! STRESS: {0}'.format(message)
     if debug:
         #print('{0} {1}'.format(time.strftime('%a %d-%b-%Y %H:%M:%S'), message))
-        print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message))
+        print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message)[:256])
         sys.stdout.flush()
     syslog.syslog(syslog.LOG_ERR, message) # !!! Fix SYSLOG on MacOS
     return True
@@ -510,21 +513,22 @@ def in_domain(name, domlist):
 
 def in_regex(name, rxlist, isalias, log):
     '''Check if name is matching regex'''
-    for i in rxlist.keys():
-        rx = rxlist[i]
-        if rx.search(name):
-            elements = regex.split(':\s+', i)
-            lst = elements[0]
-            rx2 = ' '.join(elements[1:])
-            result = False
-            if isalias:
-                result = regex.sub(rx, rx2, name)
-                if log: log_info('GENERATOR-MATCH: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx2 + '\" -> \"' + result + '\" (' + lst + ')')
-            else:
-                result = '\"' + rx2 + '\" (' + lst + ')'
-                if log: log_info('REGEX-MATCH: ' + name + ' matches ' + result)
+    if name and name != '.':
+        for i in rxlist.keys():
+            rx = rxlist.get(i, False)
+            if rx and rx.search(name):
+                elements = regex.split(':\s+', i)
+                lst = elements[0]
+                rx2 = ' '.join(elements[1:])
+                result = False
+                if isalias:
+                    result = regex.sub(rx, regex.split('\s+', rx2)[0], name)
+                    if log: log_info('GENERATOR-MATCH: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx2 + '\" -> \"' + result + '\" (' + lst + ')')
+                else:
+                    result = '\"' + rx2 + '\" (' + lst + ')'
+                    if log: log_info('REGEX-MATCH: ' + name + ' matches ' + result)
 
-            return result
+                return result
 
     return False
 
@@ -1334,7 +1338,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                 alias = elements[1].strip()
 
                                 try:
-                                    arxlist[name + ': ' + alias] = regex.compile(rx, regex.I)
+                                    arxlist[name + ': ' + alias + ' ' + rx] = regex.compile(rx, regex.I)
                                 except BaseException as err:
                                     log_err(listname + ' INVALID REGEX [' + str(count) + ']: ' + entry + ' - ' + str(err))
 
@@ -1996,6 +2000,15 @@ def do_query(request, handler, force):
         reply = from_cache(qname, qclass, qtype, rid)
 
 
+    if reply is None and blocksub and tldlist:
+        tld = qname.split('.')[-1]
+        if tld not in tldlist:
+            log_info('NX-TLD [' + id_str(rid) + ']: ' + queryname + ' (.' + tld + ') NXDOMAIN')
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+            to_cache(tld, qclass, qtype, reply, force, filterttl) # Cache TLD
+            to_cache(qname, qclass, qtype, reply, force, filterttl) # Cache query
+
     # Check if parent is in cache as NXDOMAIN
     if reply is None and force is False and blocksub and (in_domain(qname, wl_dom) is False):
         dom = in_domain(qname, cache_dom_list(qclass, qtype))
@@ -2017,7 +2030,7 @@ def do_query(request, handler, force):
                     now = int(time.time())
                     expire = cacheentry[1]
                     parentttlleft = expire - now
-                    to_cache(qname, qclass, qtype, reply, force, parentttlleft) # cache it
+                    to_cache(qname, qclass, qtype, reply, force, parentttlleft) # Cache it
 
     # More eleborated filtering on query
     if reply is None:
@@ -2113,29 +2126,38 @@ def do_query(request, handler, force):
                         else: # Generated-Alias
                             queryfiltered = True
                             answer = False
-                            if ipregex.search(generated):
-                                if qtype == 'A' and ipregex4.search(generated):
-                                    answer = RR(qname, QTYPE.A, ttl=filterttl, rdata=A(generated))
-                                elif qtype == 'AAAA' and ipregex6.search(generated):
-                                    answer = RR(qname, QTYPE.AAAA, ttl=filterttl, rdata=AAAA(generated))
-                            elif isdomain.search(generated):
-                                if qtype in ('A', 'AAAA', 'CNAME'):
-                                    answer = RR(qname, QTYPE.CNAME, ttl=filterttl, rdata=CNAME(generated))
-                                elif qtype == 'NS':
-                                    answer = RR(qname, QTYPE.NS, ttl=filterttl, rdata=NS(generated))
-                                elif qtype == 'PTR':
-                                    answer = RR(qname, QTYPE.PTR, ttl=filterttl, rdata=PTR(generated))
-
-                            if answer:
-                                log_info('GENERATED-HIT [' + id_str(rid) + ']: \"' + qname + '/' + qtype + '\" -> \"' + generated + '\"')
+                            rcode = generated.upper()
+                            if rcode in ('NODATA','NXDOMAIN','REFUSED'):
+                                log_info('GENERATED-HIT [' + id_str(rid) + ']: \"' + qname + '/' + qtype + '\" -> \"' + rcode + '\"')
                                 reply = request.reply()
-                                reply.header.rcode = getattr(RCODE, 'NOERROR')
-                                reply.add_answer(answer)
+                                if rcode == 'NODATA':
+                                    rcode = 'NOERROR'
+                                reply.header.rcode = getattr(RCODE, rcode)
 
                             else:
-                                log_err('GENERATED-ERROR [' + id_str(rid) + ']: INVALID/UNSUPPORTED TYPE/DATA \"' + qname + '/' + qtype + '\" -> \"' + generated + '\"')
-                                reply = request.reply()
-                                reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+                                if ipregex.search(generated):
+                                    if qtype == 'A' and ipregex4.search(generated):
+                                        answer = RR(qname, QTYPE.A, ttl=filterttl, rdata=A(generated))
+                                    elif qtype == 'AAAA' and ipregex6.search(generated):
+                                        answer = RR(qname, QTYPE.AAAA, ttl=filterttl, rdata=AAAA(generated))
+                                elif isdomain.search(generated):
+                                    if qtype in ('A', 'AAAA', 'CNAME'):
+                                        answer = RR(qname, QTYPE.CNAME, ttl=filterttl, rdata=CNAME(generated))
+                                    elif qtype == 'NS':
+                                        answer = RR(qname, QTYPE.NS, ttl=filterttl, rdata=NS(generated))
+                                    elif qtype == 'PTR':
+                                        answer = RR(qname, QTYPE.PTR, ttl=filterttl, rdata=PTR(generated))
+
+                                if answer:
+                                    log_info('GENERATED-HIT [' + id_str(rid) + ']: \"' + qname + '/' + qtype + '\" -> \"' + generated + '\"')
+                                    reply = request.reply()
+                                    reply.header.rcode = getattr(RCODE, 'NOERROR')
+                                    reply.add_answer(answer)
+
+                                else:
+                                    log_err('GENERATED-ERROR [' + id_str(rid) + ']: INVALID/UNSUPPORTED TYPE/DATA \"' + qname + '/' + qtype + '\" -> \"' + generated + '\"')
+                                    reply = request.reply()
+                                    reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
 
                 else: # Non-filtering
                     reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, False, force)
@@ -2239,6 +2261,22 @@ def read_config(file):
                             log_info('CONFIG: Fetched ' + elements[0] + ' \"' + dom + '\" from \"' + resolvfile + '\"')
                             searchdom.add(dom)
 
+
+    if blocksub and file_exist(tldfile, False):
+        log_info('CONFIG: Loading TLDs from \"' + tldfile + '\"')
+        try:
+            f = open(tldfile)
+            lines = f.readlines()
+            f.close()
+
+        except BaseException as err:
+            log_err('ERROR: Unable to open/read/process file \"' + tldfile + '\" - ' + str(err))
+
+        for line in lines:
+            entry = regex.split('#', line)[0].strip().lower()
+            if len(entry) > 0:
+                tldlist.add(entry)
+
     else:
         log_info('CONFIG: Skipping getting domains from \"' + resolvfile + '\", file does not exist')
 
@@ -2261,7 +2299,7 @@ if __name__ == '__main__':
     if not load_lists(savefile):
         for lst in sorted(lists.keys()):
             if lst in whitelist:
-                wl_dom, wl_ip4, wl_ip6, wl_rx, aliases, aliases_rx, forward_servers, ttls, wl_asn = read_list(lists[lst], lst, 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases_rx, aliases, forward_servers, ttls, wl_asn)
+                wl_dom, wl_ip4, wl_ip6, wl_rx, aliases_rx, aliases, forward_servers, ttls, wl_asn = read_list(lists[lst], lst, 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases_rx, aliases, forward_servers, ttls, wl_asn)
             else:
                 bl_dom, bl_ip4, bl_ip6, bl_rx, _, _, _, _, bl_asn = read_list(lists[lst], lst, 'Blacklist', bl_dom, bl_ip4, bl_ip6, bl_rx, dict(), dict(), dict(), dict(), bl_asn)
 
