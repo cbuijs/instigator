@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v4.951-20181009 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.952-20181009 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1388,22 +1388,26 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                 # ALIAS - domain.com=ip or domain.com=otherdomain.com
                 elif bw == 'Whitelist':
                     if entry.find('=') > 0:
-                        #elements = entry.split('=')
-                        elements = regex.split('\s*=\s*', entry)
-                        if len(elements) > 1:
-                            if isregex.search(elements[0]):
-                                fetched += 1
-                                rx = elements[0].strip('/')
-                                alias = elements[1].strip()
+                        if entry[0] == '/':
+                            elements = regex.split('/\s*=\s*', entry)
+                            if len(elements) > 1:
+                                if isregex.search(elements[0] + '/'):
+                                    fetched += 1
+                                    rx = elements[0].strip('/')
+                                    alias = elements[1].strip()
 
-                                try:
-                                    arxlist[name + ': ' + alias + ' ' + rx] = regex.compile(rx, regex.I)
-                                except BaseException as err:
-                                    log_err(listname + ' INVALID REGEX [' + str(count) + ']: ' + entry + ' - ' + str(err))
+                                    try:
+                                        arxlist[name + ': ' + alias + ' ' + rx] = regex.compile(rx, regex.I)
+                                    except BaseException as err:
+                                        log_err(listname + ' INVALID REGEX [' + str(count) + ']: ' + entry + ' - ' + str(err))
 
-                                log_info('ALIAS-GENERATOR: \"' + rx + '\" = \"' + alias + '\"')
+                                    log_info('ALIAS-GENERATOR: \"' + rx + '\" = \"' + alias + '\"')
+                                else:
+                                    log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
 
-                            else:
+                        else:
+                            elements = regex.split('\s*=\s*', entry)
+                            if len(elements) > 1:
                                 domain = normalize_dom(elements[0])
                                 alias = normalize_dom(elements[1])
                                 if isdomain.search(domain) and (isdomain.search(alias) or ipregex.search(alias)):
@@ -1414,8 +1418,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                     log_info('ALIAS-ALIAS: \"' + domain + '\" = \"' + alias + '\"')
                                 else:
                                     log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
-                        else:
-                            log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
+                            else:
+                                log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
 
                     # FORWARD - domain.com>ip
                     elif entry.find('>') > 0:
