@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+# Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v4.88-20181008 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.90-20181009 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -80,10 +81,6 @@ configfile = basedir + 'instigator.conf'
 
 # Resolv.conf file
 resolvfile = '/etc/resolv.conf'
-
-# TLDList
-#tldfile = basedir + 'iana-tlds.list'
-#tldlist = set()
 
 # Listen for queries
 #listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
@@ -335,7 +332,10 @@ ip4arpa = regex.compile('^([0-9]{1,3}\.){4}in-addr\.arpa$', regex.I)
 ip6arpa = regex.compile('^([0-9a-f]\.){32}ip6\.arpa$', regex.I)
 
 # Regex to match domains/hosts in lists
-isdomain = regex.compile('^[a-z0-9\.\_\-]+$', regex.I) # Based on RFC1035 plus underscore
+if fastregex:
+    isdomain = regex.compile('^[a-z0-9\.\_\-]+$', regex.I)
+else:
+    isdomain = regex.compile('(?=^.{1,253}$)(^((?!-)[a-zA-Z0-9_-]{0,62}[a-zA-Z0-9]\.)*(xn--[a-zA-Z0-9-]{5,63}|[a-zA-Z]{2,63})$)', regex.I)
 
 # Regex to filter regexes out
 isregex = regex.compile('^/.*/$')
@@ -397,13 +397,14 @@ def match_blacklist(rid, rtype, rrtype, value, log):
       False = White-listed
       None = None-listed
     '''
+    if filtering is False:
+        return None
+
     tid = id_str(rid)
-
     testvalue = value
-
     itisanip = False
 
-    # Block on IP-Address when reverse-domain is not white/blacklisted
+    # Check if an IP
     if rtype == 'REQUEST' and rrtype == 'PTR' and (not in_regex(testvalue, aliases_rx, True, False, 'Generator')):
         if (not in_domain(testvalue, wl_dom, 'Whitelist')) and (not in_domain(testvalue, bl_dom, 'Blacklist')):
             ip = False
@@ -418,10 +419,33 @@ def match_blacklist(rid, rtype, rrtype, value, log):
                 testvalue = ip
 
     elif rtype == 'REPLY':
+        #if rrtype in ('A', 'AAAA') and ipregex.search(testvalue):
         if rrtype in ('A', 'AAAA'):
             itisanip = True
-        else:
-            testvalue = normalize_dom(regex.split('\s+', testvalue)[-1])
+
+
+    # Check domain-name validity
+    if not itisanip:
+        testvalue = normalize_dom(regex.split('\s+', testvalue)[-1])
+        if blockundotted and testvalue.count('.') < mindots:
+            log_info('BLOCK-MINDOTS-HIT [' + tid + ']: ' + value)
+            return True
+        elif is_illegal(testvalue):
+            log_err('BLOCK-ILLEGAL-HIT [' + tid + ']: ' + value)
+            return True
+        elif is_weird(testvalue, rrtype):
+            log_info('BLOCK-WEIRD-HIT [' + tid + ']: ' + value)
+            return True
+
+
+    # Block IP-Family
+    if blockv4 and (rrtype == 'A' or (rrtype == 'PTR' and itisanip)):
+        log_info('BLOCK-IPV4-HIT [' + tid + ']: ' + rtype + ' \"' + value + '/' + rrtype + '\"')
+        return True
+
+    if blockv6 and (rrtype == 'AAAA' or (rrtype == 'PTR' and itisanip)):
+        log_info('BLOCK-IPV6-HIT [' + tid + ']: ' + rtype + ' \"' + value + '/' + rrtype + '\"')
+        return True
 
 
     # Check against IP-Lists
@@ -476,16 +500,18 @@ def match_blacklist(rid, rtype, rrtype, value, log):
                 return True
 
 
-    # Catchall: Check agains Regex-Lists
-    rxfound = in_regex(value, wl_rx, False, log, 'Whitelist') # Whitelist
-    if rxfound:
-        if log: log_info('WHITELIST-REGEX-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against ' + rxfound)
-        return False
+    # If it is not an IP, check validity and against regex
+    if not itisanip:
+        # Catchall: Check agains Regex-Lists
+        rxfound = in_regex(value, wl_rx, False, log, 'Whitelist') # Whitelist
+        if rxfound:
+            if log: log_info('WHITELIST-REGEX-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against ' + rxfound)
+            return False
 
-    rxfound = in_regex(value, bl_rx, False, log, 'Blacklist') # Blacklist
-    if rxfound:
-        if log: log_info('BLACKLIST-REGEX-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against ' + rxfound)
-        return True
+        rxfound = in_regex(value, bl_rx, False, log, 'Blacklist') # Blacklist
+        if rxfound:
+            if log: log_info('BLACKLIST-REGEX-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against ' + rxfound)
+            return True
 
     # No hits
     if debug and log: log_info('NONE-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" does not match against any lists')
@@ -499,9 +525,9 @@ def in_domain(name, domlist, domid):
     if domidname in indom_cache:
         indom = indom_cache.get(domidname, False)
         if indom:
-            if debug: log_info('INDOM-CACHE: \"' + name + '\" in \"' + indom + '\" (' + domid + ')')
+            if debug: log_info('INDOM-CACHE [' + domid + ']: \"' + name + '\" in \"' + indom + '\"')
         else:
-            if debug: log_info('INDOM-CACHE: \"' + name + '\" is NOMATCH (' + domid + ')')
+            if debug: log_info('INDOM-CACHE [' + domid + ']: \"' + name + '\" is NOMATCH')
         return indom
 
     testname = name
@@ -525,11 +551,11 @@ def in_regex(name, rxlist, isalias, log, rxid):
         inrx = inrx_cache.get(rxidname, False)
         if inrx:
             if isalias:
-                if debug: log_info('INRX-CACHE: \"' + name + '\" -> ' + inrx + ' (' + rxid + ')')
+                if debug: log_info('INRX-CACHE [' + rxid +']: \"' + name + '\" -> \"' + inrx + '\"')
             else:
-                if debug: log_info('INRX-CACHE: \"' + name + '\" matched with ' + inrx + ' (' + rxid + ')')
+                if debug: log_info('INRX-CACHE [' + rxid +']: \"' + name + '\" matched with \"' + inrx + '\"')
         else:
-            if debug: log_info('INRX-CACHE: \"' + name + '\" is NOMATCH (' + rxid + ')')
+            if debug: log_info('INRX-CACHE [' + rxid +']: \"' + name + '\" is NOMATCH')
         return inrx
 
     if name and name != '.':
@@ -542,10 +568,10 @@ def in_regex(name, rxlist, isalias, log, rxid):
                 result = False
                 if isalias:
                     result = regex.sub(rx, regex.split('\s+', rx2)[0], name)
-                    if debug or log: log_info('GENERATOR-MATCH: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx2 + '\" -> \"' + result + '\" (' + lst + ')')
+                    if debug or log: log_info('GENERATOR-MATCH [' + lst + ']: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx2 + '\" -> \"' + result + '\"')
                 else:
                     result = '\"' + rx2 + '\" (' + lst + ')'
-                    if debug or log: log_info('REGEX-MATCH: ' + name + ' matches ' + result)
+                    if debug or log: log_info('REGEX-MATCH [' + lst + ']: ' + name + ' matches ' + result)
 
                 inrx_cache[rxidname] = result
 
@@ -1332,8 +1358,11 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                 # DOMAIN
                 elif isdomain.search(entry):
                     entry = normalize_dom(entry)
-                    if blockillegal and (len(entry) > 252 or all(len(x) < 64 for x in entry.split('.')) is False):
-                        log_err(listname + ' ILLEGAL/FAULTY Entry [' + str(count) + ']: ' + entry)
+                    entrytype = 'ANY'
+                    if ip4arpa.search(entry) or ip6arpa.search(entry):
+                        entrytype = 'PTR'
+                    if is_illegal(entry) or is_weird(entry, entrytype):
+                        log_err(listname + ' ILLEGAL/FAULTY/WEIRD Entry [' + str(count) + ']: ' + entry)
                     elif entry != '.':
                         fetched += 1
                         domlist[entry] = name
@@ -1982,6 +2011,38 @@ def seen_it(name, seen):
     return False
 
 
+def is_illegal(qname):
+    '''Check if Illegal'''
+    if blockillegal:
+        # Filter when domain-name is not compliant
+        if not isdomain.search(qname):
+            return True
+
+        # Filter if FQDN is too long
+        elif len(qname) > 252:
+            return True
+
+        # Filter if more domain-name contains more then 63 labels
+        elif all(len(x) < 64 for x in qname.split('.')) is False:
+            return True
+
+    return False
+
+
+def is_weird(qname, qtype):
+    '''Check if weird'''
+    if blockweird:
+        # PTR records do not comply with IP-Addresses
+        if qtype == 'PTR' and (not ip4arpa.search(qname) and not ip6arpa.search(qname)):
+            return True
+
+        # Reverse-lookups are not PTR records
+        elif qtype != 'PTR' and (ip4arpa.search(qname) or ip6arpa.search(qname)):
+            return True
+
+    return False
+
+
 def do_query(request, handler, force):
     '''Main DNS resolution function'''
     rid = request.header.id
@@ -2003,11 +2064,12 @@ def do_query(request, handler, force):
     reply = None
 
     # Check ACL
-    if (cip != 'PREFETCHER') and (cip not in allow_query4) and (cip not in allow_query6):
+    if ipregex.search(cip) and (cip not in allow_query4) and (cip not in allow_query6):
         log_info('ACL-HIT: Request from ' + cip + ' for ' + queryname + ' ' + aclrcode)
         reply = request.reply()
         reply.header.rcode = getattr(RCODE, aclrcode)
 
+    # Execute Command
     if command and qname.endswith('.' + command):
         reply = request.reply()
         if cip in ('127.0.0.1', '::1'):
@@ -2015,7 +2077,6 @@ def do_query(request, handler, force):
                 reply.header.rcode = getattr(RCODE, 'NOERROR')
             else:
                 reply.header.rcode = getattr(RCODE, 'NOTIMP')
-                #reply.add_ar(EDNS0())
         else:
             reply.header.rcode = getattr(RCODE, 'REFUSED')
 
@@ -2024,15 +2085,6 @@ def do_query(request, handler, force):
     if reply is None and force is False:
         reply = from_cache(qname, qclass, qtype, rid)
 
-
-    #if reply is None and blocksub and tldlist:
-    #    tld = qname.split('.')[-1]
-    #    if tld not in tldlist:
-    #        log_info('NX-TLD [' + id_str(rid) + ']: ' + queryname + ' (.' + tld + ') NXDOMAIN')
-    #        reply = request.reply()
-    #        reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
-    #        to_cache(tld, qclass, qtype, reply, force, filterttl) # Cache TLD
-    #        to_cache(qname, qclass, qtype, reply, force, filterttl) # Cache query
 
     # Check if parent is in cache as NXDOMAIN
     if reply is None and force is False and blocksub and (in_domain(qname, wl_dom, 'Whitelist') is False):
@@ -2067,66 +2119,20 @@ def do_query(request, handler, force):
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
 
-        elif filtering:
-            # Filter when domain-name is not compliant
-            if blockillegal and isdomain.search(qname) is False:
-                log_err('BLOCK-INVALID-NAME [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' SERVFAIL - INVALID SYNTAX')
-                reply = request.reply()
-                reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+        # Generate ALIAS response when hit
+        elif filtering and in_domain(qname, aliases, 'Alias') and (not in_regex(qname, aliases_rx, True, False, 'Generator')) and (not in_domain(qname, forward_servers, 'Forward')):
+            reply = generate_alias(request, qname, qtype, use_tcp, force)
 
-            # Filter if domain-name is dot-less
-            elif blockundotted and qname.count('.') < mindots:
-                log_info('BLOCK-MINDOTS-HIT [' + id_str(rid) + ']: ' + queryname)
-                reply = generate_response(request, qname, qtype, redirect_addrs, force)
-
-            # Filter if FQDN is too long
-            elif blockillegal and len(qname) > 252:
-                log_err('BLOCK-ILLEGAL-LENGTH-HIT [' + id_str(rid) + ']: ' + queryname)
-                reply = request.reply()
-                reply.header.rcode = getattr(RCODE, 'REFUSED')
-
-            # Filter if more domain-name contains more then 63 labels
-            elif blockillegal and all(len(x) < 64 for x in qname.split('.')) is False:
-                log_err('ILLEGAL-LABEL-LENGTH-HIT [' + id_str(rid) + ']: ' + queryname)
-                reply = request.reply()
-                reply.header.rcode = getattr(RCODE, 'REFUSED')
-
-            # Filter if PTR records do not compy with IP-Addresses
-            elif blockweird and qtype == 'PTR' and (not ip4arpa.search(qname) and not ip6arpa.search(qname)):
-                log_info('BLOCK-WEIRD-HIT [' + id_str(rid) + ']: ' + queryname)
-                reply = request.reply()
-                reply.header.rcode = getattr(RCODE, 'SERVFAIL')
-
-            # Filter if reverse-lookups are not PTR records
-            elif blockweird and qtype != 'PTR' and (ip4arpa.search(qname) or ip6arpa.search(qname)):
-                log_info('BLOCK-WEIRD-HIT [' + id_str(rid) + ']: ' + queryname)
-                reply = request.reply()
-                reply.header.rcode = getattr(RCODE, 'SERVFAIL')
-
-            # Block IPv4 record-types
-            elif blockv4 and (qtype == 'A' or (qtype == 'PTR' and ip4arpa.search(qname))):
-                log_info('BLOCK-IPV4-HIT [' + id_str(rid) + ']: ' + queryname)
-                reply = generate_response(request, qname, qtype, redirect_addrs, force)
-
-            # Block IPv6 record-types
-            elif blockv6 and (qtype == 'AAAA' or (qtype == 'PTR' and ip6arpa.search(qname))):
-                log_info('BLOCK-IPV6-HIT [' + id_str(rid) + ']: ' + queryname)
-                reply = generate_response(request, qname, qtype, redirect_addrs, force)
-
-            # Generate ALIAS response when hit
-            elif in_domain(qname, aliases, 'Alias') and (not in_regex(qname, aliases_rx, True, False, 'Generator')) and (not in_domain(qname, forward_servers, 'Forward')):
-                reply = generate_alias(request, qname, qtype, use_tcp, force)
-
-            # Search-Domain blocker
-            elif blocksearchdom and searchdom:
-                for sdom in searchdom:
-                    if qname.endswith('.' + sdom):
-                        dname = qname.rstrip('.' + sdom)
-                        if in_cache(dname, 'IN', qtype):
-                            log_info('SEARCH-HIT [' + id_str(rid) + ']: \"' + qname + '\" matched \"' + dname + ' . ' + sdom + '\"')
-                            reply = request.reply()
-                            reply.header.rcode = getattr(RCODE, 'NOERROR') # Empty response, NXDOMAIN provides other search-requests
-                            break
+        # Search-Domain blocker
+        elif blocksearchdom and searchdom:
+            for sdom in searchdom:
+                if qname.endswith('.' + sdom):
+                    dname = qname.rstrip('.' + sdom)
+                    if in_cache(dname, 'IN', qtype):
+                        log_info('SEARCH-HIT [' + id_str(rid) + ']: \"' + qname + '\" matched \"' + dname + ' . ' + sdom + '\"')
+                        reply = request.reply()
+                        reply.header.rcode = getattr(RCODE, 'NOERROR') # Empty response, NXDOMAIN provides other search-requests
+                        break
 
         # Get response and process filtering
         if reply is None:
@@ -2289,26 +2295,7 @@ def read_config(file):
                             log_info('CONFIG: Fetched ' + elements[0] + ' \"' + dom + '\" from \"' + resolvfile + '\"')
                             searchdom.add(dom)
 
-
-    #if blocksub and file_exist(tldfile, False):
-    #    log_info('CONFIG: Loading TLDs from \"' + tldfile + '\"')
-    #    try:
-    #        f = open(tldfile)
-    #        lines = f.readlines()
-    #        f.close()
-
-    #    except BaseException as err:
-    #        log_err('ERROR: Unable to open/read/process file \"' + tldfile + '\" - ' + str(err))
-
-    #    for line in lines:
-    #        entry = regex.split('#', line)[0].strip().lower()
-    #        if len(entry) > 0:
-    #            tldlist.add(entry)
-
-    #else:
-    #    log_info('CONFIG: Skipping getting domains from \"' + tldfile + '\", file does not exist')
-
-    return
+    return True
 
 
 if __name__ == '__main__':
