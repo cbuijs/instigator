@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v4.95-20181009 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.951-20181009 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -25,7 +25,7 @@ ToDo/Ideas:
 - Optimize code for better cache/resolution performance. Status: Ongoing.
 - Cleanup code and optimize. Some of it is hacky-quick-code. Status: Ongoing.
 - Switch to dnspython or more modern lib as DNS 'engine'. Status: Backburner.
-- DNSSEC support (validation only), like DNSMasq. Status: Backburner.
+- DNSSEC support (validation only), like DNSMasq. Status: Backburner, see dnspython.
 - Itterative resolution besides only forwarding (as is today). Status: Backburner.
 - Add more security-features against hammering, dns-drip, ddos, etc. Status: Backburner.
 - Fix SYSLOG on MacOS. Status: To-be-done.
@@ -231,7 +231,8 @@ blocksearchdom = True
 safedns = False
 safednsmononly = True
 safednsratio = 50 # Percent
-ipasnfile = '/opt/ipasn/ipasn-all-cidr-aggregated-complete.dat'
+ipasnfile = basedir + 'ipasn.list'
+#ipasnfile = False # To disable loading of IPASN and rely on whois
 ipasn4 = pytricia.PyTricia(32)
 ipasn6 = pytricia.PyTricia(128)
 
