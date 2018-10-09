@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''
 =========================================================================================
- instigator.py: v4.85-20181008 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.88-20181008 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -30,8 +30,6 @@ ToDo/Ideas:
 - Fix SYSLOG on MacOS. Status: To-be-done.
 - Convert all concatenated strings into .format ones. Status: In Progress
 
-!!! Fix alias-generation when qname is a forwarding-domain
-
 =========================================================================================
 '''
 
@@ -50,6 +48,9 @@ random.seed(os.urandom(128))
 # Syslogging / Logging
 import syslog
 syslog.openlog(ident='INSTIGATOR')
+
+# Ordered Dictionaries
+from collections import OrderedDict
 
 # DNSLib module
 from dnslib import *
@@ -145,23 +146,26 @@ maxfileage = 43200 # Seconds
 # Files / Lists
 savefile = basedir + 'save.shelve'
 defaultlist = list([None, 0, '', 0, 0]) # reply - expire - qname/class/type - hits - orgttl
-lists = dict()
-lists['tlds'] = basedir + 'tlds.list'
-lists['blacklist'] = basedir + 'black.list'
-lists['whitelist'] = basedir + 'white.list'
-lists['aliases'] = basedir + 'aliases.list'
-lists['malicious-ip'] = basedir + 'malicious-ip.list'
-#lists['ads'] = '/opt/instigator/shallalist/adv/domains'
-#lists['banking'] = '/opt/instigator/shallalist/finance/banking/domains'
-#lists['costtraps'] = '/opt/instigator/shallalist/costtraps/domains'
-#lists['porn'] = '/opt/instigator/shallalist/porn/domains'
-#lists['gamble'] = '/opt/instigator/shallalist/gamble/domains'
-#lists['spyware'] = '/opt/instigator/shallalist/spyware/domains'
-#lists['trackers'] = '/opt/instigator/shallalist/tracker/domains'
-#lists['updatesites'] = '/opt/instigator/shallalist/updatesites/domains'
-#lists['warez'] = '/opt/instigator/shallalist/warez/domains'
-blacklist = list(['blacklist', 'ads', 'costtraps', 'porn', 'gamble', 'spyware', 'warez', 'malicious-ip'])
-whitelist = list(['whitelist', 'aliases', 'banking', 'updatesites', 'tlds'])
+lists = OrderedDict()
+
+lists['blacklist'] = basedir + 'black.list' # Blacklist
+lists['whitelist'] = basedir + 'white.list' # Whitelist
+lists['aliases'] = basedir + 'aliases.list' # Aliases/Forwards/TTLS/etc
+lists['malicious-ip'] = basedir + 'malicious-ip.list' # Bad IP's
+lists['tlds'] = basedir + 'tlds.list' # Allowed TLD's, negated regex-list, generates NXDOMAIN for none IANA TLD's
+
+#lists['shalla-ads'] = '/opt/instigator/shallalist/adv/domains'
+#lists['shalla-banking'] = '/opt/instigator/shallalist/finance/banking/domains'
+#lists['shalla-costtraps'] = '/opt/instigator/shallalist/costtraps/domains'
+#lists['shalla-porn'] = '/opt/instigator/shallalist/porn/domains'
+#lists['shalla-gamble'] = '/opt/instigator/shallalist/gamble/domains'
+#lists['shalla-spyware'] = '/opt/instigator/shallalist/spyware/domains'
+#lists['shalla-trackers'] = '/opt/instigator/shallalist/tracker/domains'
+#lists['shalla-updatesites'] = '/opt/instigator/shallalist/updatesites/domains'
+#lists['shalla-warez'] = '/opt/instigator/shallalist/warez/domains'
+
+blacklist = list(['blacklist', 'shalla-ads', 'shalla-costtraps', 'shalla-porn', 'shalla-gamble', 'shalla-spyware', 'shalla-warez', 'malicious-ip'])
+whitelist = list(['whitelist', 'aliases', 'shalla-banking', 'shalla-updatesites', 'tlds'])
 searchdom = set()
 
 # Root servers # !!! WIP
@@ -269,28 +273,30 @@ prefetchhitrate = 120 # 1 cache-hit per xx seconds needed to get prefetched
 # Command TLD to interpert as instructions, only allowed from localhost
 command = 'command'
 
-# List Dictionaries
+# Lists
 wl_dom = dict() # Domain whitelist
 bl_dom = dict() # Domain blacklist
 wl_ip4 = pytricia.PyTricia(32) # IPv4 Whitelist
 bl_ip4 = pytricia.PyTricia(32) # IPv4 Blacklist
 wl_ip6 = pytricia.PyTricia(128) # IPv6 Whitelist
 bl_ip6 = pytricia.PyTricia(128) # IPv6 Blacklist
-wl_rx = dict() # Regex Whitelist
-bl_rx = dict() # Regex Blacklist
-wl_asn = dict()
-bl_asn = dict()
-aliases = dict()
-aliases_rx = dict()
-ttls = dict()
-indom_cache = dict()
-inrx_cache = dict()
+wl_rx = OrderedDict() # Regex Whitelist
+bl_rx = OrderedDict() # Regex Blacklist
+wl_asn = dict() # ASN Whitelist
+bl_asn = dict() # ASN Blacklist
+aliases = OrderedDict() # Aliases
+aliases_rx = OrderedDict() # Alias generators/regexes
+ttls = OrderedDict() # TTL aliases
+
+# Work caches
+indom_cache = dict() # Cache results of domain hits
+inrx_cache = dict() # Cache result of regex hits
 
 # Cache
-cache = dict()
+cache = dict() # DNS cache
 
 # Pending IDs
-pending = dict()
+pending = dict() # Pending queries
 
 # Broken forwarders flag
 broken_exist = False
@@ -397,26 +403,19 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
     itisanip = False
 
-    in_wldom = False
-    in_bldom = False
-
     # Block on IP-Address when reverse-domain is not white/blacklisted
     if rtype == 'REQUEST' and rrtype == 'PTR' and (not in_regex(testvalue, aliases_rx, True, False, 'Generator')):
-        in_wldom = in_domain(testvalue, wl_dom, 'Whitelist')
-        if in_wldom is False:
-           in_bldom = in_domain(testvalue, bl_dom, 'Blacklist')
-           if in_bldom is False:
-                ip = False
-                if ip4arpa.search(testvalue):
-                    ip = '.'.join(testvalue.split('.')[0:4][::-1])
-                elif ip6arpa.search(testvalue):
-                    ip = ':'.join(filter(None, regex.split('(.{4,4})', ''.join(testvalue.split('.')[0:32][::-1]))))
+        if (not in_domain(testvalue, wl_dom, 'Whitelist')) and (not in_domain(testvalue, bl_dom, 'Blacklist')):
+            ip = False
+            if ip4arpa.search(testvalue):
+                ip = '.'.join(testvalue.split('.')[0:4][::-1])
+            elif ip6arpa.search(testvalue):
+                ip = ':'.join(filter(None, regex.split('(.{4,4})', ''.join(testvalue.split('.')[0:32][::-1]))))
 
-
-                if ipregex.search(ip):
-                    log_info('MATCHING: Matching against IP \"' + ip + '\" instead of domain \"' + testvalue + '\"')
-                    itisanip = True
-                    testvalue = ip
+            if ipregex.search(ip):
+                log_info('MATCHING: Matching against IP \"' + ip + '\" instead of domain \"' + testvalue + '\"')
+                itisanip = True
+                testvalue = ip
 
     elif rtype == 'REPLY':
         if rrtype in ('A', 'AAAA'):
@@ -466,20 +465,12 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
     # Check against Sub-Domain-Lists
     elif testvalue.find('.') > 0 and isdomain.search(testvalue):
-        if in_wldom:
-            wl_found = in_wldom # Whitelust found in IP/Arpa-Check
-        else:
-            wl_found = in_domain(testvalue, wl_dom, 'Whitelist') # Whitelist
-
+        wl_found = in_domain(testvalue, wl_dom, 'Whitelist') # Whitelist
         if wl_found is not False:
             if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
             return False
         else:
-            if in_bldom:
-                bl_found = in_bldom # Blacklist found in IP/Arpa-Check
-            else:
-                bl_found = in_domain(testvalue, bl_dom, 'Blacklist') # Blacklist
-
+            bl_found = in_domain(testvalue, bl_dom, 'Blacklist') # Blacklist
             if bl_found is not False:
                 if log: log_info('BLACKLIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
                 return True
@@ -506,7 +497,12 @@ def in_domain(name, domlist, domid):
     '''Check if name is domain or sub-domain'''
     domidname = domid + ':' + name
     if domidname in indom_cache:
-        return indom_cache.get(domidname, False)
+        indom = indom_cache.get(domidname, False)
+        if indom:
+            if debug: log_info('INDOM-CACHE: \"' + name + '\" in \"' + indom + '\" (' + domid + ')')
+        else:
+            if debug: log_info('INDOM-CACHE: \"' + name + '\" is NOMATCH (' + domid + ')')
+        return indom
 
     testname = name
     while testname:
@@ -526,7 +522,15 @@ def in_regex(name, rxlist, isalias, log, rxid):
     '''Check if name is matching regex'''
     rxidname = rxid + ':' + name
     if rxidname in inrx_cache:
-        return inrx_cache.get(rxidname, False)
+        inrx = inrx_cache.get(rxidname, False)
+        if inrx:
+            if isalias:
+                if debug: log_info('INRX-CACHE: \"' + name + '\" -> ' + inrx + ' (' + rxid + ')')
+            else:
+                if debug: log_info('INRX-CACHE: \"' + name + '\" matched with ' + inrx + ' (' + rxid + ')')
+        else:
+            if debug: log_info('INRX-CACHE: \"' + name + '\" is NOMATCH (' + rxid + ')')
+        return inrx
 
     if name and name != '.':
         for i in rxlist.keys():
@@ -538,10 +542,10 @@ def in_regex(name, rxlist, isalias, log, rxid):
                 result = False
                 if isalias:
                     result = regex.sub(rx, regex.split('\s+', rx2)[0], name)
-                    if log: log_info('GENERATOR-MATCH: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx2 + '\" -> \"' + result + '\" (' + lst + ')')
+                    if debug or log: log_info('GENERATOR-MATCH: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx2 + '\" -> \"' + result + '\" (' + lst + ')')
                 else:
                     result = '\"' + rx2 + '\" (' + lst + ')'
-                    if log: log_info('REGEX-MATCH: ' + name + ' matches ' + result)
+                    if debug or log: log_info('REGEX-MATCH: ' + name + ' matches ' + result)
 
                 inrx_cache[rxidname] = result
 
@@ -2110,7 +2114,7 @@ def do_query(request, handler, force):
                 reply = generate_response(request, qname, qtype, redirect_addrs, force)
 
             # Generate ALIAS response when hit
-            elif in_domain(qname, aliases, 'Alias') and (not in_domain(qname, forward_servers, 'Forward')):
+            elif in_domain(qname, aliases, 'Alias') and (not in_regex(qname, aliases_rx, True, False, 'Generator')) and (not in_domain(qname, forward_servers, 'Forward')):
                 reply = generate_alias(request, qname, qtype, use_tcp, force)
 
             # Search-Domain blocker
@@ -2321,7 +2325,7 @@ if __name__ == '__main__':
     # Load/Read lists
     loadcache = False
     if not load_lists(savefile):
-        for lst in sorted(lists.keys()):
+        for lst in lists.keys():
             if lst in whitelist:
                 wl_dom, wl_ip4, wl_ip6, wl_rx, aliases_rx, aliases, forward_servers, ttls, wl_asn = read_list(lists[lst], lst, 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases_rx, aliases, forward_servers, ttls, wl_asn)
             else:
