@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v4.90-20181009 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v4.95-20181009 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -332,10 +332,7 @@ ip4arpa = regex.compile('^([0-9]{1,3}\.){4}in-addr\.arpa$', regex.I)
 ip6arpa = regex.compile('^([0-9a-f]\.){32}ip6\.arpa$', regex.I)
 
 # Regex to match domains/hosts in lists
-if fastregex:
-    isdomain = regex.compile('^[a-z0-9\.\_\-]+$', regex.I)
-else:
-    isdomain = regex.compile('(?=^.{1,253}$)(^((?!-)[a-z0-9_-]{0,62}[a-z0-9]\.)*(xn--[a-z0-9-]{5,63}|[a-z]{2,63})$)', regex.I)
+isdomain = regex.compile('(?=^.{1,253}$)(^((?!-)[a-z0-9_-]{0,62}[a-z0-9]\.)*(xn--[a-z0-9-]{5,63}|[a-z]{2,63})$)', regex.I)
 
 # Regex to filter regexes out
 isregex = regex.compile('^/.*/$')
@@ -382,6 +379,9 @@ def file_exist(file, isdb):
                     age = int(currenttime - mtime)
                     if debug: log_info('FILE-EXIST: ' + file + ' = ' + str(age) + ' seconds old')
                     return age
+                else:
+                    if debug: log_info('FILE-EXIST: ' + file + ' is zero size')
+
         except BaseException as err:
             log_err('FILE-EXIST-ERROR: ' + str(err))
             return False
@@ -451,7 +451,7 @@ def match_blacklist(rid, rtype, rrtype, value, log):
     # Check against IP-Lists
     if itisanip:
         asn, prefix, owner = who_is(testvalue, '[' + tid + '] ' + rtype)
-        if asn != 'NONE':
+        if asn != '0':
             if asn in wl_asn: # Whitelist
                 if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"AS' + asn + '\" (' + prefix + ') - ' + owner)
                 return False
@@ -583,40 +583,43 @@ def in_regex(name, rxlist, isalias, log, rxid):
 
 def who_is(ip, desc):
     '''Whois lookup'''
-    asn = 'NONE'
-    prefix = 'NONE'
-    owner = 'NONE'
+    asn = '0'
+    owner = 'UNKNOWN'
 
     if ip.find(':') == -1:
         ipasn = ipasn4
+        prefix = ip + '/32'
     else:
         ipasn = ipasn6
+        prefix = ip + '/128'
 
     if ip in ipasn:
          prefix = ipasn.get_key(ip)
-         elements = regex.split('\s+', ipasn.get(prefix, None))
+         elements = regex.split('\s+', ipasn.get(prefix, asn + ' ' + owner))
          if elements:
              asn = elements[0]
              owner = ' '.join(elements[1:])
-             if debug: log_info('WHOIS-CACHE-HIT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
+             log_info('WHOIS-CACHE-HIT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
 
     else:
         if debug: log_info('WHOIS-LOOKUP: ' + desc + ' ' + ip)
         try:
             whois = Client()
             lookup = whois.lookup(ip)
-            asn = lookup.asn
+            asn = str(lookup.asn)
         except BaseException as err:
             log_err('WHOIS-ERROR: ' + desc + ' ' + ip + ' - ' + str(err))
             asn = 'NONE'
 
         if asn != 'NONE' and asn != '' and asn != 'NA' and asn is not None:
-            prefix = lookup.prefix
-            owner = lookup.owner.upper()
-            if debug: log_info('WHOIS-RESULT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
-            ipasn[prefix] = asn + ' ' + owner
+            prefix = str(lookup.prefix)
+            owner = str(lookup.owner).upper()
+            log_info('WHOIS-RESULT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
         else:
+            asn = '0'
             log_info('WHOIS-UNKNOWN: ' + ip)
+
+        ipasn[prefix] = asn + ' ' + owner
 
     return asn, prefix, owner
 
@@ -627,9 +630,9 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
 
     queryname = qname + '/IN/' + qtype
 
-    if debug and checkbl: queryname = 'BL:' + queryname
-    if debug and checkalias: queryname = 'AL:' + queryname
-    if debug and force: queryname = 'F:' + queryname
+    #if debug and checkbl: queryname = 'BL:' + queryname
+    #if debug and checkalias: queryname = 'AL:' + queryname
+    #if debug and force: queryname = 'F:' + queryname
 
     # Process already pending/same query
     uid = hash(qname + '/' + qtype + '/' + cip + '/' + str(tid))
@@ -737,9 +740,11 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                                             asn, prefix, owner = who_is(ip, queryname)
                                             if asnstack and asn in asnstack:
                                                 if debug: log_info('SAFEDNS: ' + queryname + ' Found same ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
-                                            elif asn != 'NONE':
+                                            elif asn != '0':
                                                 asnstack.add(asn)
                                                 if debug: log_info('SAFEDNS: ' + queryname + ' Found new ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address)
+                                            else:
+                                                if debug: log_info('SAFEDNS: ' + queryname + ' UNKNOWN ASN for ' + ip + ' from ' + forward_address)
 
                         else:
                             break
@@ -878,12 +883,15 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
 
     # Stash in cache
     if blockit:
-        to_cache(qname, 'IN', qtype, reply, force, filterttl)
+        ttl = filterttl
     elif rcttl:
-        to_cache(qname, 'IN', qtype, reply, force, rcttl)
+        ttl = rcttl
     else:
-        to_cache(qname, 'IN', qtype, reply, force, False)
+        ttl = False
 
+    to_cache(qname, 'IN', qtype, reply, force, ttl)
+
+    # Pop from pending
     _ = pending.pop(uid, None)
 
     return reply
@@ -1142,9 +1150,8 @@ def save_lists(file):
         s['forward_servers'] = forward_servers
         s['ttls'] = ttls
 
-        if safedns:
-            s['ipasn4'] = to_dict(ipasn4)
-            s['ipasn6'] = to_dict(ipasn6)
+        s['ipasn4'] = to_dict(ipasn4)
+        s['ipasn6'] = to_dict(ipasn6)
 
         s['bl_dom'] = bl_dom
         s['bl_ip4'] = to_dict(bl_ip4)
@@ -1252,9 +1259,8 @@ def load_lists(file):
             forward_servers = s['forward_servers']
             ttls = s['ttls']
 
-            if safedns:
-                from_dict(s['ipasn4'], ipasn4)
-                from_dict(s['ipasn6'], ipasn6)
+            from_dict(s['ipasn4'], ipasn4)
+            from_dict(s['ipasn6'], ipasn6)
 
             bl_dom = s['bl_dom']
             bl_ip4 = pytricia.PyTricia(32)
@@ -2018,13 +2024,15 @@ def is_illegal(qname):
         if not isdomain.search(qname):
             return True
 
+        # !!! Below length and label stuff already in isdomain regex
+
         # Filter if FQDN is too long
-        elif len(qname) > 252:
-            return True
+        #elif len(qname) > 252:
+        #    return True
 
         # Filter if more domain-name contains more then 63 labels
-        elif all(len(x) < 64 for x in qname.split('.')) is False:
-            return True
+        #elif all(len(x) < 64 for x in qname.split('.')) is False:
+        #    return True
 
     return False
 
@@ -2046,6 +2054,7 @@ def is_weird(qname, qtype):
 def do_query(request, handler, force):
     '''Main DNS resolution function'''
     rid = request.header.id
+    tid = id_str(rid)
 
     cip = str(handler.client_address).split('\'')[1]
 
@@ -2059,13 +2068,13 @@ def do_query(request, handler, force):
 
     queryname = qname + '/' + qclass + '/' + qtype
 
-    log_info('REQUEST [' + id_str(rid) + '] from ' + cip + ' for ' + queryname + ' (' + handler.protocol.upper() + ')')
+    log_info('REQUEST [' + tid + '] from ' + cip + ' for ' + queryname + ' (' + handler.protocol.upper() + ')')
 
     reply = None
 
     # Check ACL
     if ipregex.search(cip) and (cip not in allow_query4) and (cip not in allow_query6):
-        log_info('ACL-HIT: Request from ' + cip + ' for ' + queryname + ' ' + aclrcode)
+        log_info('ACL-HIT [' + tid + ']: Request from ' + cip + ' for ' + queryname + ' ' + aclrcode)
         reply = request.reply()
         reply.header.rcode = getattr(RCODE, aclrcode)
 
@@ -2102,8 +2111,8 @@ def do_query(request, handler, force):
                     else:
                         reply.header.rcode = getattr(RCODE, rcode)
 
-                    log_info('CACHE-PARENT-MATCH: \"' + qname + '\" matches parent \"' + dom + '\" ' + rcode)
-                    log_info('REPLY [' + id_str(rid) + ']: ' + queryname + ' = ' + rcode)
+                    log_info('CACHE-PARENT-MATCH [' + tid + ']: \"' + qname + '\" matches parent \"' + dom + '\" ' + rcode)
+                    log_info('REPLY [' + tid + ']: ' + queryname + ' = ' + rcode)
                     now = int(time.time())
                     expire = cacheentry[1]
                     parentttlleft = expire - now
@@ -2115,7 +2124,7 @@ def do_query(request, handler, force):
 
         # Filter if qtype = ANY, QCLASS is something else then "IN" and query-type is not supported
         if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
-            log_info('BLOCK-UNSUPPORTED-RRTYPE [' + id_str(rid) + '] from ' + cip + ': ' + queryname + ' NOTIMP')
+            log_info('BLOCK-UNSUPPORTED-RRTYPE [' + tid + '] from ' + cip + ': ' + queryname + ' NOTIMP')
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
 
@@ -2129,7 +2138,7 @@ def do_query(request, handler, force):
                 if qname.endswith('.' + sdom):
                     dname = qname.rstrip('.' + sdom)
                     if in_cache(dname, 'IN', qtype):
-                        log_info('SEARCH-HIT [' + id_str(rid) + ']: \"' + qname + '\" matched \"' + dname + ' . ' + sdom + '\"')
+                        log_info('SEARCH-HIT [' + tid + ']: \"' + qname + '\" matched \"' + dname + ' . ' + sdom + '\"')
                         reply = request.reply()
                         reply.header.rcode = getattr(RCODE, 'NOERROR') # Empty response, NXDOMAIN provides other search-requests
                         break
@@ -2141,7 +2150,7 @@ def do_query(request, handler, force):
                 # Make query anyway and check it after response instead of before sending query, response will be checked/filtered
                 # Note: makes filtering based on DNSBL or other services responses possible
                 if checkrequest is False:
-                    log_info('UNFILTERED-QUERY: ' + queryname)
+                    log_info('UNFILTERED-QUERY [' + tid + ']: ' + queryname)
                     reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
                 else:
                     # Check against lists
@@ -2162,7 +2171,7 @@ def do_query(request, handler, force):
                         answer = False
                         rcode = generated.upper()
                         if rcode in ('NODATA','NXDOMAIN','REFUSED'):
-                            log_info('GENERATED-HIT [' + id_str(rid) + ']: \"' + qname + '/' + qtype + '\" -> \"' + rcode + '\"')
+                            log_info('GENERATED-HIT [' + tid + ']: \"' + qname + '/' + qtype + '\" -> \"' + rcode + '\"')
                             reply = request.reply()
                             if rcode == 'NODATA':
                                 rcode = 'NOERROR'
@@ -2183,13 +2192,13 @@ def do_query(request, handler, force):
                                     answer = RR(qname, QTYPE.PTR, ttl=filterttl, rdata=PTR(generated))
 
                             if answer:
-                                log_info('GENERATED-HIT [' + id_str(rid) + ']: \"' + qname + '/' + qtype + '\" -> \"' + generated + '\"')
+                                log_info('GENERATED-HIT [' + tid + ']: \"' + qname + '/' + qtype + '\" -> \"' + generated + '\"')
                                 reply = request.reply()
                                 reply.header.rcode = getattr(RCODE, 'NOERROR')
                                 reply.add_answer(answer)
 
                             else:
-                                log_err('GENERATED-ERROR [' + id_str(rid) + ']: INVALID/UNSUPPORTED TYPE/DATA \"' + qname + '/' + qtype + '\" -> \"' + generated + '\"')
+                                log_err('GENERATED-ERROR [' + tid + ']: INVALID/UNSUPPORTED TYPE/DATA \"' + qname + '/' + qtype + '\" -> \"' + generated + '\"')
                                 reply = request.reply()
                                 reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
 
@@ -2206,9 +2215,9 @@ def do_query(request, handler, force):
         reply.add_ar(EDNS0())
 
     if reply is None:
-        log_err('REPLY-NONE [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
+        log_err('REPLY-NONE [' + tid + '] from ' + cip + ' for ' + queryname)
 
-    log_info('FINISHED [' + id_str(rid) + '] from ' + cip + ' for ' + queryname)
+    log_info('FINISHED [' + tid + '] from ' + cip + ' for ' + queryname)
 
     return reply
 
