@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1539029077                  ###
+### Version: 1539073347                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -1251,6 +1251,7 @@ cboktulsa.com	Shalla-Banking, UT1-Banking
 cboviedo.com	Shalla-Banking
 cbs-bank.com	Shalla-Banking
 cbsbank.com	Shalla-Banking
+om.cbsi.com	Notracking-Whitelist
 cbslocal.com	Notracking-Whitelist
 cbsnews.com	Notracking-Whitelist
 cbtcnet.com	Shalla-Banking
@@ -1451,6 +1452,7 @@ compubank.com	Shalla-Banking
 comtrst.com	Shalla-Banking
 constantcontact.com	Notracking-Whitelist
 consumersbank.com	Shalla-Banking, UT1-Banking
+livepassdl.conviva.com	Notracking-Whitelist
 conwaynationalbank.com	Shalla-Banking, UT1-Banking
 cookislandstrust.com	Shalla-Banking
 coop-bank.com	Shalla-Banking
@@ -1554,6 +1556,7 @@ dimewill.com	Shalla-Banking
 directdomains.com	Notracking-Whitelist
 directfinance.com	UT1-Financial
 directnet.com	Shalla-Banking, Adguard-Banks
+cdn.discordapp.com	Notracking-Whitelist
 discover.com	Shalla-Banking, Adguard-Banks
 disqus.com	Notracking-Whitelist
 dnb4you.com	Shalla-Banking
@@ -1684,7 +1687,7 @@ eventbrite.com	Notracking-Whitelist
 everbank.com	Shalla-Banking, UT1-Banking
 everettbank.com	Shalla-Banking, UT1-Banking
 evergreenbanking.com	Shalla-Banking
-evite.com	Chris-White
+evite.com	Chris-White, Notracking-Whitelist
 evobanco.com	Shalla-Banking
 evolvebank.com	Shalla-Banking
 evrtonline.com	Shalla-Banking
@@ -3627,6 +3630,7 @@ wingspanbank.com	Shalla-Banking
 winonanationalbank.com	Shalla-Banking, UT1-Banking
 winterhillbank.com	Shalla-Banking, UT1-Banking
 wintrust.com	Shalla-Banking
+download.winzip.com	Notracking-Whitelist
 checkout.wirecard.com	Adguard-Banks
 wired.com	Notracking-Whitelist
 wisbank.com	Shalla-Banking, UT1-Banking
@@ -6802,6 +6806,7 @@ dropbox.net	Chris-White
 p13.dynect.net	Chris-White
 sonos.com.edgekey.net	Chris-White
 ax.phobos.apple.com.edgesuite.net	Notracking-Whitelist
+weeklyad.target.com.edgesuite.net	Notracking-Whitelist
 edupole.net	UT1-Whitelist
 emergingthreats.net	Chris-White
 connect.facebook.net	Notracking-Whitelist
@@ -7065,6 +7070,7 @@ doi.org	Notracking-Whitelist
 dree.org	UT1-Whitelist
 drupal.org	Notracking-Whitelist
 dshield.org	Chris-White
+duckdns.org	Notracking-Whitelist
 dyndns.org	Chris-White
 ecbs.org	Shalla-Banking
 eccb-centralbank.org	Shalla-Banking
@@ -8234,6 +8240,7 @@ central-bank.org.tt	Shalla-Banking
 france.tv	Chris-White
 twitch.tv	Notracking-Whitelist
 ustream.tv	Notracking-Whitelist
+vidible.tv	Notracking-Whitelist
 chb.com.tw	Shalla-Banking
 ctnbank.com.tw	Shalla-Banking
 cbc.gov.tw	Shalla-Banking
