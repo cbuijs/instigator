@@ -335,7 +335,7 @@ ip6arpa = regex.compile('^([0-9a-f]\.){32}ip6\.arpa$', regex.I)
 if fastregex:
     isdomain = regex.compile('^[a-z0-9\.\_\-]+$', regex.I)
 else:
-    isdomain = regex.compile('(?=^.{1,253}$)(^((?!-)[a-zA-Z0-9_-]{0,62}[a-zA-Z0-9]\.)*(xn--[a-zA-Z0-9-]{5,63}|[a-zA-Z]{2,63})$)', regex.I)
+    isdomain = regex.compile('(?=^.{1,253}$)(^((?!-)[a-z0-9_-]{0,62}[a-z0-9]\.)*(xn--[a-z0-9-]{5,63}|[a-z]{2,63})$)', regex.I)
 
 # Regex to filter regexes out
 isregex = regex.compile('^/.*/$')
