@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.12-20181010 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.15-20181010 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -410,7 +410,7 @@ def match_blacklist(rid, rtype, rrtype, value, log):
     itisanip = False
 
     # Check if an IP
-    if rtype == 'REQUEST' and rrtype == 'PTR' and (not in_regex(testvalue, aliases_rx, True, False, 'Generator')):
+    if rtype == 'REQUEST' and rrtype == 'PTR' and (not in_regex(testvalue, aliases_rx, True, 'Generator')):
         if (not in_domain(testvalue, wl_dom, 'Whitelist')) and (not in_domain(testvalue, bl_dom, 'Blacklist')):
             ip = False
             if ip4arpa.search(testvalue):
@@ -508,12 +508,12 @@ def match_blacklist(rid, rtype, rrtype, value, log):
     # If it is not an IP, check validity and against regex
     if not itisanip:
         # Catchall: Check agains Regex-Lists
-        rxfound = in_regex(value, wl_rx, False, log, 'Whitelist') # Whitelist
+        rxfound = in_regex(value, wl_rx, False, 'Whitelist') # Whitelist
         if rxfound:
             if log: log_info('WHITELIST-REGEX-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against ' + rxfound)
             return False
 
-        rxfound = in_regex(value, bl_rx, False, log, 'Blacklist') # Blacklist
+        rxfound = in_regex(value, bl_rx, False, 'Blacklist') # Blacklist
         if rxfound:
             if log: log_info('BLACKLIST-REGEX-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against ' + rxfound)
             return True
@@ -549,7 +549,7 @@ def in_domain(name, domlist, domid):
     return False
 
 
-def in_regex(name, rxlist, isalias, log, rxid):
+def in_regex(name, rxlist, isalias, rxid):
     '''Check if name is matching regex'''
     rxidname = rxid + ':' + name
     if rxidname in inrx_cache:
@@ -574,10 +574,10 @@ def in_regex(name, rxlist, isalias, log, rxid):
                 if isalias:
                     rx3 = regex.split('\s+', rx2)[0]
                     result = regex.sub(rx, rx3, name)
-                    if debug or log: log_info('GENERATOR-MATCH [' + lst + ']: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx3 + '\" -> \"' + result + '\"')
+                    if debug: log_info('GENERATOR-MATCH [' + lst + ']: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx3 + '\" -> \"' + result + '\"')
                 else:
                     result = '\"' + rx2 + '\" (' + lst + ')'
-                    if debug or log: log_info('REGEX-MATCH [' + lst + ']: ' + name + ' matches ' + result)
+                    if debug: log_info('REGEX-MATCH [' + lst + ']: ' + name + ' matches ' + result)
 
                 inrx_cache[rxidname] = result
 
@@ -2140,7 +2140,7 @@ def do_query(request, handler, force):
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
 
         # Generate ALIAS response when hit
-        elif filtering and in_domain(qname, aliases, 'Alias') and (not in_regex(qname, aliases_rx, True, False, 'Generator')) and (not in_domain(qname, forward_servers, 'Forward')):
+        elif filtering and in_domain(qname, aliases, 'Alias') and (not in_regex(qname, aliases_rx, True, 'Generator')) and (not in_domain(qname, forward_servers, 'Forward')):
             reply = generate_alias(request, qname, qtype, use_tcp, force)
 
         # Search-Domain blocker
@@ -2167,7 +2167,7 @@ def do_query(request, handler, force):
                     # Check against lists
                     generated = False
                     if not in_domain(qname, forward_servers, 'Forward'):
-                        generated = in_regex(qname, aliases_rx, True, True, 'Generator')
+                        generated = in_regex(qname, aliases_rx, True, 'Generator')
 
                     if generated is False:
                         ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
