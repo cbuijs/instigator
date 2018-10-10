@@ -10,3 +10,5 @@ shallalist
 __pycache__/
 dist/
 stats.*
+*.bin
+*.build/
