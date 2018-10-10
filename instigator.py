@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.1-20181010 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.12-20181010 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -458,10 +458,10 @@ def match_blacklist(rid, rtype, rrtype, value, log):
         asn, prefix, owner = who_is(testvalue, '[' + tid + '] ' + rtype)
         if asn != '0':
             if asn in wl_asn: # Whitelist
-                if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"AS' + asn + '\" (' + prefix + ') - ' + owner)
+                if log: log_info('WHITELIST-ASN-HIT [' + tid + ']: ' + rtype + ' ' + value + '/' + testvalue + ' matched against \"AS' + asn + '\" (' + wl_asn[asn] + '/' + prefix + ') - ' + owner)
                 return False
             elif asn in bl_asn: # Blacklist
-                if log: log_info('BLACKLIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"AS' + asn + '\" (' + prefix + ') - ' + owner)
+                if log: log_info('BLACKLIST-ASN-HIT [' + tid + ']: ' + rtype + ' ' + value + '/' + testvalue + ' matched against \"AS' + asn + '\" (' + bl_asn[asn] + '/' + prefix + ') - ' + owner)
                 return True
 
         if testvalue.find(':') == -1:
