@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1539183749                  ###
+### Version: 1539187263                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -8494,33 +8494,16 @@ AS2906	Chris-ASN-White
 8.8.8.8/32	Chris-White
 9.9.9.9/32	Chris-White
 10.1.1.0/24	Chris-White
-23.246.0.0/18	Chris-ASN-White-AS2906
-37.77.184.0/21	Chris-ASN-White-AS2906
-45.57.0.0/17	Chris-ASN-White-AS2906
-45.58.64.0/20	Chris-ASN-White-AS19679
-64.120.128.0/17	Chris-ASN-White-AS2906
-66.197.128.0/17	Chris-ASN-White-AS2906
-69.53.224.0/19	Chris-ASN-White-AS2906
 95.56.246.182/32	Adguard-Banks
-108.160.160.0/20	Chris-ASN-White-AS19679
-108.175.32.0/20	Chris-ASN-White-AS2906
 149.112.112.112/32	Chris-White
-162.125.0.0/16	Chris-ASN-White-AS19679
 172.16.1.0/24	Chris-White
 176.103.130.130/31	Aggregated
 176.103.130.132/32	Chris-White
 176.103.130.134/32	Chris-White
-185.2.220.0/22	Chris-ASN-White-AS2906
-185.9.188.0/22	Chris-ASN-White-AS2906
-185.45.8.0/22	Chris-ASN-White-AS19679
 192.30.253.112/31	Chris-White
 192.168.1.0/24	Chris-White
 192.168.100.0/25	Chris-White
-192.173.64.0/18	Chris-ASN-White-AS2906
 194.105.148.87/32	Adguard-Banks
-198.38.96.0/19	Chris-ASN-White-AS2906
-198.45.48.0/20	Chris-ASN-White-AS2906
-199.47.216.0/22	Chris-ASN-White-AS19679
 213.135.106.194/32	Adguard-Banks
 213.230.210.230/32	Chris-White
 ### WHITELIST IPv6 ###
