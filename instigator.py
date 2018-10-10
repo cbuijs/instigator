@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.0-20181009 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.1-20181010 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -175,6 +175,7 @@ cachesize = 2048 # Entries
 cache_maintenance_now = False
 cache_maintenance_busy = False
 persistentcache = True
+fastcache = False # If True, have the maintenance-loop take care of cache-expiry instead of per query. This could NOT honor TTL's to the second though! No round-robin of RR-Sets!
 
 # TTL Settings
 ttlstrategy = 'average' # average/lowest/highest/random - Egalize TTL on all RRs in RRSET
@@ -443,11 +444,11 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
 
     # Block IP-Family
-    if blockv4 and (rrtype == 'A' or (rrtype == 'PTR' and itisanip)):
+    if blockv4 and (rrtype == 'A' or (rrtype == 'PTR' and itisanip and ipregex4.search(testvalue))):
         log_info('BLOCK-IPV4-HIT [' + tid + ']: ' + rtype + ' \"' + value + '/' + rrtype + '\"')
         return True
 
-    if blockv6 and (rrtype == 'AAAA' or (rrtype == 'PTR' and itisanip)):
+    if blockv6 and (rrtype == 'AAAA' or (rrtype == 'PTR' and itisanip and ipregex6.search(testvalue))):
         log_info('BLOCK-IPV6-HIT [' + tid + ']: ' + rtype + ' \"' + value + '/' + rrtype + '\"')
         return True
 
@@ -604,10 +605,10 @@ def who_is(ip, desc):
          if elements:
              asn = elements[0]
              owner = ' '.join(elements[1:])
-             log_info('WHOIS-CACHE-HIT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
+             if debug: log_info('WHOIS-CACHE-HIT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
 
     else:
-        if debug: log_info('WHOIS-LOOKUP: ' + desc + ' ' + ip)
+        log_info('WHOIS-LOOKUP: ' + desc + ' ' + ip)
         try:
             whois = Client()
             lookup = whois.lookup(ip)
@@ -634,6 +635,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     global broken_exist
 
     queryname = qname + '/IN/' + qtype
+    hid = id_str(tid)
 
     #if debug and checkbl: queryname = 'BL:' + queryname
     #if debug and checkalias: queryname = 'AL:' + queryname
@@ -645,12 +647,12 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     while uid in pending:
         count += 1
         if count > 2: # Disembark after 3 seconds
-            log_info('DNS-QUERY [' + id_str(tid) + ']: Skipping query for ' + queryname + ' - ID (' + id_str(tid) + ') already processing, takes more then 3 secs')
+            log_info('DNS-QUERY [' + hid + ']: Skipping query for ' + queryname + ' - ID (' + hid + ') already processing, takes more then 3 secs')
             reply = request.reply()
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
             return reply
 
-        log_info('DNS-QUERY [' + id_str(tid) + ']: delaying (' + str(count) + ') query for ' + queryname + ' - ID (' + id_str(tid) + ') already in progress, waiting to finish')
+        log_info('DNS-QUERY [' + hid + ']: delaying (' + str(count) + ') query for ' + queryname + ' - ID (' + hid + ') already in progress, waiting to finish')
         time.sleep(1) # Seconds
 
     # Get from cache if any
@@ -688,7 +690,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
             addrs = forward_server
 
         if safedns:
-            log_info('SAFEDNS-QUERY [' + id_str(tid) + ']: forwarding query from ' + cip + ' to all forwarders for ' + queryname)
+            log_info('SAFEDNS-QUERY [' + hid + ']: forwarding query from ' + cip + ' to all forwarders for ' + queryname)
 
         for addr in addrs:
             forward_address = addr.split('@')[0]
@@ -699,7 +701,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
 
             if not in_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port)):
                 if not safedns:
-                    log_info('DNS-QUERY [' + id_str(tid) + ']: forwarding query from ' + cip + ' to ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
+                    log_info('DNS-QUERY [' + hid + ']: forwarding query from ' + cip + ' to ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname)
 
                 useip6 = False
                 if forward_address.find(':') > 0:
@@ -758,15 +760,15 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                         success = False
 
                 if success is False or reply is None:
-                    log_err('DNS-QUERY [' + id_str(tid) + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + '@' + str(forward_port) + ' - ' + str(error))
+                    log_err('DNS-QUERY [' + hid + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + '@' + str(forward_port) + ' - ' + str(error))
                     if error != 'SERVFAIL':
                         broken_exist = True
                         to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force, retryttl)
 
-            if debug and safedns is False: log_info('DNS-QUERY [' + id_str(tid) + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port))
+            if debug and safedns is False: log_info('DNS-QUERY [' + hid + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port))
 
     else:
-        log_err('DNS-QUERY [' + id_str(tid) + ']: ERROR Resolving ' + queryname + ' (' + servername + ') - NO DNS SERVERS AVAILBLE!')
+        log_err('DNS-QUERY [' + hid + ']: ERROR Resolving ' + queryname + ' (' + servername + ') - NO DNS SERVERS AVAILBLE!')
 
 
     if safedns and firstreply is not None and asnstack:
@@ -789,13 +791,13 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
         reply = query.reply()
         reply.header.id = tid
         if reply is False:
-            log_err('DNS-QUERY [' + id_str(tid) + ']: SafeDNS Block ' + queryname + ' ' + str(hitrcode))
+            log_err('DNS-QUERY [' + hid + ']: SafeDNS Block ' + queryname + ' ' + str(hitrcode))
             if hitrcode == 'NODATA':
                 reply.header.rcode = getattr(RCODE, 'NOERROR')
             else:
                 reply.header.rcode = getattr(RCODE, hitrcode)
         else:
-            log_err('DNS-QUERY [' + id_str(tid) + ']: ERROR Resolving ' + queryname + ' ' + str(hitrcode))
+            log_err('DNS-QUERY [' + hid + ']: ERROR Resolving ' + queryname + ' ' + str(hitrcode))
             reply.header.rcode = getattr(RCODE, 'SERVFAIL')
 
         _ = pending.pop(uid, None)
@@ -860,17 +862,17 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                             blockit = True
 
                 if blockit:
-                    log_info('REPLY [' + id_str(tid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
+                    log_info('REPLY [' + hid + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
                     reply = generate_response(request, qname, qtype, redirect_addrs, force)
                     break
 
                 else:
-                    log_info('REPLY [' + id_str(tid) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
+                    log_info('REPLY [' + hid + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
 
     else:
         reply = request.reply()
         reply.header.rcode = getattr(RCODE, rcode)
-        log_info('RCODE-REPLY [' + id_str(tid) + ']: ' + queryname + ' = ' + rcode)
+        log_info('RCODE-REPLY [' + hid + ']: ' + queryname + ' = ' + rcode)
 
 
     # Match up ID
@@ -1539,15 +1541,6 @@ def update_ttl(rr, ttl):
     return None
 
 
-def update_hits(queryhash):
-    '''Update hits in cache of particular cached RRSET'''
-    if queryhash in cache:
-        cache[queryhash][3] += 1
-        return cache[queryhash][3]
-
-    return 0
-
-
 def prefetch_it(queryhash):
     '''Prefetch/Update cache on almost expired items with enough hits'''
     global prefetching_busy
@@ -1595,21 +1588,29 @@ def from_cache(qname, qclass, qtype, tid):
     cacheentry = cache.get(queryhash, None)
     if cacheentry is None:
         return None
+    elif fastcache: # Have maintenance loop take care of expiry stuff
+        log_info('FASTCACHE-HIT [' + id_str(tid) + ']: ' + cacheentry[2])
+        cache[queryhash][3] += 1
+        reply = cacheentry[0]
+        reply.header.id = tid
+        return reply
 
     expire = cacheentry[1]
+    queryname = cacheentry[2]
     now = int(time.time())
     ttl = expire - now
+    orgttl = cacheentry[4]
+    hits = cacheentry[3]
+    hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
+    numrrs = len(cacheentry[0].rr)
+    rcode = str(RCODE[cacheentry[0].header.rcode])
 
     # If expired, remove from cache
-    orgttl = cacheentry[4]
-    hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
     if ttl < 1:
-        rcode = str(RCODE[cacheentry[0].header.rcode])
-        numrrs = len(cacheentry[0].rr)
         if numrrs > 0 or (numrrs == 0 and rcode != 'NOERROR'):
-            log_info('CACHE-EXPIRED: ' + cacheentry[2] + ' ' + rcode + ' [' + str(cacheentry[3]) + '/' + str(hitsneeded) + ' hits]' + ' (TTL-EXPIRED:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
+            log_info('CACHE-EXPIRED: ' + queryname + ' ' + rcode + ' [' + str(hits) + '/' + str(hitsneeded) + ' hits]' + ' (TTL-EXPIRED:' + str(ttl) + '/' + str(orgttl) + ')')
         else:
-            log_info('CACHE-EXPIRED: ' + cacheentry[2] + ' NODATA ' + ' (TTL-EXPIRED:' + str(cacheentry[4]) + ')')
+            log_info('CACHE-EXPIRED: ' + queryname+ ' NODATA ' + ' (TTL-EXPIRED:' + str(orgttl) + ')')
         del_cache_entry(queryhash)
         return None
 
@@ -1618,10 +1619,12 @@ def from_cache(qname, qclass, qtype, tid):
         reply = cacheentry[0]
         reply.header.id = tid
 
-        numhits = update_hits(queryhash)
-
+        # Update hits
+        hits += 1
+        cache[queryhash][3] = hits 
+        
         # Gather address and non-address records and do round-robin
-        if roundrobin and len(reply.rr) > 1:
+        if roundrobin and numrrs > 1:
             addr = list()
             nonaddr = list()
             for record in reply.rr:
@@ -1639,12 +1642,10 @@ def from_cache(qname, qclass, qtype, tid):
             for record in reply.rr:
                 record.ttl = ttl
 
-        numrrs = len(reply.rr)
-        rcode = str(RCODE[reply.header.rcode])
         if numrrs == 0 and rcode == 'NOERROR':
-            log_info('CACHE-HIT (' + str(numhits) + '/' + str(hitsneeded) + ' hits) : Retrieved NODATA for ' + cacheentry[2] + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
+            log_info('CACHE-HIT (' + str(hits) + '/' + str(hitsneeded) + ' hits) : Retrieved NODATA for ' + queryname + ' (TTL-LEFT:' + str(ttl) + '/' + str(orgttl) + ')')
         else:
-            log_info('CACHE-HIT (' + str(numhits) + '/' + str(hitsneeded) + ' hits) : Retrieved ' + str(numrrs) + ' RRs for ' + cacheentry[2] + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + '/' + str(cacheentry[4]) + ')')
+            log_info('CACHE-HIT (' + str(hits) + '/' + str(hitsneeded) + ' hits) : Retrieved ' + str(numrrs) + ' RRs for ' + queryname + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + '/' + str(orgttl) + ')')
 
         log_replies(reply, 'CACHE-REPLY')
 
@@ -1655,6 +1656,7 @@ def from_cache(qname, qclass, qtype, tid):
 
 def log_replies(reply, title):
     '''Log replies'''
+    hid = id_str(reply.header.id)
     replycount = 0
     replynum = len(reply.rr)
     if replynum > 0:
@@ -1663,14 +1665,14 @@ def log_replies(reply, title):
             rqname = normalize_dom(record.rname)
             rqtype = QTYPE[record.rtype].upper()
             data = normalize_dom(record.rdata)
-            log_info(title + ' [' + id_str(reply.header.id) + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data)
+            log_info(title + ' [' + hid + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data)
     else:
         rqname = normalize_dom(reply.q.qname)
         rqtype = QTYPE[reply.q.qtype].upper()
         rcode = str(RCODE[reply.header.rcode])
         if rcode == 'NOERROR':
             rcode = 'NODATA'
-        log_info(title + ' [' + id_str(reply.header.id) + ']: ' + rqname + '/IN/' + rqtype + ' ' + rcode)
+        log_info(title + ' [' + hid + ']: ' + rqname + '/IN/' + rqtype + ' ' + rcode)
 
     return True
 
