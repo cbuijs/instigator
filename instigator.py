@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.15-20181010 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.16-20181010 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1621,8 +1621,8 @@ def from_cache(qname, qclass, qtype, tid):
 
         # Update hits
         hits += 1
-        cache[queryhash][3] = hits 
-        
+        cache[queryhash][3] = hits
+
         # Gather address and non-address records and do round-robin
         if roundrobin and numrrs > 1:
             addr = list()
