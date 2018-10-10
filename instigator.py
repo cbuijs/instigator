@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v4.952-20181009 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.0-20181009 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -341,6 +341,9 @@ isregex = regex.compile('^/.*/$')
 # Regex for AS(N) Numbers
 isasn = regex.compile('^AS[0-9]+$', regex.I)
 
+# Regex for numbers
+isnum = regex.compile('^[0-9]+$')
+
 ##############################################################
 
 def log_info(message):
@@ -568,8 +571,9 @@ def in_regex(name, rxlist, isalias, log, rxid):
                 rx2 = ' '.join(elements[1:])
                 result = False
                 if isalias:
-                    result = regex.sub(rx, regex.split('\s+', rx2)[0], name)
-                    if debug or log: log_info('GENERATOR-MATCH [' + lst + ']: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx2 + '\" -> \"' + result + '\"')
+                    rx3 = regex.split('\s+', rx2)[0]
+                    result = regex.sub(rx, rx3, name)
+                    if debug or log: log_info('GENERATOR-MATCH [' + lst + ']: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx3 + '\" -> \"' + result + '\"')
                 else:
                     result = '\"' + rx2 + '\" (' + lst + ')'
                     if debug or log: log_info('REGEX-MATCH [' + lst + ']: ' + name + ' matches ' + result)
@@ -1454,7 +1458,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                         if len(elements) > 1:
                             domain = normalize_dom(elements[0])
                             ttl = elements[1].strip()
-                            if isdomain.search(domain) and ttl.isdecimal():
+                            if isdomain.search(domain) and isnum.search(ttl):
                                 fetched += 1
                                 tlist[domain] = int(ttl)
                                 domlist[domain] = 'TTL-Override' # Whitelist it
