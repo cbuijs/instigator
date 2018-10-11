@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.20-20181010 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.25-20181011 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -176,7 +176,6 @@ cachesize = 2048 # Entries
 cache_maintenance_now = False
 cache_maintenance_busy = False
 persistentcache = True
-fastcache = False # If True, have the maintenance-loop take care of cache-expiry instead of per query. This could NOT honor TTL's to the second though! No round-robin of RR-Sets!
 
 # TTL Settings
 ttlstrategy = 'average' # average/lowest/highest/random - Egalize TTL on all RRs in RRSET
@@ -205,7 +204,7 @@ mindots = 1
 
 # Roundrobin of address/forward-records
 roundrobin = True
-forwardroundrobin = True
+forwardroundrobin = False
 
 # Collapse/Flatten CNAME Chains
 collapse = True
@@ -660,7 +659,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
         log_info('DNS-QUERY [' + hid + ']: delaying (' + str(count) + ') query for ' + queryname + ' - ID (' + hid + ') already in progress, waiting to finish')
         time.sleep(1) # Seconds
 
-    # Get from cache if any
+    # Get from cache if any, only hit when doing internal/alias queries
     if not force:
         reply = from_cache(qname, 'IN', qtype, tid)
         if reply is not None:
@@ -718,7 +717,10 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                 reply = None
 
                 try:
+                    qstart = time.time()
                     q = query.send(forward_address, forward_port, tcp=use_tcp, timeout=forward_timeout, ipv6=useip6)
+                    qend = time.time()
+                    if debug: log_info('DNS-RTT [' + hid + ']: ' + str(qend - qstart) + ' seconds')
                     reply = DNSRecord.parse(q)
 
                 except BaseException as error:
@@ -1512,12 +1514,12 @@ def reduce_ip(iplist, listname):
             kids[kid] = parent
 
     for kid in kids.keys():
-        if debug: log_info('IPLIST [' + listname + ']: Removing subnet ' + kid + ', already covered by ' + kids[kid] + ' (' + iplist[kid] + ')')
+        if debug: log_info('IPLIST-REDUCE [' + listname + ']: Removing subnet ' + kid + ' (' + iplist[kids[kid]] + '), already covered by ' + kids[kid] + ' (' + iplist[kid] + ')')
         del iplist[kid]
 
     after = len(iplist)
     count = before - after
-    log_info('IPLIST [' + listname + ']: Removed ' + str(count) + ' parented subnets, total went from ' + str(before) + ' to ' + str(after))
+    log_info('IPLIST-REDUCE [' + listname + ']: Removed ' + str(count) + ' parented subnets, total went from ' + str(before) + ' to ' + str(after))
 
     return iplist
 
@@ -1532,12 +1534,71 @@ def reduce_dom(domlist, listname):
             subs[sub] = parent
 
     for sub in subs.keys():
-        if debug: log_info('DOMLIST [' + listname + ']: Removing subdomain ' + sub + ', already covered by ' + subs[sub] + ' (' + domlist[sub] + ')')
+        if debug: log_info('DOMLIST-REDUCE [' + listname + ']: Removing subdomain ' + sub + ' (' + domlist[subs[sub]] + '), already covered by ' + subs[sub] + ' (' + domlist[sub] + ')')
         del domlist[sub]
 
     after = len(domlist)
     count = before - after
-    log_info('DOMLIST [' + listname + ']: Removed ' + str(count) + ' parented subdomains, total went from ' + str(before) + ' to ' + str(after))
+    log_info('DOMLIST-REDUCE [' + listname + ']: Removed ' + str(count) + ' parented subdomains, total went from ' + str(before) + ' to ' + str(after))
+
+    return domlist
+
+
+def unwhite_ip(wiplist, biplist, listname):
+    '''Remove blacklist entries that are whitelisted'''
+    before = len(biplist)
+    cidrs = dict()
+    for cidr in biplist.keys():
+        if cidr in wiplist:
+            cidrs[cidr] = wiplist.get_key(cidr)
+
+    for cidr in cidrs.keys():
+        if debug: log_info('IPLIST-UNWHITE [' + listname + ']: Removing CIDR ' + cidr + ' (' + biplist[cidr] + '), whitelisted by ' + cidrs[cidr] + ' (' + wiplist[cidr] + ')')
+        del biplist[cidr]
+
+    after = len(biplist)
+    count = before - after
+    log_info('IPLIST-UNWHITE [' + listname + ']: Removed ' + str(count) + ' whitelisted CIDRs, total went from ' + str(before) + ' to ' + str(after))
+
+    return biplist
+
+
+def unwhite_dom(wdomlist, bdomlist, listname):
+    '''Remove blacklist entries that are whitelisted'''
+    before = len(bdomlist)
+    domains = dict()
+    for domain in bdomlist.keys():
+        whitedomain = in_domain(domain, wdomlist, 'Unwhite-DOM ' + listname, False)
+        if whitedomain:
+            domains[domain] = whitedomain
+
+    for domain in domains.keys():
+        if debug: log_info('DOMLIST-UNWHITE [' + listname + ']: Removing subdomain ' + domain + ' (' + bdomlist[domain] + '), whitelisted by ' + domains[domain] + ' (' + wdomlist[domain] + ')')
+        del bdomlist[domain]
+
+    after = len(bdomlist)
+    count = before - after
+    log_info('DOMLIST-UNWHITE [' + listname + ']: Removed ' + str(count) + ' whitelisted Domains, total went from ' + str(before) + ' to ' + str(after))
+
+    return bdomlist
+
+
+def unreg_dom(rxlist, domlist, listname):
+    '''Remove entries that are regex matched'''
+    before = len(domlist)
+    domains = dict()
+    for domain in domlist.keys():
+        rx = in_regex(domain, rxlist, False, 'Unreg-DOM ' + listname)
+        if rx:
+            domains[domain] = rx
+
+    for domain in domains.keys():
+        if debug: log_info('DOMLIST-UNREG [' + listname + ']: Removing domain ' + domain + ' (' + domlist[domain] + '), already covered by ' + domains[domain])
+        del domlist[domain]
+
+    after = len(domlist)
+    count = before - after
+    log_info('DOMLIST-UNREG [' + listname + ']: Removed ' + str(count) + ' regexed Domains, total went from ' + str(before) + ' to ' + str(after))
 
     return domlist
 
@@ -1628,6 +1689,8 @@ def prefetch_it(queryhash):
 
 def from_cache(qname, qclass, qtype, tid):
     '''Retrieve from cache'''
+    global cache_maintenance_busy
+
     if nocache:
         return None
 
@@ -1635,12 +1698,8 @@ def from_cache(qname, qclass, qtype, tid):
     cacheentry = cache.get(queryhash, None)
     if cacheentry is None:
         return None
-    elif fastcache: # Have maintenance loop take care of expiry stuff
-        log_info('FASTCACHE-HIT [' + id_str(tid) + ']: ' + cacheentry[2])
-        cache[queryhash][3] += 1
-        reply = cacheentry[0]
-        reply.header.id = tid
-        return reply
+
+    cache_maintenance_busy = True
 
     expire = cacheentry[1]
     queryname = cacheentry[2]
@@ -1659,6 +1718,7 @@ def from_cache(qname, qclass, qtype, tid):
         else:
             log_info('CACHE-EXPIRED: ' + queryname+ ' NODATA ' + ' (TTL-EXPIRED:' + str(orgttl) + ')')
         del_cache_entry(queryhash)
+        cache_maintenance_busy = False
         return None
 
     # Pull/Fetch from cache
@@ -1696,6 +1756,7 @@ def from_cache(qname, qclass, qtype, tid):
 
         log_replies(reply, 'CACHE-REPLY')
 
+        cache_maintenance_busy = False
         return reply
 
     return None
@@ -1932,6 +1993,10 @@ def query_hash(qname, qclass, qtype):
 
 def add_cache_entry(qname, qclass, qtype, expire, ttl, reply):
     '''Add entry to cache'''
+    global cache_maintenance_busy
+
+    cache_maintenance_buys = True
+
     hashname = qname + '/' + qclass + '/' + qtype
     rcode = str(RCODE[reply.header.rcode])
     queryhash = query_hash(qname, qclass, qtype)
@@ -1945,6 +2010,8 @@ def add_cache_entry(qname, qclass, qtype, expire, ttl, reply):
         log_info('CACHE-UPDATE (' + str(len(cache)) + ' entries): Cached ' + rcode + ' for ' + hashname + ' (TTL:' + str(ttl) + ')')
     else:
         log_info('CACHE-UPDATE (' + str(len(cache)) + ' entries): Cached ' + str(numrrs) + ' RRs for ' + hashname + ' ' + rcode + ' (TTL:' + str(ttl) + ')')
+
+    cache_maintenance_buys = False
 
     return queryhash
 
@@ -2429,12 +2496,20 @@ if __name__ == '__main__':
         wl_dom[command] = 'Command-TLD'
 
         wl_ip4 = reduce_ip(wl_ip4, 'IPv4 Whitelist')
-        wl_ip6 = reduce_ip(wl_ip6, 'IPv6 Whitelist')
         bl_ip4 = reduce_ip(bl_ip4, 'IPv4 Blacklist')
+        bl_ip4 = unwhite_ip(wl_ip4, bl_ip4, 'IPv4 Blacklist')
+
+        wl_ip6 = reduce_ip(wl_ip6, 'IPv6 Whitelist')
         bl_ip6 = reduce_ip(bl_ip6, 'IPv6 Blacklist')
+        bl_ip6 = unwhite_ip(wl_ip6, bl_ip6, 'IPv6 Blacklist')
 
         wl_dom = reduce_dom(wl_dom, 'Domain Whitelist')
         bl_dom = reduce_dom(bl_dom, 'Domain Blacklist')
+        bl_dom = unwhite_dom(wl_dom, bl_dom, 'Domain Blacklist')
+
+        wl_dom = unreg_dom(wl_rx, wl_dom, 'Domains Whitelist')
+        bl_dom = unreg_dom(bl_rx, bl_dom, 'Domain Blacklist')
+        bl_dom = unreg_dom(wl_rx, bl_dom, 'Domain White/Blacklist')
 
         save_lists(savefile)
 
