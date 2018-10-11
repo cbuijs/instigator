@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.25-20181011 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.26-20181011 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -204,7 +204,7 @@ mindots = 1
 
 # Roundrobin of address/forward-records
 roundrobin = True
-forwardroundrobin = False
+forwardroundrobin = True
 
 # Collapse/Flatten CNAME Chains
 collapse = True
