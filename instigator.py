@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.16-20181010 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.20-20181010 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -89,6 +89,7 @@ listen_on = list(['@53']) # Listen on all interfaces/ip's
 #listen_on = list(['127.0.0.1@53']) # IPv4 only for now.
 
 # Forwarding queries to
+# See list of servers here: https://www.lifewire.com/free-and-public-dns-servers-2626062
 forward_timeout = 5 # Seconds, keep on 5 seconds or higher
 forward_servers = dict()
 #forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare !!! TTLs inconsistent !!!
@@ -191,7 +192,7 @@ nottl = 0 # Seconds - when no TTL or zero ttl
 filtering = True
 
 # Check requests/queries
-checkrequest = True
+checkrequest = True # When False, only responses are checked and queries are ignored (passthru)
 
 # Check responses/answers
 checkresponse = True # When False, only queries are checked and responses are ignored (passthru)
@@ -411,7 +412,7 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
     # Check if an IP
     if rtype == 'REQUEST' and rrtype == 'PTR' and (not in_regex(testvalue, aliases_rx, True, 'Generator')):
-        if (not in_domain(testvalue, wl_dom, 'Whitelist')) and (not in_domain(testvalue, bl_dom, 'Blacklist')):
+        if (not in_domain(testvalue, wl_dom, 'Whitelist', False)) and (not in_domain(testvalue, bl_dom, 'Blacklist', False)):
             ip = False
             if ip4arpa.search(testvalue):
                 ip = '.'.join(testvalue.split('.')[0:4][::-1])
@@ -494,12 +495,12 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
     # Check against Sub-Domain-Lists
     elif testvalue.find('.') > 0 and isdomain.search(testvalue):
-        wl_found = in_domain(testvalue, wl_dom, 'Whitelist') # Whitelist
+        wl_found = in_domain(testvalue, wl_dom, 'Whitelist', False) # Whitelist
         if wl_found is not False:
             if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
             return False
         else:
-            bl_found = in_domain(testvalue, bl_dom, 'Blacklist') # Blacklist
+            bl_found = in_domain(testvalue, bl_dom, 'Blacklist', False) # Blacklist
             if bl_found is not False:
                 if log: log_info('BLACKLIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
                 return True
@@ -524,7 +525,7 @@ def match_blacklist(rid, rtype, rrtype, value, log):
     return None
 
 
-def in_domain(name, domlist, domid):
+def in_domain(name, domlist, domid, checksub):
     '''Check if name is domain or sub-domain'''
     domidname = domid + ':' + name
     if domidname in indom_cache:
@@ -535,7 +536,11 @@ def in_domain(name, domlist, domid):
             if debug: log_info('INDOM-CACHE [' + domid + ']: \"' + name + '\" is NOMATCH')
         return indom
 
-    testname = name
+    if checksub:
+        testname = name[name.find('.') + 1:]
+    else:
+        testname = name
+
     while testname:
         if testname in domlist:
             indom_cache[domidname] = testname
@@ -566,7 +571,7 @@ def in_regex(name, rxlist, isalias, rxid):
     if name and name != '.':
         for i in rxlist.keys():
             rx = rxlist.get(i, False)
-            if rx and rx.search(name) and (not in_domain(name, forward_servers, 'Forward')):
+            if rx and rx.search(name) and (not in_domain(name, forward_servers, 'Forward', False)):
                 elements = regex.split(':\s+', i)
                 lst = elements[0]
                 rx2 = ' '.join(elements[1:])
@@ -671,7 +676,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
 
     pending[uid] = int(time.time())
 
-    server = in_domain(qname, forward_servers, 'Forward')
+    server = in_domain(qname, forward_servers, 'Forward', False)
     if server:
         servername = 'FORWARD-HIT: ' + server
     else:
@@ -974,7 +979,7 @@ def generate_alias(request, qname, qtype, use_tcp, force):
     if qname in aliases:
         alias = aliases[qname]
     else:
-        aqname = in_domain(qname, aliases, 'Alias')
+        aqname = in_domain(qname, aliases, 'Alias', False)
         if aqname:
             log_info('ALIAS-HIT: ' + qname + ' subdomain of alias \"' + aqname + '\"')
             alias = aliases[aqname]
@@ -1371,9 +1376,11 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                 # DOMAIN
                 elif isdomain.search(entry):
                     entry = normalize_dom(entry)
+
                     entrytype = 'ANY'
                     if ip4arpa.search(entry) or ip6arpa.search(entry):
                         entrytype = 'PTR'
+
                     if is_illegal(entry) or is_weird(entry, entrytype):
                         log_err(listname + ' ILLEGAL/FAULTY/WEIRD Entry [' + str(count) + ']: ' + entry)
                     elif entry != '.':
@@ -1495,10 +1502,50 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
     return domlist, iplist4, iplist6, rxlist, arxlist, alist, flist, tlist, asnlist
 
 
+def reduce_ip(iplist, listname):
+    '''Strip all subnets and keep only parents'''
+    before = len(iplist)
+    kids = dict()
+    for kid in iplist.keys():
+        parent = iplist.parent(kid)
+        if parent:
+            kids[kid] = parent
+
+    for kid in kids.keys():
+        if debug: log_info('IPLIST [' + listname + ']: Removing subnet ' + kid + ', already covered by ' + kids[kid] + ' (' + iplist[kid] + ')')
+        del iplist[kid]
+
+    after = len(iplist)
+    count = before - after
+    log_info('IPLIST [' + listname + ']: Removed ' + str(count) + ' parented subnets, total went from ' + str(before) + ' to ' + str(after))
+
+    return iplist
+
+
+def reduce_dom(domlist, listname):
+    '''Strip all subdomains and keep only parents'''
+    before = len(domlist)
+    subs = dict()
+    for sub in domlist.keys():
+        parent = in_domain(sub, domlist, 'Reduce-DOM ' + listname, True)
+        if parent and parent != sub:
+            subs[sub] = parent
+
+    for sub in subs.keys():
+        if debug: log_info('DOMLIST [' + listname + ']: Removing subdomain ' + sub + ', already covered by ' + subs[sub] + ' (' + domlist[sub] + ')')
+        del domlist[sub]
+
+    after = len(domlist)
+    count = before - after
+    log_info('DOMLIST [' + listname + ']: Removed ' + str(count) + ' parented subdomains, total went from ' + str(before) + ' to ' + str(after))
+
+    return domlist
+
+
 def normalize_ttl(qname, rr):
     '''Normalize TTL's, all RR's in a RRSET will get the same TTL based on strategy (see below)'''
     if filtering:
-        newttl = in_domain(qname, ttls, 'TTL')
+        newttl = in_domain(qname, ttls, 'TTL', False)
         if newttl:
             ttl = ttls.get(newttl, nottl)
             log_info('TTL-HIT: Setting TTL for ' + qname + ' (' + newttl + ') to ' + str(ttl))
@@ -1701,7 +1748,7 @@ def to_cache(qname, qclass, qtype, reply, force, newttl):
     ttl = nottl
 
     if not newttl:
-        newttl = in_domain(qname, ttls, 'TTL')
+        newttl = in_domain(qname, ttls, 'TTL', False)
         if newttl:
             newttl = ttls.get(newttl, False)
 
@@ -2107,8 +2154,8 @@ def do_query(request, handler, force):
 
 
     # Check if parent is in cache as NXDOMAIN
-    if reply is None and force is False and blocksub and (in_domain(qname, wl_dom, 'Whitelist') is False):
-        dom = in_domain(qname, cache_dom_list(qclass, qtype), 'Cache')
+    if reply is None and force is False and blocksub and (in_domain(qname, wl_dom, 'Whitelist', False) is False):
+        dom = in_domain(qname, cache_dom_list(qclass, qtype), 'Cache', False)
         if dom and dom != qname:
             queryhash = query_hash(dom, qclass, qtype)
             cacheentry = cache.get(queryhash, None)
@@ -2140,7 +2187,7 @@ def do_query(request, handler, force):
             reply.header.rcode = getattr(RCODE, 'NOTIMP')
 
         # Generate ALIAS response when hit
-        elif filtering and in_domain(qname, aliases, 'Alias') and (not in_regex(qname, aliases_rx, True, 'Generator')) and (not in_domain(qname, forward_servers, 'Forward')):
+        elif filtering and in_domain(qname, aliases, 'Alias', False) and (not in_regex(qname, aliases_rx, True, 'Generator')) and (not in_domain(qname, forward_servers, 'Forward', False)):
             reply = generate_alias(request, qname, qtype, use_tcp, force)
 
         # Search-Domain blocker
@@ -2166,7 +2213,7 @@ def do_query(request, handler, force):
                 else:
                     # Check against lists
                     generated = False
-                    if not in_domain(qname, forward_servers, 'Forward'):
+                    if not in_domain(qname, forward_servers, 'Forward', False):
                         generated = in_regex(qname, aliases_rx, True, 'Generator')
 
                     if generated is False:
@@ -2352,8 +2399,9 @@ if __name__ == '__main__':
                 else:
                     wl_ip6[ip] = 'Redirect-Address'
 
+        # Whitelist forward domains/servers
         for dom in forward_servers.keys():
-            if not in_domain(dom, wl_dom, 'Whitelist') and (dom != '.'):
+            if not in_domain(dom, wl_dom, 'Whitelist', False) and (dom != '.'):
                 log_info('WHITELIST: Added Forward-Domain \"' + dom + '\"')
                 wl_dom[dom] = 'Forward-Domain'
             for ip in forward_servers[dom]:
@@ -2364,25 +2412,35 @@ if __name__ == '__main__':
                     else:
                         wl_ip6[ip] = 'Forward-Address'
 
+        # Whitelist alias domains
         for dom in aliases.keys():
-            if not in_domain(dom, wl_dom, 'Whitelist') and (dom != '.'):
+            if not in_domain(dom, wl_dom, 'Whitelist', False) and (dom != '.'):
                 log_info('WHITELIST: Added Alias-Domain \"' + dom + '\"')
                 wl_dom[dom] = 'Alias-Domain'
 
+        # Whitelist search domains
         for dom in searchdom:
-            if not in_domain(dom, wl_dom, 'Whitelist') and (dom != '.'):
+            if not in_domain(dom, wl_dom, 'Whitelist', False) and (dom != '.'):
                 log_info('WHITELIST: Added Search-Domain \"' + dom + '\"')
                 wl_dom[dom] = 'Search-Domain'
+
+        # Add command-tld to whitelist
+        log_info('WHITELIST: Added Command-Domain \"' + command + '\"')
+        wl_dom[command] = 'Command-TLD'
+
+        wl_ip4 = reduce_ip(wl_ip4, 'IPv4 Whitelist')
+        wl_ip6 = reduce_ip(wl_ip6, 'IPv6 Whitelist')
+        bl_ip4 = reduce_ip(bl_ip4, 'IPv4 Blacklist')
+        bl_ip6 = reduce_ip(bl_ip6, 'IPv6 Blacklist')
+
+        wl_dom = reduce_dom(wl_dom, 'Domain Whitelist')
+        bl_dom = reduce_dom(bl_dom, 'Domain Blacklist')
 
         save_lists(savefile)
 
     else:
         loadcache = True # Only load cache if savefile didn't change
 
-
-    # Add command-tld to whitelist
-    log_info('WHITELIST: Added Command-Domain \"' + command + '\"')
-    wl_dom[command] = 'Command-TLD'
 
     # Load persistent cache
     if loadcache:
