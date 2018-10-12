@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1539246120                  ###
+### Version: 1539332531                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -8056,7 +8056,7 @@ vp.ru	Adguard-Banks
 client.vpb.ru	Adguard-Banks
 gate.vseplatezhi.ru	Adguard-Banks
 ibank.vstcb.ru	Adguard-Banks
-vtb.ru	Shalla-Banking, UT1-Banking
+vtb.ru	Shalla-Banking, UT1-Banking, Adguard-Banks
 vtb24.ru	Adguard-Banks
 vtkbank.ru	Adguard-Banks
 ibank.vvbank.ru	Adguard-Banks
@@ -8555,7 +8555,8 @@ AS36692	Chris-ASN-White
 198.38.96.0/19	Chris-ASN-White-AS2906
 198.45.48.0/20	Chris-ASN-White-AS2906
 199.47.216.0/22	Chris-ASN-White-AS19679
-204.194.238.0/24	Chris-ASN-White-AS36692
+204.194.237.0/24	Chris-ASN-White-AS36692
+204.194.238.0/23	Chris-ASN-White-AS36692
 208.67.216.0/23	Chris-ASN-White-AS36692
 208.67.219.0/24	Chris-ASN-White-AS36692
 208.67.220.0/24	Chris-ASN-White-AS36692
