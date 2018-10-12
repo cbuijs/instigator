@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.30-20181011 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.40-20181012 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -566,6 +566,11 @@ def in_regex(name, rxlist, isalias, rxid):
         else:
             if debug: log_info('INRX-CACHE [' + rxid +']: \"' + name + '\" is NOMATCH')
         return inrx
+
+    if any(rx.search(name) for rx in rxlist.values()):
+        return '!!!TEST!!! FOUND IT !!!TEST!!!'
+    else:
+        return False
 
     if name and name != '.':
         for i in rxlist.keys():
@@ -1339,6 +1344,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
 
         for line in lines:
             count += 1
+
             entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', '')) # Strip comments and line-feeds
 
             if entry.startswith('/'):
@@ -1581,6 +1587,25 @@ def unwhite_dom(wdomlist, bdomlist, listname):
     log_info('DOMLIST-UNWHITE [' + listname + ']: Removed ' + str(count) + ' whitelisted Domains, total went from ' + str(before) + ' to ' + str(after))
 
     return bdomlist
+
+
+def unwhite_asn(awlist, ablist, listname):
+    '''Remove blacklist entries that are whitelisted'''
+    before = len(ablist)
+    asns = dict()
+    for asn in awlist.keys():
+        if asn in ablist:
+            asns[asn] = awlist[asn]
+
+    for asn in asns.keys():
+        if debug: log_info('ASNLIST-UNWHITE [' + listname + ']: Removing whitelisted ASN AS' + asn + ' (' + ablist[asn] + ')')
+        del ablist[asn]
+
+    after = len(ablist)
+    count = before - after
+    log_info('ASNLIST-UNWHITE [' + listname + ']: Removed ' + str(count) + ' whitelisted ASNs, total went from ' + str(before) + ' to ' + str(after))
+
+    return ablist
 
 
 def unreg_dom(rxlist, domlist, listname):
@@ -2510,6 +2535,8 @@ if __name__ == '__main__':
         wl_dom = unreg_dom(wl_rx, wl_dom, 'Domains Whitelist')
         bl_dom = unreg_dom(bl_rx, bl_dom, 'Domain Blacklist')
         bl_dom = unreg_dom(wl_rx, bl_dom, 'Domain White/Blacklist')
+
+        bl_asn = unwhite_asn(wl_asn, bl_asn, 'ASN White/Blacklist')
 
         save_lists(savefile)
 
