@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.40-20181012 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.42-20181012 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -72,6 +72,9 @@ from cymruwhois import Client
 debug = False
 if len(sys.argv) > 1: # Any argument on command-line will put debug-mode on, printing all messages to TTY.
     debug = True
+
+# Logging Message-length
+msglength = 1024
 
 # Base/Work dirs
 basedir = '/'.join(os.path.realpath(__file__).split('/')[0:-1]) + '/'
@@ -351,9 +354,9 @@ def log_info(message):
     '''Log INFO messages to syslog'''
     if debug:
         #print('{0} {1}'.format(time.strftime('%a %d-%b-%Y %H:%M:%S'), message))
-        print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message)[:256])
+        print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message)[:msglength])
         sys.stdout.flush()
-    syslog.syslog(syslog.LOG_INFO, message[:256]) # !!! Fix SYSLOG on MacOS
+    syslog.syslog(syslog.LOG_INFO, message[:msglength]) # !!! Fix SYSLOG on MacOS
     return True
 
 
@@ -362,9 +365,9 @@ def log_err(message):
     message = '!!! STRESS: {0}'.format(message)
     if debug:
         #print('{0} {1}'.format(time.strftime('%a %d-%b-%Y %H:%M:%S'), message))
-        print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message)[:256])
+        print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message)[:msglength])
         sys.stdout.flush()
-    syslog.syslog(syslog.LOG_ERR, message[:256]) # !!! Fix SYSLOG on MacOS
+    syslog.syslog(syslog.LOG_ERR, message[:msglength]) # !!! Fix SYSLOG on MacOS
     return True
 
 
@@ -567,10 +570,10 @@ def in_regex(name, rxlist, isalias, rxid):
             if debug: log_info('INRX-CACHE [' + rxid +']: \"' + name + '\" is NOMATCH')
         return inrx
 
-    if any(rx.search(name) for rx in rxlist.values()):
-        return '!!!TEST!!! FOUND IT !!!TEST!!!'
-    else:
-        return False
+    #if any(rx.search(name) for rx in rxlist.values()):
+    #    return '!!!TEST!!! FOUND IT !!!TEST!!!'
+    #else:
+    #    return False
 
     if name and name != '.':
         for i in rxlist.keys():
@@ -922,14 +925,14 @@ def generate_response(request, qname, qtype, redirect_addrs, force):
 
     reply = request.reply()
 
-    if (len(redirect_addrs) > 0) and any(x in ('NODATA', 'NXDOMAIN', 'REFUSED') for x in redirect_addrs):
+    if (len(redirect_addrs) > 0) and any(x.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED') for x in redirect_addrs):
         for addr in redirect_addrs:
-            if addr in ('NODATA', 'NXDOMAIN', 'REFUSED'):
+            if addr.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED'):
                 log_info('GENERATE: ' + addr + ' for ' + queryname)
-                if addr == 'NODATA':
+                if addr.upper() == 'NODATA':
                     reply.header.rcode = getattr(RCODE, 'NOERROR') # just respond with no RR's
                 else:
-                    reply.header.rcode = getattr(RCODE, addr)
+                    reply.header.rcode = getattr(RCODE, addr.upper())
                 break
 
     elif (len(redirect_addrs) == 0) or (qtype not in ('A', 'AAAA', 'CNAME')):
@@ -1314,13 +1317,7 @@ def log_totals():
 
 def normalize_dom(dom):
     '''Normalize Domain Names'''
-    sdom = str(dom)
-    if sdom.find('.') == -1 and sdom.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED', 'RANDOM'):
-        return sdom.strip().strip('.').upper()
-    else:
-        return sdom.strip().strip('.').lower() or '.'
-
-    return dom
+    return str(dom).strip().strip('.').lower() or '.'
 
 
 # Read filter lists, see "accomplist" to provide ready-2-use lists:
@@ -1349,7 +1346,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
 
             if entry.startswith('/'):
                 name = ' '.join(regex.split('\t+', entry)[1:]).strip() or listname
-                entry = regex.sub('/\s+[^/]+$', '/', entry).strip()
+                entry = regex.sub('/\t+[^/]+$', '/', entry).strip()
             else:
                 name = ' '.join(regex.split('\s+', entry)[1:]).strip() or listname
                 entry = regex.split('\s+', entry)[0].strip()
@@ -1367,31 +1364,33 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
 
             # Process entry
             if entry and len(entry) > 0 and (not entry.startswith('#')):
+
                 # REGEX
                 if isregex.search(entry):
-                    fetched += 1
                     rx = entry.strip('/')
+                    rxkey = name + ': ' + rx
                     try:
                         rxlist[name + ': ' + rx] = regex.compile(rx, regex.I)
+                        fetched += 1
                     except BaseException as err:
                         log_err(listname + ' INVALID REGEX [' + str(count) + ']: ' + entry + ' - ' + str(err))
 
                 # ASN
                 elif isasn.search(entry):
                     fetched += 1
-                    asnlist[entry.upper().lstrip('AS')] = name
+                    asn = entry.upper().lstrip('AS')
+                    asnlist[asn] = name
 
                 # DOMAIN
                 elif isdomain.search(entry):
                     entry = normalize_dom(entry)
-
                     entrytype = 'ANY'
                     if ip4arpa.search(entry) or ip6arpa.search(entry):
                         entrytype = 'PTR'
 
                     if is_illegal(entry) or is_weird(entry, entrytype):
                         log_err(listname + ' ILLEGAL/FAULTY/WEIRD Entry [' + str(count) + ']: ' + entry)
-                    elif entry != '.':
+                    elif entry != '.' and (entry not in domlist):
                         fetched += 1
                         domlist[entry] = name
 
@@ -1409,20 +1408,21 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                 # ALIAS - domain.com=ip or domain.com=otherdomain.com
                 elif bw == 'Whitelist':
                     if entry.find('=') > 0:
-                        if entry[0] == '/':
+                        if entry.startswith('/'):
                             elements = regex.split('/\s*=\s*', entry)
                             if len(elements) > 1:
                                 if isregex.search(elements[0] + '/'):
                                     fetched += 1
                                     rx = elements[0].strip('/')
                                     alias = elements[1].strip()
-
+                                    aliaskey = name + ': ' + alias + ' ' + rx
                                     try:
-                                        arxlist[name + ': ' + alias + ' ' + rx] = regex.compile(rx, regex.I)
+                                        arxlist[aliaskey] = regex.compile(rx, regex.I)
                                     except BaseException as err:
                                         log_err(listname + ' INVALID REGEX [' + str(count) + ']: ' + entry + ' - ' + str(err))
 
                                     log_info('ALIAS-GENERATOR: \"' + rx + '\" = \"' + alias + '\"')
+
                                 else:
                                     log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
 
@@ -1452,7 +1452,6 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                             if isdomain.search(domain):
                                 domlist[domain] = 'Forward-Domain' # Whitelist it
                                 addrs = list()
-                                #for addr in ips.split(','):
                                 for addr in regex.split('\s*,\s*', ips):
                                     if ipportregex.search(addr):
                                         addrs.append(addr)
@@ -1500,7 +1499,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
 
                 # Invalid/Unknown Syntax or BOGUS entry
                 else:
-                    log_err(listname + ' INVALID/BOGUS LINE [' + str(count) + ']: ' + entry)
+                    log_err(listname + ' INVALID/BOGUS LINE [' + str(count) + ']: \"' + entry + '\"')
 
     else:
         log_err('ERROR: Cannot open \"' + file + '\" - Does not exist')
@@ -2157,16 +2156,6 @@ def execute_command(qname, log):
     return True
 
 
-def seen_it(name, seen):
-    '''Track if name already seen'''
-    if name not in seen:
-        seen.add(name)
-    else:
-        return True
-
-    return False
-
-
 def is_illegal(qname):
     '''Check if Illegal'''
     if blockillegal:
@@ -2320,7 +2309,7 @@ def do_query(request, handler, force):
                         queryfiltered = True
                         answer = False
                         rcode = generated.upper()
-                        if rcode in ('NODATA','NXDOMAIN','REFUSED'):
+                        if rcode in ('NODATA', 'NXDOMAIN', 'REFUSED'):
                             log_info('GENERATED-HIT [' + tid + ']: \"' + qname + '/' + qtype + '\" -> \"' + rcode + '\"')
                             reply = request.reply()
                             if rcode == 'NODATA':
