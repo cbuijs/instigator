@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.42-20181012 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.43-20181012 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -2396,7 +2396,7 @@ def read_config(file):
                 if len(elements) > 1:
                     var = str(elements[0])
                     val = elements[1].strip()
-                    if len(val) > 0:
+                    if len(val) > 0 and val.upper() != 'DEFAULT':
                         if val.find('>') != -1:
                             dictelements = regex.split('\s*>\s*', val)
                             key = dictelements[0]
