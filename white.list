@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1539332531                  ###
+### Version: 1539418921                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -2096,6 +2096,7 @@ goodbank.com	Shalla-Banking
 goodreads.com	Notracking-Whitelist
 analytics.google.com	Notracking-Whitelist
 googlecode.com	Chris-White
+redirector.googlevideo.com	Notracking-Whitelist
 gorhamsavingsbank.com	Shalla-Banking, UT1-Banking
 gotocsb.com	Shalla-Banking, UT1-Banking
 gottardo.com	Shalla-Banking
@@ -8555,8 +8556,6 @@ AS36692	Chris-ASN-White
 198.38.96.0/19	Chris-ASN-White-AS2906
 198.45.48.0/20	Chris-ASN-White-AS2906
 199.47.216.0/22	Chris-ASN-White-AS19679
-204.194.237.0/24	Chris-ASN-White-AS36692
-204.194.238.0/23	Chris-ASN-White-AS36692
 208.67.216.0/23	Chris-ASN-White-AS36692
 208.67.219.0/24	Chris-ASN-White-AS36692
 208.67.220.0/24	Chris-ASN-White-AS36692
