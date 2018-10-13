@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.43-20181012 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.44-20181012 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -586,7 +586,7 @@ def in_regex(name, rxlist, isalias, rxid):
                 if isalias:
                     rx3 = regex.split('\s+', rx2)[0]
                     result = regex.sub(rx, rx3, name)
-                    if debug: log_info('GENERATOR-MATCH [' + lst + ']: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx3 + '\" -> \"' + result + '\"')
+                    log_info('GENERATOR-MATCH [' + lst + ']: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx3 + '\" -> \"' + result + '\"')
                 else:
                     result = '\"' + rx2 + '\" (' + lst + ')'
                     if debug: log_info('REGEX-MATCH [' + lst + ']: ' + name + ' matches ' + result)
