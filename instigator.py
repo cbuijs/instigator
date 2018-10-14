@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.44-20181012 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.50-20181013 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -39,7 +39,7 @@ import sys
 sys.path.append('/usr/local/lib/python3.5/dist-packages/')
 
 # Standard modules
-import os, time, shelve, dbm, gc # DBM used for Shelve
+import os, time, shelve, dbm, gc, ssl, struct # DBM used for Shelve
 gc.enable() # Enable garbage collection
 
 # Random
