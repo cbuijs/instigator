@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.50-20181013 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.51-20181013 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -337,7 +337,7 @@ ip4arpa = regex.compile('^([0-9]{1,3}\.){4}in-addr\.arpa$', regex.I)
 ip6arpa = regex.compile('^([0-9a-f]\.){32}ip6\.arpa$', regex.I)
 
 # Regex to match domains/hosts in lists
-isdomain = regex.compile('(?=^.{1,253}$)(^((?!-)[a-z0-9_-]{0,62}[a-z0-9]\.)*(xn--[a-z0-9-]{5,63}|[a-z]{2,63})$)', regex.I)
+isdomain = regex.compile('(?=^.{1,252}[^\.]$)(^((?!-)[a-z0-9_-]{0,62}[a-z0-9]\.)*(xn--[a-z0-9-]{1,59}|[a-z]{2,63})$)', regex.I)
 
 # Regex to filter regexes out
 isregex = regex.compile('^/.*/$')
