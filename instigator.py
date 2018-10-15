@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.53-20181013 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.55-20181015 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -39,7 +39,7 @@ import sys
 sys.path.append('/usr/local/lib/python3.5/dist-packages/')
 
 # Standard modules
-import os, time, shelve, dbm, gc, ssl, struct # DBM used for Shelve
+import os, time, shelve, dbm, gc # DBM used for Shelve
 gc.enable() # Enable garbage collection
 
 # Random
@@ -65,6 +65,10 @@ import pytricia
 
 # Use cymruwhois for SafeDNS ASN lookups
 from cymruwhois import Client
+
+# Use zxcvbn to determine guessability. The harder, it probably is more random. To catch DGA.
+from zxcvbn import zxcvbn
+from zxcvbn.matching import add_frequency_lists
 
 ###################
 
@@ -444,6 +448,14 @@ def match_blacklist(rid, rtype, rrtype, value, log):
         elif is_weird(testvalue, rrtype):
             log_info('BLOCK-WEIRD-HIT [' + tid + ']: ' + value)
             return True
+        else:
+            randomness = zxcvbn(regex.sub('\.', ' ', testvalue))
+            #score = round(randomness['score']) # 0 = Least Random, 4 = Most Random
+            score = round(randomness['guesses_log10']) # Logorhitmic score, the higher the more random
+            if debug: log_info('RANDOMNESS: ' + value + ' = ' + str(score))
+            if score > 40: # !!! TEST VALUE BASED ON AVERAGE USE, CHECK THIS !!!
+                log_info('BLOCK-RANDOMNESS-HIT [' + tid + ']: ' + value + ' (' + str(score) + '>40)')
+                return True
 
 
     # Block IP-Family
@@ -2294,7 +2306,7 @@ def do_query(request, handler, force):
                         reply.header.rcode = getattr(RCODE, 'NOERROR') # Empty response, NXDOMAIN provides other search-requests
                         break
 
-        # Get response and process filtering
+        # Check query/response against lists
         if reply is None:
             queryfiltered = False
             if filtering:
@@ -2521,6 +2533,7 @@ if __name__ == '__main__':
         log_info('WHITELIST: Added Command-Domain \"' + command + '\"')
         wl_dom[command] = 'Command-TLD'
 
+        # Optimize lists
         wl_ip4 = reduce_ip(wl_ip4, 'IPv4 Whitelist')
         bl_ip4 = reduce_ip(bl_ip4, 'IPv4 Blacklist')
         bl_ip4 = unwhite_ip(wl_ip4, bl_ip4, 'IPv4 Blacklist')
@@ -2544,6 +2557,19 @@ if __name__ == '__main__':
     else:
         loadcache = True # Only load cache if savefile didn't change
 
+
+    # Add all labels of whitelisted domains to freqency list
+    wordlist = set()
+    worddict = dict()
+    for dom in wl_dom.keys():
+        if (not ipregex.search(dom)) and (not ip4arpa.search(dom)) and (not ip6arpa.search(dom)):
+            for label in regex.split('\.', dom):
+                if len(label) > 2:
+                    wordlist.add(label)
+
+    worddict['whitelist'] = list(wordlist)
+    add_frequency_lists(worddict) 
+    log_info('WHITELIST: Added ' + str(len(wordlist)) + ' labels to randomness-guesser')
 
     # Load persistent cache
     if loadcache:
