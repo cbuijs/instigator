@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.56-20181015 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.58-20181015 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -235,6 +235,10 @@ blocksub = True
 # Block queries in search-domains (from /etc/resolv.conf) if entry already exist in cache without searchdomain
 blocksearchdom = True
 
+# Block randomized domains
+blockrandom = True
+random_threshhold = 42
+
 # SafeDNS
 safedns = False
 safednsmononly = True
@@ -448,13 +452,13 @@ def match_blacklist(rid, rtype, rrtype, value, log):
         elif is_weird(testvalue, rrtype):
             log_info('BLOCK-WEIRD-HIT [' + tid + ']: ' + value)
             return True
-        else:
-            randomness = zxcvbn(regex.sub('\.', ' ', testvalue))
+        elif blockrandom:
+            randomness = zxcvbn(regex.sub('[\._-]', '', testvalue))
             #score = round(randomness['score']) # 0 = Least Random, 4 = Most Random
             score = round(randomness['guesses_log10']) # Logorhitmic score, the higher the more random
             if debug: log_info('RANDOMNESS: ' + value + ' = ' + str(score))
-            if score > 40: # !!! TEST VALUE BASED ON AVERAGE USE, CHECK THIS !!!
-                log_info('BLOCK-RANDOMNESS-HIT [' + tid + ']: ' + value + ' (' + str(score) + '>40)')
+            if score > random_threshhold: # !!! TEST VALUE BASED ON AVERAGE USE, CHECK THIS !!!
+                log_info('BLOCK-RANDOMNESS-HIT [' + tid + ']: ' + value + ' (' + str(score) + '>' + str(random_threshhold) + ')')
                 return True
 
 
@@ -2478,10 +2482,18 @@ def white_label():
     worddict = dict()
     for dom in wl_dom.keys():
         if (not dom.endswith('.arpa')) and (not ipregex.search(dom)) and (not ip4arpa.search(dom)) and (not ip6arpa.search(dom)):
-            for label in regex.split('\.', dom):
+            for label in regex.split('[\._-]', dom):
                 if len(label) > 2 and (not label.isdigit()) and (label not in wordlist):
                     if debug: log_info('RANDOMNESS: Adding label \"' + label + '\"')
                     wordlist.add(label)
+
+    # Add some static words !!! ADD this as config option !!!
+    wordlist.add('amazon')
+    wordlist.add('amazonaws')
+    wordlist.add('apple')
+    wordlist.add('facebook')
+    wordlist.add('google')
+    wordlist.add('youtube')
 
     worddict['whitelist'] = list(wordlist)
     add_frequency_lists(worddict) 
