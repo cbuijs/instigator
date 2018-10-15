@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1539628561                  ###
+### Version: 1539630945                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -11,10 +11,10 @@ insurance!	Safelist-Chris-White-TLDS
 ntp.org!	Chris-Exclude
 ### SAFEUNWHITELIST DOMAINS ###
 ### WHITELIST REGEXES ###
-/^(?!(.*\.)*(ad|adservice|adword|analytic|gg|googleadapi|google[-]*analytics|gstaticadssl|id|pagead|pagead[-]*googlehosted|partnerad|tagmanager|video[-]*stat|www[-]*google[-]*analytic|www[-]*googletagmanager)[s]*\.google\.([a-z]{2,3}\.)*[a-z]{2,3}$).*$/	Chris-Regex-White
+/^(.*\.)*((?!(ad|adservice|adword|analytic|gg|googleadapi|google[-]*analytics|gstaticadssl|id|pagead|pagead[-]*googlehosted|partnerad|tagmanager|video[-]*stat|www[-]*google[-]*analytic|www[-]*googletagmanager)[s]*).)*\.google\.([a-z]{2,3}\.)*[a-z]{2,3}$/	Chris-Regex-White
 /^(imap|pop|smtp)\.g(oogle)*mail\.com$/	Chris-Regex-White
-/^(?!(.*\.)*font[s]*\.googleapis\.com$).*$/	Chris-Regex-White
-/^(?!(.*\.)*metric[s]*\.gstatic\.com$).*$/	Chris-Regex-White
+/^(.*\.)*((?!font[s]*).)*\.googleapis\.com$/	Chris-Regex-White
+/^(.*\.)*((?!metric[s]*).)*\.gstatic\.com$/	Chris-Regex-White
 /^(.*\.)*gvt[0-9]\.com$/	Chris-Regex-White
 /^(.*\.)*googleusercontent\.com$/	Chris-Regex-White
 /^(.*\.)*(apple|icloud|itunes)\.com$/	Chris-Regex-White
@@ -2095,15 +2095,6 @@ golfsavingsbank.com	Shalla-Banking, UT1-Banking
 goodbank.com	Shalla-Banking
 goodreads.com	Notracking-Whitelist
 analytics.google.com	Notracking-Whitelist
-chrome.google.com	Notracking-Whitelist
-clients2.google.com	Notracking-Whitelist
-clients3.google.com	Notracking-Whitelist
-clients4.google.com	Notracking-Whitelist
-clients5.google.com	Notracking-Whitelist
-docs.google.com	Notracking-Whitelist
-googleadapis.l.google.com	Notracking-Whitelist
-androidpay-users-pa.googleapis.com	Adguard-Banks
-storage.googleapis.com	Notracking-Whitelist
 googlecode.com	Chris-White
 redirector.googlevideo.com	Notracking-Whitelist
 gorhamsavingsbank.com	Shalla-Banking, UT1-Banking
@@ -2134,8 +2125,6 @@ grupobancolombia.com	Shalla-Banking
 webid2.gs.com	Adguard-Banks
 gsbfin.com	Shalla-Banking
 gsha.com	Shalla-Banking
-connectivitycheck.gstatic.com	Chris-White
-play-music.gstatic.com	Chris-White
 guarantybankonline.com	Shalla-Banking
 guarantystate.com	Shalla-Banking
 guestcash.com	UT1-Financial
