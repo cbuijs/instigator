@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.55-20181015 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.56-20181015 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -2571,6 +2571,7 @@ if __name__ == '__main__':
     add_frequency_lists(worddict) 
     log_info('WHITELIST: Added ' + str(len(wordlist)) + ' labels to randomness-guesser')
 
+
     # Load persistent cache
     if loadcache:
         load_cache(cachefile)
@@ -2578,8 +2579,10 @@ if __name__ == '__main__':
         # Do not load if lists have changed to avoid conflicts between lists and previous cached
         log_info('CACHE-LOAD: Not retrieving persistent CACHE, lists have changed')
 
+
     # Show totals in log
     log_totals()
+
 
     # DNS-Server/Resolver
     if debug:
