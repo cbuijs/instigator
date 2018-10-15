@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.51-20181013 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.53-20181013 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -212,9 +212,9 @@ forwardroundrobin = True
 # Collapse/Flatten CNAME Chains
 collapse = True
 
-# Block IPV4 or IPv6 based queries
+# Block IPV4 or IPv6 based queries, True = Block, False = NotBlock and None = Based on transport
 blockv4 = False
-blockv6 = False
+blockv6 = None
 
 # Block undotted names
 blockundotted = True
@@ -447,11 +447,11 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
 
     # Block IP-Family
-    if blockv4 and (rrtype == 'A' or (rrtype == 'PTR' and itisanip and ipregex4.search(testvalue))):
+    if blockv4 is True and (rrtype == 'A' or (rrtype == 'PTR' and itisanip and ipregex4.search(testvalue))):
         log_info('BLOCK-IPV4-HIT [' + tid + ']: ' + rtype + ' \"' + value + '/' + rrtype + '\"')
         return True
 
-    if blockv6 and (rrtype == 'AAAA' or (rrtype == 'PTR' and itisanip and ipregex6.search(testvalue))):
+    if blockv6 is True and (rrtype == 'AAAA' or (rrtype == 'PTR' and itisanip and ipregex6.search(testvalue))):
         log_info('BLOCK-IPV6-HIT [' + tid + ']: ' + rtype + ' \"' + value + '/' + rrtype + '\"')
         return True
 
@@ -2270,6 +2270,18 @@ def do_query(request, handler, force):
         # Generate ALIAS response when hit
         elif filtering and in_domain(qname, aliases, 'Alias', False) and (not in_regex(qname, aliases_rx, True, 'Generator')) and (not in_domain(qname, forward_servers, 'Forward', False)):
             reply = generate_alias(request, qname, qtype, use_tcp, force)
+
+        # Block IPv4 based queries when client request comes in on IPv6
+        elif blockv4 is None and ipregex6.search(cip) and (qtype == 'A' or (qtype == 'PTR' and ip4arpa.search(qname))):
+            log_info('AUTOBLOCK-IPV4-HIT [' + tid + '] from ' + cip + ': ' + queryname + ' REFUSED')
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'REFUSED')
+
+        # Block IPv6 based queries when client request comes in on IPv4
+        elif blockv6 is None and ipregex4.search(cip) and (qtype == 'AAAA' or (qtype == 'PTR' and ip6arpa.search(qname))):
+            log_info('AUTOBLOCK-IPV6-HIT [' + tid + '] from ' + cip + ': ' + queryname + ' REFUSED')
+            reply = request.reply()
+            reply.header.rcode = getattr(RCODE, 'REFUSED')
 
         # Search-Domain blocker
         elif blocksearchdom and searchdom:
