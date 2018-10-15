@@ -2470,8 +2470,29 @@ def read_config(file):
     return True
 
 
+def white_label():
+    '''Add all labels of whitelisted domains to freqency list'''
+    global wl_dom
+
+    wordlist = set()
+    worddict = dict()
+    for dom in wl_dom.keys():
+        if (not dom.endswith('.arpa')) and (not ipregex.search(dom)) and (not ip4arpa.search(dom)) and (not ip6arpa.search(dom)):
+            for label in regex.split('\.', dom):
+                if len(label) > 2 and (not label.isdigit()) and (label not in wordlist):
+                    if debug: log_info('RANDOMNESS: Adding label \"' + label + '\"')
+                    wordlist.add(label)
+
+    worddict['whitelist'] = list(wordlist)
+    add_frequency_lists(worddict) 
+    log_info('WHITELIST: Added ' + str(len(wordlist)) + ' labels to randomness-guesser')
+
+    return True
+
+
 if __name__ == '__main__':
     '''Main beef'''
+
     log_info('-----------------------')
     log_info('Initializing INSTIGATOR')
 
@@ -2559,18 +2580,7 @@ if __name__ == '__main__':
 
 
     # Add all labels of whitelisted domains to freqency list
-    wordlist = set()
-    worddict = dict()
-    for dom in wl_dom.keys():
-        if (not ipregex.search(dom)) and (not ip4arpa.search(dom)) and (not ip6arpa.search(dom)):
-            for label in regex.split('\.', dom):
-                if len(label) > 2:
-                    wordlist.add(label)
-
-    worddict['whitelist'] = list(wordlist)
-    add_frequency_lists(worddict) 
-    log_info('WHITELIST: Added ' + str(len(wordlist)) + ' labels to randomness-guesser')
-
+    white_label()
 
     # Load persistent cache
     if loadcache:
