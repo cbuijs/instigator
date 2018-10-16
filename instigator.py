@@ -513,8 +513,8 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
     # Check against Sub-Domain-Lists
     elif testvalue.find('.') > 0 and isdomain.search(testvalue):
-        bl_found = in_domain(testvalue + '!', bl_dom, 'Blacklist', False) # Blacklist
-        if not bl_found:
+        bl_found = in_domain(testvalue + '!', bl_dom, 'Forced-Blacklist', False) # Forced Blacklist
+        if bl_found is not False:
             wl_found = in_domain(testvalue, wl_dom, 'Whitelist', False) # Whitelist
     
             if wl_found is not False:
