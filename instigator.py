@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.58-20181015 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.60-20181016 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -452,7 +452,7 @@ def match_blacklist(rid, rtype, rrtype, value, log):
         elif is_weird(testvalue, rrtype):
             log_info('BLOCK-WEIRD-HIT [' + tid + ']: ' + value)
             return True
-        elif blockrandom:
+        elif blockrandom and (not in_domain(testvalue, wl_dom, 'Whitelist', False)):
             randomness = zxcvbn(regex.sub('[\._-]', '', testvalue))
             #score = round(randomness['score']) # 0 = Least Random, 4 = Most Random
             score = round(randomness['guesses_log10']) # Logorhitmic score, the higher the more random
@@ -513,15 +513,21 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
     # Check against Sub-Domain-Lists
     elif testvalue.find('.') > 0 and isdomain.search(testvalue):
-        wl_found = in_domain(testvalue, wl_dom, 'Whitelist', False) # Whitelist
-        if wl_found is not False:
-            if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
-            return False
+        bl_found = in_domain(testvalue + '!', bl_dom, 'Blacklist', False) # Blacklist
+        if not bl_found:
+            wl_found = in_domain(testvalue, wl_dom, 'Whitelist', False) # Whitelist
+    
+            if wl_found is not False:
+                if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
+                return False
+            else:
+                bl_found = in_domain(testvalue, bl_dom, 'Blacklist', False) # Blacklist
+                if bl_found is not False:
+                    if log: log_info('BLACKLIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
+                    return True
         else:
-            bl_found = in_domain(testvalue, bl_dom, 'Blacklist', False) # Blacklist
-            if bl_found is not False:
-                if log: log_info('BLACKLIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
-                return True
+            if log: log_info('BLACKLIST-FORCED-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
+            return True
 
 
     # If it is not an IP, check validity and against regex
@@ -1371,7 +1377,11 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
 
             # If entry ends in exclaimation, it is a "forced" entry, blacklisted will overrule whitelisted.
             # !!! Note: Accomplist already did the logic and clean whitelist. If using other cleanup yourself, no code for that here.
+            forced = False
             if entry.endswith('!'):
+                if bw == 'Blacklist':
+                    forced = True
+
                 entry = entry[:-1]
 
             # If entry ends in ampersand, it is a "safelisted" entry. Not supported.
@@ -1409,6 +1419,9 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                     elif entry != '.' and (entry not in domlist):
                         fetched += 1
                         domlist[entry] = name
+                        if forced:
+                            log_info(listname + ' FORCED [' + str(count) + ']: ' + entry)
+                            domlist[entry + '!'] = name
 
                 # IPV4
                 elif ipregex4.search(entry):
