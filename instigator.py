@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.60-20181016 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.65-20181016 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -406,6 +406,13 @@ def file_exist(file, isdb):
 
 
 def match_blacklist(rid, rtype, rrtype, value, log):
+    found = check_blacklist(rid, rtype, rrtype, value, log, True) # Forced white/black domains
+    if found is None:
+        found = check_blacklist(rid, rtype, rrtype, value, log, False)
+    return found
+    
+
+def check_blacklist(rid, rtype, rrtype, value, log, forced):
     '''
     Check if entry matches a list
     Returns:
@@ -512,26 +519,23 @@ def match_blacklist(rid, rtype, rrtype, value, log):
 
 
     # Check against Sub-Domain-Lists
-    elif testvalue.find('.') > 0 and isdomain.search(testvalue):
-        bl_found = in_domain(testvalue + '!', bl_dom, 'Forced-Blacklist', False) # Forced Blacklist
-        if bl_found is not False:
-            wl_found = in_domain(testvalue, wl_dom, 'Whitelist', False) # Whitelist
-    
-            if wl_found is not False:
-                if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
-                return False
-            else:
-                bl_found = in_domain(testvalue, bl_dom, 'Blacklist', False) # Blacklist
-                if bl_found is not False:
-                    if log: log_info('BLACKLIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
-                    return True
+    elif itisanip is False and testvalue.find('.') > 0 and isdomain.search(testvalue):
+        if forced:
+            testvalue = testvalue + '!'
+
+        wl_found = in_domain(testvalue, wl_dom, 'Whitelist', False) # Whitelist
+        if wl_found is not False:
+            if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
+            return False
         else:
-            if log: log_info('BLACKLIST-FORCED-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
-            return True
+            bl_found = in_domain(testvalue, bl_dom, 'Blacklist', False) # Blacklist
+            if bl_found is not False:
+                if log: log_info('BLACKLIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
+                return True
 
 
     # If it is not an IP, check validity and against regex
-    if not itisanip:
+    if itisanip is False:
         # Catchall: Check agains Regex-Lists
         rxfound = in_regex(value, wl_rx, False, 'Whitelist') # Whitelist
         if rxfound:
@@ -1152,7 +1156,7 @@ def load_cache(file):
             log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
             return False
 
-        cache_purge(False, maxttl, False, False) # Purge everything with has a ttl higher then 60 seconds left
+        cache_maintenance(False, maxttl, False, False) # Purge everything with has a ttl higher then 60 seconds left
 
     else:
         log_info('CACHE-LOAD: Skip loading cache from \"' + file + '\" - non-existant or older then ' + str(maxfileage) + ' seconds')
@@ -1379,9 +1383,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
             # !!! Note: Accomplist already did the logic and clean whitelist. If using other cleanup yourself, no code for that here.
             forced = False
             if entry.endswith('!'):
-                if bw == 'Blacklist':
-                    forced = True
-
+                forced = True
                 entry = entry[:-1]
 
             # If entry ends in ampersand, it is a "safelisted" entry. Not supported.
@@ -1615,6 +1617,30 @@ def unwhite_dom(wdomlist, bdomlist, listname):
     log_info('DOMLIST-UNWHITE [' + listname + ']: Removed ' + str(count) + ' whitelisted Domains, total went from ' + str(before) + ' to ' + str(after))
 
     return bdomlist
+
+
+def unblack_dom(bdomlist, wdomlist, listname):
+    '''Remove whitelist entries that are forced blacklisted'''
+    before = len(wdomlist)
+    domains = dict()
+    for domain in wdomlist.keys():
+        blackdomain = in_domain(domain + '!', bdomlist, 'Unblack-DOM ' + listname, False)
+        if blackdomain:
+            forcedwhite = in_domain(domain + '!', wdomlist, 'Forcedwhite-DOM ' + listname, False)
+            if forcedwhite:
+                log_info('DOMLIST-UNBLACK [' + listname + ']: Skipped subdomain ' + domain + ' (' + wdomlist[domain] + '), forced whitelisted by ' + forcedwhite + ' (' + wdomlist[forcedwhite] + ')')
+            else:
+                domains[domain] = blackdomain
+
+    for domain in domains.keys():
+        if debug: log_info('DOMLIST-UNBLACK [' + listname + ']: Removing subdomain ' + domain + ' (' + wdomlist[domain] + '), forced blacklisted by ' + domains[domain] + ' (' + bdomlist[domains[domain]] + ')')
+        del wdomlist[domain]
+
+    after = len(wdomlist)
+    count = before - after
+    log_info('DOMLIST-UNBLACK [' + listname + ']: Removed ' + str(count) + ' whitelisted Domains, total went from ' + str(before) + ' to ' + str(after))
+
+    return wdomlist
 
 
 def unwhite_asn(awlist, ablist, listname):
@@ -1926,7 +1952,7 @@ def cache_dom_list(qclass, qtype):
     return newlist
 
 
-def cache_purge(flushall, olderthen, clist, plist):
+def cache_maintenance(flushall, olderthen, clist, plist):
     '''Purge cache'''
     global cache_maintenance_busy
     global cache_maintenance_now
@@ -2180,7 +2206,7 @@ def execute_command(qname, log):
         return False
 
     if flush:
-        cache_purge(True, False, False, False)
+        cache_maintenance(True, False, False, False)
 
     return True
 
@@ -2590,7 +2616,10 @@ if __name__ == '__main__':
 
         wl_dom = reduce_dom(wl_dom, 'Domain Whitelist')
         bl_dom = reduce_dom(bl_dom, 'Domain Blacklist')
-        bl_dom = unwhite_dom(wl_dom, bl_dom, 'Domain Blacklist')
+
+        wl_dom = unblack_dom(bl_dom, wl_dom, 'Domain Forced Black/Whitelist') # Remove forced blacklist entries from whitelist
+
+        bl_dom = unwhite_dom(wl_dom, bl_dom, 'Domain White/Blacklist')
 
         wl_dom = unreg_dom(wl_rx, wl_dom, 'Domains Whitelist')
         bl_dom = unreg_dom(bl_rx, bl_dom, 'Domain Blacklist')
@@ -2684,7 +2713,7 @@ if __name__ == '__main__':
                 prefetchlist = cache_prefetch_list()
 
                 if cache_maintenance_now or cachelist or prefetchlist:
-                    cache_purge(False, False, cachelist, prefetchlist)
+                    cache_maintenance(False, False, cachelist, prefetchlist)
 
     except (KeyboardInterrupt, SystemExit):
         log_info('INSTIGATOR SHUTTING DOWN')
