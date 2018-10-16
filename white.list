@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1539707003                  ###
+### Version: 1539728674                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -26,6 +26,7 @@ ntp.org!	Chris-Exclude
 /^(.*\.)*slack(-(edge|files|(im|ms)gs|redir))*\.(com|net)$/	Chris-Regex-White
 /^account\..*$/	Chris-Regex-White
 /^.*brew(ery|ing)\..*$/	Chris-Regex-White
+/^(.*\.)*\.[a-z]*(bank|insurance)$/	Chris-Regex-White
 ### WHITELIST DOMAINS ###
 bibm.ad	Shalla-Banking
 unb.co.ae	Shalla-Banking
