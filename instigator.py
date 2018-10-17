@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.66-20181016 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.70-20181017 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -406,13 +406,6 @@ def file_exist(file, isdb):
 
 
 def match_blacklist(rid, rtype, rrtype, value, log):
-    found = check_blacklist(rid, rtype, rrtype, value, log, True) # Forced white/black domains
-    if found is None:
-        found = check_blacklist(rid, rtype, rrtype, value, log, False)
-    return found
-    
-
-def check_blacklist(rid, rtype, rrtype, value, log, forced):
     '''
     Check if entry matches a list
     Returns:
@@ -426,7 +419,6 @@ def check_blacklist(rid, rtype, rrtype, value, log, forced):
     tid = id_str(rid)
     testvalue = value
     itisanip = False
-
 
     # Block IP-Family
     if blockv4 is True and (rrtype == 'A' or (rtype == 'REPLY' and ((ipregex4.search(testvalue) or ip4arpa.search(testvalue))))):
@@ -520,18 +512,23 @@ def check_blacklist(rid, rtype, rrtype, value, log, forced):
 
     # Check against Sub-Domain-Lists
     elif itisanip is False and testvalue.find('.') > 0 and isdomain.search(testvalue):
-        if forced:
-            testvalue = testvalue + '!'
-
-        wl_found = in_domain(testvalue, wl_dom, 'Whitelist', False) # Whitelist
-        if wl_found is not False:
-            if log: log_info('WHITELIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
-            return False
-        else:
-            bl_found = in_domain(testvalue, bl_dom, 'Blacklist', False) # Blacklist
-            if bl_found is not False:
-                if log: log_info('BLACKLIST-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
-                return True
+        for testvalue in (value + '!', value):
+            if testvalue.endswith('!'):
+                tag = 'FORCED-HIT'
+                listname = 'list!'
+            else:
+                tag = 'HIT'
+                listname = 'list'
+            
+            wl_found = in_domain(testvalue, wl_dom, 'White' + listname, False) # Whitelist
+            if wl_found is not False:
+                if log: log_info('WHITELIST-' + tag + ' [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
+                return False
+            else:
+                bl_found = in_domain(testvalue, bl_dom, 'Black' + listname, False) # Blacklist
+                if bl_found is not False:
+                    if log: log_info('BLACKLIST-' + tag + ' [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
+                    return True
 
 
     # If it is not an IP, check validity and against regex
@@ -686,9 +683,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
         count += 1
         if count > 2: # Disembark after 3 seconds
             log_info('DNS-QUERY [' + hid + ']: Skipping query for ' + queryname + ' - ID (' + hid + ') already processing, takes more then 3 secs')
-            reply = request.reply()
-            reply.header.rcode = getattr(RCODE, 'SERVFAIL')
-            return reply
+            return rc_reply(request, 'SERVFAIL')
 
         log_info('DNS-QUERY [' + hid + ']: delaying (' + str(count) + ') query for ' + queryname + ' - ID (' + hid + ') already in progress, waiting to finish')
         time.sleep(1) # Seconds
@@ -829,19 +824,17 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     # No response or SafeDNS interception
     if reply is None or reply is False:
         #cache.clear()
-        reply = query.reply()
-        reply.header.id = tid
-        if reply is False:
+        if reply is False: # SafeDNS catch
             log_err('DNS-QUERY [' + hid + ']: SafeDNS Block ' + queryname + ' ' + str(hitrcode))
-            if hitrcode == 'NODATA':
-                reply.header.rcode = getattr(RCODE, 'NOERROR')
-            else:
-                reply.header.rcode = getattr(RCODE, hitrcode)
-        else:
-            log_err('DNS-QUERY [' + hid + ']: ERROR Resolving ' + queryname + ' ' + str(hitrcode))
-            reply.header.rcode = getattr(RCODE, 'SERVFAIL')
+            reply = rc_reply(query, hitrcode)
+        else: # Regurlar error
+            log_err('DNS-QUERY [' + hid + ']: ERROR Resolving ' + queryname + ' SERVFAIL')
+            reply = rc_reply(query, 'SERVFAIL')
+
+        reply.header.id = tid
 
         _ = pending.pop(uid, None)
+
         return reply
 
     # Clear broken-forwarder cache entries
@@ -911,8 +904,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                     log_info('REPLY [' + hid + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR')
 
     else:
-        reply = request.reply()
-        reply.header.rcode = getattr(RCODE, rcode)
+        reply = rc_reply(request, rcode)
         log_info('RCODE-REPLY [' + hid + ']: ' + queryname + ' = ' + rcode)
 
 
@@ -949,26 +941,18 @@ def generate_response(request, qname, qtype, redirect_addrs, force):
     '''Generate response when blocking'''
     queryname = qname + '/IN/' + qtype
 
-    reply = request.reply()
-
     if (len(redirect_addrs) > 0) and any(x.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED') for x in redirect_addrs):
         for addr in redirect_addrs:
             if addr.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED'):
                 log_info('GENERATE: ' + addr + ' for ' + queryname)
-                if addr.upper() == 'NODATA':
-                    reply.header.rcode = getattr(RCODE, 'NOERROR') # just respond with no RR's
-                else:
-                    reply.header.rcode = getattr(RCODE, addr.upper())
-                break
+                reply = rc_reply(request, addr.upper())
 
     elif (len(redirect_addrs) == 0) or (qtype not in ('A', 'AAAA', 'CNAME')):
         log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
-        if hitrcode == 'NODATA':
-            reply.header.rcode = getattr(RCODE, 'NOERROR') # just respond with no RR's
-        else:
-            reply.header.rcode = getattr(RCODE, hitrcode)
+        reply = rc_reply(request, hitrcode)
 
     else:
+        reply = rc_reply(request, 'NOERROR')
         addanswer = set()
         for addr in redirect_addrs:
             answer = None
@@ -988,14 +972,9 @@ def generate_response(request, qname, qtype, redirect_addrs, force):
 
         if len(addanswer) > 0:
             log_info('GENERATE: REDIRECT/NOERROR for ' + queryname + ' -> ' + ', '.join(addanswer))
-            reply.header.rcode = getattr(RCODE, 'NOERROR')
         else:
-            if hitrcode == 'NODATA':
-                rcode = 'NOERROR'
-            else:
-                rcode = hitrcode
+            reply = rc_reply(request, hitrcode)
             log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
-            reply.header.rcode = getattr(RCODE, rcode)
 
     to_cache(qname, 'IN', qtype, reply, force, filterttl)
 
@@ -1008,9 +987,8 @@ def generate_alias(request, qname, qtype, use_tcp, force):
 
     realqname = normalize_dom(request.q.qname)
 
-    reply = request.reply()
+    reply = rc_reply(request, 'NOERROR')
     reply.header.id = request.header.id
-    reply.header.rcode = getattr(RCODE, 'NOERROR')
 
     if qname in aliases:
         alias = aliases[qname]
@@ -1041,16 +1019,12 @@ def generate_alias(request, qname, qtype, use_tcp, force):
 
     aliasqname = False
     if alias.upper() in ('NODATA', 'NOTAUTH', 'NXDOMAIN', 'RANDOM', 'REFUSED'):
-        reply = request.reply()
         if alias.upper() == 'RANDOM':
             log_info('ALIAS-HIT: ' + queryname + ' = RANDOM-NXDOMAIN')
-            reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+            reply = rc_reply(request, 'NXDOMAIN')
         else:
             log_info('ALIAS-HIT: ' + queryname + ' = ' + alias.upper())
-            if alias.upper() == 'NODATA':
-                reply.header.rcode = getattr(RCODE, 'NOERROR')
-            else:
-                reply.header.rcode = getattr(RCODE, alias.upper())
+            reply = rc_reply(request, alias.upper())
 
     elif ipregex.search(alias) and qtype in ('A', 'AAAA', 'CNAME'):
         log_info('ALIAS-HIT: ' + queryname + ' = REDIRECT-TO-IP -> ' + alias)
@@ -1098,12 +1072,10 @@ def generate_alias(request, qname, qtype, use_tcp, force):
                         reply.add_answer(answer)
 
             else:
-                reply = request.reply()
-                reply.header.rcode = getattr(RCODE, rcode)
+                reply = rc_reply(request, rcode)
 
     else:
-        reply = request.reply()
-        reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+        reply = rc_reply(request, 'NXDOMAIN')
 
 
     if str(RCODE[reply.header.rcode]) == 'NOERROR':
@@ -1383,8 +1355,9 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
             # !!! Note: Accomplist already did the logic and clean whitelist. If using other cleanup yourself, no code for that here.
             forced = False
             if entry.endswith('!'):
-                forced = True
-                entry = entry[:-1]
+                entry = entry.rstrip('!')
+                if isdomain.search(entry):
+                    forced = True
 
             # If entry ends in ampersand, it is a "safelisted" entry. Not supported.
             if entry.endswith('&'):
@@ -1667,9 +1640,10 @@ def unreg_dom(rxlist, domlist, listname):
     before = len(domlist)
     domains = dict()
     for domain in domlist.keys():
-        rx = in_regex(domain, rxlist, False, 'Unreg-DOM ' + listname)
-        if rx:
-            domains[domain] = rx
+        if not domain.endswith('!'):
+            rx = in_regex(domain, rxlist, False, 'Unreg-DOM ' + listname)
+            if rx:
+                domains[domain] = rx
 
     for domain in domains.keys():
         if debug: log_info('DOMLIST-UNREG [' + listname + ']: Removing domain ' + domain + ' (' + domlist[domain] + '), already covered by ' + domains[domain])
@@ -2126,8 +2100,7 @@ def collapse_cname(request, reply, rid):
                     addr.add(ip)
 
             if len(addr) > 0:
-                reply = request.reply()
-                reply.header.rcode = getattr(RCODE, 'NOERROR')
+                reply = rc_reply(request, 'NOERROR')
                 count = 0
                 total = str(len(addr))
                 for ip in addr:
@@ -2143,8 +2116,7 @@ def collapse_cname(request, reply, rid):
 
                     reply.add_answer(answer)
             else:
-                reply = request.reply()
-                reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+                reply = rc_reply(request, 'NXDOMAIN')
 
     return reply
 
@@ -2245,6 +2217,18 @@ def is_weird(qname, qtype):
     return False
 
 
+def rc_reply(request, rcode):
+    '''Generate empty reply with rcode'''
+    reply = request.reply()
+    rcode = rcode.upper()
+    if debug: log_info('RCODE: ' + normalize_dom(request.q.qname) + '/' + QTYPE[request.q.qtype].upper() + ' = ' + rcode)
+    if rcode == 'NODATA':
+        reply.header.rcode = getattr(RCODE, 'NOERROR')
+    else:
+        reply.header.rcode = getattr(RCODE, rcode)
+    return reply
+
+    
 def do_query(request, handler, force):
     '''Main DNS resolution function'''
     rid = request.header.id
@@ -2269,20 +2253,17 @@ def do_query(request, handler, force):
     # Check ACL
     if ipregex.search(cip) and (cip not in allow_query4) and (cip not in allow_query6):
         log_info('ACL-HIT [' + tid + ']: Request from ' + cip + ' for ' + queryname + ' ' + aclrcode)
-        reply = request.reply()
-        reply.header.rcode = getattr(RCODE, aclrcode)
+        reply = rc_reply(request, aclrcode)
 
     # Execute Command
     if command and qname.endswith('.' + command):
-        reply = request.reply()
         if cip in ('127.0.0.1', '::1'):
             if execute_command(qname, True):
-                reply.header.rcode = getattr(RCODE, 'NOERROR')
+                reply = rc_reply(request, 'NOERROR')
             else:
-                reply.header.rcode = getattr(RCODE, 'NOTIMP')
+                reply = rc_reply(request, 'NOTIMP')
         else:
-            reply.header.rcode = getattr(RCODE, 'REFUSED')
-
+            reply = rc_reply(request, 'REFUSED')
 
     # Quick response when in cache
     if reply is None and force is False:
@@ -2298,13 +2279,7 @@ def do_query(request, handler, force):
             if cacheentry is not None:
                 rcode = str(RCODE[cacheentry[0].header.rcode])
                 if len(cacheentry[0].rr) == 0 and rcode in ('NODATA', 'NOERROR', 'NXDOMAIN', 'REFUSED', 'SERVFAIL'):
-                    reply = request.reply()
-                    if rcode == 'NOERROR':
-                        reply.header.rcode = getattr(RCODE, 'NOERROR')
-                        rcode = 'NODATA'
-                    else:
-                        reply.header.rcode = getattr(RCODE, rcode)
-
+                    reply = rc_reply(request, rcode)
                     log_info('CACHE-PARENT-MATCH [' + tid + ']: \"' + qname + '\" matches parent \"' + dom + '\" ' + rcode)
                     log_info('REPLY [' + tid + ']: ' + queryname + ' = ' + rcode)
                     now = int(time.time())
@@ -2319,26 +2294,17 @@ def do_query(request, handler, force):
         # Filter if qtype = ANY, QCLASS is something else then "IN" and query-type is not supported
         if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
             log_info('BLOCK-UNSUPPORTED-RRTYPE [' + tid + '] from ' + cip + ': ' + queryname + ' NOTIMP')
-            reply = request.reply()
-            reply.header.rcode = getattr(RCODE, 'NOTIMP')
+            reply = rc_reply(request, 'NOTIMP')
 
         # Block IPv4 based queries when client request comes in on IPv6
         elif blockv4 is None and ipregex6.search(cip) and (qtype == 'A' or (qtype == 'PTR' and ip4arpa.search(qname))):
             log_info('AUTOBLOCK-IPV4-HIT [' + tid + '] from ' + cip + ': ' + queryname + ' ' + hitrcode)
-            reply = request.reply()
-            if hitrcode == 'NODATA':
-                reply.header.rcode = getattr(RCODE, 'NOERROR')
-            else:
-                reply.header.rcode = getattr(RCODE, hitrcode)
+            reply = rc_reply(request, hitrcode)
 
         # Block IPv6 based queries when client request comes in on IPv4
         elif blockv6 is None and ipregex4.search(cip) and (qtype == 'AAAA' or (qtype == 'PTR' and ip6arpa.search(qname))):
             log_info('AUTOBLOCK-IPV6-HIT [' + tid + '] from ' + cip + ': ' + queryname + ' ' + hitrcode)
-            reply = request.reply()
-            if hitrcode == 'NODATA':
-                reply.header.rcode = getattr(RCODE, 'NOERROR')
-            else:
-                reply.header.rcode = getattr(RCODE, hitrcode)
+            reply = rc_reply(request, hitrcode)
 
         # Generate ALIAS response when hit
         elif filtering and in_domain(qname, aliases, 'Alias', False) and (not in_regex(qname, aliases_rx, True, 'Generator')) and (not in_domain(qname, forward_servers, 'Forward', False)):
@@ -2351,8 +2317,7 @@ def do_query(request, handler, force):
                     dname = qname.rstrip('.' + sdom)
                     if in_cache(dname, 'IN', qtype):
                         log_info('SEARCH-HIT [' + tid + ']: \"' + qname + '\" matched \"' + dname + ' . ' + sdom + '\"')
-                        reply = request.reply()
-                        reply.header.rcode = getattr(RCODE, 'NOERROR') # Empty response, NXDOMAIN provides other search-requests
+                        reply = rc_reply(request, 'NOERROR') # Empty response, NXDOMAIN provides other search-requests
                         break
 
         # Check query/response against lists
@@ -2384,10 +2349,7 @@ def do_query(request, handler, force):
                         rcode = generated.upper()
                         if rcode in ('NODATA', 'NXDOMAIN', 'REFUSED'):
                             log_info('GENERATED-HIT [' + tid + ']: \"' + qname + '/' + qtype + '\" -> \"' + rcode + '\"')
-                            reply = request.reply()
-                            if rcode == 'NODATA':
-                                rcode = 'NOERROR'
-                            reply.header.rcode = getattr(RCODE, rcode)
+                            reply = rc_reply(request, rcode)
 
                         else:
                             if ipregex.search(generated):
@@ -2405,14 +2367,12 @@ def do_query(request, handler, force):
 
                             if answer:
                                 log_info('GENERATED-HIT [' + tid + ']: \"' + qname + '/' + qtype + '\" -> \"' + generated + '\"')
-                                reply = request.reply()
-                                reply.header.rcode = getattr(RCODE, 'NOERROR')
+                                reply = rc_reply(request, 'NOERROR')
                                 reply.add_answer(answer)
 
                             else:
                                 log_err('GENERATED-ERROR [' + tid + ']: INVALID/UNSUPPORTED TYPE/DATA \"' + qname + '/' + qtype + '\" -> \"' + generated + '\"')
-                                reply = request.reply()
-                                reply.header.rcode = getattr(RCODE, 'NXDOMAIN')
+                                reply = rc_reply(request, 'NXDOMAIN')
 
             else: # Non-filtering
                 reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, False, force)
@@ -2529,7 +2489,7 @@ def white_label():
         if (not dom.endswith('.arpa')) and (not ipregex.search(dom)) and (not ip4arpa.search(dom)) and (not ip6arpa.search(dom)):
             for label in regex.split('[\._-]', dom):
                 if len(label) > 2 and (not label.isdigit()) and (label not in wordlist):
-                    if debug: log_info('RANDOMNESS: Adding label \"' + label + '\"')
+                    #if debug: log_info('RANDOMNESS: Adding label \"' + label + '\"')
                     wordlist.add(label)
 
     # Add some static words !!! ADD this as config option !!!
