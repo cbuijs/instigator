@@ -1,12 +1,15 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1539764727                  ###
+### Version: 1539785972                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
 
 ### SAFELIST DOMAINS ###
 bank!	Safelist-Chris-White-TLDS
+goog!	Safelist-Chris-Specual-White
+dnscrypt.info!	Safelist-Chris-Specual-White
+dnsdb.info!	Safelist-Chris-Specual-White
 insurance!	Safelist-Chris-White-TLDS
 ntp.org!	Chris-Exclude
 ### SAFEUNWHITELIST DOMAINS ###
@@ -6087,7 +6090,6 @@ gba.gi	Shalla-Banking
 goo.gl	Chris-White, Notracking-Whitelist
 cbg.gm	Shalla-Banking
 trustbank.gm	Shalla-Banking
-goog	Chris-White
 gov	Chris-White
 bdaf.gp	Shalla-Banking
 alpha.gr	Shalla-Banking
@@ -6229,8 +6231,6 @@ syndicatebank.in	Shalla-Banking, Adguard-Banks
 syndonline.in	Adguard-Banks
 yesbank.in	Shalla-Banking
 bankofestonia.info	Shalla-Banking
-dnscrypt.info	Chris-White
-dnsdb.info	Chris-White
 mediserv.info	Adguard-Banks
 privatebanking.info	Shalla-Banking, UT1-Banking
 tristateleague.info	Shalla-Banking
