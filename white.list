@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1539850917                  ###
+### Version: 1539889791                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -10,6 +10,7 @@ bank!	Safelist-Chris-White-TLDS
 goog!	Safelist-Chris-Special-White
 dnscrypt.info!	Safelist-Chris-Special-White
 dnsdb.info!	Safelist-Chris-Special-White
+public-dns.info!	Safelist-Chris-Special-White
 insurance!	Safelist-Chris-White-TLDS
 ntp.org!	Chris-Exclude
 ### SAFEUNWHITELIST DOMAINS ###
@@ -6884,6 +6885,7 @@ seesaa.net	Notracking-Whitelist
 slideshare.net	Notracking-Whitelist
 sma-trade.net	UT1-Financial
 southportbank.net	Shalla-Banking, UT1-Banking
+speedtest.net	Chris-White
 bankofamerica.com.srip.net	Shalla-Banking
 sterlingsavingsbank.net	Shalla-Banking, UT1-Banking
 susquehanna.net	Shalla-Banking
