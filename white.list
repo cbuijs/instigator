@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1539889791                  ###
+### Version: 1539890535                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -6865,6 +6865,7 @@ mortgage-rates-guide.net	UT1-Financial
 fe3.delivery.dsp.mp.microsoft.com.nsatc.net	Notracking-Whitelist
 nbcume.sc.omtrdc.net	Chris-White
 bankofamerica.tt.omtrdc.net	Chris-White
+ooklaserver.net	Chris-White
 parex.net	Shalla-Banking
 php.net	Notracking-Whitelist
 plantersbank.net	Shalla-Banking
