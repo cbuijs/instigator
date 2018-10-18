@@ -158,6 +158,7 @@ lists['whitelist'] = basedir + 'white.list' # Whitelist
 lists['aliases'] = basedir + 'aliases.list' # Aliases/Forwards/TTLS/etc
 lists['malicious-ip'] = basedir + 'malicious-ip.list' # Bad IP's
 lists['tlds'] = basedir + 'tlds.list' # Allowed TLD's, negated regex-list, generates NXDOMAIN for none IANA TLD's
+lists['nat'] = basedir + 'nat-reflect.list' # Handout local IP's for public names hosted locally
 
 #lists['shalla-ads'] = '/opt/instigator/shallalist/adv/domains'
 #lists['shalla-banking'] = '/opt/instigator/shallalist/finance/banking/domains'
@@ -170,7 +171,7 @@ lists['tlds'] = basedir + 'tlds.list' # Allowed TLD's, negated regex-list, gener
 #lists['shalla-warez'] = '/opt/instigator/shallalist/warez/domains'
 
 blacklist = list(['blacklist', 'shalla-ads', 'shalla-costtraps', 'shalla-porn', 'shalla-gamble', 'shalla-spyware', 'shalla-warez', 'malicious-ip'])
-whitelist = list(['whitelist', 'aliases', 'shalla-banking', 'shalla-updatesites', 'tlds'])
+whitelist = list(['whitelist', 'aliases', 'shalla-banking', 'shalla-updatesites', 'tlds', 'nat'])
 searchdom = set()
 
 # Root servers # !!! WIP
