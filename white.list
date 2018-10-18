@@ -1,20 +1,20 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1539785972                  ###
+### Version: 1539850917                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
 
 ### SAFELIST DOMAINS ###
 bank!	Safelist-Chris-White-TLDS
-goog!	Safelist-Chris-Specual-White
-dnscrypt.info!	Safelist-Chris-Specual-White
-dnsdb.info!	Safelist-Chris-Specual-White
+goog!	Safelist-Chris-Special-White
+dnscrypt.info!	Safelist-Chris-Special-White
+dnsdb.info!	Safelist-Chris-Special-White
 insurance!	Safelist-Chris-White-TLDS
 ntp.org!	Chris-Exclude
 ### SAFEUNWHITELIST DOMAINS ###
 ### WHITELIST REGEXES ###
-/^(.*\.)*((?!(ad|adservice|adword|analytic|gg|googleadapi|google[-]*analytics|gstaticadssl|id|pagead|pagead[-]*googlehosted|partnerad|tagmanager|video[-]*stat|www[-]*google[-]*analytic|www[-]*googletagmanager)[s]*).)*\.google\.([a-z]{2,3}\.)*[a-z]{2,3}$/	Chris-Regex-White
+/^(.*\.)*((?!(ad|adservice|adword|analytic|gg|googleadapi|google[-]*analytics|gstaticadssl|id|marketing([-]*platform)*|pagead|pagead[-]*googlehosted|partnerad|tagmanager|video[-]*stat|www[-]*google[-]*analytic|www[-]*googletagmanager)[s]*).)*\.google\.([a-z]{2,3}\.)*[a-z]{2,3}$/	Chris-Regex-White
 /^(imap|pop|smtp)\.g(oogle)*mail\.com$/	Chris-Regex-White
 /^(.*\.)*((?!font[s]*).)*\.googleapis\.com$/	Chris-Regex-White
 /^(.*\.)*((?!metric[s]*).)*\.gstatic\.com$/	Chris-Regex-White
@@ -8523,6 +8523,7 @@ AS36692	Chris-ASN-White
 146.112.96.0/20	Chris-ASN-White-AS36692
 146.112.128.0/21	Chris-ASN-White-AS36692
 146.112.136.0/24	Chris-ASN-White-AS36692
+146.112.138.0/24	Chris-ASN-White-AS36692
 146.112.160.0/21	Chris-ASN-White-AS36692
 146.112.190.0/24	Chris-ASN-White-AS36692
 146.112.192.0/22	Chris-ASN-White-AS36692
