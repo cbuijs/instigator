@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.70-20181017 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.71-20181019 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -753,7 +753,8 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                     if debug: log_info('DNS-RTT [' + hid + ']: ' + str(qend - qstart) + ' seconds')
                     reply = DNSRecord.parse(q)
 
-                except BaseException as error:
+                except BaseException as err:
+                    error = err
                     success = False
 
                 if success is True:
