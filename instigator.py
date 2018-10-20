@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.75-20181020 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.76-20181020 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -407,10 +407,11 @@ def file_exist(file, isdb):
     return False
 
 
-def match_blacklist(rid, rtype, rrtype, value, log):
+def match_blacklist(rid, rtype, rrtype, value):
     '''Check lists/cache'''
-    if value in match_cache:
-        result = match_cache.get(value, None)
+    cachekey = hash(rtype + '/' + value + '/' + rrtype)
+    if cachekey in match_cache:
+        result = match_cache.get(cachekey, None)
         if result is None:
             status = 'NOTLISTED'
         elif result is False:
@@ -418,15 +419,15 @@ def match_blacklist(rid, rtype, rrtype, value, log):
         else:
             status = 'BLACKLISTED'
 
-        log_info('MATCH-CACHE [' + id_str(rid) + ']: ' + rtype + ' ' + value + '/' + rrtype + ' = ' + status)
+        if debug: log_info('MATCH-CACHE [' + id_str(rid) + ']: ' + rtype + ' ' + value + '/' + rrtype + ' = ' + status)
     else:
-        result = check_blacklist(rid, rtype, rrtype, value, log)
-        match_cache[value] = result
+        result = check_blacklist(rid, rtype, rrtype, value)
+        match_cache[cachekey] = result
 
     return result
 
 
-def check_blacklist(rid, rtype, rrtype, value, log):
+def check_blacklist(rid, rtype, rrtype, value):
     '''
     Check if entry matches a list
     Returns:
@@ -497,10 +498,10 @@ def check_blacklist(rid, rtype, rrtype, value, log):
         asn, prefix, owner = who_is(testvalue, '[' + tid + '] ' + rtype)
         if asn != '0':
             if asn in wl_asn: # Whitelist
-                if log: log_info('WHITELIST-ASN-HIT [' + tid + ']: ' + rtype + ' ' + value + '/' + testvalue + ' matched against \"AS' + asn + '\" (' + wl_asn[asn] + '/' + prefix + ') - ' + owner)
+                log_info('WHITELIST-ASN-HIT [' + tid + ']: ' + rtype + ' ' + value + '/' + testvalue + ' matched against \"AS' + asn + '\" (' + wl_asn[asn] + '/' + prefix + ') - ' + owner)
                 return False
             elif asn in bl_asn: # Blacklist
-                if log: log_info('BLACKLIST-ASN-HIT [' + tid + ']: ' + rtype + ' ' + value + '/' + testvalue + ' matched against \"AS' + asn + '\" (' + bl_asn[asn] + '/' + prefix + ') - ' + owner)
+                log_info('BLACKLIST-ASN-HIT [' + tid + ']: ' + rtype + ' ' + value + '/' + testvalue + ' matched against \"AS' + asn + '\" (' + bl_asn[asn] + '/' + prefix + ') - ' + owner)
                 return True
 
         if testvalue.find(':') == -1:
@@ -524,10 +525,10 @@ def check_blacklist(rid, rtype, rrtype, value, log):
             testvalue = value + '/' + testvalue
 
         if found:
-            if log: log_info('BLACKLIST-IP-HIT [' + tid + ']: ' + rtype + ' ' + testvalue + ' matched against ' + prefix + ' (' + bip[prefix] + ')')
+            log_info('BLACKLIST-IP-HIT [' + tid + ']: ' + rtype + ' ' + testvalue + ' matched against ' + prefix + ' (' + bip[prefix] + ')')
             return True
         elif prefix:
-            if log: log_info('WHITELIST-IP-HIT [' + tid + ']: ' + rtype + ' ' + testvalue + ' matched against ' + prefix + ' (' + wip[prefix] + ')')
+            log_info('WHITELIST-IP-HIT [' + tid + ']: ' + rtype + ' ' + testvalue + ' matched against ' + prefix + ' (' + wip[prefix] + ')')
             return False
 
 
@@ -543,12 +544,12 @@ def check_blacklist(rid, rtype, rrtype, value, log):
             
             wl_found = in_domain(testvalue, wl_dom, 'White' + listname, False) # Whitelist
             if wl_found is not False:
-                if log: log_info('WHITELIST-' + tag + ' [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
+                log_info('WHITELIST-' + tag + ' [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
                 return False
             else:
                 bl_found = in_domain(testvalue, bl_dom, 'Black' + listname, False) # Blacklist
                 if bl_found is not False:
-                    if log: log_info('BLACKLIST-' + tag + ' [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
+                    log_info('BLACKLIST-' + tag + ' [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
                     return True
 
 
@@ -557,16 +558,16 @@ def check_blacklist(rid, rtype, rrtype, value, log):
         # Catchall: Check agains Regex-Lists
         rxfound = in_regex(value, wl_rx, False, 'Whitelist') # Whitelist
         if rxfound:
-            if log: log_info('WHITELIST-REGEX-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against ' + rxfound)
+            log_info('WHITELIST-REGEX-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against ' + rxfound)
             return False
 
         rxfound = in_regex(value, bl_rx, False, 'Blacklist') # Blacklist
         if rxfound:
-            if log: log_info('BLACKLIST-REGEX-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against ' + rxfound)
+            log_info('BLACKLIST-REGEX-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against ' + rxfound)
             return True
 
     # No hits
-    if debug and log: log_info('NONE-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" does not match against any lists')
+    if debug: log_info('NONE-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" does not match against any lists')
 
     return None
 
@@ -886,7 +887,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                 data = normalize_dom(record.rdata)
 
                 if replycount > 1: # Query-part of first RR in RRSET set already checked
-                    matchreq = match_blacklist(tid, 'CHAIN', rqtype, rqname, True)
+                    matchreq = match_blacklist(tid, 'CHAIN', rqtype, rqname)
                     if matchreq is False:
                         break
                     elif matchreq is True:
@@ -911,7 +912,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                             log_info('REBIND-ALLOW: ' + rqname + '/IN/' + rqtype + ' = ' + data + '(DNS Server in REBIND ranges)')
 
                     if blockit is False:
-                        matchrep = match_blacklist(tid, 'REPLY', rqtype, data, True)
+                        matchrep = match_blacklist(tid, 'REPLY', rqtype, data)
                         if matchrep is False:
                             break
                         elif matchrep is True:
@@ -2358,7 +2359,7 @@ def do_query(request, handler, force):
                         generated = in_regex(qname, aliases_rx, True, 'Generator')
 
                     if generated is False:
-                        ismatch = match_blacklist(rid, 'REQUEST', qtype, qname, True)
+                        ismatch = match_blacklist(rid, 'REQUEST', qtype, qname)
                         if ismatch is True: # Blacklisted
                             reply = generate_response(request, qname, qtype, redirect_addrs, force)
                         elif ismatch is None and checkresponse: # Not listed
