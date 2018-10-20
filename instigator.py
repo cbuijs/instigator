@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.71-20181019 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.75-20181020 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -103,7 +103,7 @@ forward_servers = dict()
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
-forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '1.0.0.1@53', '8.8.8.8@53', '8.8.4.4@53']) # Default Quad9/CloudFlare/Google (Unfiltered versions)
+#forward_servers['.'] = list(['9.9.9.10@53', '149.112.112.10@53', '1.1.1.1@53', '1.0.0.1@53', '8.8.8.8@53', '8.8.4.4@53']) # Default Quad9/CloudFlare/Google (Unfiltered versions)
 #forward_servers['.'] = list(['172.16.1.1@53']) # DEFAULT Eero/Gateway
 #forward_servers['.'] = list(['172.16.1.1@53','9.9.9.9@53', '149.112.112.112@53']) # DEFAULT Eero/Gateway fallback Quad9
 #forward_servers['.'] = list(['172.16.1.1@53','209.244.0.3@53','209.244.0.4@53']) # DEFAULT Eero/Gateway plus fallback level-3
@@ -302,6 +302,7 @@ ttls = OrderedDict() # TTL aliases
 # Work caches
 indom_cache = dict() # Cache results of domain hits
 inrx_cache = dict() # Cache result of regex hits
+match_cache = dict() # Cache results of match_blacklist
 
 # Cache
 cache = dict() # DNS cache
@@ -407,6 +408,25 @@ def file_exist(file, isdb):
 
 
 def match_blacklist(rid, rtype, rrtype, value, log):
+    '''Check lists/cache'''
+    if value in match_cache:
+        result = match_cache.get(value, None)
+        if result is None:
+            status = 'NOTLISTED'
+        elif result is False:
+            status = 'WHITELISTED'
+        else:
+            status = 'BLACKLISTED'
+
+        log_info('MATCH-CACHE [' + id_str(rid) + ']: ' + rtype + ' ' + value + '/' + rrtype + ' = ' + status)
+    else:
+        result = check_blacklist(rid, rtype, rrtype, value, log)
+        match_cache[value] = result
+
+    return result
+
+
+def check_blacklist(rid, rtype, rrtype, value, log):
     '''
     Check if entry matches a list
     Returns:
@@ -2481,6 +2501,33 @@ def read_config(file):
     return True
 
 
+def get_dns_servers(file, fservers):
+    log_info('CONFIG: Loading nameservers from \"' + file + '\"')
+    try:
+        f = open(file)
+        lines = f.readlines()
+        f.close()
+
+    except BaseException as err:
+        log_err('ERROR: Unable to open/read/process file \"' + file + '\" - ' + str(err))
+
+    ns = list()
+    for line in lines:
+        entry = regex.split('#', line)[0].strip().lower()
+        if len(entry) > 0:
+            elements = regex.split('\s+', entry)
+            if elements[0] == 'nameserver':
+                for ip in elements[1:]:
+                    if ip not in ns and ipregex.search(ip):
+                        log_info('CONFIG: Fetched ' + elements[0] + ' \"' + ip + '\" from \"' + file + '\"')
+                        ns.append(ip)
+
+    if len(ns) > 0:
+        fservers['.'] = ns
+
+    return fservers
+
+
 def white_label():
     '''Add all labels of whitelisted domains to freqency list'''
     global wl_dom
@@ -2533,6 +2580,10 @@ if __name__ == '__main__':
         # Load IPASN
         if ipasnfile:
             ipasn4, ipasn6 = load_asn(ipasnfile, ipasn4, ipasn6)
+
+        # Get DNS servers from resolv.conf
+        if '.' not in forward_servers:
+            forward_servers = get_dns_servers(resolvfile, forward_servers)
 
         # Whitelist used addresses to unbreak services
         for ip in redirect_addrs:
