@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.76-20181020 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.80-20181020 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -30,6 +30,8 @@ ToDo/Ideas:
 - Add more security-features against hammering, dns-drip, ddos, etc. Status: Backburner.
 - Fix SYSLOG on MacOS. Status: To-be-done.
 - Convert all concatenated strings into .format ones. Status: In Progress
+- HIGH: Maintenance on indom, inrx and match caches !!! Status: In progress
+--- Also save in shelve? Status: Drawingboard/Brainstorm
 
 =========================================================================================
 '''
@@ -69,6 +71,9 @@ from cymruwhois import Client
 # Use zxcvbn to determine guessability. The harder, it probably is more random. To catch DGA.
 from zxcvbn import zxcvbn
 from zxcvbn.matching import add_frequency_lists
+
+# Simple TTL caches
+from cachetools import TTLCache
 
 ###################
 
@@ -300,9 +305,12 @@ aliases_rx = OrderedDict() # Alias generators/regexes
 ttls = OrderedDict() # TTL aliases
 
 # Work caches
-indom_cache = dict() # Cache results of domain hits
-inrx_cache = dict() # Cache result of regex hits
-match_cache = dict() # Cache results of match_blacklist
+#indom_cache = dict() # Cache results of domain hits
+#inrx_cache = dict() # Cache result of regex hits
+#match_cache = dict() # Cache results of match_blacklist
+indom_cache = TTLCache(cachesize, filterttl)
+inrx_cache = TTLCache(cachesize, filterttl)
+match_cache = TTLCache(cachesize, filterttl)
 
 # Cache
 cache = dict() # DNS cache
@@ -410,21 +418,28 @@ def file_exist(file, isdb):
 def match_blacklist(rid, rtype, rrtype, value):
     '''Check lists/cache'''
     cachekey = hash(rtype + '/' + value + '/' + rrtype)
-    if cachekey in match_cache:
+    if nocache is False and cachekey in match_cache:
+        tag = 'MATCH-FROM-CACHE'
         result = match_cache.get(cachekey, None)
-        if result is None:
-            status = 'NOTLISTED'
-        elif result is False:
-            status = 'WHITELISTED'
-        else:
-            status = 'BLACKLISTED'
-
-        if debug: log_info('MATCH-CACHE [' + id_str(rid) + ']: ' + rtype + ' ' + value + '/' + rrtype + ' = ' + status)
     else:
+        tag = 'MATCH-TO-CACHE'
         result = check_blacklist(rid, rtype, rrtype, value)
         match_cache[cachekey] = result
 
+    if rtype != 'CHAIN':
+        log_info(tag + ' [' + id_str(rid) + ']: ' + rtype + ' ' + value + '/' + rrtype + ' = ' + list_status(result))
+
     return result
+
+
+def list_status(result):
+    '''Return status word'''
+    if result is None:
+        return 'NOTLISTED'
+    elif result is False:
+        return 'WHITELISTED'
+
+    return 'BLACKLISTED'
 
 
 def check_blacklist(rid, rtype, rrtype, value):
@@ -575,7 +590,7 @@ def check_blacklist(rid, rtype, rrtype, value):
 def in_domain(name, domlist, domid, checksub):
     '''Check if name is domain or sub-domain'''
     domidname = domid + ':' + name
-    if domidname in indom_cache:
+    if nocache is False and domidname in indom_cache:
         indom = indom_cache.get(domidname, False)
         if indom:
             if debug: log_info('INDOM-CACHE [' + domid + ']: \"' + name + '\" in \"' + indom + '\"')
@@ -604,7 +619,7 @@ def in_domain(name, domlist, domid, checksub):
 def in_regex(name, rxlist, isalias, rxid):
     '''Check if name is matching regex'''
     rxidname = rxid + ':' + name
-    if rxidname in inrx_cache:
+    if nocache is False and rxidname in inrx_cache:
         inrx = inrx_cache.get(rxidname, False)
         if inrx:
             if isalias:
@@ -1123,6 +1138,9 @@ def save_cache(file):
     try:
         s = shelve.DbfilenameShelf(file, flag='n', protocol=4)
         s['cache'] = cache
+        #s['inrx_cache'] = inrx_cache
+        #s['indom_cache'] = indom_cache
+        #s['match_cache'] = match_cache
         s.close()
 
     except BaseException as err:
@@ -1138,6 +1156,9 @@ def load_cache(file):
         return False
 
     global cache
+    #global inrx_cache
+    #global indom_cache
+    #global match_cache
 
     age = file_exist(file, True)
     if age and age < maxfileage:
@@ -1145,6 +1166,9 @@ def load_cache(file):
         try:
             s = shelve.DbfilenameShelf(file, flag='r', protocol=4)
             cache = s['cache']
+            #inrx_cache = s['inrx_cache']
+            #indom_cache = s['indom_cache']
+            #match_cache = s['match_cache']
             s.close()
 
         except BaseException as err:
@@ -2050,6 +2074,12 @@ def cache_maintenance(flushall, olderthen, clist, plist):
             log_info('CACHE-STATS: purged {0} entries, {1} left in cache'.format(before - after, after))
         else:
             log_info('CACHE-STATS: purged {0} entries ({1} RRs), {2} left in cache'.format(before - after, totalrrs, after))
+
+        #inrx_cache.expire()
+        #indom_cache.expire()
+        #match_cache.expire()
+
+        log_info('CACHE-STATS: INRX=' + str(len(inrx_cache)) + ' INDOM=' + str(len(indom_cache)) + ' MATCH=' + str(len(match_cache)) + ' entries')
 
         save_cache(cachefile)
 
