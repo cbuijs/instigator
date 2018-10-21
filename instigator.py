@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.80-20181020 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.82-20181020 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -308,9 +308,9 @@ ttls = OrderedDict() # TTL aliases
 #indom_cache = dict() # Cache results of domain hits
 #inrx_cache = dict() # Cache result of regex hits
 #match_cache = dict() # Cache results of match_blacklist
-indom_cache = TTLCache(cachesize, filterttl)
-inrx_cache = TTLCache(cachesize, filterttl)
-match_cache = TTLCache(cachesize, filterttl)
+indom_cache = TTLCache(cachesize, filterttl * 4)
+inrx_cache = TTLCache(cachesize, filterttl * 4)
+match_cache = TTLCache(cachesize, filterttl * 4)
 
 # Cache
 cache = dict() # DNS cache
@@ -426,8 +426,8 @@ def match_blacklist(rid, rtype, rrtype, value):
         result = check_blacklist(rid, rtype, rrtype, value)
         match_cache[cachekey] = result
 
-    if rtype != 'CHAIN':
-        log_info(tag + ' [' + id_str(rid) + ']: ' + rtype + ' ' + value + '/' + rrtype + ' = ' + list_status(result))
+    #if debug:
+    log_info(tag + ' [' + id_str(rid) + ']: ' + rtype + ' ' + value + '/' + rrtype + ' = ' + list_status(result))
 
     return result
 
@@ -863,7 +863,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     if reply is None or reply is False:
         #cache.clear()
         if reply is False: # SafeDNS catch
-            log_err('DNS-QUERY [' + hid + ']: SafeDNS Block ' + queryname + ' ' + str(hitrcode))
+            log_err('DNS-QUERY [' + hid + ']: SAFEDNS Block ' + queryname + ' ' + str(hitrcode))
             reply = rc_reply(query, hitrcode)
         else: # Regurlar error
             log_err('DNS-QUERY [' + hid + ']: ERROR Resolving ' + queryname + ' SERVFAIL')
@@ -893,6 +893,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
         if checkbl and reply.rr:
             replycount = 0
             replynum = len(reply.rr)
+            matched = set()
 
             for record in reply.rr:
                 replycount += 1
@@ -902,11 +903,15 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                 data = normalize_dom(record.rdata)
 
                 if replycount > 1: # Query-part of first RR in RRSET set already checked
-                    matchreq = match_blacklist(tid, 'CHAIN', rqtype, rqname)
-                    if matchreq is False:
-                        break
-                    elif matchreq is True:
-                        blockit = True
+                    if rqtype not in matched:
+                        matchreq = match_blacklist(tid, 'CHAIN', rqtype, rqname)
+                        if matchreq is False:
+                            break
+                        elif matchreq is True:
+                            blockit = True
+                    else:
+                        matched.add(rqname)
+                        matchreq = None
                 else:
                     if debug: log_info('REPLY-QUERY-SKIP: ' + rqname + '/IN/' + rqtype)
 
