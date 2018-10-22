@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.85-20181021 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.86-20181021 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -317,6 +317,7 @@ list_status = dict()
 list_status[True] = 'BLACKLISTED'
 list_status[False] = 'WHITELISTED'
 list_status[None] = 'NOTLISTED'
+list_status['EXPIRED'] = 'EXPIRED'
 
 # Cache
 cache = dict() # DNS cache
@@ -424,13 +425,16 @@ def file_exist(file, isdb):
 def match_blacklist(rid, rtype, rrtype, value):
     '''Check lists/cache'''
     cachekey = hash(value + '/' + rrtype)
+    result = 'EXPIRED'
     if nocache is False and cachekey in match_cache:
         tag = 'MATCH-FROM-CACHE'
-        result = match_cache.get(cachekey, None)
-    else:
+        result = match_cache.get(cachekey, 'EXPIRED')
+
+    if result == 'EXPIRED':
         tag = 'MATCH-TO-CACHE'
         result = check_blacklist(rid, rtype, rrtype, value)
-        match_cache[cachekey] = result
+        if nocache is False:
+            match_cache[cachekey] = result
 
     if debug:
         log_info(tag + ' [' + id_str(rid) + ']: ' + rtype + ' ' + value + '/' + rrtype + ' = ' + list_status.get(result, 'NOTLISTED'))
@@ -1366,11 +1370,6 @@ def log_totals():
     return True
 
 
-def normalize_dom(dom):
-    '''Normalize Domain Names'''
-    return str(dom).strip().strip('.').lower() or '.'
-
-
 # Read filter lists, see "accomplist" to provide ready-2-use lists:
 # https://github.com/cbuijs/accomplist
 def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, alist, flist, tlist, asnlist):
@@ -1709,6 +1708,11 @@ def unreg_dom(rxlist, domlist, listname):
     return domlist
 
 
+def normalize_dom(dom):
+    '''Normalize Domain Names'''
+    return str(dom).strip().strip('.').lower() or '.'
+
+
 def normalize_ttl(qname, rr):
     '''Normalize TTL's, all RR's in a RRSET will get the same TTL based on strategy (see below)'''
     if filtering:
@@ -1905,9 +1909,11 @@ def to_cache(qname, qclass, qtype, reply, force, newttl, comment):
     '''Store into cache'''
     global cache_maintenance_now
 
+    # No caching
     if nocache or reply == defaultlist or reply is None:
         return False
 
+    # Already in cache
     if force is False and in_cache(qname, qclass, qtype):
         return True
 
@@ -1915,6 +1921,7 @@ def to_cache(qname, qclass, qtype, reply, force, newttl, comment):
     rcode = str(RCODE[reply.header.rcode])
     ttl = nottl
 
+    # Override TTL
     if not newttl:
         newttl = in_domain(qname, ttls, 'TTL', False)
         if newttl:
@@ -1947,13 +1954,6 @@ def cache_expired_list():
     '''get list of purgable items'''
     now = int(time.time())
     return list(dict((k, v) for k, v in cache.items() if v[1] - now < 1).keys()) or False
-
-
-#def broken_exist():
-#    '''Check if we have broken forwarders'''
-#    if len(list(dict((k, v) for k, v in cache.items() if v[2].find('/BROKEN-FORWARDER/') > 0).keys())) > 0:
-#        return True
-#    return False
 
 
 def no_noerror_list():
@@ -2082,6 +2082,7 @@ def cache_maintenance(flushall, olderthen, clist, plist):
         else:
             log_info('CACHE-STATS: purged {0} entries ({1} RRs), {2} left in cache'.format(before - after, totalrrs, after))
 
+        # Expiration of TTLCache not needed, is addresses quickly enough
         #inrx_cache.expire()
         #indom_cache.expire()
         #match_cache.expire()
