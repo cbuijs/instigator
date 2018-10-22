@@ -18,18 +18,18 @@
 #www.google.com=forcesafesearch.google.com
 #www.google.fr=forcesafesearch.google.com
 #www.google.nl=forcesafesearch.google.com
-#/^www\.google\.(.*)$/=forcesafesearch.google.com
+/^www\.google\.(.*)$/=forcesafesearch.google.com
 
 # SafeSearch Bing
 #www.bing.com=strict.bing.com
-#/^www\.bing\.(.*)$/=strict.bing.com
+/^www\.bing\.(.*)$/=strict.bing.com
 
 # SafeSearch YouTube
-#www.youtube.com=restrictmoderate.youtube.com
-#m.youtube.com=restrictmoderate.youtube.com
-#youtubei.googleapis.com=restrictmoderate.youtube.com
-#youtube.googleapis.com=restrictmoderate.youtube.com
-#www.youtube-nocookie.com=restrictmoderate.youtube.com
+www.youtube.com=restrictmoderate.youtube.com
+m.youtube.com=restrictmoderate.youtube.com
+youtubei.googleapis.com=restrictmoderate.youtube.com
+youtube.googleapis.com=restrictmoderate.youtube.com
+www.youtube-nocookie.com=restrictmoderate.youtube.com
 
 # Lockdown NTP
 pool.ntp.org=north-america.pool.ntp.org
