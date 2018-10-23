@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.91-20181022 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.93-20181023 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -46,7 +46,7 @@ gc.enable() # Enable garbage collection
 
 # Random
 import random
-random.seed(os.urandom(128))
+random.seed(os.urandom(256))
 
 # Syslogging / Logging
 import syslog
@@ -430,7 +430,7 @@ def file_exist(file, isdb):
 
 def match_blacklist(rid, rtype, rrtype, value):
     '''Check lists/cache'''
-    # When reply, only check RRTypes that have a data-field ending in an IP or Domain-name
+    # When reply, only check Requests or RRTypes that have a data-field ending in an IP or Domain-name
     if value != '.' and (rtype == 'REQUEST' or (rtype == 'REPLY' and rrtype in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SRV'))):
         tag = 'MATCH-FROM-CACHE'
         cachekey = hash(value + '/' + rrtype)
@@ -447,8 +447,8 @@ def match_blacklist(rid, rtype, rrtype, value):
         tag = 'MATCH-NO-CACHE'
         result = None
 
-    if debug:
-        log_info(tag + ' [' + id_str(rid) + ']: ' + rtype + ' ' + value + '/' + rrtype + ' = ' + list_status.get(result, 'NOTLISTED'))
+    #if debug:
+    log_info(tag + ' [' + id_str(rid) + ']: ' + rtype + ' ' + value + '/' + rrtype + ' = ' + list_status.get(result, 'NOTLISTED'))
 
     return result
 
@@ -469,11 +469,11 @@ def check_blacklist(rid, rtype, rrtype, value):
     itisanip = False
 
     # Block IP-Family
-    if blockv4 is True and (rrtype == 'A' or (rrtype == 'PTR' and ip4arpa.search(testvalue))):
+    if blockv4 is not False and (rrtype == 'A' or (rrtype == 'PTR' and ip4arpa.search(testvalue))):
         log_info('BLOCK-IPV4-HIT [' + tid + ']: ' + rtype + ' \"' + value + '/' + rrtype + '\"')
         return True
 
-    if blockv6 is True and (rrtype == 'AAAA' (rrtype == 'PTR' and ip6arpa.search(testvalue))):
+    if blockv6 is not False and (rrtype == 'AAAA' or (rrtype == 'PTR' and ip6arpa.search(testvalue))):
         log_info('BLOCK-IPV6-HIT [' + tid + ']: ' + rtype + ' \"' + value + '/' + rrtype + '\"')
         return True
 
@@ -983,7 +983,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
 
                 if blockit:
                     log_info('REPLY [' + nid + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT')
-                    reply = generate_response(request, qname, qtype, redirect_addrs, force)
+                    reply = generate_response(request, qname, qtype, redirect_addrs, force, 'REPLY-BLACKLISTED')
                     break
 
                 else:
@@ -1023,7 +1023,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
     return reply
 
 
-def generate_response(request, qname, qtype, redirect_addrs, force):
+def generate_response(request, qname, qtype, redirect_addrs, force, comment):
     '''Generate response when blocking'''
     queryname = qname + '/IN/' + qtype
 
@@ -1072,7 +1072,7 @@ def generate_response(request, qname, qtype, redirect_addrs, force):
             reply = rc_reply(request, hitrcode)
             log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
 
-    to_cache(qname, 'IN', qtype, reply, force, filterttl, 'BLACKLISTED')
+    to_cache(qname, 'IN', qtype, reply, force, filterttl, comment)
 
     return reply
 
@@ -2370,8 +2370,9 @@ def do_query(request, handler, force):
         log_info('ACL-HIT [' + tid + ']: Request from ' + cip + ' for ' + queryname + ' ' + aclrcode)
         reply = rc_reply(request, aclrcode)
 
+
     # Execute Command
-    if command and qname.endswith('.' + command):
+    if reply is None and command and qname.endswith('.' + command):
         if cip in ('127.0.0.1', '::1'):
             if execute_command(qname, True):
                 reply = rc_reply(request, 'NOERROR')
@@ -2380,37 +2381,36 @@ def do_query(request, handler, force):
         else:
             reply = rc_reply(request, 'REFUSED')
 
+
     # Quick response when in cache
     if reply is None and force is False:
         reply = from_cache(qname, qclass, qtype, rid)
 
 
-    # Check if parent is in cache as NXDOMAIN
-    if reply is None and force is False and blocksub and (in_domain(qname, wl_dom, 'Whitelist', False) is False):
-        dom = in_domain(qname, cache_dom_list(qclass, qtype), 'Cache', False)
-        if dom and dom != qname:
-            queryhash = query_hash(dom, qclass, qtype)
-            cacheentry = cache.get(queryhash, None)
-            if cacheentry is not None:
-                rcode = str(RCODE[cacheentry[0].header.rcode])
-                if len(cacheentry[0].rr) == 0 and rcode in ('NODATA', 'NOERROR', 'NXDOMAIN', 'REFUSED', 'SERVFAIL'):
-                    reply = rc_reply(request, rcode)
-                    log_info('CACHE-PARENT-MATCH [' + tid + ']: \"' + qname + '\" matches parent \"' + dom + '\" ' + rcode)
-                    log_info('REPLY [' + tid + ']: ' + queryname + ' = ' + rcode)
-                    now = int(time.time())
-                    expire = cacheentry[1]
-                    parentttlleft = expire - now
-                    to_cache(qname, qclass, qtype, reply, force, parentttlleft, 'PARENT-MATCH') # Cache it
+    # For caching
+    queryfiltered = True
 
-    # More eleborated filtering on query
+    # Process query/request
     if reply is None:
-        queryfiltered = True
+        # Check if parent is in cache as NXDOMAIN
+        if force is False and blocksub and (in_domain(qname, wl_dom, 'Whitelist', False) is False):
+            dom = in_domain(qname, cache_dom_list(qclass, qtype), 'Cache', False)
+            if dom and dom != qname:
+                queryhash = query_hash(dom, qclass, qtype)
+                cacheentry = cache.get(queryhash, None)
+                if cacheentry is not None:
+                    rcode = str(RCODE[cacheentry[0].header.rcode])
+                    if len(cacheentry[0].rr) == 0 and rcode in ('NODATA', 'NOERROR', 'NXDOMAIN', 'REFUSED', 'SERVFAIL'):
+                        reply = rc_reply(request, rcode)
+                        if rcode == 'NOERROR':
+                            rcode = 'NODATA'
+                        log_info('CACHE-PARENT-MATCH [' + tid + ']: \"' + qname + '\" matches parent \"' + dom + '\" ' + rcode)
+                        log_info('REPLY [' + tid + ']: ' + queryname + ' = ' + rcode)
+                        now = int(time.time())
+                        expire = cacheentry[1]
+                        parentttlleft = expire - now
+                        to_cache(qname, qclass, qtype, reply, force, parentttlleft, 'PARENT-MATCH-' + rcode) # Cache it
 
-        # Filter if qtype = ANY, QCLASS is something else then "IN" and query-type is not supported
-        #if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
-        if qclass != 'IN' or (qtype not in ('ANY', 'A', 'AAAA', 'AFSDB', 'ANY', 'APL', 'CAA', 'CERT', 'CNAME', 'DHCID', 'DLV', 'DNAME', 'DNSKEY', 'DS', 'HIP', 'IPSECKEY', 'KEY', 'KX', 'LOC', 'MX', 'NAPTR', 'NS', 'NSEC', 'NSEC3', 'NSEC3PARAM', 'PTR', 'RP', 'RRSIG', 'SIG', 'SOA', 'SRV', 'SSHFP', 'TA', 'TKEY', 'TLSA', 'TSIG', 'TXT')):
-            log_info('BLOCK-UNSUPPORTED-RRTYPE [' + tid + '] from ' + cip + ': ' + queryname + ' NOTIMP')
-            reply = rc_reply(request, 'NOTIMP')
 
         # Block IPv4 based queries when client request comes in on IPv6
         elif blockv4 is None and ipregex6.search(cip) and (qtype == 'A' or (qtype == 'PTR' and ip4arpa.search(qname))):
@@ -2421,6 +2421,15 @@ def do_query(request, handler, force):
         elif blockv6 is None and ipregex4.search(cip) and (qtype == 'AAAA' or (qtype == 'PTR' and ip6arpa.search(qname))):
             log_info('AUTOBLOCK-IPV6-HIT [' + tid + '] from ' + cip + ': ' + queryname + ' ' + hitrcode)
             reply = rc_reply(request, hitrcode)
+
+
+    # More eleborated filtering on query and response filtering
+    if reply is None:
+        # Filter if qtype = ANY, QCLASS is something else then "IN" and query-type is not supported
+        #if qtype == 'ANY' or qclass != 'IN' or (qtype not in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
+        if qclass != 'IN' or (qtype not in ('ANY', 'A', 'AAAA', 'AFSDB', 'ANY', 'APL', 'CAA', 'CERT', 'CNAME', 'DHCID', 'DLV', 'DNAME', 'DNSKEY', 'DS', 'HIP', 'IPSECKEY', 'KEY', 'KX', 'LOC', 'MX', 'NAPTR', 'NS', 'NSEC', 'NSEC3', 'NSEC3PARAM', 'PTR', 'RP', 'RRSIG', 'SIG', 'SOA', 'SRV', 'SSHFP', 'TA', 'TKEY', 'TLSA', 'TSIG', 'TXT')):
+            log_info('BLOCK-UNSUPPORTED-RRTYPE [' + tid + '] from ' + cip + ': ' + queryname + ' NOTIMP')
+            reply = rc_reply(request, 'NOTIMP')
 
         # Generate ALIAS response when hit
         elif filtering and (in_domain(qname, aliases, 'Alias', False) or in_regex(qname, aliases_rx, True, 'Generator')) and (not in_domain(qname, forward_servers, 'Forward', False)):
@@ -2448,7 +2457,7 @@ def do_query(request, handler, force):
                     # Check against lists
                     ismatch = match_blacklist(rid, 'REQUEST', qtype, qname)
                     if ismatch is True: # Blacklisted
-                        reply = generate_response(request, qname, qtype, redirect_addrs, force)
+                        reply = generate_response(request, qname, qtype, redirect_addrs, force, 'REQUEST-BLACKLISTED')
                     elif ismatch is None and checkresponse: # Not listed
                         reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, True, force)
                     else: # Whitelisted
@@ -2457,10 +2466,12 @@ def do_query(request, handler, force):
             else: # Non-filtering
                 reply = dns_query(request, qname, qtype, use_tcp, rid, cip, False, False, force)
 
-        # Cache if REQUEST/Query is filtered
-        if queryfiltered:
-            #ttl = normalize_ttl(qname, reply.rr)
-            to_cache(qname, 'IN', qtype, reply, force, filterttl, 'BLACKLISTED')
+
+    # Cache if REQUEST/Query is filtered
+    if reply and queryfiltered:
+        #ttl = normalize_ttl(qname, reply.rr)
+        to_cache(qname, 'IN', qtype, reply, force, filterttl, 'REQUEST-BLACKLISTED')
+
 
     # Cleanup NOTIMP responses
     if reply and str(RCODE[reply.header.rcode]) == 'NOTIMP':
@@ -2476,7 +2487,6 @@ def do_query(request, handler, force):
 
 class DNS_Instigator(BaseResolver):
     '''DNS request/reply processing, main beef'''
-
     def resolve(self, request, handler):
         return do_query(request, handler, False)
 
@@ -2751,8 +2761,11 @@ if __name__ == '__main__':
             # Define Service
             #handler = DNSHandler
             if ipregex6.search(listen_address):
-                log_info('LISTENING on IPv6 not supported yet!')
+                log_info('LISTENING on IPv6 (' + listen_address + '@' + str(listen_port) +') not supported yet!')
                 serverhash = False
+                #serverhash = hash(listen_address + '@' + str(listen_port))
+                #udp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False, handler=handler) # UDP
+                #tcp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=True, handler=handler) # TCP
             else:
                 serverhash = hash(listen_address + '@' + str(listen_port))
                 udp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False, handler=handler) # UDP
