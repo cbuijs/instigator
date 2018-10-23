@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.90-20181022 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v5.91-20181022 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -431,7 +431,7 @@ def file_exist(file, isdb):
 def match_blacklist(rid, rtype, rrtype, value):
     '''Check lists/cache'''
     # When reply, only check RRTypes that have a data-field ending in an IP or Domain-name
-    if rtype == 'REQUEST' or (rtype == 'REPLY' and rrtype in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT')):
+    if value != '.' and (rtype == 'REQUEST' or (rtype == 'REPLY' and rrtype in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SRV'))):
         tag = 'MATCH-FROM-CACHE'
         cachekey = hash(value + '/' + rrtype)
         result = match_cache.get(cachekey, 'NOTCACHED')
@@ -939,7 +939,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, checkalias, for
                 rqname = normalize_dom(record.rname)
                 rqtype = QTYPE[record.rtype].upper()
                 data = normalize_dom(record.rdata)
-                
+
                 nid = hid + ':' + str(replycount) + '-' + str(replynum)
 
                 if replycount > 1: # Query-part of first RR in RRSET set already checked
