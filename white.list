@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1540282928                  ###
+### Version: 1540369320                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -2786,6 +2786,7 @@ nytimes.com	Notracking-Whitelist
 o2bancorp.com	Shalla-Banking, UT1-Banking
 oakf.com	Shalla-Banking
 oaklawnbank.com	Shalla-Banking
+consent.cmp.oath.com	Notracking-Whitelist
 oba.com	Shalla-Banking, UT1-Banking
 obabank.com	Shalla-Banking, UT1-Banking
 obb.com	Shalla-Banking
@@ -3561,6 +3562,7 @@ vnbnm.com	Shalla-Banking
 volksbank-erzgebirge.com	Shalla-Banking
 volstatebank.com	Shalla-Banking, UT1-Banking
 vontobel.com	Shalla-Banking
+voxmedia.com	Notracking-Whitelist
 vpbank.com	Shalla-Banking
 vtbanker.com	Shalla-Banking, UT1-Banking
 vtbindia.com	Shalla-Banking
