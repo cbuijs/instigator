@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v5.98-20181024 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.00-20181024 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1196,7 +1196,7 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
         if collapse and aliasqname:
             log_info(tag + ': COLLAPSE ' + qname + '/IN/CNAME')
     else:
-        log_info(tag + ': ' + queryname + ' Unsupported RR-Type -> ' + str(RCODE[reply.header.rcode]))
+        log_info(tag + ': ' + queryname + ' -> ' + str(RCODE[reply.header.rcode]))
 
     if newalias:
         to_cache(qname, 'IN', qtype, reply, force, False, 'GENERATED-ALIAS')
@@ -1937,7 +1937,10 @@ def from_cache(qname, qclass, qtype, tid):
         if numrrs == 0 and rcode == 'NOERROR':
             log_info('CACHE-HIT (' + str(hits) + '/' + str(hitsneeded) + ' hits) : Retrieved NODATA for ' + queryname + ' (TTL-LEFT:' + str(ttl) + '/' + str(orgttl) + ') - ' + comment)
         else:
-            log_info('CACHE-HIT (' + str(hits) + '/' + str(hitsneeded) + ' hits) : Retrieved ' + str(numrrs) + ' RRs for ' + queryname + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + '/' + str(orgttl) + ') - ' + comment)
+            if numrrs == 0:
+                log_info('CACHE-HIT (' + str(hits) + '/' + str(hitsneeded) + ' hits) : Retrieved ' + rcode + ' for ' + queryname + ' (TTL-LEFT:' + str(ttl) + '/' + str(orgttl) + ') - ' + comment)
+            else:
+                log_info('CACHE-HIT (' + str(hits) + '/' + str(hitsneeded) + ' hits) : Retrieved ' + str(numrrs) + ' RRs for ' + queryname + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + '/' + str(orgttl) + ') - ' + comment)
 
         log_replies(reply, 'CACHE-REPLY')
 
@@ -2459,7 +2462,7 @@ def do_query(request, handler, force):
                 log_info('AUTOBLOCK-IPV6-HIT [' + tid + '] from ' + cip + ': ' + queryname + ' ' + hitrcode)
                 reply = rc_reply(request, hitrcode)
 
-            else:
+            elif not in_domain(qname, forward_servers, 'Forwarders', False):
                 # Search-Domain blocker
                 if blocksearchdom and searchdom:
                     for sdom in searchdom:
@@ -2472,7 +2475,7 @@ def do_query(request, handler, force):
 
                 # Generate ALIAS response when hit !!! Needs to be last in if-elif chain
                 if reply is None:
-                    generated = in_regex(qname, aliases_rx, True, 'Generator')
+                    generated = in_regex(qname, aliases_rx, True, 'Generator') or False
                     reply = generate_alias(request, qname, qtype, use_tcp, force, generated)
 
         # Check query/response against lists
