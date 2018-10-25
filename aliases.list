@@ -66,6 +66,19 @@ iotcplatform.com!3600
 # Search domain
 frutch*
 
+corp*
+example*
+home*
+host*
+invalid*
+lan*
+local*
+localdomain*
+localhost*
+router*
+test*
+workgroup*
+
 # Test examples
 #chrisbuijs.com!666
 #chrisbuijs.com>9.9.9.9,149.112.112.112
