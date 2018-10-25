@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.01-20181024 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.02-20181024 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -426,6 +426,15 @@ def file_exist(file, isdb):
             return False
 
     return False
+
+
+def make_dirs(subdir):
+    '''Make directory-structures'''
+    try:
+        os.makedirs(subdir)
+    except BaseException as err:
+        pass
+    return True
 
 
 def match_blacklist(rid, rtype, rrtype, value):
@@ -2536,8 +2545,8 @@ def read_config(file):
     THIS IS A HACK AND NEEDS TO BE BEAUTIFIED!!!!
     Basically every global variable used can be altered/configured:
     String: <varname> = '<value>'
-    Number: <varname> = <value>
-    Boolean: <varname> = <True|False>
+    Number: <varname> = <integer>
+    Boolean: <varname> = <True|False|None>
     List: <varname> = <value1>,<value2>,<value3>, ...
     Dictionary (with list values): <varname> = <key> > <value1>,<value2>,<value3>, ...
     '''
@@ -2630,7 +2639,10 @@ def get_dns_servers(file, fservers):
                         ns.append(ip)
 
     if len(ns) > 0:
-        fservers['.'] = ns
+        if '.' in fservers:
+            fservers['.'] += ns
+        else:
+            fservers['.'] = ns
 
     return fservers
 
@@ -2642,7 +2654,7 @@ def white_label():
     wordlist = set()
     worddict = dict()
     for dom in wl_dom.keys():
-        if (not dom.endswith('.arpa')) and (not ipregex.search(dom)) and (not iparpa.search(dom)):
+        if (not ipregex.search(dom)) and (not iparpa.search(dom)):
             for label in regex.split('[\._-]', dom):
                 if len(label) > 2 and (label not in wordlist) and (not isnum.search(label)):
                     #if debug: log_info('RANDOMNESS: Adding label \"' + label + '\"')
