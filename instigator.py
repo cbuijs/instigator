@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.00-20181024 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.01-20181024 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1190,13 +1190,16 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
     else:
         reply = rc_reply(request, 'NXDOMAIN')
 
+    #rcode = RCODE[reply.header.rcode]
+    #if len(reply.rr) == 0:
+    #    if rcode == 'NOERROR':
+    #        rcode = 'NODATA'
+    #    log_info(tag + ': ' + qname + ' -> ' + str(rcode))
+    #else:
+    #    log_info(tag + ': ' + qname + ' -> ' + alias + ' ' + str(rcode))
 
-    if str(RCODE[reply.header.rcode]) == 'NOERROR':
-        log_info(tag + ': ' + qname + ' -> ' + alias + ' NOERROR')
-        if collapse and aliasqname:
-            log_info(tag + ': COLLAPSE ' + qname + '/IN/CNAME')
-    else:
-        log_info(tag + ': ' + queryname + ' -> ' + str(RCODE[reply.header.rcode]))
+    if collapse and aliasqname:
+        log_info(tag + ': COLLAPSE ' + qname + '/IN/CNAME')
 
     if newalias:
         to_cache(qname, 'IN', qtype, reply, force, False, 'GENERATED-ALIAS')
@@ -1955,17 +1958,17 @@ def log_replies(reply, title):
     hid = id_str(reply.header.id)
     replycount = 0
     replynum = len(reply.rr)
+    rcode = str(RCODE[reply.header.rcode])
     if replynum > 0:
         for record in reply.rr:
             replycount += 1
             rqname = normalize_dom(record.rname)
             rqtype = QTYPE[record.rtype].upper()
             data = normalize_dom(record.rdata)
-            log_info(title + ' [' + hid + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data)
+            log_info(title + ' [' + hid + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' ' + rcode)
     else:
         rqname = normalize_dom(reply.q.qname)
         rqtype = QTYPE[reply.q.qtype].upper()
-        rcode = str(RCODE[reply.header.rcode])
         if rcode == 'NOERROR':
             rcode = 'NODATA'
         log_info(title + ' [' + hid + ']: ' + rqname + '/IN/' + rqtype + ' ' + rcode)
