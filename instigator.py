@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.25-20181025 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.26-20181025 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -29,9 +29,6 @@ ToDo/Ideas:
 - Itterative resolution besides only forwarding (as is today). Status: Backburner.
 - Add more security-features against hammering, dns-drip, ddos, etc. Status: Backburner.
 - Fix SYSLOG on MacOS. Status: To-be-done.
-- Convert all concatenated strings into .format ones. Status: In Progress
-- HIGH: Maintenance on indom, inrx and match caches !!! Status: In progress
---- Also save in shelve? Status: Drawingboard/Brainstorm
 
 =========================================================================================
 '''
