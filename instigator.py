@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.10-20181025 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.25-20181025 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -80,7 +80,6 @@ import pytricia
 
 # Debugging
 debug = False
-#if len(sys.argv) > 1: # Any argument on command-line will put debug-mode on, printing all messages to TTY.
 if sys.argv[1:]: # Any argument on command-line will put debug-mode on, printing all messages to TTY.
     debug = True
 
@@ -210,6 +209,9 @@ checkrequest = True # When False, only responses are checked and queries are ign
 
 # Check responses/answers
 checkresponse = True # When False, only queries are checked and responses are ignored (passthru)
+
+# Logging
+logreplies = True # Improves response times a little bit when False
 
 # Minimal Responses
 minresp = True
@@ -418,13 +420,13 @@ def file_exist(file, isdb):
                     mtime = int(fstat.st_mtime)
                     currenttime = int(time.time())
                     age = int(currenttime - mtime)
-                    if debug: log_info('FILE-EXIST: ' + file + ' = ' + str(age) + ' seconds old')
+                    if debug: log_info('FILE-EXIST: {0} = {1}'.format(file, age))
                     return age
                 else:
-                    if debug: log_info('FILE-EXIST: ' + file + ' is zero size')
+                    if debug: log_info('FILE-EXIST: {0} is zero size'.format(file))
 
         except BaseException as err:
-            log_err('FILE-EXIST-ERROR: ' + str(err))
+            log_err('FILE-EXIST-ERROR: {0}'.format(err))
             return False
 
     return False
@@ -460,7 +462,7 @@ def match_blacklist(rid, rtype, rrtype, value):
         result = None
 
     #if debug:
-    log_info(tag + ' [' + id_str(rid) + ']: ' + rtype + ' ' + value + '/' + rrtype + ' = ' + list_status.get(result, 'NOTLISTED'))
+    log_info('{0} [{1}]: {2} {3}/{4} = {5}'.format(tag, id_str(rid), rtype, value, rrtype, list_status.get(result, 'NOTLISTED')))
 
     return result
 
@@ -483,11 +485,11 @@ def check_blacklist(rid, rtype, rrtype, value):
 
     # Block IP-Family
     if blockv4 is not False and (rrtype == 'A' or (rtype == 'REQUEST' and rrtype == 'PTR' and ip4arpa.search(testvalue))):
-        log_info('BLOCK-IPV4-HIT [' + tid + ']: ' + rtype + ' \"' + value + '/' + rrtype + '\"')
+        log_info('BLOCK-IPV4-HIT [{0}]: {1} \"{2}/{3}\"'.format(tid, rtype, value, rrtype))
         return True
 
     if blockv6 is not False and (rrtype == 'AAAA' or (rtype == 'REQUEST' and rrtype == 'PTR' and ip6arpa.search(testvalue))):
-        log_info('BLOCK-IPV6-HIT [' + tid + ']: ' + rtype + ' \"' + value + '/' + rrtype + '\"')
+        log_info('BLOCK-IPV6-HIT [{0}]: {1} \"{2}/{3}\"'.format(tid, rtype, value, rrtype))
         return True
 
 
@@ -503,7 +505,7 @@ def check_blacklist(rid, rtype, rrtype, value):
 
                 if ip:
                     # Test IP further on as revdom is not listed
-                    log_info('MATCHING: Matching against IP \"' + ip + '\" instead of domain \"' + testvalue + '\"')
+                    log_info('MATCHING [{0}]: Matching against IP \"{1}\" instead of domain \"{2}\"'.format(tid, ip, testvalue))
                     itisanip = True
                     testvalue = ip
 
@@ -521,18 +523,18 @@ def check_blacklist(rid, rtype, rrtype, value):
     if not itisanip:
         testvalue = normalize_dom(regex.split('\s+', testvalue)[-1]) # If RRType has multiple values in data, take last one
         if blockundotted and testvalue.count('.') < mindots:
-            log_info('BLOCK-MINDOTS-HIT [' + tid + ']: ' + value)
+            log_info('BLOCK-MINDOTS-HIT [{0}]: {1}'.format(tid, value))
             return True
         elif is_illegal(rtype, testvalue):
-            log_err('BLOCK-ILLEGAL-HIT [' + tid + ']: ' + value)
+            log_err('BLOCK-ILLEGAL-HIT [{0}]: {1}'.format(tid, value))
             return True
         elif is_weird(rtype, testvalue, rrtype):
-            log_info('BLOCK-WEIRD-HIT [' + tid + ']: ' + value)
+            log_info('BLOCK-WEIRD-HIT [{0}]: {1}'.format(tid, value))
             return True
         elif blockrandom and (not in_domain(testvalue, wl_dom, 'Whitelist', False)):
             score = randomness(testvalue)
             if blockrandommononly is False and score > random_threshhold: # !!! TEST VALUE BASED ON AVERAGE USE, CHECK THIS !!!
-                log_info('BLOCK-RANDOMNESS-HIT [' + tid + ']: ' + value + ' (' + str(score) + '>' + str(random_threshhold) + ')')
+                log_info('BLOCK-RANDOMNESS-HIT [{0}]: {1} ({2}>{3})'.format(tid, value, score, random_threshold))
                 return True
 
 
@@ -541,10 +543,10 @@ def check_blacklist(rid, rtype, rrtype, value):
         asn, prefix, owner = who_is(testvalue, '[' + tid + '] ' + rtype)
         if asn != '0':
             if asn in wl_asn: # Whitelist
-                log_info('WHITELIST-ASN-HIT [' + tid + ']: ' + rtype + ' ' + value + '/' + testvalue + ' matched against \"AS' + asn + '\" (' + wl_asn[asn] + '/' + prefix + ') - ' + owner)
+                log_info('WHITELIST-ASN-HIT [{0}]: {1} {2}/{3} matched against \"AS{4}\" ({5}/{6}) - {7}'.format(tid, rtype, value, testvalue, asn, wl_asn[asn], prefix, owner))
                 return False
             elif asn in bl_asn: # Blacklist
-                log_info('BLACKLIST-ASN-HIT [' + tid + ']: ' + rtype + ' ' + value + '/' + testvalue + ' matched against \"AS' + asn + '\" (' + bl_asn[asn] + '/' + prefix + ') - ' + owner)
+                log_info('BLACKLIST-ASN-HIT [{0}]: {1} {2}/{3} matched against \"AS{4}\" ({5}/{6}) - {7}'.format(tid, rtype, value, testvalue, asn, wl_asn[asn], prefix, owner))
                 return True
 
         if testvalue.find(':') == -1:
@@ -568,10 +570,10 @@ def check_blacklist(rid, rtype, rrtype, value):
             testvalue = value + '/' + testvalue
 
         if found:
-            log_info('BLACKLIST-IP-HIT [' + tid + ']: ' + rtype + ' ' + testvalue + ' matched against ' + prefix + ' (' + bip[prefix] + ')')
+            log_info('BLACKLIST-IP-HIT [{0}]: {1} {3} matched against {4} ({5})'.format(tid, rtype, testvalue, prefix, bip[prefix]))
             return True
         elif prefix:
-            log_info('WHITELIST-IP-HIT [' + tid + ']: ' + rtype + ' ' + testvalue + ' matched against ' + prefix + ' (' + wip[prefix] + ')')
+            log_info('WHITELIST-IP-HIT [{0}]: {1} {3} matched against {4} ({5})'.format(tid, rtype, testvalue, prefix, wip[prefix]))
             return False
 
 
@@ -587,12 +589,12 @@ def check_blacklist(rid, rtype, rrtype, value):
 
             wl_found = in_domain(testvalue, wl_dom, 'White' + listname, False) # Whitelist
             if wl_found is not False:
-                log_info('WHITELIST-' + tag + ' [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
+                log_info('WHITELIST-{0} [{1}]: {2} \"{3}\" matched against \"{4}\" ({5})'.format(tag, tid, rtype, value, wl_found, wl_dom[wl_found]))
                 return False
             else:
                 bl_found = in_domain(testvalue, bl_dom, 'Black' + listname, False) # Blacklist
                 if bl_found is not False:
-                    log_info('BLACKLIST-' + tag + ' [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + bl_found + '\" (' + bl_dom[bl_found] + ')')
+                    log_info('BLACKLIST-{0} [{1}]: {2} \"{3}\" matched against \"{4}\" ({5})'.format(tag, tid, rtype, value, bl_found, bl_dom[bl_found]))
                     return True
 
 
@@ -601,16 +603,16 @@ def check_blacklist(rid, rtype, rrtype, value):
         # Catchall: Check agains Regex-Lists
         rxfound = in_regex(value, wl_rx, False, 'Whitelist') # Whitelist
         if rxfound:
-            log_info('WHITELIST-REGEX-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against ' + rxfound)
+            log_info('WHITELIST-REGEX-HIT [{0}]: {1} \"{2}\" matched against {3}'.format(tid, rtype, value, rxfound))
             return False
 
         rxfound = in_regex(value, bl_rx, False, 'Blacklist') # Blacklist
         if rxfound:
-            log_info('BLACKLIST-REGEX-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against ' + rxfound)
+            log_info('BLACKLIST-REGEX-HIT [{0}]: {1} \"{2}\" matched against {3}'.format(tid, rtype, value, rxfound))
             return True
 
     # No hits
-    if debug: log_info('NONE-HIT [' + tid + ']: ' + rtype + ' \"' + value + '\" does not match against any lists')
+    if debug: log_info('NONE-HIT [{0}]: {1} \"{2}\" does not match against any lists'.format(tid, rtype, value))
 
     return None
 
@@ -623,15 +625,14 @@ def randomness(testvalue):
             words = regex.split('[\._-]', testvalue)
             totscore = 0
             for word in words:
-                #if len(word) > 2 and (not isnum.search(word)):
                 if word[2:] and (not isnum.search(word)):
                     randomness = zxcvbn(testvalue)
                     totscore += int(round(randomness['guesses_log10'])) # The higher, the more random
             score = int(round(totscore / len(words)))
             random_cache[testvalue] = score
-            if debug: log_info('RANDOMNESS-TO-CACHE: ' + testvalue + ' = ' + str(score))
+            if debug: log_info('RANDOMNESS-TO-CACHE: {0} = {1}'.format(testvalue, score))
         else:
-            if debug: log_info('RANDOMNESS-FROM-CACHE: ' + testvalue + ' = ' + str(score))
+            if debug: log_info('RANDOMNESS-FROM-CACHE: {0} = {1}'.format(testvalue, score))
     else:
         score = 0
 
@@ -645,9 +646,9 @@ def in_domain(name, domlist, domid, checksub):
         indom = indom_cache.get(domidname, None)
         if indom is not None:
             if indom is True:
-                if debug: log_info('INDOM-CACHE [' + domid + ']: \"' + name + '\" in \"' + indom + '\"')
+                if debug: log_info('INDOM-CACHE [{0}]: \"{1}\" in \"{2}\"'.format(domid, name, indom))
             else:
-                if debug: log_info('INDOM-CACHE [' + domid + ']: \"' + name + '\" is NOMATCH')
+                if debug: log_info('INDOM-CACHE [{0}]: \"{1}\" is NOMATCH'.format(domid, name))
             return indom
 
     if checksub:
@@ -676,9 +677,9 @@ def in_regex(name, rxlist, isalias, rxid):
         if inrx is not None:
             if inrx:
                 if isalias:
-                    if debug: log_info('INRX-CACHE [' + rxid +']: \"' + name + '\" -> \"' + inrx + '\"')
+                    if debug: log_info('INRX-CACHE [{0}]: \"{1}\" -> \"{2}\"'.format(rxid, name, inrx))
                 else:
-                    if debug: log_info('INRX-CACHE [' + rxid +']: \"' + name + '\" matched with \"' + inrx + '\"')
+                    if debug: log_info('INRX-CACHE [{0}]: \"{1}\" matched with \"{2}\"'.format(rxid, name, inrx))
 
             return inrx
 
@@ -699,10 +700,10 @@ def in_regex(name, rxlist, isalias, rxid):
                 if isalias:
                     rx3 = regex.split('\s+', rx2)[0]
                     result = regex.sub(rx, rx3, name)
-                    log_info('GENERATOR-MATCH [' + lst + ']: ' + name + ' matches \"' + rx.pattern + '\" = \"' + rx3 + '\" -> \"' + result + '\"')
+                    log_info('GENERATOR-MATCH [{0}]: {1} matches \"{2}\" = \"{3}\" -> \"{4}\"'.format(lst, name, rx.pattern, rx3, result))
                 else:
                     result = '\"' + rx2 + '\" (' + lst + ')'
-                    if debug: log_info('REGEX-MATCH [' + lst + ']: ' + name + ' matches ' + result)
+                    if debug: log_info('REGEX-MATCH [{0}]: {1} matches {2}'.format(lst, name, result))
 
                 inrx_cache[rxidname] = result
 
@@ -730,25 +731,25 @@ def who_is(ip, desc):
         if elements:
             asn = elements[0]
             owner = ' '.join(elements[1:])
-            if debug: log_info('WHOIS-CACHE-HIT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
+            if debug: log_info('WHOIS-CACHE-HIT: {0} {1} AS{2} ({3}) - {4}'.format(desc, ip, asn, prefix, owner))
 
     else:
-        log_info('WHOIS-LOOKUP: ' + desc + ' ' + ip)
+        log_info('WHOIS-LOOKUP: {0} {1}'.format(desc, ip))
         try:
             whois = Client()
             lookup = whois.lookup(ip)
             asn = str(lookup.asn)
         except BaseException as err:
-            log_err('WHOIS-ERROR: ' + desc + ' ' + ip + ' - ' + str(err))
+            log_err('WHOIS-ERROR: {0} {1} - {2}'.format(desc, ip, err))
             asn = 'NONE'
 
         if asn != 'NONE' and asn != '' and asn != 'NA' and asn is not None:
             prefix = str(lookup.prefix)
             owner = str(lookup.owner).upper()
-            log_info('WHOIS-RESULT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
+            log_info('WHOIS-RESULT: {0} {1} AS{2} ({3}) - {4}'.format(desc, ip, asn, prefix, owner))
         else:
             asn = '0'
-            log_info('WHOIS-UNKNOWN: ' + ip)
+            log_info('WHOIS-UNKNOWN: {0}'.format(ip))
 
         ipasn[prefix] = asn + ' ' + owner
 
@@ -775,10 +776,10 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
     while uid in pending:
         count += 1
         if count > 2: # Disembark after 3 seconds
-            log_info('DNS-QUERY [' + hid + ']: Skipping query for ' + queryname + ' - ID (' + hid + ') already processing, takes more then 3 secs' + tag)
+            log_info('DNS-QUERY [{0}]: Skipping query for {1} - ID \"{2}\" already processing, takes more then 3 seconds{3}'.format(hid, queryname, hid, tag))
             return rc_reply(request, 'SERVFAIL')
 
-        log_info('DNS-QUERY [' + hid + ']: delaying (' + str(count) + ') query for ' + queryname + ' - ID (' + hid + ') already in progress, waiting to finish' + tag)
+        log_info('DNS-QUERY [{0}]: Delaying ({1}) query for {2} - ID \"{3}\" already in progress, waiting to finish{4}'.format(hid, count, queryname, hid, tag))
         time.sleep(1) # Seconds
 
     # Get from cache if any, only hit when doing internal/alias queries
@@ -808,7 +809,6 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
 
     forward_server = forward_servers.get(server, False)
     if forward_server:
-
         if forwardroundrobin and len(forward_server) > 1 and safedns is False:
             addrs = round_robin(forward_server)
             forward_servers[server] = list(addrs)
@@ -816,7 +816,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
             addrs = forward_server
 
         if safedns:
-            log_info('SAFEDNS-QUERY [' + hid + ']: forwarding query from ' + cip + ' to all forwarders for ' + queryname + tag)
+            log_info('SAFEDNS-QUERY [{0}]: Forwarding query from {1} to all forwarders for {2}{3}'.format(hid, cip, queryname, tag))
 
         for addr in addrs:
             forward_address = addr.split('@')[0]
@@ -827,7 +827,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
 
             if not in_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port)):
                 if not safedns:
-                    log_info('DNS-QUERY [' + hid + ']: forwarding query from ' + cip + ' to ' + forward_address + '@' + str(forward_port) + ' (' + servername + ') for ' + queryname + tag)
+                    log_info('DNS-QUERY [{0}]: Forwarding query from {1} to {2}@{3} ({4}) for {5}{6}'.format(hid, cip, forward_address, forward_port, servername, queryname, tag))
 
                 useip6 = False
                 if forward_address.find(':') > 0:
@@ -860,7 +860,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                                     if soadom != ".":
                                         rcttl = normalize_ttl(qname, reply.auth)
                                         if rcttl:
-                                            log_info('SOA-TTL [' + hid + ']: Taking TTL={1} of SOA \"{0}\" for {2} {3}{4}'.format(soadom, rcttl, queryname, rcode, tag))
+                                            log_info('SOA-TTL [{0}]: Taking TTL={1} of SOA \"{2}\" for {3} {4}{5}'.format(hid, rcttl, soadom, queryname, rcode, tag))
                                     break
 
                         else:
@@ -871,7 +871,6 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                             if firstreply is None:
                                 firstreply = reply
 
-                            #if len(reply.rr) > 0:
                             if reply.rr:
                                 for record in reply.rr:
                                     rqtype = QTYPE[record.rtype]
@@ -881,12 +880,12 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                                             ipstack.add(ip)
                                             asn, prefix, owner = who_is(ip, queryname)
                                             if asnstack and asn in asnstack:
-                                                if debug: log_info('SAFEDNS [' + hid + ']: ' + queryname + ' Found same ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address + tag)
+                                                if debug: log_info('SAFEDNS [{0}]: {1} found same ASN ({2}) \"{3}\" ({4}) for {5} ({6}) from {7}{8}'.format(hid, queryname, len(asnstack), asn, owner, ip, prefix, forward_address, tag))
                                             elif asn != '0':
                                                 asnstack.add(asn)
-                                                if debug: log_info('SAFEDNS [' + hid + ']: ' + queryname + ' Found new ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address + tag)
+                                                if debug: log_info('SAFEDNS [{0}]: {1} found new ASN ({2}) \"{3}\" ({4}) for {5} ({6}) from {7}{8}'.format(hid, queryname, len(asnstack), asn, owner, ip, prefix, forward_address, tag))
                                             else:
-                                                if debug: log_info('SAFEDNS [' + hid + ']: ' + queryname + ' UNKNOWN ASN for ' + ip + ' from ' + forward_address + tag)
+                                                if debug: log_info('SAFEDNS [{0}]: {1} UNKNOWN ASN for {2} from {3}{4}'.format(hid, queryname, ip, forward_address, tag))
 
                         else:
                             break
@@ -895,15 +894,16 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                         success = False
 
                 if success is False or reply is None:
-                    log_err('DNS-QUERY [' + hid + ']: ERROR Resolving ' + queryname + ' using ' + forward_address + '@' + str(forward_port) + ' - ' + str(error) + tag)
+                    log_err('DNS-QUERY [{0}]: ERROR Resolving {1} using {2}@{3} - {4}{5}'.format(hid, queryname, forward_address, forward_port, error, tag))
                     if error != 'SERVFAIL':
                         broken_exist = True
                         to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force, retryttl, 'ERROR' + tag)
 
-            if debug and safedns is False: log_info('DNS-QUERY [' + hid + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port) + tag)
+            #if debug and safedns is False: log_info('DNS-QUERY [' + hid + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port) + tag)
+            if debug and safedns is False: log_info('DNS-QUERY [{0}]: Skipped broken/invalid forwarder {1}@{2}{3}'.format(hid, forward_address, forward_port, tag))
 
     else:
-        log_err('DNS-QUERY [' + hid + ']: ERROR Resolving ' + queryname + ' (' + servername + ') - NO DNS SERVERS AVAILBLE!' + tag)
+        log_err('DNS-QUERY [{0}]: ERROR Resolving {1} ({2}) - NO DNS SERVERS AVAILBLE!{3}'.format(hid, queryname, servername, tag))
 
 
     if safedns and firstreply is not None and asnstack:
@@ -916,19 +916,19 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                 if not safednsmononly:
                     reply = False
 
-                log_info('SAFEDNS [' + hid + ']: ' + queryname + ' UNSAFE! Multiple ASNs (Ratio: ' + str(ratio) + '% < ' + str(safednsratio) + '%) ASNs (' + str(alen) + '): ' + astack + tag)
+                log_info('SAFEDNS [{0}]: {1} UNSAFE! Multiple ASNs (Ratio {2}% < {3}%) ASNs ({4}): {5}{6}'.format(hid, queryname, ratio, safednsratio, alen, astack, tag))
         else:
-            log_info('SAFEDNS [' + hid + ']: ' + queryname + ' is SAFE (Ratio: 100% >= ' + str(safednsratio) + '%) ASN: ' + astack + tag)
+            log_info('SAFEDNS [{0}]: {1} is SAFE (Ratio: 100% >= {2}%) ASN: {3}{4}'.format(hid, queryname, safednsratio, astack, tag))
 
 
     # No response or SafeDNS interception
     if reply is None or reply is False:
         #cache.clear()
         if reply is False: # SafeDNS catch
-            log_err('DNS-QUERY [' + hid + ']: SAFEDNS Block ' + queryname + ' ' + str(hitrcode) + tag)
+            log_err('DNS-QUERY [{0}]: SAFEDNS Block {1} {2}{3}'.format(hid, queryname, hitrcode, tag))
             reply = rc_reply(query, hitrcode)
         else: # Regurlar error
-            log_err('DNS-QUERY [' + hid + ']: ERROR Resolving ' + queryname + ' SERVFAIL' + tag)
+            log_err('DNS-QUERY [{0}]: ERROR Resolving {1} SERVFAIL{2}'.format(hid, queryname, tag))
             reply = rc_reply(query, 'SERVFAIL')
 
         reply.header.id = tid
@@ -944,7 +944,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
             record = cache.get(queryhash, None)
             if record is not None:
                 rcode = str(RCODE[record[0].header.rcode])
-                log_info('CACHE-MAINT-PURGE: ' + record[2] + ' ' + rcode + ' (Unbroken DNS Servers)' + tag)
+                log_info('CACHE-MAINT-PURGE: {0} {1} (Unbroken DNS Servers){2}'.format(record[2], rcode, tag))
                 del_cache_entry(queryhash)
 
     blockit = False
@@ -976,9 +976,9 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                         else:
                             matched.add(rqname)
                     else:
-                        if debug: log_info('REPLY-MATCHED-QNAME-SKIP [' + nid + ']: ' + rqname + '/IN/' + rqtype + tag)
+                        if debug: log_info('REPLY-MATCHED-QNAME-SKIP [{0}]: {1}/IN/{2}{3}'.format(nid, rqname, rqtype, tag))
                 else:
-                    if debug: log_info('REPLY-FIRST-QNAME-SKIP [' + nid + ']: ' + rqname + '/IN/' + rqtype + tag)
+                    if debug: log_info('REPLY-FIRST-QNAME-SKIP [{0}]: {1}/IN/{2}{3}'.format(nid, rqname, rqtype, tag))
                     matched.add(rqname)
 
                 if blockit is False:
@@ -993,9 +993,9 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                             desc = rebind4.get(data, 'None')
 
                         if blockit:
-                            log_info('REBIND-BLOCK [' + nid + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' matches ' + prefix + ' (' + desc + ')' + tag)
+                            log_info('REBIND-BLOCK [{0}]: {1}/IN/{2} = {3} matches {4} ({5}){6}'.format(nid, rqname, rqtype, data, prefix, desc, tag))
                         else:
-                            log_info('REBIND-ALLOW [' + nid + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + '(DNS Server in REBIND ranges)' + tag)
+                            log_info('REBIND-ALLOW [{0}]: {1}/IN/{2} = {3} (DNS Server in REBIND ranges){4}'.format(nid, rqname, rqtype, data, tag))
 
                     if blockit is False:
                         matchrep = match_blacklist(tid, 'REPLY', rqtype, data)
@@ -1005,16 +1005,16 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                             blockit = True
 
                 if blockit:
-                    log_info('REPLY [' + nid + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT' + tag)
+                    log_info('REPLY [{0}]: {1}/IN/{2} = {3} BLACKLIST-HIT{4}'.format(nid, rqname, rqtype, data, tag))
                     reply = generate_response(request, qname, qtype, redirect_addrs, force, 'REPLY-BLACKLISTED' + tag)
                     break
 
                 else:
-                    log_info('REPLY [' + nid + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' NOERROR' + tag)
+                    log_info('REPLY [{0}]: {1}/IN/{2} = {3} NOERROR{4}'.format(nid, rqname, rqtype, data, tag))
 
     else:
         reply = rc_reply(request, rcode)
-        log_info('RCODE-REPLY [' + hid + ']: ' + queryname + ' = ' + rcode + tag)
+        log_info('RCODE-REPLY [{0}]: {1} = {2}{3}'.format(hid, queryname, rcode, tag))
 
 
     # Match up ID
@@ -1056,17 +1056,15 @@ def generate_response(request, qname, qtype, redirect_addrs, force, comment):
     '''Generate response when blocking'''
     queryname = qname + '/IN/' + qtype
 
-    #if (len(redirect_addrs) > 0) and (qtype not in ('ANY', 'TXT')) and any(x.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED') for x in redirect_addrs):
     if redirect_addrs and (qtype not in ('ANY', 'TXT')) and any(x.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED') for x in redirect_addrs):
         for addr in redirect_addrs:
             if addr.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED'):
-                log_info('GENERATE: ' + addr + ' for ' + queryname)
+                log_info('GENERATE: {0} for {1}'.format(addr, queryname))
                 reply = rc_reply(request, addr.upper())
                 break
 
-    #elif (len(redirect_addrs) == 0) or (qtype not in ('ANY', 'A', 'AAAA', 'CNAME', 'TXT')):
     elif (not redirect_addrs) or (qtype not in ('ANY', 'A', 'AAAA', 'CNAME', 'TXT')):
-        log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
+        log_info('GENERATE: {0} for {1}'.format(hitrcode, queryname))
         reply = rc_reply(request, hitrcode)
 
     else:
@@ -1097,12 +1095,11 @@ def generate_response(request, qname, qtype, redirect_addrs, force, comment):
 
         log_replies(reply, "GENERATE-REPLY")
 
-        #if len(addanswer) > 0:
         if addanswer:
-            log_info('GENERATE: REDIRECT/NOERROR for ' + queryname + ' -> ' + ', '.join(addanswer))
+            log_info('GENERATE: REDIRECT/NOERROR for {0} -> {1}'.format(queryname, ', '.join(addanswer)))
         else:
             reply = rc_reply(request, hitrcode)
-            log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
+            log_info('GENERATE: {0} for {1}'.format(hitrcode, queryname))
 
     to_cache(qname, 'IN', qtype, reply, force, filterttl, comment)
 
@@ -1125,7 +1122,7 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
         else:
             aqname = in_domain(qname, aliases, 'Alias', False)
             if aqname:
-                log_info(tag + ': ' + qname + ' subdomain of alias \"' + aqname + '\"')
+                log_info('{0}: {1} subdomain of alias \"{2}\"'.format(tag, qname, aqname))
                 alias = aliases[aqname]
             else:
                 #alias = 'NXDOMAIN'
@@ -1135,7 +1132,7 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
         alias = newalias
 
     if alias.upper() == 'PASSTHRU':
-        log_info(tag + ': ' + queryname + ' = PASSTHRU')
+        log_info('{0}: {1} = PASSTHRU'.format(tag, queryname))
         alias = qname
 
     elif alias.upper() == 'RANDOM':
@@ -1149,19 +1146,19 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
             alias = 'NXDOMAIN'
 
         if alias != 'NXDOMAIN':
-            log_info(tag + ': ' + queryname + ' = RANDOM: \"' + alias + '\"')
+            log_info('{0}: {1} = RANDOM: \"{2}\"'.format(tag, queryname, alias))
 
     aliasqname = False
     if alias.upper() in ('NODATA', 'NOTAUTH', 'NXDOMAIN', 'RANDOM', 'REFUSED'):
         if alias.upper() == 'RANDOM':
-            log_info(tag + ': ' + queryname + ' = RANDOM-NXDOMAIN')
+            log_info('{0}: {1} = RANDOM-NXDOMAIN'.format(tag, queryname))
             reply = rc_reply(request, 'NXDOMAIN')
         else:
-            log_info(tag + ': ' + queryname + ' = ' + alias.upper())
+            log_info('{0}: {1} = {2}'.format(tag, queryname, alias.upper()))
             reply = rc_reply(request, alias.upper())
 
     elif ipregex.search(alias) and qtype in ('A', 'AAAA', 'CNAME'):
-        log_info(tag + ': ' + queryname + ' = REDIRECT-TO-IP -> ' + alias)
+        log_info('{0}: {1} = REDIRECT-TO-IP -> {2}'.format(tag, queryname, alias))
         if alias.find(':') == -1:
             answer = RR(realqname, QTYPE.A, ttl=filterttl, rdata=A(alias))
         else:
@@ -1171,7 +1168,7 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
 
     elif qtype in ('A', 'AAAA', 'CNAME', 'PTR'):
         if not collapse and qname != alias and alias.startswith('random-') is False:
-            log_info(tag + ': ' + queryname + ' = REDIRECT-TO-NAME -> ' + alias + ' (NO RESOLUTION)')
+            log_info('{0}: {1} = REDIRECT-TO-RANDOM-NAME -> {2} (NO RESOLUTION)'.format(tag, queryname, alias))
             answer = RR(realqname, QTYPE.CNAME, ttl=filterttl, rdata=CNAME(alias))
             reply.add_answer(answer)
 
@@ -1180,7 +1177,7 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
             reply.add_answer(answer)
 
         else:
-            log_info(tag + ': ' + queryname + ' = REDIRECT-TO-NAME -> ' + alias)
+            log_info('{0}: {1} = REDIRECT-TO-NAME -> {2}'.format(tag, queryname, alias))
             #if qtype not in ('A', 'AAAA'):
             #    qtype = 'A'
 
@@ -1212,17 +1209,8 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
     else:
         reply = rc_reply(request, 'NXDOMAIN')
 
-    #rcode = RCODE[reply.header.rcode]
-    ##if len(reply.rr) == 0:
-    #if not reply.rr:
-    #    if rcode == 'NOERROR':
-    #        rcode = 'NODATA'
-    #    log_info(tag + ': ' + qname + ' -> ' + str(rcode))
-    #else:
-    #    log_info(tag + ': ' + qname + ' -> ' + alias + ' ' + str(rcode))
-
     if collapse and aliasqname:
-        log_info(tag + ': COLLAPSE ' + qname + '/IN/CNAME')
+        log_info('{0}: COLLAPSE {1}/IN/CNAME'.format(tag, qname))
 
     if newalias:
         to_cache(qname, 'IN', qtype, reply, force, False, 'GENERATED-ALIAS')
@@ -1237,18 +1225,15 @@ def save_cache(file):
     if not persistentcache:
         return False
 
-    log_info('CACHE-SAVE: Saving to \"' + file + '\"')
+    log_info('CACHE-SAVE: Saving to \"{0}\"'.format(file))
 
     try:
         s = shelve.DbfilenameShelf(file, flag='n', protocol=4)
         s['cache'] = cache
-        #s['inrx_cache'] = inrx_cache
-        #s['indom_cache'] = indom_cache
-        #s['match_cache'] = match_cache
         s.close()
 
     except BaseException as err:
-        log_err('ERROR: Unable to open/write file \"' + file + '\" - ' + str(err))
+        log_err('ERROR: Unable to open/write file \"{0}\" - {1}'.format(file, err))
         return False
 
     return True
@@ -1260,29 +1245,23 @@ def load_cache(file):
         return False
 
     global cache
-    #global inrx_cache
-    #global indom_cache
-    #global match_cache
 
     age = file_exist(file, True)
     if age and age < maxfileage:
-        log_info('CACHE-LOAD: Loading from \"' + file + '\"')
+        log_info('CACHE-LOAD: Loading from \"{0}\"'.format(file))
         try:
             s = shelve.DbfilenameShelf(file, flag='r', protocol=4)
             cache = s['cache']
-            #inrx_cache = s['inrx_cache']
-            #indom_cache = s['indom_cache']
-            #match_cache = s['match_cache']
             s.close()
 
         except BaseException as err:
-            log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
+            log_err('ERROR: Unable to open/read file \"{0}\" - {1}'.format(file, err))
             return False
 
         cache_maintenance(False, maxttl, False, False) # Purge everything with has a ttl higher then 60 seconds left
 
     else:
-        log_info('CACHE-LOAD: Skip loading cache from \"' + file + '\" - non-existant or older then ' + str(maxfileage) + ' seconds')
+        log_info('CACHE-LOAD: Skip loading cache from \"{0}\" - non-existant or older then {1} seconds'.format(file, maxfileage))
         return False
 
     if debug: execute_command('show.' + command, False)
@@ -1308,7 +1287,7 @@ def from_dict(fromlist, tolist):
 
 def save_lists(file):
     '''Save Lists'''
-    log_info('LIST-SAVE: Saving to \"' + file + '\"')
+    log_info('LIST-SAVE: Saving to \"{0}\"'.format(file))
 
     try:
         s = shelve.DbfilenameShelf(file, flag='n', protocol=4)
@@ -1335,7 +1314,7 @@ def save_lists(file):
         s.close()
 
     except BaseException as err:
-        log_err('ERROR: Unable to open/write file \"' + file + '\" - ' + str(err))
+        log_err('ERROR: Unable to open/write file \"{0}\" - {1}'.format(file, err))
         return False
 
 
@@ -1344,7 +1323,7 @@ def save_lists(file):
 
 def load_asn(file, asn4, asn6):
     '''Load IPASN'''
-    log_info('ASN: Loading IPASN from \"' + file + '\"')
+    log_info('ASN: Loading IPASN from \"{0}\"'.format(file))
 
     if file_exist(file, False):
         try:
@@ -1353,7 +1332,7 @@ def load_asn(file, asn4, asn6):
             f.close()
 
         except BaseException as err:
-            log_err('ERROR: Unable to open/read/process ASN file \"' + file + '\" - ' + str(err))
+            log_err('ERROR: Unable to open/read/process ASN file \"{0}\" - {1}'.format(file, err))
             return False
 
         count = 0
@@ -1361,13 +1340,11 @@ def load_asn(file, asn4, asn6):
             count += 1
 
             elements = regex.split('\s+', line.strip())
-            #if len(elements) > 1:
             if elements[1:]:
                 prefix = elements[0]
                 if ipregex.search(prefix):
                     asn = elements[1].upper().lstrip('AS')
                     if isasn.search('AS' + asn):
-                        #if len(elements) > 2:
                         if elements[2:]:
                             owner = ' '.join(elements[2:]).upper()
                         else:
@@ -1380,15 +1357,15 @@ def load_asn(file, asn4, asn6):
 
                         asnd[prefix] = asn + ' ' + owner
                     else:
-                        log_err('ASN-ERROR [' + str(count) + ']: Invalid ASN - ' + line)
+                        log_err('ASN-ERROR [{0}]: Invalid ASN - {1}'.format(count, line))
 
                 else:
-                    log_err('ASN-ERROR [' + str(count) + ']: Invalid IP - ' + line)
+                    log_err('ASN-ERROR [{0}]: Invalid IP - {1}'.format(count, line))
 
     else:
-        log_err('ERROR: Unable to open/read/process ASN file \"' + file + '\" - File does not exists')
+        log_err('ERROR: Unable to open/read/process ASN file \"{0}\" - File does not exist'.format(file))
 
-    log_info('ASN: Fetched ' + str(len(asn4)) + ' IPv4 and ' + str(len(asn6)) + ' IPv6 ASNs')
+    log_info('ASN: Fetched {0} IPv4 and {1} IPv6 ASNs'.format(len(asn4), len(asn6)))
 
     return asn4, asn6
 
@@ -1418,7 +1395,7 @@ def load_lists(file):
 
     age = file_exist(file, True)
     if age and age < maxfileage:
-        log_info('LIST-LOAD: Loading from \"' + file + '\"')
+        log_info('LIST-LOAD: Loading from \"{0}\"'.format(file))
         try:
             s = shelve.DbfilenameShelf(file, flag='r', protocol=4)
 
@@ -1449,11 +1426,11 @@ def load_lists(file):
             s.close()
 
         except BaseException as err:
-            log_err('ERROR: Unable to open/read file \"' + file + '\" - ' + str(err))
+            log_err('ERROR: Unable to open/read file \"{0}\" - {1}'.format(file, err))
             return False
 
     else:
-        log_info('LIST-LOAD: Skip loading lists from \"' + file + '\" - non-existant or older then ' + str(maxfileage) + ' seconds')
+        log_info('LIST-LOAD: Skip loading lists from \"{0}\" - non-existant or older then {1} seconds'.format(file, maxfileage))
         return False
 
     return True
@@ -1461,10 +1438,9 @@ def load_lists(file):
 
 def log_totals():
     '''Log List Totals'''
-    log_info('WHITELIST-TOTALS: ' + str(len(wl_rx)) + ' REGEXes, ' + str(len(wl_ip4)) + ' IPv4 CIDRs, ' + str(len(wl_ip6)) + ' IPv6 CIDRs, ' + str(len(wl_dom)) + ' DOMAINs, ' + str(len(aliases)) + ' ALIASes, ' + str(len(forward_servers)) + ' FORWARDs, ' + str(len(ttls)) + ' TTLs and ' + str(len(wl_asn)) + ' ASNs')
-    log_info('BLACKLIST-TOTALS: ' + str(len(bl_rx)) + ' REGEXes, ' + str(len(bl_ip4)) + ' IPv4 CIDRs, ' + str(len(bl_ip6)) + ' IPv6 CIDRs, ' + str(len(bl_dom)) + ' DOMAINs and ' + str(len(bl_asn)) + ' ASNs')
-    log_info('CACHE-TOTALS: ' + str(len(cache)) + ' Cache Entries')
-
+    log_info('WHITELIST-TOTALS: {0} REGEXes, {1} IPv4 CIDRs, {2} IPv6 CIDRs, {3} DOMAINs, {4} ALIASes, {5} FORWARDs, {6} TTLs and {7} ASNs'.format(len(wl_rx), len(wl_ip4), len(wl_ip6), len(wl_dom), len(aliases), len(forward_servers), len(ttls), len(wl_asn)))
+    log_info('BLACKLIST-TOTALS: {0} REGEXes, {1} IPv4 CIDRs, {2} IPv6 CIDRs, {3} DOMAINs and {4} ASNs'.format(len(bl_rx), len(bl_ip4), len(bl_ip6), len(bl_dom), len(bl_asn)))
+    log_info('CACHE-TOTALS: {0} Cache Entries'.format(len(cache)))
     return True
 
 
@@ -1473,7 +1449,7 @@ def log_totals():
 def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, alist, flist, tlist, asnlist):
     '''Read/Load lists'''
     listname = listname.upper()
-    log_info('Fetching ' + bw + ' \"' + listname + '\" entries from \"' + file + '\"')
+    log_info('Fetching {0} \"{1}\" entries from \"{2}\"'.format(bw, listname, file))
 
     count = 0
     fetched = 0
@@ -1485,7 +1461,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
             f.close()
 
         except BaseException as err:
-            log_err('ERROR: Unable to open/read/process list-file \"' + file + '\" - ' + str(err))
+            log_err('ERROR: Unable to open/read/process list-file \"{0}\" - {1}'.format(file, err))
 
         for line in lines:
             count += 1
@@ -1514,9 +1490,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                 entry = False
 
             # Process entry
-            #if entry and len(entry) > 0 and (not entry.startswith('#')):
             if entry and (not entry.startswith('#')):
-
                 # REGEX
                 if isregex.search(entry):
                     rx = entry.strip('/')
@@ -1525,7 +1499,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                         rxlist[name + ': ' + rx] = regex.compile(rx, regex.I)
                         fetched += 1
                     except BaseException as err:
-                        log_err(listname + ' INVALID REGEX [' + str(count) + ']: ' + entry + ' - ' + str(err))
+                        log_err('{0} INVALID REGEX [{1}]: {2} - {3}'.format(listname, count, entry, err))
 
                 # ASN
                 elif isasn.search(entry):
@@ -1541,12 +1515,12 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                         entrytype = 'PTR'
 
                     if is_illegal('REQUEST', entry) or is_weird('REQUEST', entry, entrytype):
-                        log_err(listname + ' ILLEGAL/FAULTY/WEIRD Entry [' + str(count) + ']: ' + entry)
+                        log_err('{0} ILLEGAL/FAULTY/WEIRD Entry [{1}]: {2}'.format(listname, count, entry))
                     elif entry != '.' and (entry not in domlist):
                         fetched += 1
                         domlist[entry] = name
                         if forced:
-                            log_info(listname + ' FORCED [' + str(count) + ']: ' + entry)
+                            log_info('{0} FORCED [{1}]: {2}'.format(listname, count, entry))
                             domlist[entry + '!'] = name
 
                 # IPV4
@@ -1565,7 +1539,6 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                     if entry.find('=') > 0:
                         if entry.startswith('/'):
                             elements = regex.split('/\s*=\s*', entry)
-                            #if len(elements) > 1:
                             if elements[1:]:
                                 if isregex.search(elements[0] + '/'):
                                     fetched += 1
@@ -1575,16 +1548,15 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                     try:
                                         arxlist[aliaskey] = regex.compile(rx, regex.I)
                                     except BaseException as err:
-                                        log_err(listname + ' INVALID REGEX [' + str(count) + ']: ' + entry + ' - ' + str(err))
+                                        log_err('{0} INVALID REGEX [{1}]: {2} - {3}'.format(listname, count, entry, err))
 
-                                    log_info('ALIAS-GENERATOR: \"' + rx + '\" = \"' + alias + '\"')
+                                    log_info('{0} ALIAS-GENERATOR [{1}]: \"{2}\" = \"{3}\"'.format(listname, count, rx, alias))
 
                                 else:
-                                    log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
+                                    log_err('{0} INVALID ALIAS [{1}]: {2}'.format(listname, count, entry))
 
                         else:
                             elements = regex.split('\s*=\s*', entry)
-                            #if len(elements) > 1:
                             if elements[1:]:
                                 domain = normalize_dom(elements[0])
                                 alias = normalize_dom(elements[1])
@@ -1593,17 +1565,16 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                     alist[domain] = alias
                                     if alias.upper() != 'RANDOM':
                                         domlist[domain] = 'Alias-Domain' # Whitelist it
-                                    log_info('ALIAS-ALIAS: \"' + domain + '\" = \"' + alias + '\"')
+                                    log_info('{0} ALIAS-ALIAS [{1}]: \"{2}\" = \"{3}\"'.format(listname, count, domain, alias))
                                 else:
-                                    log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
+                                    log_err('{0} INVALID ALIAS [{1}]: {2}'.format(listname, count, entry))
                             else:
-                                log_err(listname + ' INVALID ALIAS [' + str(count) + ']: ' + entry)
+                                log_err('{0} INVALID ALIAS [{1}]: {2}'.format(listname, count, entry))
 
                     # FORWARD - domain.com>ip
                     elif entry.find('>') > 0:
                         #elements = entry.split('>')
                         elements = regex.split('\s*>\s*', entry)
-                        #if len(elements) > 1:
                         if elements[1:]:
                             domain = normalize_dom(elements[0])
                             ips = elements[1].strip().lower().strip('.')
@@ -1613,23 +1584,22 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                 for addr in regex.split('\s*,\s*', ips):
                                     if ipportregex.search(addr):
                                         addrs.append(addr)
-                                        log_info('ALIAS-FORWARDER: \"' + domain + '\" to ' + addr)
+                                        log_info('{0} ALIAS-FORWARDER [{1}]: \"{2}\" to {3}'.format(listname, count, domain, addr))
                                     else:
-                                        log_err(listname + ' INVALID FORWARD-ADDRESS [' + str(count) + ']: ' + addr)
+                                        log_err('{0} INVALID FORWARD-ADDRESS [{1}]: {2}'.format(listname, count, addr))
 
                                 if addrs:
                                     fetched += 1
                                     flist[domain] = addrs
                             else:
-                                log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
+                                log_err('{0} INVALID FORWARD [{1}]: {2}'.format(listname, count, entry))
                         else:
-                            log_err(listname + ' INVALID FORWARD [' + str(count) + ']: ' + entry)
+                            log_err('{0} INVALID FORWARD [{1}]: {2}'.format(listname, count, entry))
 
                     # TTLS - domain.com!ttl (TTL = integer)
                     elif entry.find('!') > 0:
                         #elements = entry.split('!')
                         elements = regex.split('\s*!\s*', entry)
-                        #if len(elements) > 1:
                         if elements[1:]:
                             domain = normalize_dom(elements[0])
                             ttl = elements[1].strip()
@@ -1637,11 +1607,11 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                 fetched += 1
                                 tlist[domain] = int(ttl)
                                 domlist[domain] = 'TTL-Override' # Whitelist it
-                                log_info('ALIAS-TTL: \"' + domain + '\" = ' + ttl)
+                                log_info('{0} ALIAS-TTL [{1}]: \"{2}\" = {3}'.format(listname, count, domain, ttl))
                             else:
-                                log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
+                                log_err('{0} INVALID TTL [{1}]: {2}'.format(listname, count, entry))
                         else:
-                            log_err(listname + ' INVALID TTL [' + str(count) + ']: ' + entry)
+                            log_err('{0} INVALID TTL [{1}]: {2}'.format(listname, count, entry))
 
                     # Search Domains
                     elif entry.endswith('*'):
@@ -1652,18 +1622,18 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                     domlist[sdom] = 'Search-Domain'
                                 fetched += 1
                                 searchdom.add(sdom)
-                                log_info('ALIAS-SEARCH-DOMAIN: \"' + sdom + '\"')
+                                log_info('{0} ALIAS-SEARCH-DOMAIN [{1}]: \"{2}\"'.format(listname, count, sdom))
                         else:
-                            log_err(listname + ' INVALID SEARCH-DOMAIN [' + str(count) + ']: ' + entry)
+                            log_err('{0} INVALID SEARCH-DOMAIN [{1}]: {2}'.format(listname, count, entry))
 
                 # Invalid/Unknown Syntax or BOGUS entry
                 else:
-                    log_err(listname + ' INVALID/BOGUS LINE [' + str(count) + ']: \"' + entry + '\"')
+                    log_err('{0} INVALID/BOGUS LINE [{1}]: {2}'.format(listname, count, entry))
 
     else:
-        log_err('ERROR: Cannot open \"' + file + '\" - Does not exist')
+        log_err('ERROR: Cannot open \"{0}\" - Does not exist'.format(file))
 
-    log_info(listname + ' Processed ' + str(count) + ' lines and used ' + str(fetched))
+    log_info('{0} Processed {1} lines and used {2}'.format(listname, count, fetched))
 
     return domlist, iplist4, iplist6, rxlist, arxlist, alist, flist, tlist, asnlist
 
@@ -1680,12 +1650,12 @@ def reduce_ip(iplist, listname):
 
     #for kid in kids.keys():
     for kid in kids:
-        if debug: log_info('IPLIST-REDUCE [' + listname + ']: Removing subnet ' + kid + ' (' + iplist[kids[kid]] + '), already covered by ' + kids[kid] + ' (' + iplist[kid] + ')')
+        if debug: log_info('IPLIST-REDUCE [{0}]: Removed subnet {1} ({2}), already covered by {3} ({4})'.format(listname, kid, iplist[kids[kid]], kids[kid], iplist[kid]))
         del iplist[kid]
 
     after = len(iplist)
     count = before - after
-    log_info('IPLIST-REDUCE [' + listname + ']: Removed ' + str(count) + ' parented subnets, total went from ' + str(before) + ' to ' + str(after))
+    log_info('IPLIST-REDUCE [{0}]: Removed {1} parent subnets, total went from {2} to {3}'.format(listname, count, before, after))
 
     return iplist
 
@@ -1702,12 +1672,12 @@ def reduce_dom(domlist, listname):
 
     #for sub in subs.keys():
     for sub in subs:
-        if debug: log_info('DOMLIST-REDUCE [' + listname + ']: Removing subdomain ' + sub + ' (' + domlist[subs[sub]] + '), already covered by ' + subs[sub] + ' (' + domlist[sub] + ')')
+        if debug: log_info('DOMLIST-REDUCE [{0}]: Removind subdomain {1} ({2}), already covered by {3} ({4})'.format(listname, sub, domlist[subs[sub]], subs[sub], domlist[sub]))
         del domlist[sub]
 
     after = len(domlist)
     count = before - after
-    log_info('DOMLIST-REDUCE [' + listname + ']: Removed ' + str(count) + ' parented subdomains, total went from ' + str(before) + ' to ' + str(after))
+    log_info('DOMLIST-REDUCE [{0}]: Removed {1} parented subdomains, total went from {2} to {3}'.format(listname, count, before, after))
 
     return domlist
 
@@ -1723,12 +1693,12 @@ def unwhite_ip(wiplist, biplist, listname):
 
     #for cidr in cidrs.keys():
     for cidr in cidrs:
-        if debug: log_info('IPLIST-UNWHITE [' + listname + ']: Removing CIDR ' + cidr + ' (' + biplist[cidr] + '), whitelisted by ' + cidrs[cidr] + ' (' + wiplist[cidr] + ')')
+        if debug: log_info('IPLIST-UNWHITE [{0}]: Removing CIDR {1} ({2}), whitelisted by {3} ({4})'.format(listname, cidr, biplist[cidr], cidrs[cidr], wiplist[cidr]))
         del biplist[cidr]
 
     after = len(biplist)
     count = before - after
-    log_info('IPLIST-UNWHITE [' + listname + ']: Removed ' + str(count) + ' whitelisted CIDRs, total went from ' + str(before) + ' to ' + str(after))
+    log_info('IPLIST-UNWHITE [{0}]: Removed {1} whitelisted CIDRs, total went from {2} to {3}'.format(listname, count, before, after))
 
     return biplist
 
@@ -1745,12 +1715,12 @@ def unwhite_dom(wdomlist, bdomlist, listname):
 
     #for domain in domains.keys():
     for domain in domains:
-        if debug: log_info('DOMLIST-UNWHITE [' + listname + ']: Removing subdomain ' + domain + ' (' + bdomlist[domain] + '), whitelisted by ' + domains[domain] + ' (' + wdomlist[domain] + ')')
+        if debug: log_info('DOMLIST-UNWHITE [{0}]: Removing subdomain {1} ({2}), whitelisted by {3} ({4})'.format(listname, domain, bdomlist[domain], domains[domain], wdomlist[domain]))
         del bdomlist[domain]
 
     after = len(bdomlist)
     count = before - after
-    log_info('DOMLIST-UNWHITE [' + listname + ']: Removed ' + str(count) + ' whitelisted Domains, total went from ' + str(before) + ' to ' + str(after))
+    log_info('DOMLIST-UNWHITE [{0}]: Removed {1} whitelisted Domains, total went from {2} to {3}'.format(listname, count, before, after))
 
     return bdomlist
 
@@ -1765,18 +1735,18 @@ def unblack_dom(bdomlist, wdomlist, listname):
         if blackdomain:
             forcedwhite = in_domain(domain + '!', wdomlist, 'Forcedwhite-DOM ' + listname, False)
             if forcedwhite:
-                log_info('DOMLIST-UNBLACK [' + listname + ']: Skipped subdomain ' + domain + ' (' + wdomlist[domain] + '), forced whitelisted by ' + forcedwhite + ' (' + wdomlist[forcedwhite] + ')')
+                log_info('DOMLIST-UNBLACK [{0}]: Skipped subdomain {1} ({2}), forced whitelisted by {3} ({4})'.format(listname, domain, wdomlist[domain], forcedwhite, wdomlist[forcedwhite]))
             else:
                 domains[domain] = blackdomain
 
     #for domain in domains.keys():
     for domain in domains:
-        if debug: log_info('DOMLIST-UNBLACK [' + listname + ']: Removing subdomain ' + domain + ' (' + wdomlist[domain] + '), forced blacklisted by ' + domains[domain] + ' (' + bdomlist[domains[domain]] + ')')
+        if debug: log_info('DOMLIST-UNBLACK [{0}]: Removing subdomain {1} ({2}), forced blacklisted by {3} ({4})'.format(listname, domain, wdomlist[domain], domains[domain], bdomlist[domains[domain]]))
         del wdomlist[domain]
 
     after = len(wdomlist)
     count = before - after
-    log_info('DOMLIST-UNBLACK [' + listname + ']: Removed ' + str(count) + ' whitelisted Domains, total went from ' + str(before) + ' to ' + str(after))
+    log_info('DOMLIST-UNBLACK [{0}]: Removed {1} whitelisted Domains, total went from {2} to {3}'. format(listname, count, before, after))
 
     return wdomlist
 
@@ -1792,12 +1762,12 @@ def unwhite_asn(awlist, ablist, listname):
 
     #for asn in asns.keys():
     for asn in asns:
-        if debug: log_info('ASNLIST-UNWHITE [' + listname + ']: Removing whitelisted ASN AS' + asn + ' (' + ablist[asn] + ')')
+        if debug: log_info('ASNLIST-UNWHITE [{0}]: Removing whitelisted ASN AS{1} ({2})'.format(listname, asn, ablist[asn]))
         del ablist[asn]
 
     after = len(ablist)
     count = before - after
-    log_info('ASNLIST-UNWHITE [' + listname + ']: Removed ' + str(count) + ' whitelisted ASNs, total went from ' + str(before) + ' to ' + str(after))
+    log_info('ASNLIST-UNWHITE [{0}]: Removed {1} whitelisted ASNs, total went from {2} to {3}'.format(listname, count, before, after))
 
     return ablist
 
@@ -1815,12 +1785,12 @@ def unreg_dom(rxlist, domlist, listname):
 
     #for domain in domains.keys():
     for domain in domains:
-        if debug: log_info('DOMLIST-UNREG [' + listname + ']: Removing domain ' + domain + ' (' + domlist[domain] + '), already covered by ' + domains[domain])
+        if debug: log_info('DOMLIST-UNREG [{0}]: Removing domain {1} ({2}), already covered by {3}'.format(listname, domain, domlist[domain], domains[domain]))
         del domlist[domain]
 
     after = len(domlist)
     count = before - after
-    log_info('DOMLIST-UNREG [' + listname + ']: Removed ' + str(count) + ' regexed Domains, total went from ' + str(before) + ' to ' + str(after))
+    log_info('DOMLIST-UNREG [{0}]: Removed {1} regexed Domains, total went from {2} to {3}'.format(listname, count, before, after))
 
     return domlist
 
@@ -1836,7 +1806,7 @@ def normalize_ttl(qname, rr):
         newttl = in_domain(qname, ttls, 'TTL', False)
         if newttl:
             ttl = ttls.get(newttl, nottl)
-            log_info('TTL-HIT: Setting TTL for ' + qname + ' (' + newttl + ') to ' + str(ttl))
+            log_info('TTL-HIT: Setting TTL for {0} ({1}) to {2}'.format(qname, newttl, ttl))
             update_ttl(rr, ttl)
             return ttl
 
@@ -1946,9 +1916,9 @@ def from_cache(qname, qclass, qtype, tid):
     # If expired, remove from cache
     if ttl < 1:
         if numrrs > 0 or (numrrs == 0 and rcode != 'NOERROR'):
-            log_info('CACHE-EXPIRED: ' + queryname + ' ' + rcode + ' [' + str(hits) + '/' + str(hitsneeded) + ' hits]' + ' (TTL-EXPIRED:' + str(ttl) + '/' + str(orgttl) + ') - ' + comment)
+            log_info('CACHE-EXPIRED: {0} {1} [{2}/{3} hits] (TTL-EXPIRED:{4}/{5}) - {6}'.format(queryname, rcode, hits, hitsneeded, ttl, orgttl, comment))
         else:
-            log_info('CACHE-EXPIRED: ' + queryname+ ' NODATA ' + ' (TTL-EXPIRED:' + str(orgttl) + ') - ' + comment)
+            log_info('CACHE-EXPIRED: {0} NODATA (TTL-EXPIRED:{1}) - {2}'.format(queryname, orgttl, comment))
         del_cache_entry(queryhash)
         cache_maintenance_busy = False
         return None
@@ -1974,7 +1944,6 @@ def from_cache(qname, qclass, qtype, tid):
                 else:
                     nonaddr.append(record)
 
-            #if len(addr) > 1:
             if addr[1:]:
                 reply.rr = nonaddr + round_robin(addr)
 
@@ -1983,12 +1952,12 @@ def from_cache(qname, qclass, qtype, tid):
                 record.ttl = ttl
 
         if numrrs == 0 and rcode == 'NOERROR':
-            log_info('CACHE-HIT (' + str(hits) + '/' + str(hitsneeded) + ' hits) : Retrieved NODATA for ' + queryname + ' (TTL-LEFT:' + str(ttl) + '/' + str(orgttl) + ') - ' + comment)
+            log_info('CACHE-HIT ({0}/{1} hits): Retrieved NODATA for {2} (TTL-LEFT:{3}/{4}) - {5}'.format(hits, hitsneeded, queryname, ttl, orgttl, comment))
         else:
             if numrrs == 0:
-                log_info('CACHE-HIT (' + str(hits) + '/' + str(hitsneeded) + ' hits) : Retrieved ' + rcode + ' for ' + queryname + ' (TTL-LEFT:' + str(ttl) + '/' + str(orgttl) + ') - ' + comment)
+                log_info('CACHE-HIT ({0}/{1}): Retrieved {2} for {3} (TTL-LEFT:{4}/{5}) - {6}'.format(hits, hitsneeded, rcode, queryname, ttl, orgttl, comment))
             else:
-                log_info('CACHE-HIT (' + str(hits) + '/' + str(hitsneeded) + ' hits) : Retrieved ' + str(numrrs) + ' RRs for ' + queryname + ' ' + rcode + ' (TTL-LEFT:' + str(ttl) + '/' + str(orgttl) + ') - ' + comment)
+                log_info('CACHE-HIT ({0}/{1}): Retrieved {2} RRs for {3} {4} (TTL-LEFT:{5}/{6}) - {7}'.format(hits, hitsneeded, numrrs, queryname, rcode, ttl, orgttl, comment))
 
         log_replies(reply, 'CACHE-REPLY')
 
@@ -2000,6 +1969,9 @@ def from_cache(qname, qclass, qtype, tid):
 
 def log_replies(reply, title):
     '''Log replies'''
+    if not logreplies:
+        return False
+
     hid = id_str(reply.header.id)
     replycount = 0
     replynum = len(reply.rr)
@@ -2007,16 +1979,11 @@ def log_replies(reply, title):
     if replynum > 0:
         for record in reply.rr:
             replycount += 1
-            rqname = normalize_dom(record.rname)
-            rqtype = QTYPE[record.rtype].upper()
-            data = normalize_dom(record.rdata)
-            log_info(title + ' [' + hid + ':' + str(replycount) + '-' + str(replynum) + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' ' + rcode)
+            log_info('{0} [{1}:{2}-{3}]: {4}/IN/{5} = {6} {7}'.format(title, hid, replycount, replynum, record.rname, QTYPE[record.rtype], record.rdata, rcode))
     else:
-        rqname = normalize_dom(reply.q.qname)
-        rqtype = QTYPE[reply.q.qtype].upper()
         if rcode == 'NOERROR':
             rcode = 'NODATA'
-        log_info(title + ' [' + hid + ']: ' + rqname + '/IN/' + rqtype + ' ' + rcode)
+        log_info('{0} [{1}]: {2}/IN/{3} {4}'.format(title, hid, reply.q.qname, QTYPE[reply.q.qtype], rcode))
 
     return True
 
@@ -2024,7 +1991,7 @@ def log_replies(reply, title):
 def in_cache(qname, qclass, qtype):
     '''Check if in cache'''
     if query_hash(qname, qclass, qtype) in cache:
-        if debug: log_info('IN-CACHE-HIT: ' + qname + '/' + qclass + '/' + qtype)
+        if debug: log_info('IN-CACHE-HIT: {0}/{1}/{2}'.format(qname, qclass, qtype))
         return True
 
     return False
@@ -2055,13 +2022,12 @@ def to_cache(qname, qclass, qtype, reply, force, newttl, comment):
     # Cache return-codes
     if rcode in ('NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
         ttl = newttl or rcodettl
-    #elif rcode == 'NOERROR' and len(reply.rr) == 0: # NODATA
     elif rcode == 'NOERROR' and (not reply.rr): # NODATA
         ttl = newttl or rcodettl
     elif rcode == 'SERVFAIL':
         ttl = newttl or failttl
     elif rcode != 'NOERROR':
-        log_info('CACHE-SKIPPED: ' + queryname + ' ' + rcode)
+        log_info('CACHE-SKIPPED: {0} {1}'.format(queryname, rcode))
         return False
     else: # Regular/NOERROR record
         ttl = newttl or reply.rr[0].ttl
@@ -2209,12 +2175,7 @@ def cache_maintenance(flushall, olderthen, clist, plist):
         else:
             log_info('CACHE-STATS: purged {0} entries ({1} RRs), {2} left in cache'.format(before - after, totalrrs, after))
 
-        # Expiration of TTLCache not needed, is addresses quickly enough
-        #inrx_cache.expire()
-        #indom_cache.expire()
-        #match_cache.expire()
-
-        log_info('CACHE-STATS: INRX=' + str(len(inrx_cache)) + ' INDOM=' + str(len(indom_cache)) + ' MATCH=' + str(len(match_cache)) + ' entries')
+        log_info('CACHE-STATS: INRX={0} INDOM={1} MATCH={2} entries'.format(len(inrx_cache), len(indom_cache), len(match_cache)))
 
         save_cache(cachefile)
 
@@ -2248,9 +2209,9 @@ def add_cache_entry(qname, qclass, qtype, expire, ttl, reply, comment):
     if numrrs == 0:
         if rcode == 'NOERROR':
             rcode = 'NODATA'
-        log_info('CACHE-UPDATE (' + str(len(cache)) + ' entries): Cached ' + rcode + ' for ' + hashname + ' (TTL:' + str(ttl) + ') - ' + comment)
+        log_info('CACHE-UPDATE ({0} entries): Cached {1} for {2} (TTL:{3}) - {4}'.format(len(cache), rcode, hashname, ttl, comment))
     else:
-        log_info('CACHE-UPDATE (' + str(len(cache)) + ' entries): Cached ' + str(numrrs) + ' RRs for ' + hashname + ' ' + rcode + ' (TTL:' + str(ttl) + ') - ' + comment)
+        log_info('CACHE-UPDATE ({0} entries): Cached {1} RRs for {2} {3} (TTL:{4}) - {5}'.format(len(cache), numrrs, hashname, rcode, ttl, comment))
 
     cache_maintenance_busy = False
 
@@ -2290,7 +2251,7 @@ def collapse_cname(request, reply, rid):
                     ip = str(record.rdata).lower()
                     addr.add(ip)
 
-            #if len(addr) > 0:
+            zid = id_str(rid)
             if addr:
                 reply = rc_reply(request, 'NOERROR')
                 count = 0
@@ -2304,9 +2265,14 @@ def collapse_cname(request, reply, rid):
                         rrtype = 'AAAA'
                         answer = RR(qname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(ip))
 
-                    log_info('REPLY [' + id_str(rid) + ':' + str(count) + '-' + total + ']: COLLAPSE ' + qname + '/IN/CNAME -> ' + str(ip) + '/' + rrtype)
+                    if logreplies:
+                        log_info('REPLY [{0}:{1}-{2}]: COLLAPSE {3}/IN/CNAME -> {4}/{5}'.format(zid, count, total, qname, ip, rrtype))
 
                     reply.add_answer(answer)
+
+                if not logreplies:
+                    log_info('REPLY [{0}]: {1}/IN/CNAME has been COLLAPSED to {2} address-records'.format(zid, qname, len(addr)))
+
             else:
                 reply = rc_reply(request, 'NXDOMAIN')
 
@@ -2319,7 +2285,7 @@ def execute_command(qname, log):
 
     qname = regex.sub('\.' + command + '$', '', qname).upper()
 
-    if log: log_info('COMMAND: \"' + qname + '\"')
+    if log: log_info('COMMAND: \"{0}\"'.format(qname))
 
     flush = True
 
@@ -2339,12 +2305,12 @@ def execute_command(qname, log):
                 hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
                 if rcode == 'NOERROR' and numrrs == 0:
                     rcode = 'NODATA'
-                    log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' NODATA [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
+                    log_info('CACHE-INFO ({0}/{1}): {2} NODATA [{3}/{4} Hits] (TTL-LEFT:{5}/{6})'.format(count, total, cache[i][2], record[3], hitsneeded, record[1] - now, record[4]))
                 else:
                     if numrrs != 0:
-                        log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + str(numrrs) + ' RRs for ' + cache[i][2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
+                        log_info('CACHE-INFO ({0}/{1}): {2} RRs for {3} [{4}/{5} Hits] (TTL-LEFT:{6}/{7})'.format(count, total, numrrs, cache[i][2], rcode, record[3], hitsneeded, record[1] - now, record[4]))
                     else:
-                        log_info('CACHE-INFO (' + str(count) + '/' + total + '): ' + cache[i][2] + ' ' + rcode + ' [' + str(record[3]) + '/' + str(hitsneeded) + ' Hits] (TTL-LEFT:' + str(record[1] - now) + '/' + str(record[4]) + ')')
+                        log_info('CACHE-INFO ({0}/{1}: {2} {3} [{4}/{5} Hits] (TTL-LEFT:{6}/{7})'.format(count, total, cache[i][2], rcode, record[3], hitsneeded, record[1] - now, record[4]))
 
     elif qname in ('CONTINUE', 'RESUME'):
         if filtering:
@@ -2366,7 +2332,7 @@ def execute_command(qname, log):
         log_info('COMMAND: Flush CACHE')
 
     else:
-        log_err('COMMAND: Unknown/Failed command \"' + qname + '\"')
+        log_err('COMMAND: Unknown/Failed command \"{0}\"'.format(qname))
         return False
 
     if flush:
@@ -2416,7 +2382,7 @@ def rc_reply(request, rcode):
     '''Generate empty reply with rcode'''
     reply = request.reply()
     rcode = rcode.upper()
-    if debug: log_info('RCODE: ' + normalize_dom(request.q.qname) + '/' + QTYPE[request.q.qtype].upper() + ' = ' + rcode)
+    if debug: log_info('RCODE: {0}/{1} = {2}'.format(request.q.qname, QTYPE[request.q.qtype], rcode))
     if rcode == 'NODATA':
         reply.header.rcode = getattr(RCODE, 'NOERROR')
     else:
@@ -2441,13 +2407,13 @@ def do_query(request, handler, force):
 
     queryname = qname + '/' + qclass + '/' + qtype
 
-    log_info('REQUEST [' + tid + '] from ' + cip + ' for ' + queryname + ' (' + handler.protocol.upper() + ')')
+    log_info('REQUEST [{0}]: from {1} for {2} ({3})'.format(tid, cip, queryname, handler.protocol.upper()))
 
     reply = None
 
     # Check ACL
     if ipregex.search(cip) and (cip not in allow_query4) and (cip not in allow_query6):
-        log_info('ACL-HIT [' + tid + ']: Request from ' + cip + ' for ' + queryname + ' ' + aclrcode)
+        log_info('ACL-HIT [{0}]: Request from {1} for {2} {3}'.format(tid, cip, queryname, aclrcode))
         reply = rc_reply(request, aclrcode)
 
 
@@ -2474,12 +2440,12 @@ def do_query(request, handler, force):
     # Process query/request
     if reply is None:
         if qclass != 'IN':
-            log_info('BLOCK-UNSUPPORTED-CLASS [' + tid + '] from ' + cip + ': ' + queryname + ' NOTIMP')
+            log_info('BLOCK-UNSUPPORTED-CLASS [{0}]: Request from {1} for {2} {3}=NOTIMP'.format(tid, cip, queryname, qclass))
             reply = rc_reply(request, 'NOTIMP')
 
         # Filter if query-type is not supported
         elif qtype not in ('ANY', 'A', 'AAAA', 'AFSDB', 'ANY', 'APL', 'CAA', 'CERT', 'CNAME', 'DHCID', 'DLV', 'DNAME', 'DNSKEY', 'DS', 'HIP', 'IPSECKEY', 'KEY', 'KX', 'LOC', 'MX', 'NAPTR', 'NS', 'NSEC', 'NSEC3', 'NSEC3PARAM', 'PTR', 'RP', 'RRSIG', 'SIG', 'SOA', 'SRV', 'SSHFP', 'TA', 'TKEY', 'TLSA', 'TSIG', 'TXT'):
-            log_info('BLOCK-UNSUPPORTED-RRTYPE [' + tid + '] from ' + cip + ': ' + queryname + ' NOTIMP')
+            log_info('BLOCK-UNSUPPORTED-RRTYPE [{0}]: Request from {1} for {2}, {3}=NOTIMP'.format(tid, cip, queryname, qtype))
             reply = rc_reply(request, 'NOTIMP')
 
         # Check if parent is in cache as NXDOMAIN
@@ -2490,13 +2456,12 @@ def do_query(request, handler, force):
                 cacheentry = cache.get(queryhash, None)
                 if cacheentry is not None:
                     rcode = str(RCODE[cacheentry[0].header.rcode])
-                    #if len(cacheentry[0].rr) == 0 and rcode in ('NODATA', 'NOERROR', 'NOTIMP', 'NXDOMAIN', 'REFUSED', 'SERVFAIL'):
                     if (not cacheentry[0].rr) and rcode in ('NODATA', 'NOERROR', 'NOTIMP', 'NXDOMAIN', 'REFUSED', 'SERVFAIL'):
                         reply = rc_reply(request, rcode)
                         if rcode == 'NOERROR':
                             rcode = 'NODATA'
-                        log_info('CACHE-PARENT-MATCH [' + tid + ']: \"' + qname + '\" matches parent \"' + dom + '\" ' + rcode)
-                        log_info('REPLY [' + tid + ']: ' + queryname + ' = ' + rcode)
+                        log_info('CACHE-PARENT-MATCH [{0}]: \"{1}\" matches parent \"{2}\" {3}'.format(tid, qname, dom, rcode))
+                        log_info('REPLY [{0}]: {1} = {2}'.format(tid, queryname, rcode))
                         now = int(time.time())
                         expire = cacheentry[1]
                         parentttlleft = expire - now
@@ -2505,12 +2470,12 @@ def do_query(request, handler, force):
         if reply is None:
             # Block IPv4 based queries when client request comes in on IPv6
             if blockv4 is None and ipregex6.search(cip) and (qtype == 'A' or (qtype == 'PTR' and ip4arpa.search(qname))):
-                log_info('AUTOBLOCK-IPV4-HIT [' + tid + '] from ' + cip + ': ' + queryname + ' ' + hitrcode)
+                log_info('AUTOBLOCK-IPV4-HIT [{0}]: Request from {1} for {2} {3}'.format(tid, cip, queryname, hitrcode))
                 reply = rc_reply(request, hitrcode)
 
             # Block IPv6 based queries when client request comes in on IPv4
             elif blockv6 is None and ipregex4.search(cip) and (qtype == 'AAAA' or (qtype == 'PTR' and ip6arpa.search(qname))):
-                log_info('AUTOBLOCK-IPV6-HIT [' + tid + '] from ' + cip + ': ' + queryname + ' ' + hitrcode)
+                log_info('AUTOBLOCK-IPV6-HIT [{0}]: Request from {1} for {2} {3}'.format(tid, cip, queryname, hitrcode))
                 reply = rc_reply(request, hitrcode)
 
             elif not in_domain(qname, forward_servers, 'Forwarders', False):
@@ -2520,7 +2485,7 @@ def do_query(request, handler, force):
                         if qname.endswith('.' + sdom):
                             dname = qname.rstrip('.' + sdom)
                             if in_cache(dname, 'IN', qtype):
-                                log_info('SEARCH-HIT [' + tid + ']: \"' + qname + '\" matched \"' + dname + ' . ' + sdom + '\"')
+                                log_info('SEARCH-HIT [{0}]: \"{1}\" matched \"{2} . {3}\"'.format(tid, qname, dname, sdom))
                                 reply = rc_reply(request, 'NOERROR') # Empty response, NXDOMAIN provides other search-requests
                                 break
 
@@ -2534,7 +2499,7 @@ def do_query(request, handler, force):
             queryfiltered = False
             if filtering:
                 if checkrequest is False:
-                    log_info('UNFILTERED-QUERY [' + tid + ']: ' + queryname)
+                    log_info('UNFILTERED-QUERY [{0}]: {1}'.format(tid, queryname))
                     reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, force)
                 else:
                     # Check against lists
@@ -2565,9 +2530,9 @@ def do_query(request, handler, force):
     # Catch-all
     else:
         reply = rc_reply(request, 'SERVFAIL')
-        log_err('REPLY-NONE [' + tid + '] from ' + cip + ' for ' + queryname + ' = SERVFAIL')
+        log_err('REPLY-NONE [{0}]: Request from {1} for {2} = SERVFAIL'.format(tid, cip, queryname))
 
-    log_info('FINISHED [' + tid + '] from ' + cip + ' for ' + queryname)
+    log_info('FINISHED [{0}]: Request from {1} for {2}'.format(tid, cip, queryname))
 
     return reply
 
@@ -2590,99 +2555,93 @@ def read_config(file):
     Dictionary (with list values): <varname> = <key> > <value1>,<value2>,<value3>, ...
     '''
     if file and file_exist(file, False):
-        log_info('CONFIG: Loading config from config-file \"' + file + '\"')
+        log_info('CONFIG: Loading config from config-file \"{0}\"'.format(file))
         try:
             f = open(file, 'r')
             lines = f.readlines()
             f.close()
 
         except BaseException as err:
-            log_err('ERROR: Unable to open/read/process file \"' + file + '\" - ' + str(err))
+            log_err('ERROR: Unable to open/read/process file \"{0}\" - {1}'.format(file, err))
 
         for line in lines:
             entry = line.strip()
-            #if (not entry.startswith('#')) and len(entry) > 0:
             if entry and (not entry.startswith('#')):
                 elements = regex.split('\s*=\s*', entry)
-                #if len(elements) > 1:
                 if elements[1:]:
                     var = str(elements[0])
                     val = elements[1].strip()
-                    #if len(val) > 0 and val.upper() != 'DEFAULT':
                     if val and val.upper() != 'DEFAULT':
                         if val.find('>') != -1:
                             dictelements = regex.split('\s*>\s*', val)
                             key = dictelements[0]
                             val = dictelements[1]
-                            log_info('CONFIG-SETTING-DICT: ' + var + '[' + key + '] = ' + val)
+                            log_info('CONFIG-SETTING-DICT: {0}[{1}] = {2}'.format(var, key, val))
                             globals()[var] = {key : regex.split('\s*,\s*', val)}
                         elif val.startswith('\'') and val.endswith('\''):
-                            log_info('CONFIG-SETTING-STR: ' + var + ' = ' + val)
+                            log_info('CONFIG-SETTING-STR: {0} = {1}'.format(var, val))
                             globals()[var] = str(regex.split('\'', val)[1].strip())
                         elif val.lower() in ('false', 'none', 'true'):
-                            log_info('CONFIG-SETTING-BOOL: ' + var + ' = ' + val)
+                            log_info('CONFIG-SETTING-BOOL: {0} = {1}'.format(var, val))
                             if val.lower() == 'true':
                                 globals()[var] = bool(1)
                             else:
                                 globals()[var] = bool(0)
                         elif regex.match('^[0-9]+$', val):
-                            log_info('CONFIG-SETTING-INT: ' + var + ' = ' + val)
+                            log_info('CONFIG-SETTING-INT: {0} = {1}'.format(var, val))
                             globals()[var] = int(val)
                         else:
-                            log_info('CONFIG-SETTING-LIST: ' + var + ' = ' + val)
+                            log_info('CONFIG-SETTING-LIST: {0} = {1}'.format(var, val))
                             globals()[var] = regex.split('\s*,\s*', val)
 
     else:
-        log_info('CONFIG: Skipping config from file, config-file \"' + file + '\" does not exist')
+        log_info('CONFIG: Skipping config from file, config-file \"{0}\" does not exist'.format(file))
 
 
     if blocksearchdom and file_exist(resolvfile, False):
-        log_info('CONFIG: Loading domains from \"' + resolvfile + '\"')
+        log_info('CONFIG: Loading domains from \"{0}\"'.format(resolvfile))
         try:
             f = open(resolvfile, 'r')
             lines = f.readlines()
             f.close()
 
         except BaseException as err:
-            log_err('ERROR: Unable to open/read/process file \"' + resolvfile + '\" - ' + str(err))
+            log_err('ERROR: Unable to open/read/process file \"{0}\" - {1}'.format(resolvfile, err))
 
         for line in lines:
             entry = regex.split('#', line)[0].strip().lower()
-            #if len(entry) > 0:
             if entry:
                 elements = regex.split('\s+', entry)
                 if elements[0] == 'domain' or elements[0] == 'search':
                     for dom in elements[1:]:
                         if dom not in searchdom:
-                            log_info('CONFIG: Fetched ' + elements[0] + ' \"' + dom + '\" from \"' + resolvfile + '\"')
+                            log_info('CONFIG: Fetched {0} \"{1}\" from \"{2}\"'. format(elements[0], dom, resolvfile))
                             searchdom.add(dom)
 
     return True
 
 
 def get_dns_servers(file, fservers):
-    log_info('CONFIG: Loading nameservers from \"' + file + '\"')
+    log_info('CONFIG: Loading nameservers from \"{0}\"'.format(file))
     try:
         f = open(file, 'r')
         lines = f.readlines()
         f.close()
 
     except BaseException as err:
-        log_err('ERROR: Unable to open/read/process file \"' + file + '\" - ' + str(err))
+        log_err('ERROR: Unable to open/read/process file \"{0}\" - {1}'.format(file, err))
 
     ns = list()
     for line in lines:
         entry = regex.split('#', line)[0].strip().lower()
-        #if len(entry) > 0:
         if entry:
             elements = regex.split('\s+', entry)
             if elements[0] == 'nameserver':
                 for ip in elements[1:]:
                     if ip not in ns and ipregex.search(ip):
-                        log_info('CONFIG: Fetched ' + elements[0] + ' \"' + ip + '\" from \"' + file + '\"')
+                        log_info('CONFIG: Fetched {0} \"{1}\" from \"{2}\"'.format(elements[0], ip, file))
                         ns.append(ip)
 
-    #if len(ns) > 0:
     if ns:
         if '.' in fservers:
             fservers['.'] += ns
@@ -2702,9 +2661,7 @@ def white_label():
     for dom in wl_dom:
         if (not ipregex.search(dom)) and (not iparpa.search(dom)):
             for label in regex.split('[\._-]', dom):
-                #if len(label) > 2 and (label not in wordlist) and (not isnum.search(label)):
                 if label[2:] and (label not in wordlist) and (not isnum.search(label)):
-                    #if debug: log_info('RANDOMNESS: Adding label \"' + label + '\"')
                     wordlist.add(label)
 
     # Add some static words !!! ADD this as config option !!!
@@ -2717,7 +2674,7 @@ def white_label():
 
     worddict['whitelist'] = list(wordlist)
     add_frequency_lists(worddict)
-    log_info('WHITELIST: Added ' + str(len(wordlist)) + ' labels to randomness-guesser')
+    log_info('WHITELIST: Added {0} labels to randomness-guesser'.format(len(wordlist)))
 
     return True
 
@@ -2730,7 +2687,7 @@ if __name__ == '__main__':
 
     if debug: log_info('RUNNING INSTIGATOR IN *DEBUG* MODE')
 
-    log_info('BASE-DIR: ' + basedir)
+    log_info('BASE-DIR: {0}'.format(basedir))
 
     read_config(configfile)
 
@@ -2756,7 +2713,7 @@ if __name__ == '__main__':
         for ip in redirect_addrs:
             ip = ip.split('@')[0]
             if ipregex.search(ip) and (ip not in wl_ip4) and (ip not in wl_ip6):
-                log_info('WHITELIST: Added Redirect-Address \"' + ip + '\"')
+                log_info('WHITELIST: Added Redirect-Address \"{0}\"'.format(ip))
                 if ip.find(':') == -1:
                     wl_ip4[ip] = 'Redirect-Address'
                 else:
@@ -2766,11 +2723,11 @@ if __name__ == '__main__':
         #for dom in forward_servers.keys():
         for dom in forward_servers:
             if not in_domain(dom, wl_dom, 'Whitelist', False) and (dom != '.'):
-                log_info('WHITELIST: Added Forward-Domain \"' + dom + '\"')
+                log_info('WHITELIST: Added Forward-Domain \"{0}\"'.format(dom))
                 wl_dom[dom] = 'Forward-Domain'
             for ip in forward_servers[dom]:
                 if ipregex.search(ip) and (ip not in wl_ip4) and (ip not in wl_ip6):
-                    log_info('WHITELIST: Added Forward-Address \"' + ip + '\"')
+                    log_info('WHITELIST: Added Forward-Address \"{0}\"'.format(ip))
                     if ip.find(':') == -1:
                         wl_ip4[ip] = 'Forward-Address'
                     else:
@@ -2780,17 +2737,17 @@ if __name__ == '__main__':
         #for dom in aliases.keys():
         for dom in aliases:
             if not in_domain(dom, wl_dom, 'Whitelist', False) and (dom != '.'):
-                log_info('WHITELIST: Added Alias-Domain \"' + dom + '\"')
+                log_info('WHITELIST: Added Alias-Domain \"{0}\"'.format(dom))
                 wl_dom[dom] = 'Alias-Domain'
 
         # Whitelist search domains
         for dom in searchdom:
             if not in_domain(dom, wl_dom, 'Whitelist', False) and (dom != '.'):
-                log_info('WHITELIST: Added Search-Domain \"' + dom + '\"')
+                log_info('WHITELIST: Added Search-Domain \"{0}\"'.format(dom))
                 wl_dom[dom] = 'Search-Domain'
 
         # Add command-tld to whitelist
-        log_info('WHITELIST: Added Command-Domain \"' + command + '\"')
+        log_info('WHITELIST: Added Command-Domain \"{0}\"'.format(command))
         wl_dom[command] = 'Command-TLD'
 
         # Optimize lists
@@ -2849,21 +2806,20 @@ if __name__ == '__main__':
         elements = listen.split('@')
         listen_address = elements[0].upper()
         if ipregex.search(listen_address) or listen_address == '':
-            #if len(elements) > 1:
             if elements[1:]:
                 listen_port = int(elements[1])
             else:
                 listen_port = 53
 
             if listen_address == '':
-                log_info('Starting DNS Service at port ' + str(listen_port) + ' ...')
+                log_info('Starting DNS Service at port {0} ...'.format(listen_port))
             else:
-                log_info('Starting DNS Service on ' + listen_address + ' at port ' + str(listen_port) + ' ...')
+                log_info('Starting DNS Service on {0} at port {1} ...'.format(listen_address, listen_port))
 
             # Define Service
             #handler = DNSHandler
             if ipregex6.search(listen_address):
-                log_info('LISTENING on IPv6 (' + listen_address + '@' + str(listen_port) +') not supported yet!')
+                log_info('LISTENING on IPv6 ({0}@{1}) not supported yet!'.format(listen_address, listen_port))
                 serverhash = False
                 #serverhash = hash(listen_address + '@' + str(listen_port))
                 #udp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False, handler=handler) # UDP
@@ -2879,17 +2835,17 @@ if __name__ == '__main__':
                     udp_dns_server[serverhash].start_thread() # UDP
                     tcp_dns_server[serverhash].start_thread() # TCP
                 except BaseException as err:
-                    log_err('ERROR: Unable to start service on ' + listen_address + ' at port ' + str(listen_port) + ' - ' + str(err) + ', ABORTING')
+                    log_err('ERROR: Unable to start service on {0} at port {1} - {2}, ABORTING'.format(listen_address, listen_port, err))
                     sys.exit(1)
 
                 time.sleep(0.5)
 
                 if udp_dns_server[serverhash].isAlive() and tcp_dns_server[serverhash].isAlive():
                     if listen_address == '':
-                        log_info('DNS Service ready at port ' + str(listen_port))
+                        log_info('DNS Service ready at port {0}'.format(listen_port))
                         break
                     else:
-                        log_info('DNS Service ready on ' + listen_address + ' at port ' + str(listen_port))
+                        log_info('DNS Service ready on {0} at port {1}'.format(listen_address, listen_port))
                 else:
                     log_err('DNS Service did not start, aborting ...')
                     sys.exit(1)
@@ -2917,7 +2873,6 @@ if __name__ == '__main__':
             elements = listen.split('@')
             listen_address = elements[0]
 
-            #if len(elements) > 1:
             if elements[1:]:
                 listen_port = int(elements[1])
             else:
@@ -2925,14 +2880,14 @@ if __name__ == '__main__':
 
             serverhash = hash(listen_address + '@' + str(listen_port))
 
-            log_info('DNS Service shutdown on ' + listen_address + ' at port ' + str(listen_port))
+            log_info('DNS Service shutdown on {0} at port {1} ...'.format(listen_address, listen_port))
 
             try:
                 udp_dns_server[serverhash].stop() # UDP
                 tcp_dns_server[serverhash].stop() # TCP
 
             except BaseException as err:
-                log_err('ERROR: Unable to stop service on ' + listen_address + ' at port ' + str(listen_port) + ' - ' + str(err))
+                log_err('ERROR: Unable to stop service on {0} at port {1} - {2}'.format(listen_address, listen_port, err))
 
     # Save persistent cache
     save_cache(cachefile)
