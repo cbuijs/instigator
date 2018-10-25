@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.02-20181024 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.10-20181025 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -36,13 +36,13 @@ ToDo/Ideas:
 =========================================================================================
 '''
 
+# Standard modules
+import os, time, shelve, dbm, gc # DBM used for Shelve
+gc.enable() # Enable garbage collection
+
 # sys module and path, adapt for your system. Below if for Debian 9.5 Stable
 import sys
 sys.path.append('/usr/local/lib/python3.5/dist-packages/')
-
-# Standard modules
-import os, time, shelve, dbm, gc, math # DBM used for Shelve
-gc.enable() # Enable garbage collection
 
 # Random
 import random
@@ -62,9 +62,6 @@ from dnslib.server import *
 # Regex module
 import regex
 
-# Use module PyTricia for CIDR/Subnet stuff
-import pytricia
-
 # Use cymruwhois for SafeDNS ASN lookups
 from cymruwhois import Client
 
@@ -75,11 +72,16 @@ from zxcvbn.matching import add_frequency_lists
 # Simple caches
 from cachetools import TTLCache
 
+# Use module PyTricia for CIDR/Subnet stuff
+import pytricia
+
+
 ###################
 
 # Debugging
 debug = False
-if len(sys.argv) > 1: # Any argument on command-line will put debug-mode on, printing all messages to TTY.
+#if len(sys.argv) > 1: # Any argument on command-line will put debug-mode on, printing all messages to TTY.
+if sys.argv[1:]: # Any argument on command-line will put debug-mode on, printing all messages to TTY.
     debug = True
 
 # Logging Message-length
@@ -432,8 +434,9 @@ def make_dirs(subdir):
     '''Make directory-structures'''
     try:
         os.makedirs(subdir)
-    except BaseException as err:
+    except BaseException:
         pass
+
     return True
 
 
@@ -490,8 +493,8 @@ def check_blacklist(rid, rtype, rrtype, value):
 
     # Check if an REVDOM/IP
     if rtype == 'REQUEST' and rrtype == 'PTR' and iparpa.search(testvalue):
-        if (not in_domain(testvalue, wl_dom, 'Whitelist', False)):
-            if (not in_domain(testvalue, bl_dom, 'Blacklist', False)):
+        if not in_domain(testvalue, wl_dom, 'Whitelist', False):
+            if not in_domain(testvalue, bl_dom, 'Blacklist', False):
                 ip = False
                 if ip4arpa.search(testvalue):
                     ip = '.'.join(testvalue.split('.')[0:4][::-1])
@@ -581,7 +584,7 @@ def check_blacklist(rid, rtype, rrtype, value):
             else:
                 tag = 'HIT'
                 listname = 'list'
-            
+
             wl_found = in_domain(testvalue, wl_dom, 'White' + listname, False) # Whitelist
             if wl_found is not False:
                 log_info('WHITELIST-' + tag + ' [' + tid + ']: ' + rtype + ' \"' + value + '\" matched against \"' + wl_found + '\" (' + wl_dom[wl_found] + ')')
@@ -620,7 +623,8 @@ def randomness(testvalue):
             words = regex.split('[\._-]', testvalue)
             totscore = 0
             for word in words:
-                if len(word) > 2 and (not isnum.search(word)):
+                #if len(word) > 2 and (not isnum.search(word)):
+                if word[2:] and (not isnum.search(word)):
                     randomness = zxcvbn(testvalue)
                     totscore += int(round(randomness['guesses_log10'])) # The higher, the more random
             score = int(round(totscore / len(words)))
@@ -684,7 +688,8 @@ def in_regex(name, rxlist, isalias, rxid):
     #    return False
 
     if name and name != '.':
-        for i in rxlist.keys():
+        #for i in rxlist.keys():
+        for i in rxlist:
             rx = rxlist.get(i, False)
             if rx and rx.search(name): # and (not in_domain(name, forward_servers, 'Forward', False)):
                 elements = regex.split(':\s+', i)
@@ -720,12 +725,12 @@ def who_is(ip, desc):
         prefix = ip + '/128'
 
     if ip in ipasn:
-         prefix = ipasn.get_key(ip)
-         elements = regex.split('\s+', ipasn.get(prefix, asn + ' ' + owner))
-         if elements:
-             asn = elements[0]
-             owner = ' '.join(elements[1:])
-             if debug: log_info('WHOIS-CACHE-HIT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
+        prefix = ipasn.get_key(ip)
+        elements = regex.split('\s+', ipasn.get(prefix, asn + ' ' + owner))
+        if elements:
+            asn = elements[0]
+            owner = ' '.join(elements[1:])
+            if debug: log_info('WHOIS-CACHE-HIT: ' + desc + ' ' + ip + ' AS' + asn + ' (' + prefix + ') - ' + owner)
 
     else:
         log_info('WHOIS-LOOKUP: ' + desc + ' ' + ip)
@@ -834,10 +839,10 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                 reply = None
 
                 try:
-                    qstart = time.time()
+                    #qstart = time.time()
                     q = query.send(forward_address, forward_port, tcp=use_tcp, timeout=forward_timeout, ipv6=useip6)
-                    qend = time.time()
-                    if debug: log_info('DNS-RTT [' + hid + ']: ' + str(qend - qstart) + ' seconds' + tag)
+                    #qend = time.time()
+                    #if debug: log_info('DNS-RTT [' + hid + ']: ' + str(qend - qstart) + ' seconds' + tag)
                     reply = DNSRecord.parse(q)
 
                 except BaseException as err:
@@ -848,12 +853,16 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                     rcode = str(RCODE[reply.header.rcode])
                     error = rcode
                     if rcode != 'SERVFAIL':
-                        if reply.auth and rcode != 'NOERROR' and firstreply is None and QTYPE[reply.auth[0].rtype] == 'SOA':
-                            soadom = regex.split('\s+', str(reply.auth[0]))[0].strip('.') or '.'
-                            if soadom != ".":
-                                rcttl = normalize_ttl(qname, reply.auth)
-                                if rcttl:
-                                    log_info('SOA-TTL: Taking TTL={1} of SOA \"{0}\" for {2} {3}{4}'.format(soadom, rcttl, queryname, rcode, tag))
+                        if rcode != 'NOERROR' and firstreply is None and reply.auth:
+                            for record in reply.auth:
+                                if QTYPE[record.rtype] == 'SOA':
+                                    soadom = regex.split('\s+', str(record))[0].strip('.') or '.'
+                                    if soadom != ".":
+                                        rcttl = normalize_ttl(qname, reply.auth)
+                                        if rcttl:
+                                            log_info('SOA-TTL [' + hid + ']: Taking TTL={1} of SOA \"{0}\" for {2} {3}{4}'.format(soadom, rcttl, queryname, rcode, tag))
+                                    break
+
                         else:
                             if firstreply is None:
                                 _ = normalize_ttl(qname, reply.rr)
@@ -862,7 +871,8 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                             if firstreply is None:
                                 firstreply = reply
 
-                            if len(reply.rr) > 0:
+                            #if len(reply.rr) > 0:
+                            if reply.rr:
                                 for record in reply.rr:
                                     rqtype = QTYPE[record.rtype]
                                     if rqtype in ('A', 'AAAA'):
@@ -871,12 +881,12 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                                             ipstack.add(ip)
                                             asn, prefix, owner = who_is(ip, queryname)
                                             if asnstack and asn in asnstack:
-                                                if debug: log_info('SAFEDNS: ' + queryname + ' Found same ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address + tag)
+                                                if debug: log_info('SAFEDNS [' + hid + ']: ' + queryname + ' Found same ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address + tag)
                                             elif asn != '0':
                                                 asnstack.add(asn)
-                                                if debug: log_info('SAFEDNS: ' + queryname + ' Found new ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address + tag)
+                                                if debug: log_info('SAFEDNS [' + hid + ']: ' + queryname + ' Found new ASN (' + str(len(asnstack)) + ') \"' + asn + '\" (' + owner + ') for ' + ip + ' (' + prefix + ') from ' + forward_address + tag)
                                             else:
-                                                if debug: log_info('SAFEDNS: ' + queryname + ' UNKNOWN ASN for ' + ip + ' from ' + forward_address + tag)
+                                                if debug: log_info('SAFEDNS [' + hid + ']: ' + queryname + ' UNKNOWN ASN for ' + ip + ' from ' + forward_address + tag)
 
                         else:
                             break
@@ -899,15 +909,16 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
     if safedns and firstreply is not None and asnstack:
         reply = firstreply
         astack = ', '.join(sorted(asnstack, key=int))
-        if len(asnstack) > 1:
-            ratio = int(100 / len(asnstack))
+        alen = len(asnstack)
+        if alen > 1:
+            ratio = int(100 / alen)
             if ratio < safednsratio:
                 if not safednsmononly:
                     reply = False
 
-                log_info('SAFEDNS: ' + queryname + ' UNSAFE! Multiple ASNs (Ratio: ' + str(ratio) + '% < ' + str(safednsratio) + '%) ASNs (' + str(len(asnstack)) + '): ' + astack + tag)
+                log_info('SAFEDNS [' + hid + ']: ' + queryname + ' UNSAFE! Multiple ASNs (Ratio: ' + str(ratio) + '% < ' + str(safednsratio) + '%) ASNs (' + str(alen) + '): ' + astack + tag)
         else:
-            log_info('SAFEDNS: ' + queryname + ' is SAFE (Ratio: 100% >= ' + str(safednsratio) + '%) ASN: ' + astack + tag)
+            log_info('SAFEDNS [' + hid + ']: ' + queryname + ' is SAFE (Ratio: 100% >= ' + str(safednsratio) + '%) ASN: ' + astack + tag)
 
 
     # No response or SafeDNS interception
@@ -992,7 +1003,6 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                             break
                         elif matchrep is True:
                             blockit = True
-                   
 
                 if blockit:
                     log_info('REPLY [' + nid + ']: ' + rqname + '/IN/' + rqtype + ' = ' + data + ' BLACKLIST-HIT' + tag)
@@ -1046,14 +1056,16 @@ def generate_response(request, qname, qtype, redirect_addrs, force, comment):
     '''Generate response when blocking'''
     queryname = qname + '/IN/' + qtype
 
-    if (len(redirect_addrs) > 0) and (qtype not in ('ANY', 'TXT')) and any(x.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED') for x in redirect_addrs):
+    #if (len(redirect_addrs) > 0) and (qtype not in ('ANY', 'TXT')) and any(x.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED') for x in redirect_addrs):
+    if redirect_addrs and (qtype not in ('ANY', 'TXT')) and any(x.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED') for x in redirect_addrs):
         for addr in redirect_addrs:
             if addr.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED'):
                 log_info('GENERATE: ' + addr + ' for ' + queryname)
                 reply = rc_reply(request, addr.upper())
                 break
 
-    elif (len(redirect_addrs) == 0) or (qtype not in ('ANY', 'A', 'AAAA', 'CNAME', 'TXT')):
+    #elif (len(redirect_addrs) == 0) or (qtype not in ('ANY', 'A', 'AAAA', 'CNAME', 'TXT')):
+    elif (not redirect_addrs) or (qtype not in ('ANY', 'A', 'AAAA', 'CNAME', 'TXT')):
         log_info('GENERATE: ' + hitrcode + ' for ' + queryname)
         reply = rc_reply(request, hitrcode)
 
@@ -1085,7 +1097,8 @@ def generate_response(request, qname, qtype, redirect_addrs, force, comment):
 
         log_replies(reply, "GENERATE-REPLY")
 
-        if len(addanswer) > 0:
+        #if len(addanswer) > 0:
+        if addanswer:
             log_info('GENERATE: REDIRECT/NOERROR for ' + queryname + ' -> ' + ', '.join(addanswer))
         else:
             reply = rc_reply(request, hitrcode)
@@ -1200,7 +1213,8 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
         reply = rc_reply(request, 'NXDOMAIN')
 
     #rcode = RCODE[reply.header.rcode]
-    #if len(reply.rr) == 0:
+    ##if len(reply.rr) == 0:
+    #if not reply.rr:
     #    if rcode == 'NOERROR':
     #        rcode = 'NODATA'
     #    log_info(tag + ': ' + qname + ' -> ' + str(rcode))
@@ -1279,13 +1293,15 @@ def load_cache(file):
 def to_dict(iplist):
     '''iplist is a Pytricia dict'''
     newdict = dict()
-    for i in iplist.keys():
+    #for i in iplist.keys():
+    for i in iplist:
         newdict[i] = iplist[i]
     return newdict
 
 def from_dict(fromlist, tolist):
     '''toist is a Pytricia dict.'''
-    for i in fromlist.keys():
+    #for i in fromlist.keys():
+    for i in fromlist:
         tolist[i] = fromlist[i]
     return tolist
 
@@ -1345,20 +1361,22 @@ def load_asn(file, asn4, asn6):
             count += 1
 
             elements = regex.split('\s+', line.strip())
-            if len(elements) > 1:
+            #if len(elements) > 1:
+            if elements[1:]:
                 prefix = elements[0]
                 if ipregex.search(prefix):
                     asn = elements[1].upper().lstrip('AS')
                     if isasn.search('AS' + asn):
-                        if len(elements) > 2:
-                           owner = ' '.join(elements[2:]).upper()
+                        #if len(elements) > 2:
+                        if elements[2:]:
+                            owner = ' '.join(elements[2:]).upper()
                         else:
-                           owner = 'IPASN'
+                            owner = 'IPASN'
 
                         if prefix.find(':') == -1:
-                           asnd = asn4
+                            asnd = asn4
                         else:
-                           asnd = asn6
+                            asnd = asn6
 
                         asnd[prefix] = asn + ' ' + owner
                     else:
@@ -1496,7 +1514,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                 entry = False
 
             # Process entry
-            if entry and len(entry) > 0 and (not entry.startswith('#')):
+            #if entry and len(entry) > 0 and (not entry.startswith('#')):
+            if entry and (not entry.startswith('#')):
 
                 # REGEX
                 if isregex.search(entry):
@@ -1546,7 +1565,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                     if entry.find('=') > 0:
                         if entry.startswith('/'):
                             elements = regex.split('/\s*=\s*', entry)
-                            if len(elements) > 1:
+                            #if len(elements) > 1:
+                            if elements[1:]:
                                 if isregex.search(elements[0] + '/'):
                                     fetched += 1
                                     rx = elements[0].strip('/')
@@ -1564,7 +1584,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
 
                         else:
                             elements = regex.split('\s*=\s*', entry)
-                            if len(elements) > 1:
+                            #if len(elements) > 1:
+                            if elements[1:]:
                                 domain = normalize_dom(elements[0])
                                 alias = normalize_dom(elements[1])
                                 if isdomain.search(domain) and (isdomain.search(alias) or ipregex.search(alias)):
@@ -1582,7 +1603,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                     elif entry.find('>') > 0:
                         #elements = entry.split('>')
                         elements = regex.split('\s*>\s*', entry)
-                        if len(elements) > 1:
+                        #if len(elements) > 1:
+                        if elements[1:]:
                             domain = normalize_dom(elements[0])
                             ips = elements[1].strip().lower().strip('.')
                             if isdomain.search(domain):
@@ -1607,7 +1629,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                     elif entry.find('!') > 0:
                         #elements = entry.split('!')
                         elements = regex.split('\s*!\s*', entry)
-                        if len(elements) > 1:
+                        #if len(elements) > 1:
+                        if elements[1:]:
                             domain = normalize_dom(elements[0])
                             ttl = elements[1].strip()
                             if isdomain.search(domain) and isnum.search(ttl):
@@ -1649,12 +1672,14 @@ def reduce_ip(iplist, listname):
     '''Strip all subnets and keep only parents'''
     before = len(iplist)
     kids = dict()
-    for kid in iplist.keys():
+    #for kid in iplist.keys():
+    for kid in iplist:
         parent = iplist.parent(kid)
         if parent:
             kids[kid] = parent
 
-    for kid in kids.keys():
+    #for kid in kids.keys():
+    for kid in kids:
         if debug: log_info('IPLIST-REDUCE [' + listname + ']: Removing subnet ' + kid + ' (' + iplist[kids[kid]] + '), already covered by ' + kids[kid] + ' (' + iplist[kid] + ')')
         del iplist[kid]
 
@@ -1669,12 +1694,14 @@ def reduce_dom(domlist, listname):
     '''Strip all subdomains and keep only parents'''
     before = len(domlist)
     subs = dict()
-    for sub in domlist.keys():
+    #for sub in domlist.keys():
+    for sub in domlist:
         parent = in_domain(sub, domlist, 'Reduce-DOM ' + listname, True)
         if parent and parent != sub:
             subs[sub] = parent
 
-    for sub in subs.keys():
+    #for sub in subs.keys():
+    for sub in subs:
         if debug: log_info('DOMLIST-REDUCE [' + listname + ']: Removing subdomain ' + sub + ' (' + domlist[subs[sub]] + '), already covered by ' + subs[sub] + ' (' + domlist[sub] + ')')
         del domlist[sub]
 
@@ -1689,11 +1716,13 @@ def unwhite_ip(wiplist, biplist, listname):
     '''Remove blacklist entries that are whitelisted'''
     before = len(biplist)
     cidrs = dict()
-    for cidr in biplist.keys():
+    #for cidr in biplist.keys():
+    for cidr in biplist:
         if cidr in wiplist:
             cidrs[cidr] = wiplist.get_key(cidr)
 
-    for cidr in cidrs.keys():
+    #for cidr in cidrs.keys():
+    for cidr in cidrs:
         if debug: log_info('IPLIST-UNWHITE [' + listname + ']: Removing CIDR ' + cidr + ' (' + biplist[cidr] + '), whitelisted by ' + cidrs[cidr] + ' (' + wiplist[cidr] + ')')
         del biplist[cidr]
 
@@ -1708,12 +1737,14 @@ def unwhite_dom(wdomlist, bdomlist, listname):
     '''Remove blacklist entries that are whitelisted'''
     before = len(bdomlist)
     domains = dict()
-    for domain in bdomlist.keys():
+    #for domain in bdomlist.keys():
+    for domain in bdomlist:
         whitedomain = in_domain(domain, wdomlist, 'Unwhite-DOM ' + listname, False)
         if whitedomain:
             domains[domain] = whitedomain
 
-    for domain in domains.keys():
+    #for domain in domains.keys():
+    for domain in domains:
         if debug: log_info('DOMLIST-UNWHITE [' + listname + ']: Removing subdomain ' + domain + ' (' + bdomlist[domain] + '), whitelisted by ' + domains[domain] + ' (' + wdomlist[domain] + ')')
         del bdomlist[domain]
 
@@ -1728,7 +1759,8 @@ def unblack_dom(bdomlist, wdomlist, listname):
     '''Remove whitelist entries that are forced blacklisted'''
     before = len(wdomlist)
     domains = dict()
-    for domain in wdomlist.keys():
+    #for domain in wdomlist.keys():
+    for domain in wdomlist:
         blackdomain = in_domain(domain + '!', bdomlist, 'Unblack-DOM ' + listname, False)
         if blackdomain:
             forcedwhite = in_domain(domain + '!', wdomlist, 'Forcedwhite-DOM ' + listname, False)
@@ -1737,7 +1769,8 @@ def unblack_dom(bdomlist, wdomlist, listname):
             else:
                 domains[domain] = blackdomain
 
-    for domain in domains.keys():
+    #for domain in domains.keys():
+    for domain in domains:
         if debug: log_info('DOMLIST-UNBLACK [' + listname + ']: Removing subdomain ' + domain + ' (' + wdomlist[domain] + '), forced blacklisted by ' + domains[domain] + ' (' + bdomlist[domains[domain]] + ')')
         del wdomlist[domain]
 
@@ -1752,11 +1785,13 @@ def unwhite_asn(awlist, ablist, listname):
     '''Remove blacklist entries that are whitelisted'''
     before = len(ablist)
     asns = dict()
-    for asn in awlist.keys():
+    #for asn in awlist.keys():
+    for asn in awlist:
         if asn in ablist:
             asns[asn] = awlist[asn]
 
-    for asn in asns.keys():
+    #for asn in asns.keys():
+    for asn in asns:
         if debug: log_info('ASNLIST-UNWHITE [' + listname + ']: Removing whitelisted ASN AS' + asn + ' (' + ablist[asn] + ')')
         del ablist[asn]
 
@@ -1771,13 +1806,15 @@ def unreg_dom(rxlist, domlist, listname):
     '''Remove entries that are regex matched'''
     before = len(domlist)
     domains = dict()
-    for domain in domlist.keys():
+    #for domain in domlist.keys():
+    for domain in domlist:
         if not domain.endswith('!'):
             rx = in_regex(domain, rxlist, False, 'Unreg-DOM ' + listname)
             if rx:
                 domains[domain] = rx
 
-    for domain in domains.keys():
+    #for domain in domains.keys():
+    for domain in domains:
         if debug: log_info('DOMLIST-UNREG [' + listname + ']: Removing domain ' + domain + ' (' + domlist[domain] + '), already covered by ' + domains[domain])
         del domlist[domain]
 
@@ -1803,19 +1840,17 @@ def normalize_ttl(qname, rr):
             update_ttl(rr, ttl)
             return ttl
 
-    if rr and len(rr) > 0:
-        if len(rr) == 1:
-            ttl = rr[0].ttl
+    #if rr and (rr) > 0:
+    if rr:
+        # ttlstrategy: lowest, highest, average and random
+        if ttlstrategy == 'lowest':
+            ttl = min(x.ttl for x in rr) # Take Lowest TTL found on all RR's
+        elif ttlstrategy == 'highest':
+            ttl = max(x.ttl for x in rr) # Take Highest TTL found on all RR's
+        elif ttlstrategy == 'average':
+            ttl = int(sum(x.ttl for x in rr) / len(rr)) # Take Average TTL of all RR's
         else:
-            # ttlstrategy: lowest, highest, average and random
-            if ttlstrategy == 'lowest':
-                ttl = min(x.ttl for x in rr) # Take Lowest TTL found on all RR's
-            elif ttlstrategy == 'highest':
-                ttl = max(x.ttl for x in rr) # Take Highest TTL found on all RR's
-            elif ttlstrategy == 'average':
-                ttl = int(sum(x.ttl for x in rr) / len(rr)) # Take Average TTL of all RR's
-            else:
-                ttl = random.randint(minttl, maxttl) # Random between minttl and maxttl
+            ttl = random.randint(minttl, maxttl) # Random between minttl and maxttl
 
         if ttl < minttl:
             #ttl = minttl # Minimum TTL enforced
@@ -1939,7 +1974,8 @@ def from_cache(qname, qclass, qtype, tid):
                 else:
                     nonaddr.append(record)
 
-            if len(addr) > 1:
+            #if len(addr) > 1:
+            if addr[1:]:
                 reply.rr = nonaddr + round_robin(addr)
 
         else:
@@ -2019,7 +2055,8 @@ def to_cache(qname, qclass, qtype, reply, force, newttl, comment):
     # Cache return-codes
     if rcode in ('NOTAUTH', 'NOTIMP', 'NXDOMAIN', 'REFUSED'):
         ttl = newttl or rcodettl
-    elif rcode == 'NOERROR' and len(reply.rr) == 0: # NODATA
+    #elif rcode == 'NOERROR' and len(reply.rr) == 0: # NODATA
+    elif rcode == 'NOERROR' and (not reply.rr): # NODATA
         ttl = newttl or rcodettl
     elif rcode == 'SERVFAIL':
         ttl = newttl or failttl
@@ -2253,7 +2290,8 @@ def collapse_cname(request, reply, rid):
                     ip = str(record.rdata).lower()
                     addr.add(ip)
 
-            if len(addr) > 0:
+            #if len(addr) > 0:
+            if addr:
                 reply = rc_reply(request, 'NOERROR')
                 count = 0
                 total = str(len(addr))
@@ -2385,7 +2423,7 @@ def rc_reply(request, rcode):
         reply.header.rcode = getattr(RCODE, rcode)
     return reply
 
-    
+
 def do_query(request, handler, force):
     '''Main DNS resolution function'''
     rid = request.header.id
@@ -2452,7 +2490,8 @@ def do_query(request, handler, force):
                 cacheentry = cache.get(queryhash, None)
                 if cacheentry is not None:
                     rcode = str(RCODE[cacheentry[0].header.rcode])
-                    if len(cacheentry[0].rr) == 0 and rcode in ('NODATA', 'NOERROR', 'NOTIMP', 'NXDOMAIN', 'REFUSED', 'SERVFAIL'):
+                    #if len(cacheentry[0].rr) == 0 and rcode in ('NODATA', 'NOERROR', 'NOTIMP', 'NXDOMAIN', 'REFUSED', 'SERVFAIL'):
+                    if (not cacheentry[0].rr) and rcode in ('NODATA', 'NOERROR', 'NOTIMP', 'NXDOMAIN', 'REFUSED', 'SERVFAIL'):
                         reply = rc_reply(request, rcode)
                         if rcode == 'NOERROR':
                             rcode = 'NODATA'
@@ -2562,12 +2601,15 @@ def read_config(file):
 
         for line in lines:
             entry = line.strip()
-            if (not entry.startswith('#')) and len(entry) > 0:
+            #if (not entry.startswith('#')) and len(entry) > 0:
+            if entry and (not entry.startswith('#')):
                 elements = regex.split('\s*=\s*', entry)
-                if len(elements) > 1:
+                #if len(elements) > 1:
+                if elements[1:]:
                     var = str(elements[0])
                     val = elements[1].strip()
-                    if len(val) > 0 and val.upper() != 'DEFAULT':
+                    #if len(val) > 0 and val.upper() != 'DEFAULT':
+                    if val and val.upper() != 'DEFAULT':
                         if val.find('>') != -1:
                             dictelements = regex.split('\s*>\s*', val)
                             key = dictelements[0]
@@ -2606,7 +2648,8 @@ def read_config(file):
 
         for line in lines:
             entry = regex.split('#', line)[0].strip().lower()
-            if len(entry) > 0:
+            #if len(entry) > 0:
+            if entry:
                 elements = regex.split('\s+', entry)
                 if elements[0] == 'domain' or elements[0] == 'search':
                     for dom in elements[1:]:
@@ -2630,7 +2673,8 @@ def get_dns_servers(file, fservers):
     ns = list()
     for line in lines:
         entry = regex.split('#', line)[0].strip().lower()
-        if len(entry) > 0:
+        #if len(entry) > 0:
+        if entry:
             elements = regex.split('\s+', entry)
             if elements[0] == 'nameserver':
                 for ip in elements[1:]:
@@ -2638,7 +2682,8 @@ def get_dns_servers(file, fservers):
                         log_info('CONFIG: Fetched ' + elements[0] + ' \"' + ip + '\" from \"' + file + '\"')
                         ns.append(ip)
 
-    if len(ns) > 0:
+    #if len(ns) > 0:
+    if ns:
         if '.' in fservers:
             fservers['.'] += ns
         else:
@@ -2653,10 +2698,12 @@ def white_label():
 
     wordlist = set()
     worddict = dict()
-    for dom in wl_dom.keys():
+    #for dom in wl_dom.keys():
+    for dom in wl_dom:
         if (not ipregex.search(dom)) and (not iparpa.search(dom)):
             for label in regex.split('[\._-]', dom):
-                if len(label) > 2 and (label not in wordlist) and (not isnum.search(label)):
+                #if len(label) > 2 and (label not in wordlist) and (not isnum.search(label)):
+                if label[2:] and (label not in wordlist) and (not isnum.search(label)):
                     #if debug: log_info('RANDOMNESS: Adding label \"' + label + '\"')
                     wordlist.add(label)
 
@@ -2669,7 +2716,7 @@ def white_label():
     wordlist.add('youtube')
 
     worddict['whitelist'] = list(wordlist)
-    add_frequency_lists(worddict) 
+    add_frequency_lists(worddict)
     log_info('WHITELIST: Added ' + str(len(wordlist)) + ' labels to randomness-guesser')
 
     return True
@@ -2690,7 +2737,8 @@ if __name__ == '__main__':
     # Load/Read lists
     loadcache = False
     if not load_lists(savefile):
-        for lst in lists.keys():
+        #for lst in lists.keys():
+        for lst in lists:
             if lst in whitelist:
                 wl_dom, wl_ip4, wl_ip6, wl_rx, aliases_rx, aliases, forward_servers, ttls, wl_asn = read_list(lists[lst], lst, 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases_rx, aliases, forward_servers, ttls, wl_asn)
             else:
@@ -2715,7 +2763,8 @@ if __name__ == '__main__':
                     wl_ip6[ip] = 'Redirect-Address'
 
         # Whitelist forward domains/servers
-        for dom in forward_servers.keys():
+        #for dom in forward_servers.keys():
+        for dom in forward_servers:
             if not in_domain(dom, wl_dom, 'Whitelist', False) and (dom != '.'):
                 log_info('WHITELIST: Added Forward-Domain \"' + dom + '\"')
                 wl_dom[dom] = 'Forward-Domain'
@@ -2728,7 +2777,8 @@ if __name__ == '__main__':
                         wl_ip6[ip] = 'Forward-Address'
 
         # Whitelist alias domains
-        for dom in aliases.keys():
+        #for dom in aliases.keys():
+        for dom in aliases:
             if not in_domain(dom, wl_dom, 'Whitelist', False) and (dom != '.'):
                 log_info('WHITELIST: Added Alias-Domain \"' + dom + '\"')
                 wl_dom[dom] = 'Alias-Domain'
@@ -2799,7 +2849,8 @@ if __name__ == '__main__':
         elements = listen.split('@')
         listen_address = elements[0].upper()
         if ipregex.search(listen_address) or listen_address == '':
-            if len(elements) > 1:
+            #if len(elements) > 1:
+            if elements[1:]:
                 listen_port = int(elements[1])
             else:
                 listen_port = 53
@@ -2866,7 +2917,8 @@ if __name__ == '__main__':
             elements = listen.split('@')
             listen_address = elements[0]
 
-            if len(elements) > 1:
+            #if len(elements) > 1:
+            if elements[1:]:
                 listen_port = int(elements[1])
             else:
                 listen_port = 53
