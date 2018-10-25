@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1540369320                  ###
+### Version: 1540455721                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -588,6 +588,7 @@ banrep.gov.co	Shalla-Banking
 blocklist.greensnow.co	Chris-White
 image.ibb.co	Notracking-Whitelist
 t.co	Notracking-Whitelist
+api.viafoura.co	Notracking-Whitelist
 0.com	Notracking-Whitelist
 02bancorp.com	Shalla-Banking, UT1-Banking
 100x100banco.com	Shalla-Banking
@@ -6208,6 +6209,7 @@ alliance-leicester.co.im	Shalla-Banking, UT1-Banking
 bbi.co.im	Shalla-Banking
 gitter.im	Notracking-Whitelist
 alb.org.im	Shalla-Banking
+spot.im	Notracking-Whitelist
 blogspot.in	Notracking-Whitelist
 axisbank.co.in	Adguard-Banks
 centralbankofindia.co.in	Shalla-Banking
@@ -6901,6 +6903,7 @@ ucbank.net	Shalla-Banking
 wget-mirrors.uceprotect.net	Chris-White
 unicreditbanking.net	Adguard-Banks
 unionstate.net	Shalla-Banking
+viafoura.net	Notracking-Whitelist
 virtualearth.net	Notracking-Whitelist
 vobadirekt.net	Shalla-Banking
 washingtonsavings.net	Shalla-Banking, UT1-Banking
@@ -8531,6 +8534,7 @@ AS36692	Chris-ASN-White
 146.112.136.0/24	Chris-ASN-White-AS36692
 146.112.138.0/24	Chris-ASN-White-AS36692
 146.112.160.0/21	Chris-ASN-White-AS36692
+146.112.176.0/24	Chris-ASN-White-AS36692
 146.112.190.0/24	Chris-ASN-White-AS36692
 146.112.192.0/22	Chris-ASN-White-AS36692
 146.112.196.0/23	Chris-ASN-White-AS36692
@@ -8556,7 +8560,7 @@ AS36692	Chris-ASN-White
 185.9.188.0/22	Chris-ASN-White-AS2906
 185.45.8.0/22	Chris-ASN-White-AS19679
 185.60.84.0/24	Chris-ASN-White-AS36692
-185.60.86.0/24	Chris-ASN-White-AS36692
+185.60.86.0/23	Chris-ASN-White-AS36692
 192.30.253.112/31	Chris-White
 192.168.1.0/24	Chris-White
 192.168.100.0/25	Chris-White
