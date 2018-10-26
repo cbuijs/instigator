@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.30-20181026 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.35-20181026 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -20,7 +20,6 @@ ToDo/Ideas:
 - Loads ...
 - Use configuration file in easy format to configure Instigator. Status: Partly Done.
 - Logging only option (no blocking). Status: Partly Done.
-- Listen on IPv6 or use IPv6 as transport. Status: Help Needed.
 - Better Documentation / Remarks / Comments. Status: Ongoing.
 - Optimize code for better cache/resolution performance. Status: Ongoing.
 - Cleanup code and optimize. Some of it is hacky-quick-code. Status: Ongoing.
@@ -71,7 +70,6 @@ from cachetools import TTLCache
 
 # Use module PyTricia for CIDR/Subnet stuff
 import pytricia
-
 
 ###################
 
@@ -546,12 +544,12 @@ def check_blacklist(rid, rtype, rrtype, value):
                 log_info('BLACKLIST-ASN-HIT [{0}]: {1} {2}/{3} matched against \"AS{4}\" ({5}/{6}) - {7}'.format(tid, rtype, value, testvalue, asn, wl_asn[asn], prefix, owner))
                 return True
 
-        if testvalue.find(':') == -1:
-            wip = wl_ip4
-            bip = bl_ip4
-        else:
+        if is_v6(testvalue):
             wip = wl_ip6
             bip = bl_ip6
+        else:
+            wip = wl_ip4
+            bip = bl_ip4
 
         found = False
         prefix = False
@@ -715,12 +713,12 @@ def who_is(ip, desc):
     asn = '0'
     owner = 'UNKNOWN'
 
-    if ip.find(':') == -1:
-        ipasn = ipasn4
-        prefix = ip + '/32'
-    else:
+    if is_v6(ip):
         ipasn = ipasn6
         prefix = ip + '/128'
+    else:
+        ipasn = ipasn4
+        prefix = ip + '/32'
 
     if ip in ipasn:
         prefix = ipasn.get_key(ip)
@@ -802,6 +800,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
         server = '.'
         servername = 'DEFAULT'
 
+    queries = list()
     query = DNSRecord(q=DNSQuestion(qname, getattr(QTYPE, qtype)))
 
     forward_server = forward_servers.get(server, False)
@@ -826,9 +825,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                 if not safedns:
                     log_info('DNS-QUERY [{0}]: Forwarding query from {1} to {2}@{3} ({4}) for {5}{6}'.format(hid, cip, forward_address, forward_port, servername, queryname, tag))
 
-                useip6 = False
-                if forward_address.find(':') > 0:
-                    useip6 = True
+                useip6 = is_v6(forward_address)
 
                 error = 'UNKNOWN-ERROR'
                 success = True
@@ -838,9 +835,9 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                 try:
                     #qstart = time.time()
                     q = query.send(forward_address, forward_port, tcp=use_tcp, timeout=forward_timeout, ipv6=useip6)
+                    reply = DNSRecord.parse(q)
                     #qend = time.time()
                     #if debug: log_info('DNS-RTT [' + hid + ']: ' + str(qend - qstart) + ' seconds' + tag)
-                    reply = DNSRecord.parse(q)
 
                 except BaseException as err:
                     error = err
@@ -1156,10 +1153,10 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
 
     elif ipregex.search(alias) and qtype in ('A', 'AAAA', 'CNAME'):
         log_info('{0}: {1} = REDIRECT-TO-IP -> {2}'.format(tag, queryname, alias))
-        if alias.find(':') == -1:
-            answer = RR(realqname, QTYPE.A, ttl=filterttl, rdata=A(alias))
-        else:
+        if is_v6(alias):
             answer = RR(realqname, QTYPE.AAAA, ttl=filterttl, rdata=AAAA(alias))
+        else:
+            answer = RR(realqname, QTYPE.A, ttl=filterttl, rdata=A(alias))
 
         reply.add_answer(answer)
 
@@ -1347,10 +1344,10 @@ def load_asn(file, asn4, asn6):
                         else:
                             owner = 'IPASN'
 
-                        if prefix.find(':') == -1:
-                            asnd = asn4
-                        else:
+                        if is_v6(prefix):
                             asnd = asn6
+                        else:
+                            asnd = asn4
 
                         asnd[prefix] = asn + ' ' + owner
                     else:
@@ -2255,12 +2252,12 @@ def collapse_cname(request, reply, rid):
                 total = str(len(addr))
                 for ip in addr:
                     count += 1
-                    if ip.find(':') == -1:
-                        rrtype = 'A'
-                        answer = RR(qname, QTYPE.A, ttl=ttl, rdata=A(ip))
-                    else:
+                    if is_v6(ip):
                         rrtype = 'AAAA'
                         answer = RR(qname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(ip))
+                    else:
+                        rrtype = 'A'
+                        answer = RR(qname, QTYPE.A, ttl=ttl, rdata=A(ip))
 
                     if logreplies:
                         log_info('REPLY [{0}:{1}-{2}]: COLLAPSE {3}/IN/CNAME -> {4}/{5}'.format(zid, count, total, qname, ip, rrtype))
@@ -2336,6 +2333,13 @@ def execute_command(qname, log):
         cache_maintenance(True, False, False, False)
 
     return True
+
+
+def is_v6(ipaddress):
+    '''Check if IPv6 Address'''
+    if ':' in ipaddress:
+        return True
+    return False
 
 
 def is_illegal(rtype, value):
@@ -2414,9 +2418,12 @@ def do_query(request, handler, force):
     reply = None
 
     # Check ACL
-    if ipregex.search(cip) and (cip not in allow_query4) and (cip not in allow_query6):
-        log_info('ACL-HIT [{0}]: Request from {1} for {2} {3}'.format(tid, cip, queryname, aclrcode))
-        reply = rc_reply(request, aclrcode)
+    if ipregex.search(cip):
+        if cip + '/32' in allow_query4 or cip + '/128' in allow_query6:
+            if debug: log_info('ALLOW-ACL-HIT [{0}]: Request from {1} for {2}'.format(tid, cip, queryname))
+        else:
+            log_info('REFUSE-ACL-HIT [{0}]: Request from {1} for {2} {3}'.format(tid, cip, queryname, aclrcode))
+            reply = rc_reply(request, aclrcode)
 
 
     # For caching
@@ -2537,6 +2544,92 @@ def do_query(request, handler, force):
     log_info('FINISHED [{0}]: Request from {1} for {2}'.format(tid, cip, queryname))
 
     return reply
+
+
+'''
+### START OF MODIFIED DNSLIB CODE ###
+Next classes/defs are taken/copied/tweaked from dnslib and modified to
+allow listening on IPv6 sockets.
+'''
+class UDPServer4(socketserver.ThreadingMixIn,socketserver.UDPServer):
+    '''IPv4 UDP Socket'''
+    allow_reuse_address = True
+    address_family = socket.AF_INET
+
+
+class TCPServer4(socketserver.ThreadingMixIn,socketserver.TCPServer):
+    '''IPv4 TCP Socket'''
+    allow_reuse_address = True
+    address_family = socket.AF_INET
+
+
+class UDPServer6(socketserver.ThreadingMixIn,socketserver.UDPServer):
+    '''IPv6 UDP Socket'''
+    allow_reuse_address = True
+    address_family = socket.AF_INET6
+
+
+class TCPServer6(socketserver.ThreadingMixIn,socketserver.TCPServer):
+    '''IPv6 TCP Socket'''
+    allow_reuse_address = True
+    address_family = socket.AF_INET6
+
+
+class DNSServer(object):
+    '''DNS Server'''
+    def __init__(self,resolver,
+                      address='',
+                      port=53,
+                      tcp=False,
+                      logger=None,
+                      handler=DNSHandler,
+                      server=None):
+        '''
+            resolver:   resolver instance
+            address:    listen address (default: '')
+            port:       listen port (default: 53)
+            tcp:        UDP (false) / TCP (true) (default: False)
+            logger:     logger instance (default: DNSLogger)
+            handler:    handler class (default: DNSHandler)
+            server:     socketserver class (default: UDPServer/TCPServer)
+        '''
+        if not server:
+            if tcp:
+                if ":" in address:
+                    server = TCPServer6
+                else:
+                    server = TCPServer4
+            else:
+                if ":" in address:
+                    server = UDPServer6
+                else:
+                    server = UDPServer4
+
+        self.server = server((address,port),handler)
+        self.server.resolver = resolver
+        self.server.logger = logger or DNSLogger()
+    
+    def start(self):
+        '''Start DNS Server'''
+        self.server.serve_forever()
+
+    def start_thread(self):
+        '''Start DNS Server thread'''
+        self.thread = threading.Thread(target=self.server.serve_forever)
+        self.thread.daemon = True
+        self.thread.start()
+
+    def stop(self):
+        '''Stop DNS Server'''
+        self.server.shutdown()
+
+    def isAlive(self):
+        '''Check if server is running'''
+        return self.thread.isAlive()
+
+'''
+### END OF MODIFIED DNSLIB CODE ###
+'''
 
 
 class DNS_Instigator(BaseResolver):
@@ -2716,10 +2809,10 @@ if __name__ == '__main__':
             ip = ip.split('@')[0]
             if ipregex.search(ip) and (ip not in wl_ip4) and (ip not in wl_ip6):
                 log_info('WHITELIST: Added Redirect-Address \"{0}\"'.format(ip))
-                if ip.find(':') == -1:
-                    wl_ip4[ip] = 'Redirect-Address'
-                else:
+                if is_v6(ip):
                     wl_ip6[ip] = 'Redirect-Address'
+                else:
+                    wl_ip4[ip] = 'Redirect-Address'
 
         # Whitelist forward domains/servers
         #for dom in forward_servers.keys():
@@ -2730,10 +2823,10 @@ if __name__ == '__main__':
             for ip in forward_servers[dom]:
                 if ipregex.search(ip) and (ip not in wl_ip4) and (ip not in wl_ip6):
                     log_info('WHITELIST: Added Forward-Address \"{0}\"'.format(ip))
-                    if ip.find(':') == -1:
-                        wl_ip4[ip] = 'Forward-Address'
-                    else:
+                    if is_v6(ip):
                         wl_ip6[ip] = 'Forward-Address'
+                    else:
+                        wl_ip4[ip] = 'Forward-Address'
 
         # Whitelist alias domains
         #for dom in aliases.keys():
@@ -2820,16 +2913,16 @@ if __name__ == '__main__':
 
             # Define Service
             #handler = DNSHandler
-            if ipregex6.search(listen_address):
-                log_info('LISTENING on IPv6 ({0}@{1}) not supported yet!'.format(listen_address, listen_port))
-                serverhash = False
-                #serverhash = hash(listen_address + '@' + str(listen_port))
-                #udp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False, handler=handler) # UDP
-                #tcp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=True, handler=handler) # TCP
-            else:
-                serverhash = hash(listen_address + '@' + str(listen_port))
-                udp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False, handler=handler) # UDP
-                tcp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=True, handler=handler) # TCP
+            #if ipregex6.search(listen_address):
+            #    log_info('LISTENING on IPv6 ({0}@{1}) not supported yet!'.format(listen_address, listen_port))
+            #    serverhash = False
+            #    #serverhash = hash(listen_address + '@' + str(listen_port))
+            #    #udp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False, handler=handler) # UDP
+            #    #tcp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=True, handler=handler) # TCP
+            #else:
+            serverhash = hash(listen_address + '@' + str(listen_port))
+            udp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=False, handler=handler) # UDP
+            tcp_dns_server[serverhash] = DNSServer(DNS_Instigator(), address=listen_address, port=listen_port, logger=logger, tcp=True, handler=handler) # TCP
 
             # Start Service as threads
             if serverhash:
