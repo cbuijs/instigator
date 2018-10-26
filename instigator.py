@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.26-20181025 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.30-20181026 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -623,8 +623,8 @@ def randomness(testvalue):
             totscore = 0
             for word in words:
                 if word[2:] and (not isnum.search(word)):
-                    randomness = zxcvbn(testvalue)
-                    totscore += int(round(randomness['guesses_log10'])) # The higher, the more random
+                    randomnessscore = zxcvbn(testvalue)
+                    totscore += int(round(randomnessscore['guesses_log10'])) # The higher, the more random
             score = int(round(totscore / len(words)))
             random_cache[testvalue] = score
             if debug: log_info('RANDOMNESS-TO-CACHE: {0} = {1}'.format(testvalue, score))
@@ -1511,7 +1511,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                     if iparpa.search(entry):
                         entrytype = 'PTR'
 
-                    if is_illegal('REQUEST', entry) or is_weird('REQUEST', entry, entrytype):
+                    if is_illegal('LIST-ENTRY', entry) or is_weird('LIST-ENTRY', entry, entrytype):
                         log_err('{0} ILLEGAL/FAULTY/WEIRD Entry [{1}]: {2}'.format(listname, count, entry))
                     elif entry != '.' and (entry not in domlist):
                         fetched += 1
@@ -2305,7 +2305,7 @@ def execute_command(qname, log):
                     log_info('CACHE-INFO ({0}/{1}): {2} NODATA [{3}/{4} Hits] (TTL-LEFT:{5}/{6})'.format(count, total, cache[i][2], record[3], hitsneeded, record[1] - now, record[4]))
                 else:
                     if numrrs != 0:
-                        log_info('CACHE-INFO ({0}/{1}): {2} RRs for {3} [{4}/{5} Hits] (TTL-LEFT:{6}/{7})'.format(count, total, numrrs, cache[i][2], rcode, record[3], hitsneeded, record[1] - now, record[4]))
+                        log_info('CACHE-INFO ({0}/{1}): {2} RRs for {3} {4} [{5}/{6} Hits] (TTL-LEFT:{7}/{8})'.format(count, total, numrrs, cache[i][2], rcode, record[3], hitsneeded, record[1] - now, record[4]))
                     else:
                         log_info('CACHE-INFO ({0}/{1}: {2} {3} [{4}/{5} Hits] (TTL-LEFT:{6}/{7})'.format(count, total, cache[i][2], rcode, record[3], hitsneeded, record[1] - now, record[4]))
 
@@ -2341,9 +2341,10 @@ def execute_command(qname, log):
 def is_illegal(rtype, value):
     '''Check if Illegal'''
     if blockillegal:
-        if rtype == 'REQUEST':
+        if rtype in ('LIST-ENTRY', 'REQUEST'):
             # Filter when domain-name is not compliant
             if (not isdomain.search(value)) and (not iparpa.search(value)):
+                if debug: log_info('ILLEGAL-{0}: {1}/{2} - QNAME Invalid domain-name'.format(rtype, value, qtype))
                 return True
 
     return False
@@ -2353,23 +2354,27 @@ def is_weird(rtype, value, qtype):
     '''Check if weird'''
     if blockweird:
         # Request qname
-        if rtype == 'REQUEST':
+        if rtype in ('LIST-ENTRY', 'REQUEST'):
             # PTR records that do not comply with IP-Addresses
             if qtype == 'PTR' and (not iparpa.search(value)):
+                if debug: log_info('WEIRD-{0}: {1}/{2} - QNAME not ip-arpa'.format(rtype, value, qtype))
                 return True
 
             # Reverse-lookups are not PTR records
             elif qtype != 'PTR' and (iparpa.search(value)):
+                if debug: log_info('WEIRD-{0}: {1}/{2} - Non-PTR ip-arpa'.format(rtype, value, qtype))
                 return True
 
         # Response Data
         elif rtype == 'REPLY':
             # PTR record pointing to an IP or Arpa
             if qtype == 'PTR' and ipregex.search(value):
+                if debug: log_info('WEIRD-{0}: {1}/{2} - PTR data not a domain-name'.format(rtype, value, qtype))
                 return True
 
             # Data of response is an arpa domain, technically not wrong, just weird
             elif iparpa.search(value):
+                if debug: log_info('WEIRD-{0}: {1}/{2} - Data is ip-arpa'.format(rtype, value, qtype))
                 return True
 
     return False
