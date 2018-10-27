@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1540542154                  ###
+### Version: 1540628547                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -813,6 +813,7 @@ audibank.com	Shalla-Banking
 ausbanca.com	Shalla-Banking
 austinbank.com	Shalla-Banking
 australiancu.com	Shalla-Banking, UT1-Banking
+cdn.auth0.com	Notracking-Whitelist
 auxmoney.com	Adguard-Banks
 av.com	Notracking-Whitelist
 avalcard.com	Shalla-Banking
@@ -8530,6 +8531,7 @@ AS36692	Chris-ASN-White
 146.112.58.0/23	Chris-ASN-White-AS36692
 146.112.60.0/22	Chris-ASN-White-AS36692
 146.112.64.0/19	Chris-ASN-White-AS36692
+146.112.96.0/20	Chris-ASN-White-AS36692
 146.112.128.0/21	Chris-ASN-White-AS36692
 146.112.136.0/24	Chris-ASN-White-AS36692
 146.112.138.0/24	Chris-ASN-White-AS36692
