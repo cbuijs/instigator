@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.35-20181026 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.36-20181030 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -367,7 +367,7 @@ ip6arpa = regex.compile('^' + ip6arpa_text + '\.arpa$', regex.I)
 iparpa = regex.compile('^(' + ip4arpa_text + '|' + ip6arpa_text + ')\.arpa$', regex.I)
 
 # Regex to match domains/hosts in lists
-isdomain = regex.compile('(?=^.{1,252}[^\.]$)(^((?!-)[a-z0-9_-]{0,62}[a-z0-9]\.)*(xn--[a-z0-9-]{1,59}|[a-z]{2,63})$)', regex.I)
+isdomain = regex.compile('(?=^.{1,252}[a-z]$)(^((?!-)[a-z0-9_-]{0,62}[a-z0-9]\.)*(xn--[a-z0-9-]{1,59}|[a-z]{2,63})$)', regex.I)
 
 # Regex to filter regexes out
 isregex = regex.compile('^/.*/$')
@@ -800,7 +800,6 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
         server = '.'
         servername = 'DEFAULT'
 
-    queries = list()
     query = DNSRecord(q=DNSQuestion(qname, getattr(QTYPE, qtype)))
 
     forward_server = forward_servers.get(server, False)
@@ -1488,7 +1487,6 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                 # REGEX
                 if isregex.search(entry):
                     rx = entry.strip('/')
-                    rxkey = name + ': ' + rx
                     try:
                         rxlist[name + ': ' + rx] = regex.compile(rx, regex.I)
                         fetched += 1
@@ -1872,7 +1870,7 @@ def prefetch_it(queryhash):
 
         #reply = do_query(request, handler, True) # Query and update cache
 
-        reply = dns_query(request, qname, qtype, False, request.header.id, 'PREFETCHER', True, True) # Fetch and Cache
+        _ = dns_query(request, qname, qtype, False, request.header.id, 'PREFETCHER', True, True) # Fetch and Cache
 
         prefetching_busy = False
 
@@ -2608,7 +2606,7 @@ class DNSServer(object):
         self.server = server((address,port),handler)
         self.server.resolver = resolver
         self.server.logger = logger or DNSLogger()
-    
+
     def start(self):
         '''Start DNS Server'''
         self.server.serve_forever()
