@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.36-20181030 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.365-20181030 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -211,8 +211,9 @@ logreplies = True # Improves response times a little bit when False
 # Minimal Responses
 minresp = True
 
-# Minimum number of dots in a domain-name
+# Minimum/Maximum number of dots in a domain-name
 mindots = 1
+maxdots = 32
 
 # Roundrobin of address/forward-records
 roundrobin = True
@@ -224,9 +225,6 @@ collapse = True
 # Block IPV4 or IPv6 based queries, True = Block, False = NotBlock and None = Based on transport
 blockv4 = False
 blockv6 = None
-
-# Block undotted names
-blockundotted = True
 
 # Block illegal names
 blockillegal = True
@@ -517,8 +515,11 @@ def check_blacklist(rid, rtype, rrtype, value):
     # Check domain-name validity
     if not itisanip:
         testvalue = normalize_dom(regex.split('\s+', testvalue)[-1]) # If RRType has multiple values in data, take last one
-        if blockundotted and testvalue.count('.') < mindots:
-            log_info('BLOCK-MINDOTS-HIT [{0}]: {1}'.format(tid, value))
+        if testvalue.count('.') < mindots:
+            log_info('BLOCK-MINDOTS-HIT [{0}]: {1} ({2}<{3})'.format(tid, value, testvalue.count('.'), mindots))
+            return True
+        elif testvalue.count('.') > maxdots:
+            log_info('BLOCK-MAXDOTS-HIT [{0}]: {1} ({2}>{3})'.format(tid, value, testvalue.count('.'), maxdots))
             return True
         elif is_illegal(rtype, testvalue):
             log_err('BLOCK-ILLEGAL-HIT [{0}]: {1}'.format(tid, value))
@@ -1222,6 +1223,7 @@ def save_cache(file):
 
     try:
         s = shelve.DbfilenameShelf(file, flag='n', protocol=4)
+        s.clear()
         s['cache'] = cache
         s.close()
 
@@ -1284,6 +1286,8 @@ def save_lists(file):
 
     try:
         s = shelve.DbfilenameShelf(file, flag='n', protocol=4)
+
+        s.clear()
 
         s['wl_dom'] = wl_dom
         s['wl_ip4'] = to_dict(wl_ip4)
@@ -1506,6 +1510,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                     if iparpa.search(entry):
                         entrytype = 'PTR'
 
+                    dots = entry.count('.')
                     if is_illegal('LIST-ENTRY', entry) or is_weird('LIST-ENTRY', entry, entrytype):
                         log_err('{0} ILLEGAL/FAULTY/WEIRD Entry [{1}]: {2}'.format(listname, count, entry))
                     elif entry != '.' and (entry not in domlist):
@@ -2386,7 +2391,7 @@ def rc_reply(request, rcode):
     '''Generate empty reply with rcode'''
     reply = request.reply()
     rcode = rcode.upper()
-    if debug: log_info('RCODE: {0}/{1} = {2}'.format(request.q.qname, QTYPE[request.q.qtype], rcode))
+    if debug: log_info('RCODE: {0}/{1} = {2}'.format(request.q.qname.rstrip('.'), QTYPE[request.q.qtype], rcode))
     if rcode == 'NODATA':
         reply.header.rcode = getattr(RCODE, 'NOERROR')
     else:
@@ -2456,7 +2461,7 @@ def do_query(request, handler, force):
             reply = rc_reply(request, 'NOTIMP')
 
         # Check if parent is in cache as NXDOMAIN
-        elif force is False and blocksub and (not in_domain(qname, wl_dom, 'Whitelist', False)):
+        elif force is False and blocksub and qname.count('.') > 0 and (not in_domain(qname, wl_dom, 'Whitelist', False)):
             dom = in_domain(qname, cache_dom_list(qclass, qtype), 'Cache', False)
             if dom and dom != qname:
                 queryhash = query_hash(dom, qclass, qtype)
@@ -2744,14 +2749,11 @@ def get_dns_servers(file, fservers):
     return fservers
 
 
-def white_label():
+def white_label(domlist):
     '''Add all labels of whitelisted domains to freqency list'''
-    global wl_dom
-
     wordlist = set()
     worddict = dict()
-    #for dom in wl_dom.keys():
-    for dom in wl_dom:
+    for dom in domlist:
         if (not ipregex.search(dom)) and (not iparpa.search(dom)):
             for label in regex.split('[\._-]', dom):
                 if label[2:] and (label not in wordlist) and (not isnum.search(label)):
@@ -2871,8 +2873,8 @@ if __name__ == '__main__':
         loadcache = True # Only load cache if savefile didn't change
 
 
-    # Add all labels of whitelisted domains to freqency list for DGA detection
-    white_label()
+    # Add all labels of whitelisted domains to freqency list for DGA/Randomness detection
+    white_label(wl_dom)
 
     # Load persistent cache
     if loadcache:
