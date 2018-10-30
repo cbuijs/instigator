@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1540801537                  ###
+### Version: 1540887874                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -6845,6 +6845,7 @@ gcmba.net	Shalla-Banking, UT1-Banking
 i0.gmx.net	Notracking-Whitelist
 gtld-servers.net	Chris-White
 hkexporter.net	Shalla-Banking
+hockeyapp.net	Notracking-Whitelist
 hosts-file.net	Chris-White, Notracking-Whitelist
 placeholdit.imgix.net	Notracking-Whitelist
 infokredit.net	Shalla-Banking
