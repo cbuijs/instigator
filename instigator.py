@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.365-20181030 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.37-20181031 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -62,8 +62,8 @@ import regex
 from cymruwhois import Client
 
 # Use zxcvbn to determine guessability. The harder, it probably is more random. To catch DGA.
-from zxcvbn import zxcvbn
-from zxcvbn.matching import add_frequency_lists
+#from zxcvbn import zxcvbn
+#from zxcvbn.matching import add_frequency_lists
 
 # Simple caches
 from cachetools import TTLCache
@@ -310,7 +310,7 @@ ttls = OrderedDict() # TTL aliases
 indom_cache = TTLCache(cachesize, filterttl * 4)
 inrx_cache = TTLCache(cachesize, filterttl * 4)
 match_cache = TTLCache(cachesize, filterttl * 4)
-random_cache = TTLCache(cachesize, filterttl * 4)
+#random_cache = TTLCache(cachesize, filterttl * 4)
 
 # List status match_cache
 list_status = dict()
@@ -527,11 +527,11 @@ def check_blacklist(rid, rtype, rrtype, value):
         elif is_weird(rtype, testvalue, rrtype):
             log_info('BLOCK-WEIRD-HIT [{0}]: {1}'.format(tid, value))
             return True
-        elif blockrandom and (not in_domain(testvalue, wl_dom, 'Whitelist', False)):
-            score = randomness(testvalue)
-            if blockrandommononly is False and score > random_threshhold: # !!! TEST VALUE BASED ON AVERAGE USE, CHECK THIS !!!
-                log_info('BLOCK-RANDOMNESS-HIT [{0}]: {1} ({2}>{3})'.format(tid, value, score, random_threshold))
-                return True
+        #elif blockrandom and (not in_domain(testvalue, wl_dom, 'Whitelist', False)):
+        #    score = randomness(testvalue)
+        #    if blockrandommononly is False and score > random_threshhold: # !!! TEST VALUE BASED ON AVERAGE USE, CHECK THIS !!!
+        #        log_info('BLOCK-RANDOMNESS-HIT [{0}]: {1} ({2}>{3})'.format(tid, value, score, random_threshold))
+        #        return True
 
 
     # Check against IP-Lists
@@ -566,10 +566,10 @@ def check_blacklist(rid, rtype, rrtype, value):
             testvalue = value + '/' + testvalue
 
         if found:
-            log_info('BLACKLIST-IP-HIT [{0}]: {1} {3} matched against {4} ({5})'.format(tid, rtype, testvalue, prefix, bip[prefix]))
+            log_info('BLACKLIST-IP-HIT [{0}]: {1} {2} matched against {3} ({4})'.format(tid, rtype, testvalue, prefix, bip[prefix]))
             return True
         elif prefix:
-            log_info('WHITELIST-IP-HIT [{0}]: {1} {3} matched against {4} ({5})'.format(tid, rtype, testvalue, prefix, wip[prefix]))
+            log_info('WHITELIST-IP-HIT [{0}]: {1} {2} matched against {3} ({4})'.format(tid, rtype, testvalue, prefix, wip[prefix]))
             return False
 
 
@@ -613,26 +613,46 @@ def check_blacklist(rid, rtype, rrtype, value):
     return None
 
 
-def randomness(testvalue):
-    '''Calculate randomness'''
-    if testvalue and (not ipregex.search(testvalue)) and (not iparpa.search(testvalue)):
-        score = random_cache.get(testvalue, False)
-        if score is False:
-            words = regex.split('[\._-]', testvalue)
-            totscore = 0
-            for word in words:
-                if word[2:] and (not isnum.search(word)):
-                    randomnessscore = zxcvbn(testvalue)
-                    totscore += int(round(randomnessscore['guesses_log10'])) # The higher, the more random
-            score = int(round(totscore / len(words)))
-            random_cache[testvalue] = score
-            if debug: log_info('RANDOMNESS-TO-CACHE: {0} = {1}'.format(testvalue, score))
-        else:
-            if debug: log_info('RANDOMNESS-FROM-CACHE: {0} = {1}'.format(testvalue, score))
-    else:
-        score = 0
+#def randomness(testvalue):
+#    '''Calculates the Shannon entropy of a string'''
+#    if testvalue and (not ipregex.search(testvalue)) and (not iparpa.search(testvalue)):
+#        score = random_cache.get(testvalue, False)
+#        if score is False:
+#            prob = [ float(testvalue.count(c)) / len(testvalue) for c in dict.fromkeys(list(testvalue)) ]
+#            score = - sum([ p * math.log(p) / math.log(2.0) for p in prob ])
+#
+#            random_cache[testvalue] = score
+#
+#            if debug: log_info('RANDOMNESS-TO-CACHE: {0} = {1}'.format(testvalue, score))
+#        else:
+#            if debug: log_info('RANDOMNESS-FROM-CACHE: {0} = {1}'.format(testvalue, score))
+#
+#    else:
+#        score = 0
+#
+#    return score
 
-    return score
+
+#def randomness(testvalue):
+#    '''Calculate randomness'''
+#    if testvalue and (not ipregex.search(testvalue)) and (not iparpa.search(testvalue)):
+#        score = random_cache.get(testvalue, False)
+#        if score is False:
+#            words = regex.split('[\._-]', testvalue)
+#            totscore = 0
+#            for word in words:
+#                if word[2:] and (not isnum.search(word)):
+#                    randomnessscore = zxcvbn(testvalue)
+#                    totscore += int(round(randomnessscore['guesses_log10'])) # The higher, the more random
+#            score = int(round(totscore / len(words)))
+#            random_cache[testvalue] = score
+#            if debug: log_info('RANDOMNESS-TO-CACHE: {0} = {1}'.format(testvalue, score))
+#        else:
+#            if debug: log_info('RANDOMNESS-FROM-CACHE: {0} = {1}'.format(testvalue, score))
+#    else:
+#        score = 0
+#
+#    return score
 
 
 def in_domain(name, domlist, domid, checksub):
@@ -783,6 +803,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
         reply = from_cache(qname, 'IN', qtype, tid)
         if reply is not None:
             return reply
+
 
     # SafeDNS stuff
     firstreply = None
@@ -1003,8 +1024,9 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                     reply = generate_response(request, qname, qtype, redirect_addrs, force, 'REPLY-BLACKLISTED' + tag)
                     break
 
-                else:
-                    log_info('REPLY [{0}]: {1}/IN/{2} = {3} NOERROR{4}'.format(nid, rqname, rqtype, data, tag))
+                #else:
+                #    log_info('REPLY [{0}]: {1}/IN/{2} = {3} NOERROR{4}'.format(nid, rqname, rqtype, data, tag))
+
 
     else:
         reply = rc_reply(request, rcode)
@@ -1013,6 +1035,9 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
 
     # Match up ID
     reply.header.id = tid
+
+    # Log replies
+    log_replies(reply, 'FETCHED-REPLY')
 
     # Collapse CNAME
     if collapse:
@@ -1125,31 +1150,31 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
         tag = "GENERATED-ALIAS-HIT"
         alias = newalias
 
+    israndom = False
+
     if alias.upper() == 'PASSTHRU':
         log_info('{0}: {1} = PASSTHRU'.format(tag, queryname))
         alias = qname
 
     elif alias.upper() == 'RANDOM':
-        if qtype == 'A':
+        if (collapse and qtype == 'CNAME') or qtype == 'A':
             alias = str(random.randint(0, 255)) + '.' + str(random.randint(0, 255)) + '.' + str(random.randint(0, 255)) + '.' + str(random.randint(0, 255))
         elif qtype == 'AAAA':
-            alias = str(random.randint(1000, 9999)) + '::' + str(random.randint(1000, 9999))
-        elif qtype == 'CNAME':
-            alias = 'random-' + str(random.randint(1000, 9999)) + '.' + aqname
+            alias = ':'.join(filter(None, regex.split('(.{4,4})', ''.join([random.choice('0123456789abcdef') for _ in range(32)]))))
+        elif not collapse and qtype == 'CNAME':
+            alias = regex.sub('\.+', '.', ''.join([random.choice('0123456789abcdefghijklmnopqrstuvwxyz.') for _ in range(random.randint(4,32))]).strip('.')) + '.' + aqname
         else:
             alias = 'NXDOMAIN'
 
         if alias != 'NXDOMAIN':
+            israndom = True
             log_info('{0}: {1} = RANDOM: \"{2}\"'.format(tag, queryname, alias))
 
     aliasqname = False
-    if alias.upper() in ('NODATA', 'NOTAUTH', 'NXDOMAIN', 'RANDOM', 'REFUSED'):
-        if alias.upper() == 'RANDOM':
-            log_info('{0}: {1} = RANDOM-NXDOMAIN'.format(tag, queryname))
-            reply = rc_reply(request, 'NXDOMAIN')
-        else:
-            log_info('{0}: {1} = {2}'.format(tag, queryname, alias.upper()))
-            reply = rc_reply(request, alias.upper())
+
+    if alias.upper() in ('NODATA', 'NOTAUTH', 'NXDOMAIN', 'REFUSED'):
+        log_info('{0}: {1} = REDIRECT-TO-RCODE -> {2}'.format(tag, queryname, alias.upper()))
+        reply = rc_reply(request, alias.upper())
 
     elif ipregex.search(alias) and qtype in ('A', 'AAAA', 'CNAME'):
         log_info('{0}: {1} = REDIRECT-TO-IP -> {2}'.format(tag, queryname, alias))
@@ -1161,44 +1186,35 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
         reply.add_answer(answer)
 
     elif qtype in ('A', 'AAAA', 'CNAME', 'PTR'):
-        if not collapse and qname != alias and alias.startswith('random-') is False:
-            log_info('{0}: {1} = REDIRECT-TO-RANDOM-NAME -> {2} (NO RESOLUTION)'.format(tag, queryname, alias))
-            answer = RR(realqname, QTYPE.CNAME, ttl=filterttl, rdata=CNAME(alias))
-            reply.add_answer(answer)
+        log_info('{0}: {1} = REDIRECT-TO-NAME -> {2}'.format(tag, queryname, alias))
 
-        if qtype == 'CNAME' and alias.startswith('random-'):
-            answer = RR(realqname, QTYPE.CNAME, ttl=filterttl, rdata=CNAME(alias))
-            reply.add_answer(answer)
-
+        if israndom and qtype == 'CNAME':
+            rcode = 'NODATA'
         else:
-            log_info('{0}: {1} = REDIRECT-TO-NAME -> {2}'.format(tag, queryname, alias))
-            #if qtype not in ('A', 'AAAA'):
-            #    qtype = 'A'
-
             subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, 'ALIAS-RESOLVER', False, False)
-
             rcode = str(RCODE[subreply.header.rcode])
-            if rcode == 'NOERROR' and subreply.rr:
-                if collapse:
-                    aliasqname = realqname
-                else:
-                    aliasqname = alias
 
-                ttl = normalize_ttl(aliasqname, subreply.rr)
-
-                for record in subreply.rr:
-                    rqtype = QTYPE[record.rtype]
-                    data = normalize_dom(record.rdata)
-                    if rqtype == 'A':
-                        answer = RR(aliasqname, QTYPE.A, ttl=ttl, rdata=A(data))
-                        reply.add_answer(answer)
-                    if rqtype == 'AAAA':
-                        answer = RR(aliasqname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(data))
-                        reply.add_answer(answer)
-
-                log_replies(reply, tag + '-REPLY')
+        if rcode == 'NOERROR' and subreply.rr:
+            if collapse:
+                aliasqname = realqname
             else:
-                reply = rc_reply(request, rcode)
+                aliasqname = alias
+
+            ttl = normalize_ttl(aliasqname, subreply.rr)
+
+            for record in subreply.rr:
+                rqtype = QTYPE[record.rtype]
+                data = normalize_dom(record.rdata)
+                if rqtype == 'A':
+                    answer = RR(aliasqname, QTYPE.A, ttl=ttl, rdata=A(data))
+                    reply.add_answer(answer)
+                if rqtype == 'AAAA':
+                    answer = RR(aliasqname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(data))
+                    reply.add_answer(answer)
+
+            log_replies(reply, tag + '-REPLY')
+        else:
+            reply = rc_reply(request, rcode)
 
     else:
         reply = rc_reply(request, 'NXDOMAIN')
@@ -1976,7 +1992,7 @@ def log_replies(reply, title):
     if replynum > 0:
         for record in reply.rr:
             replycount += 1
-            log_info('{0} [{1}:{2}-{3}]: {4}/IN/{5} = {6} {7}'.format(title, hid, replycount, replynum, record.rname, QTYPE[record.rtype], record.rdata, rcode))
+            log_info('{0} [{1}:{2}-{3}]: {4}/IN/{5} = {6} {7}'.format(title, hid, replycount, replynum, str(record.rname).rstrip('.') or '.', QTYPE[record.rtype], str(record.rdata).rstrip('.') or '.', rcode))
     else:
         if rcode == 'NOERROR':
             rcode = 'NODATA'
@@ -2391,7 +2407,7 @@ def rc_reply(request, rcode):
     '''Generate empty reply with rcode'''
     reply = request.reply()
     rcode = rcode.upper()
-    if debug: log_info('RCODE: {0}/{1} = {2}'.format(request.q.qname.rstrip('.'), QTYPE[request.q.qtype], rcode))
+    if debug: log_info('RCODE: {0}/{1} = {2}'.format(str(request.q.qname).rstrip('.'), QTYPE[request.q.qtype], rcode))
     if rcode == 'NODATA':
         reply.header.rcode = getattr(RCODE, 'NOERROR')
     else:
@@ -2749,29 +2765,29 @@ def get_dns_servers(file, fservers):
     return fservers
 
 
-def white_label(domlist):
-    '''Add all labels of whitelisted domains to freqency list'''
-    wordlist = set()
-    worddict = dict()
-    for dom in domlist:
-        if (not ipregex.search(dom)) and (not iparpa.search(dom)):
-            for label in regex.split('[\._-]', dom):
-                if label[2:] and (label not in wordlist) and (not isnum.search(label)):
-                    wordlist.add(label)
-
-    # Add some static words !!! ADD this as config option !!!
-    wordlist.add('amazon')
-    wordlist.add('amazonaws')
-    wordlist.add('apple')
-    wordlist.add('facebook')
-    wordlist.add('google')
-    wordlist.add('youtube')
-
-    worddict['whitelist'] = list(wordlist)
-    add_frequency_lists(worddict)
-    log_info('WHITELIST: Added {0} labels to randomness-guesser'.format(len(wordlist)))
-
-    return True
+#def white_label(domlist):
+#    '''Add all labels of whitelisted domains to freqency list'''
+#    wordlist = set()
+#    worddict = dict()
+#    for dom in domlist:
+#        if (not ipregex.search(dom)) and (not iparpa.search(dom)):
+#            for label in regex.split('[\._-]', dom):
+#                if label[2:] and (label not in wordlist) and (not isnum.search(label)):
+#                    wordlist.add(label)
+#
+#    # Add some static words !!! ADD this as config option !!!
+#    wordlist.add('amazon')
+#    wordlist.add('amazonaws')
+#    wordlist.add('apple')
+#    wordlist.add('facebook')
+#    wordlist.add('google')
+#    wordlist.add('youtube')
+#
+#    worddict['whitelist'] = list(wordlist)
+#    add_frequency_lists(worddict)
+#    log_info('WHITELIST: Added {0} labels to randomness-guesser'.format(len(wordlist)))
+#
+#    return True
 
 
 if __name__ == '__main__':
@@ -2873,8 +2889,8 @@ if __name__ == '__main__':
         loadcache = True # Only load cache if savefile didn't change
 
 
-    # Add all labels of whitelisted domains to freqency list for DGA/Randomness detection
-    white_label(wl_dom)
+    ## Add all labels of whitelisted domains to freqency list for DGA/Randomness detection
+    #white_label(wl_dom)
 
     # Load persistent cache
     if loadcache:
