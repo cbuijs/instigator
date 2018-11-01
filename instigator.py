@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.37-20181031 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.38-20181031 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -28,6 +28,7 @@ ToDo/Ideas:
 - Itterative resolution besides only forwarding (as is today). Status: Backburner.
 - Add more security-features against hammering, dns-drip, ddos, etc. Status: Backburner.
 - Fix SYSLOG on MacOS. Status: To-be-done.
+- Redo randomness blocking
 
 =========================================================================================
 '''
@@ -186,6 +187,9 @@ cache_maintenance_now = False
 cache_maintenance_busy = False
 persistentcache = True
 
+# Always load/process lists fully
+alwaysfresh = False
+
 # TTL Settings
 ttlstrategy = 'average' # average/lowest/highest/random - Egalize TTL on all RRs in RRSET
 filterttl = 900 # Seconds - For filtered/blacklisted/alias entry caching
@@ -239,9 +243,9 @@ blocksub = True
 blocksearchdom = True
 
 # Block randomized domains
-blockrandom = True
-blockrandommononly = True
-random_threshhold = 42
+#blockrandom = True
+#blockrandommononly = True
+#random_threshhold = 42
 
 # SafeDNS
 safedns = False
@@ -307,10 +311,10 @@ ttls = OrderedDict() # TTL aliases
 #inrx_cache = dict() # Cache result of regex hits
 #match_cache = dict() # Cache results of match_blacklist
 #random_cache = dict() # cache results of randomness-calculations
-indom_cache = TTLCache(cachesize, filterttl * 4)
-inrx_cache = TTLCache(cachesize, filterttl * 4)
-match_cache = TTLCache(cachesize, filterttl * 4)
-#random_cache = TTLCache(cachesize, filterttl * 4)
+indom_cache = TTLCache(cachesize * 4, filterttl * 4)
+inrx_cache = TTLCache(cachesize * 4, filterttl * 4)
+match_cache = TTLCache(cachesize * 4, filterttl * 4)
+#random_cache = TTLCache(cachesize * 4, filterttl * 4)
 
 # List status match_cache
 list_status = dict()
@@ -1341,7 +1345,8 @@ def load_asn(file, asn4, asn6):
     if file_exist(file, False):
         try:
             f = open(file, 'r')
-            lines = f.readlines()
+            #lines = f.readlines()
+            lines = f.read().splitlines()
             f.close()
 
         except BaseException as err:
@@ -1470,7 +1475,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
     if file_exist(file, False):
         try:
             f = open(file, 'r')
-            lines = f.readlines()
+            #lines = f.readlines()
+            lines = f.read().splitlines()
             f.close()
 
         except BaseException as err:
@@ -2182,6 +2188,12 @@ def cache_maintenance(flushall, olderthen, clist, plist):
 
     after = len(cache)
 
+    if flushall:
+        indom_cache.clear()
+        inrx_cache.clear()
+        match_cache.clear()
+        #random_cache.clear()
+
     if before != after:
         if totalrrs == 0:
             log_info('CACHE-STATS: purged {0} entries, {1} left in cache'.format(before - after, after))
@@ -2672,7 +2684,8 @@ def read_config(file):
         log_info('CONFIG: Loading config from config-file \"{0}\"'.format(file))
         try:
             f = open(file, 'r')
-            lines = f.readlines()
+            #lines = f.readlines()
+            lines = f.read().splitlines()
             f.close()
 
         except BaseException as err:
@@ -2716,7 +2729,8 @@ def read_config(file):
         log_info('CONFIG: Loading domains from \"{0}\"'.format(resolvfile))
         try:
             f = open(resolvfile, 'r')
-            lines = f.readlines()
+            #lines = f.readlines()
+            lines = f.read().splitlines()
             f.close()
 
         except BaseException as err:
@@ -2739,7 +2753,8 @@ def get_dns_servers(file, fservers):
     log_info('CONFIG: Loading nameservers from \"{0}\"'.format(file))
     try:
         f = open(file, 'r')
-        lines = f.readlines()
+        #lines = f.readlines()
+        lines = f.read().splitlines()
         f.close()
 
     except BaseException as err:
@@ -2804,7 +2819,7 @@ if __name__ == '__main__':
 
     # Load/Read lists
     loadcache = False
-    if not load_lists(savefile):
+    if alwaysfresh or (not load_lists(savefile)):
         #for lst in lists.keys():
         for lst in lists:
             if lst in whitelist:
