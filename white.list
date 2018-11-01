@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1540974287                  ###
+### Version: 1541060709                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -1106,6 +1106,7 @@ blogger.com	Notracking-Whitelist
 blogspot.com	Notracking-Whitelist
 blombank.com	Adguard-Banks
 bloomberg.com	Notracking-Whitelist
+bluebillywig.com	Notracking-Whitelist
 bluehost.com	Notracking-Whitelist
 cp.bluesnap.com	Adguard-Banks
 bmj.com	Notracking-Whitelist
