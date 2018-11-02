@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1541060709                  ###
+### Version: 1541147106                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -5626,10 +5626,10 @@ bancocetelem.es	Shalla-Banking
 bancodevalencia.es	UT1-Banking
 bancogalicia.es	UT1-Banking
 bancogallego.es	UT1-Banking
-bancopopular.es	UT1-Banking
+bancopopular.es	UT1-Banking, Adguard-Banks
 bancovasconia.es	UT1-Banking
 banesto.es	Shalla-Banking
-oi.bankia.es	Adguard-Banks
+bankia.es	Adguard-Banks
 bankinter.es	UT1-Banking
 bankoa.es	UT1-Banking
 barclays.es	Shalla-Banking, UT1-Banking
@@ -6223,6 +6223,7 @@ google.co.in	Notracking-Whitelist
 hsbc.co.in	Shalla-Banking
 idbibank.co.in	Adguard-Banks
 iobnet.co.in	Adguard-Banks
+obconline.co.in	Adguard-Banks
 sbi.co.in	Shalla-Banking, UT1-Banking
 sbp.co.in	Shalla-Banking, UT1-Banking
 thanejanata.co.in	Shalla-Banking, UT1-Banking
