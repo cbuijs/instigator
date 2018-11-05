@@ -1,18 +1,20 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1541409883                  ###
+### Version: 1541451327                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
 
 ### SAFELIST DOMAINS ###
 bank!	Safelist-Chris-White-TLDS
+homebrew.bintray.com!	Safelist-Chris-Special-White
 goog!	Safelist-Chris-Special-White
 dnscrypt.info!	Safelist-Chris-Special-White
 dnsdb.info!	Safelist-Chris-Special-White
 public-dns.info!	Safelist-Chris-Special-White
 insurance!	Safelist-Chris-White-TLDS
 ntp.org!	Chris-Exclude
+brew.sh!	Safelist-Chris-Special-White
 ### SAFEUNWHITELIST DOMAINS ###
 ### WHITELIST REGEXES ###
 /^(.*\.)*((?!(ad|adservice|adword|analytic|gg|googleadapi|google[-]*analytics|gstaticadssl|id|marketing([-]*platform)*|pagead|pagead[-]*googlehosted|partnerad|tagmanager|video[-]*stat|www[-]*google[-]*analytic|www[-]*googletagmanager)[s]*).)*\.google\.([a-z]{2,3}\.)*[a-z]{2,3}$/	Chris-Regex-White
@@ -1296,7 +1298,6 @@ bigskybank.com	Shalla-Banking, UT1-Banking
 billdesk.com	Adguard-Banks
 binarydefense.com	Chris-White
 bing.com	UT1-Bu, Notracking-Whitelist
-homebrew.bintray.com	Chris-White
 biochim.com	Shalla-Banking, UT1-Banking
 birdislandbank.com	Shalla-Banking, UT1-Banking
 birlaglobal.com	Shalla-Banking
