@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.411-20181104 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.42-20181105 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -2087,9 +2087,9 @@ def no_noerror_list():
 def cache_prefetch_list():
     '''Get list of prefetchable items'''
     now = int(time.time())
-    # Formula: At least 2 cache-hits, hitrate > 0 and hits are above/equal hitrate
-    # value list entries: 0:reply - 1:expire - 2:qname/class/type - 3:hits - 4:orgttl - 5:domainname
-    return list(dict((k, v) for k, v in cache.items() if v[3] > 1 and int(round(v[4] / prefetchhitrate)) > 0 and v[1] - now <= int(round(v[4] / prefetchgettime)) and v[3] >= int((round(v[4] / prefetchhitrate)) - (round((v[1] - now) / prefetchhitrate)))).keys()) or False
+    # Formula: At least one RR-Record, at least 2 cache-hits, hitrate > 0 and hits are above/equal hitrate
+    # value list entries: 0:reply - 1:expire - 2:qname/class/type - 3:hits - 4:orgttl - 5:domainname - 6:comment
+    return list(dict((k, v) for k, v in cache.items() if len(v[0].rr) > 0 and v[3] > 1 and int(round(v[4] / prefetchhitrate)) > 0 and v[1] - now <= int(round(v[4] / prefetchgettime)) and v[3] >= int((round(v[4] / prefetchhitrate)) - (round((v[1] - now) / prefetchhitrate)))).keys()) or False
 
 
 def cache_dom_list(qclass, qtype):
@@ -2530,17 +2530,17 @@ def do_query(request, handler, force):
                 log_info('AUTOBLOCK-IPV6-HIT [{0}]: Request from {1} for {2} {3}'.format(tid, cip, queryname, hitrcode))
                 reply = rc_reply(request, hitrcode)
 
-            elif not in_domain(qname, forward_servers, 'Forwarders', False):
-                # Search-Domain blocker
-                if blocksearchdom and searchdom:
-                    for sdom in searchdom:
-                        if qname.endswith('.' + sdom):
-                            dname = qname.rstrip('.' + sdom)
-                            if in_cache(dname, 'IN', qtype):
-                                log_info('SEARCH-HIT [{0}]: \"{1}\" matched \"{2} . {3}\"'.format(tid, qname, dname, sdom))
-                                reply = rc_reply(request, 'NOERROR') # Empty response, NXDOMAIN provides other search-requests
-                                break
+            # Search-Domain blocker
+            elif blocksearchdom and searchdom:
+                for sdom in searchdom:
+                    if qname.endswith('.' + sdom):
+                        dname = qname.rstrip('.' + sdom)
+                        if in_cache(dname, 'IN', qtype):
+                            log_info('SEARCH-HIT [{0}]: \"{1}\" matched \"{2} . {3}\"'.format(tid, qname, dname, sdom))
+                            reply = rc_reply(request, 'NOERROR') # Empty response, NXDOMAIN provides other search-requests
+                            break
 
+            elif not in_domain(qname, forward_servers, 'Forwarders', False):
                 # Generate ALIAS response when hit !!! Needs to be last in if-elif chain
                 if reply is None:
                     generated = in_regex(qname, aliases_rx, True, 'Generator') or False
