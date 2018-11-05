@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1541379811                  ###
+### Version: 1541409883                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -1341,6 +1341,7 @@ bokf.com	Shalla-Banking
 bolivia.com	UT1-Bu
 booking.com	Notracking-Whitelist
 boonebank.com	Shalla-Banking
+maxcdn.bootstrapcdn.com	Notracking-Whitelist
 bordeaux-region.com	UT1-Bu
 bordier.com	Shalla-Banking
 borel.com	Shalla-Banking
@@ -2518,6 +2519,7 @@ gide.com	UT1-Bu
 giffordbank.com	Shalla-Banking
 giga-presse.com	UT1-Bu
 gigsky.com	Chris-White
+gigya.com	Notracking-Whitelist
 gilbertbank.com	Shalla-Banking, UT1-Banking
 gillesartigues.com	UT1-Bu
 gilmercountybank.com	Shalla-Banking
@@ -9021,7 +9023,7 @@ bief.org	UT1-Bu
 bilan-entreprise.org	UT1-Bu
 buffalo.biodome.org	Source
 bis.org	Shalla-Banking
-bitbucket.org	Chris-White
+bitbucket.org	Chris-White, Notracking-Whitelist
 bmane.org	Shalla-Banking
 bnm.org	Shalla-Banking
 bot-tz.org	Shalla-Banking
