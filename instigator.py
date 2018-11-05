@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.40-20181031 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.41-20181104 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -311,10 +311,11 @@ ttls = OrderedDict() # TTL aliases
 #inrx_cache = dict() # Cache result of regex hits
 #match_cache = dict() # Cache results of match_blacklist
 #random_cache = dict() # cache results of randomness-calculations
-indom_cache = TTLCache(cachesize * 4, filterttl * 4)
-inrx_cache = TTLCache(cachesize * 4, filterttl * 4)
-match_cache = TTLCache(cachesize * 4, filterttl * 4)
-#random_cache = TTLCache(cachesize * 4, filterttl * 4)
+indom_cache = TTLCache(cachesize * 4, filterttl)
+inrx_cache = TTLCache(cachesize * 4, filterttl)
+match_cache = TTLCache(cachesize * 4, filterttl)
+notlisted = TTLCache(cachesize * 4, filterttl)
+#random_cache = TTLCache(cachesize * 4, filterttl)
 
 # List status match_cache
 list_status = dict()
@@ -496,9 +497,9 @@ def check_blacklist(rid, rtype, rrtype, value):
             if not in_domain(testvalue, bl_dom, 'Blacklist', False):
                 ip = False
                 if ip4arpa.search(testvalue):
-                    ip = '.'.join(testvalue.split('.')[0:4][::-1])
+                    ip = '.'.join(testvalue.split('.')[0:4][::-1]) # IPv4
                 elif ip6arpa.search(testvalue):
-                    ip = ':'.join(filter(None, regex.split('(.{4,4})', ''.join(testvalue.split('.')[0:32][::-1]))))
+                    ip = ':'.join(filter(None, regex.split('(.{4,4})', ''.join(testvalue.split('.')[0:32][::-1])))) # IPv6
 
                 if ip:
                     # Test IP further on as revdom is not listed
@@ -514,6 +515,9 @@ def check_blacklist(rid, rtype, rrtype, value):
     elif rtype == 'REPLY':
         if rrtype in ('A', 'AAAA'):
             itisanip = True
+        elif testvalue.count(' ') > 0:
+            testvalue = regex.split('\s+', testvalue)[-1] # Take last field as domain-name
+            log_info('MATCHING [{0}]: Matching against \"{1}\" of \"{2}\" ({3})'.format(tid, testvalue, value, rrtype))
 
 
     # Check domain-name validity
@@ -846,6 +850,12 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
             else:
                 forward_port = 53
 
+            if forward_port != 53:
+                if debug: log_info('DNS-TCP: Using TCP because port is not 53 ({0})'.format(forward_port))
+                tcp_use = True
+            else:
+                tcp_use = use_tcp
+
             if not in_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port)):
                 if not safedns:
                     log_info('DNS-QUERY [{0}]: Forwarding query from {1} to {2}@{3} ({4}) for {5}{6}'.format(hid, cip, forward_address, forward_port, servername, queryname, tag))
@@ -859,7 +869,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
 
                 try:
                     #qstart = time.time()
-                    q = query.send(forward_address, forward_port, tcp=use_tcp, timeout=forward_timeout, ipv6=useip6)
+                    q = query.send(forward_address, forward_port, tcp=tcp_use, timeout=forward_timeout, ipv6=useip6)
                     reply = DNSRecord.parse(q)
                     #qend = time.time()
                     #if debug: log_info('DNS-RTT [' + hid + ']: ' + str(qend - qstart) + ' seconds' + tag)
@@ -1234,6 +1244,23 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
     return reply
 
 
+def to_dict(iplist):
+    '''iplist is a Pytricia dict'''
+    newdict = dict()
+    #for i in iplist.keys():
+    for i in iplist:
+        newdict[i] = iplist[i]
+    return newdict
+
+
+def from_dict(fromlist, tolist):
+    '''toist is a Pytricia dict.'''
+    #for i in fromlist.keys():
+    for i in fromlist:
+        tolist[i] = fromlist[i]
+    return tolist
+
+
 def save_cache(file):
     '''Save Cache'''
     if not persistentcache:
@@ -1282,22 +1309,6 @@ def load_cache(file):
     if debug: execute_command('show.' + command, False)
 
     return True
-
-
-def to_dict(iplist):
-    '''iplist is a Pytricia dict'''
-    newdict = dict()
-    #for i in iplist.keys():
-    for i in iplist:
-        newdict[i] = iplist[i]
-    return newdict
-
-def from_dict(fromlist, tolist):
-    '''toist is a Pytricia dict.'''
-    #for i in fromlist.keys():
-    for i in fromlist:
-        tolist[i] = fromlist[i]
-    return tolist
 
 
 def save_lists(file):
@@ -1569,7 +1580,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                     except BaseException as err:
                                         log_err('{0} INVALID REGEX [{1}]: {2} - {3}'.format(listname, count, entry, err))
 
-                                    log_info('{0} ALIAS-GENERATOR [{1}]: \"{2}\" = \"{3}\"'.format(listname, count, rx, alias))
+                                    log_info('{0} ALIAS-GENERATOR [{1}]: \"{2}\" -> \"{3}\"'.format(listname, count, rx, alias))
 
                                 else:
                                     log_err('{0} INVALID ALIAS [{1}]: {2}'.format(listname, count, entry))
@@ -1584,7 +1595,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                     alist[domain] = alias
                                     if alias.upper() != 'RANDOM':
                                         domlist[domain] = 'Alias-Domain' # Whitelist it
-                                    log_info('{0} ALIAS-ALIAS [{1}]: \"{2}\" = \"{3}\"'.format(listname, count, domain, alias))
+                                    log_info('{0} ALIAS-ALIAS [{1}]: \"{2}\" -> \"{3}\"'.format(listname, count, domain, alias))
                                 else:
                                     log_err('{0} INVALID ALIAS [{1}]: {2}'.format(listname, count, entry))
                             else:
