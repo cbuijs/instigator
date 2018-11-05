@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.41-20181104 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.411-20181104 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -2075,7 +2075,8 @@ def to_cache(qname, qclass, qtype, reply, force, newttl, comment):
 def cache_expired_list():
     '''get list of purgable items'''
     now = int(time.time())
-    return list(dict((k, v) for k, v in cache.items() if v[1] - now < 1).keys()) or False
+    #return list(dict((k, v) for k, v in cache.items() if v[1] - now < 1).keys()) or False
+    return list(dict((k, v) for k, v in cache.items() if v[1] - now < 2).keys()) or False
 
 
 def no_noerror_list():
