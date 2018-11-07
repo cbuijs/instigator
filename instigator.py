@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.42-20181105 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.43-20181106 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -533,7 +533,7 @@ def check_blacklist(rid, rtype, rrtype, value):
             log_err('BLOCK-ILLEGAL-HIT [{0}]: {1}'.format(tid, value))
             return True
         elif is_weird(rtype, testvalue, rrtype):
-            log_info('BLOCK-WEIRD-HIT [{0}]: {1}'.format(tid, value))
+            log_info('BLOCK-WEIRD-HIT [{0}]: {1}/{2}'.format(tid, value, rrtype))
             return True
         #elif blockrandom and (not in_domain(testvalue, wl_dom, 'Whitelist', False)):
         #    score = randomness(testvalue)
@@ -2412,6 +2412,16 @@ def is_weird(rtype, value, qtype):
                 if debug: log_info('WEIRD-{0}: {1}/{2} - Non-PTR ip-arpa'.format(rtype, value, qtype))
                 return True
 
+            # SRV records where qname has more then two underscores
+            elif qtype == 'SRV' and value.count('_') > 2:
+                if debug: log_info('WEIRD-{0}: {1}/{2} - Too many underscores (>2)'.format(rtype, value, qtype))
+                return True
+
+            # Non-SRV records with underscores in qname
+            elif qtype != 'SRV' and value.count('_') > 0:
+                if debug: log_info('WEIRD-{0}: {1}/{2} - Non-SRV Underscore'.format(rtype, value, qtype))
+                return True
+
         # Response Data
         elif rtype == 'REPLY':
             # PTR record pointing to an IP or Arpa
@@ -2422,6 +2432,11 @@ def is_weird(rtype, value, qtype):
             # Data of response is an arpa domain, technically not wrong, just weird
             elif iparpa.search(value):
                 if debug: log_info('WEIRD-{0}: {1}/{2} - Data is ip-arpa'.format(rtype, value, qtype))
+                return True
+
+            # Underscores
+            elif value.count('_') > 0:
+                if debug: log_info('WEIRD-{0}: {1}/{2} - Underscore'.format(rtype, value, qtype))
                 return True
 
     return False
@@ -2540,11 +2555,10 @@ def do_query(request, handler, force):
                             reply = rc_reply(request, 'NOERROR') # Empty response, NXDOMAIN provides other search-requests
                             break
 
-            elif not in_domain(qname, forward_servers, 'Forwarders', False):
-                # Generate ALIAS response when hit !!! Needs to be last in if-elif chain
-                if reply is None:
-                    generated = in_regex(qname, aliases_rx, True, 'Generator') or False
-                    reply = generate_alias(request, qname, qtype, use_tcp, force, generated)
+        # Generate ALIAS response when hit !!! Needs to be last in if-elif chain
+        if reply is None:
+            generated = in_regex(qname, aliases_rx, True, 'Generator') or False
+            reply = generate_alias(request, qname, qtype, use_tcp, force, generated)
 
         # Check query/response against lists
         if reply is None:
