@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1541496307                  ###
+### Version: 1541582719                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -2391,6 +2391,8 @@ fonctio.com	UT1-Bu
 fondations.com	UT1-Bu
 fontaine-suisse.com	Shalla-Banking
 fontaneau.com	UT1-Bu
+pro.fontawesome.com	Notracking-Whitelist
+use.fontawesome.com	Notracking-Whitelist
 foothillindbank.com	Shalla-Banking
 foothillsbank.com	UT1-Banking
 forbes.com	Notracking-Whitelist
@@ -8712,6 +8714,7 @@ iutenligne.net	UT1-Bu
 izf.net	UT1-Bu
 jkbank.net	Shalla-Banking, UT1-Banking
 jobetudiant.net	UT1-Bu
+cdn.jsdelivr.net	Notracking-Whitelist
 juridix.net	UT1-Bu
 juriscom.net	UT1-Bu
 kasbonspecialist.net	Shalla-Banking
