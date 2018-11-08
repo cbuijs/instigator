@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.43-20181106 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.44-20181107 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -418,7 +418,7 @@ def file_exist(file, isdb):
                     mtime = int(fstat.st_mtime)
                     currenttime = int(time.time())
                     age = int(currenttime - mtime)
-                    if debug: log_info('FILE-EXIST: {0} = {1}'.format(file, age))
+                    if debug: log_info('FILE-EXIST: {0} = {1} seconds old'.format(file, age))
                     return age
                 else:
                     if debug: log_info('FILE-EXIST: {0} is zero size'.format(file))
@@ -529,7 +529,7 @@ def check_blacklist(rid, rtype, rrtype, value):
         elif testvalue.count('.') > maxdots:
             log_info('BLOCK-MAXDOTS-HIT [{0}]: {1} ({2}>{3})'.format(tid, value, testvalue.count('.'), maxdots))
             return True
-        elif is_illegal(rtype, testvalue):
+        elif is_illegal(rtype, testvalue, rrtype):
             log_err('BLOCK-ILLEGAL-HIT [{0}]: {1}'.format(tid, value))
             return True
         elif is_weird(rtype, testvalue, rrtype):
@@ -886,7 +886,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                             for record in reply.auth:
                                 if QTYPE[record.rtype] == 'SOA':
                                     soadom = regex.split('\s+', str(record))[0].strip('.') or '.'
-                                    if soadom != ".":
+                                    if soadom != '.':
                                         rcttl = normalize_ttl(qname, reply.auth)
                                         if rcttl:
                                             log_info('SOA-TTL [{0}]: Taking TTL={1} of SOA \"{2}\" for {3} {4}{5}'.format(hid, rcttl, soadom, queryname, rcode, tag))
@@ -1089,15 +1089,17 @@ def generate_response(request, qname, qtype, redirect_addrs, force, comment):
     '''Generate response when blocking'''
     queryname = qname + '/IN/' + qtype
 
+    hid = id_str(request.header.id)
+
     if redirect_addrs and (qtype not in ('ANY', 'TXT')) and any(x.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED') for x in redirect_addrs):
         for addr in redirect_addrs:
             if addr.upper() in ('NODATA', 'NXDOMAIN', 'REFUSED'):
-                log_info('GENERATE: {0} for {1}'.format(addr, queryname))
+                log_info('GENERATE [{0}]: {1} for {2}'.format(hid, addr, queryname))
                 reply = rc_reply(request, addr.upper())
                 break
 
-    elif (not redirect_addrs) or (qtype not in ('ANY', 'A', 'AAAA', 'CNAME', 'TXT')):
-        log_info('GENERATE: {0} for {1}'.format(hitrcode, queryname))
+    elif (not redirect_addrs) or (qtype not in ('ANY', 'A', 'AAAA', 'CNAME', 'MX', 'NS', 'SRV', 'TXT')):
+        log_info('GENERATE [{0}]: {1} for {2}'.format(hid, hitrcode, queryname))
         reply = rc_reply(request, hitrcode)
 
     else:
@@ -1111,28 +1113,35 @@ def generate_response(request, qname, qtype, redirect_addrs, force, comment):
 
         for addr in redirect_addrs:
             answer = None
-            if addr.find('.') > 0 and (addr not in ('NODATA', 'NXDOMAIN', 'REFUSED')):
-                if qtype in ('ANY', 'A') and ipregex4.search(addr):
+            if addr.count('.') > 0 or addr.count(':') > 0:
+                if qtype in ('ANY', 'A', 'CNAME') and ipregex4.search(addr):
                     answer = RR(qname, QTYPE.A, ttl=filterttl, rdata=A(addr))
-                elif qtype in ('ANY', 'AAAA') and ipregex6.search(addr):
+                elif qtype in ('ANY', 'AAAA', 'CNAME') and ipregex6.search(addr):
                     answer = RR(qname, QTYPE.AAAA, ttl=filterttl, rdata=AAAA(addr))
-                elif qtype == 'PTR' and (not ipregex.search(addr)):
-                    answer = RR(qname, QTYPE.PTR, ttl=filterttl, rdata=PTR(addr))
-                elif (qtype in ('ANY', 'A', 'AAAA', 'CNAME')) and (not ipregex.search(addr)):
-                    answer = RR(qname, QTYPE.CNAME, ttl=filterttl, rdata=CNAME(addr))
+                elif not ipregex.search(addr):
+                    if qtype == 'PTR':
+                        answer = RR(qname, QTYPE.PTR, ttl=filterttl, rdata=PTR(addr))
+                    elif qtype == 'MX':
+                        answer = RR(qname, QTYPE.MX, ttl=filterttl, rdata=MX(addr, 10))
+                    elif qtype == 'NS':
+                        answer = RR(qname, QTYPE.NS, ttl=filterttl, rdata=NS(addr))
+                    elif qtype == 'SRV':
+                        answer = RR(qname, QTYPE.SRV, ttl=filterttl, rdata=SRV(0, 0, 80, addr))
+                    elif qtype in ('ANY', 'A', 'AAAA', 'CNAME'):
+                        answer = RR(qname, QTYPE.CNAME, ttl=filterttl, rdata=CNAME(addr))
 
                 if answer is not None:
                     addanswer.add(addr)
                     answer.set_rname(request.q.qname)
                     reply.add_answer(answer)
 
-        log_replies(reply, "GENERATE-REPLY")
+        log_replies(reply, 'GENERATE-REPLY')
 
         if addanswer:
-            log_info('GENERATE: REDIRECT/NOERROR for {0} -> {1}'.format(queryname, ', '.join(addanswer)))
+            log_info('GENERATE [{0}]: REDIRECT/NOERROR for {1} -> {2}'.format(hid, queryname, ', '.join(addanswer)))
         else:
             reply = rc_reply(request, hitrcode)
-            log_info('GENERATE: {0} for {1}'.format(hitrcode, queryname))
+            log_info('GENERATE [{0}]: {1} for {2}'.format(hid, hitrcode, queryname))
 
     to_cache(qname, 'IN', qtype, reply, force, filterttl, comment)
 
@@ -1146,28 +1155,31 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
     realqname = normalize_dom(request.q.qname)
 
     reply = rc_reply(request, 'NOERROR')
+
     reply.header.id = request.header.id
 
+    hid = id_str(reply.header.id)
+
     if newalias is False:
-        tag = "ALIAS-HIT"
+        tag = 'ALIAS-HIT'
         if qname in aliases:
             alias = aliases[qname]
         else:
             aqname = in_domain(qname, aliases, 'Alias', False)
             if aqname:
-                log_info('{0}: {1} subdomain of alias \"{2}\"'.format(tag, qname, aqname))
+                log_info('{0} [{1}]: {2} subdomain of alias \"{3}\"'.format(tag, hid, qname, aqname))
                 alias = aliases[aqname]
             else:
                 #alias = 'NXDOMAIN'
                 return None
     else:
-        tag = "GENERATED-ALIAS-HIT"
+        tag = 'GENERATED-ALIAS-HIT'
         alias = newalias
 
     israndom = False
 
     if alias.upper() == 'PASSTHRU':
-        log_info('{0}: {1} = PASSTHRU'.format(tag, queryname))
+        log_info('{0} [{1}]: {2} = PASSTHRU'.format(tag, hid, queryname))
         alias = qname
 
     elif alias.upper() == 'RANDOM':
@@ -1182,16 +1194,16 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
 
         if alias != 'NXDOMAIN':
             israndom = True
-            log_info('{0}: {1} = RANDOM: \"{2}\"'.format(tag, queryname, alias))
+            log_info('{0} [{1}]: {2} = RANDOM: \"{3}\"'.format(tag, hid, queryname, alias))
 
     aliasqname = False
 
     if alias.upper() in ('NODATA', 'NOTAUTH', 'NXDOMAIN', 'REFUSED'):
-        log_info('{0}: {1} = REDIRECT-TO-RCODE -> {2}'.format(tag, queryname, alias.upper()))
+        log_info('{0} [{1}]: {2} = REDIRECT-TO-RCODE -> {3}'.format(tag, hid, queryname, alias.upper()))
         reply = rc_reply(request, alias.upper())
 
     elif ipregex.search(alias) and qtype in ('A', 'AAAA', 'CNAME'):
-        log_info('{0}: {1} = REDIRECT-TO-IP -> {2}'.format(tag, queryname, alias))
+        log_info('{0} [{1}]: {2} = REDIRECT-TO-IP -> {3}'.format(tag, hid, queryname, alias))
         if is_v6(alias):
             answer = RR(realqname, QTYPE.AAAA, ttl=filterttl, rdata=AAAA(alias))
         else:
@@ -1200,7 +1212,7 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
         reply.add_answer(answer)
 
     elif qtype in ('A', 'AAAA', 'CNAME', 'PTR'):
-        log_info('{0}: {1} = REDIRECT-TO-NAME -> {2}'.format(tag, queryname, alias))
+        log_info('{0} [{1}]: {2} = REDIRECT-TO-NAME -> {3}'.format(tag, hid, queryname, alias))
 
         if israndom and qtype == 'CNAME':
             rcode = 'NODATA'
@@ -1234,7 +1246,7 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
         reply = rc_reply(request, 'NXDOMAIN')
 
     if collapse and aliasqname:
-        log_info('{0}: COLLAPSE {1}/IN/CNAME'.format(tag, qname))
+        log_info('{0} [{1}]: COLLAPSE {2}/IN/CNAME'.format(tag, hid, qname))
 
     if newalias:
         to_cache(qname, 'IN', qtype, reply, force, False, 'GENERATED-ALIAS')
@@ -1544,7 +1556,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                         entrytype = 'PTR'
 
                     dots = entry.count('.')
-                    if is_illegal('LIST-ENTRY', entry) or is_weird('LIST-ENTRY', entry, entrytype):
+                    if is_illegal('LIST-ENTRY', entry, entrytype) or is_weird('LIST-ENTRY', entry, entrytype):
                         log_err('{0} ILLEGAL/FAULTY/WEIRD Entry [{1}]: {2}'.format(listname, count, entry))
                     elif entry != '.' and (entry not in domlist):
                         fetched += 1
@@ -1561,7 +1573,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                 # IPV6
                 elif ipregex6.search(entry):
                     fetched += 1
-                    iplist6[entry] = name
+                    iplist6[expand_ip(entry)] = name
 
                 #### !!! From here on there are functional entries, which are always condidered "whitelist"
                 # ALIAS - domain.com=ip or domain.com=otherdomain.com
@@ -1702,7 +1714,7 @@ def reduce_dom(domlist, listname):
 
     #for sub in subs.keys():
     for sub in subs:
-        if debug: log_info('DOMLIST-REDUCE [{0}]: Removind subdomain {1} ({2}), already covered by {3} ({4})'.format(listname, sub, domlist[subs[sub]], subs[sub], domlist[sub]))
+        if debug: log_info('DOMLIST-REDUCE [{0}]: Removing subdomain {1} ({2}), already covered by {3} ({4})'.format(listname, sub, domlist[subs[sub]], subs[sub], domlist[sub]))
         del domlist[sub]
 
     after = len(domlist)
@@ -1836,7 +1848,7 @@ def normalize_ttl(qname, rr):
         newttl = in_domain(qname, ttls, 'TTL', False)
         if newttl:
             ttl = ttls.get(newttl, nottl)
-            log_info('TTL-HIT: Setting TTL for {0} ({1}) to {2}'.format(qname, newttl, ttl))
+            log_info('TTL-HIT: Setting TTL for {0} ({1}) to {2} seconds'.format(qname, newttl, ttl))
             update_ttl(rr, ttl)
             return ttl
 
@@ -2385,13 +2397,22 @@ def is_v6(ipaddress):
     return False
 
 
-def is_illegal(rtype, value):
+def is_illegal(rtype, value, qtype):
     '''Check if Illegal'''
     if blockillegal:
         if rtype in ('LIST-ENTRY', 'REQUEST'):
             # Filter when domain-name is not compliant
             if (not isdomain.search(value)) and (not iparpa.search(value)):
-                if debug: log_info('ILLEGAL-{0}: {1}/{2} - QNAME Invalid domain-name'.format(rtype, value, qtype))
+                log_info('ILLEGAL-{0}: {1}/{2} - QNAME Invalid domain-name'.format(rtype, value, qtype))
+                return True
+        elif rtype == 'REPLY':
+            # A or AAAA record but data is not an IP
+            if qtype in ('A', 'AAAA') and (not ipregex.search(value)):
+                log_info('ILLEGAL-{0}: {1}/{2} - DATA not an IP-Address'.format(rtype, value, qtype))
+                return True
+            # Data not a domain
+            elif qtype in ('CNAME', 'MX', 'NS', 'PTR', 'SRV') and (not isdomain.search(value)):
+                log_info('ILLEGAL-{0}: {1}/{2} - DATA not a domainname'.format(rtype, value, qtype))
                 return True
 
     return False
@@ -2404,40 +2425,40 @@ def is_weird(rtype, value, qtype):
         if rtype in ('LIST-ENTRY', 'REQUEST'):
             # PTR records that do not comply with IP-Addresses
             if qtype == 'PTR' and (not iparpa.search(value)):
-                if debug: log_info('WEIRD-{0}: {1}/{2} - QNAME not ip-arpa'.format(rtype, value, qtype))
+                log_info('WEIRD-{0}: {1}/{2} - QNAME not ip-arpa syntax'.format(rtype, value, qtype))
                 return True
 
             # Reverse-lookups are not PTR records
             elif qtype != 'PTR' and (iparpa.search(value)):
-                if debug: log_info('WEIRD-{0}: {1}/{2} - Non-PTR ip-arpa'.format(rtype, value, qtype))
+                log_info('WEIRD-{0}: {1}/{2} - Non-PTR with ip-arpa request'.format(rtype, value, qtype))
                 return True
 
             # SRV records where qname has more then two underscores
             elif qtype == 'SRV' and value.count('_') > 2:
-                if debug: log_info('WEIRD-{0}: {1}/{2} - Too many underscores (>2)'.format(rtype, value, qtype))
+                log_info('WEIRD-{0}: {1}/{2} - Too many underscores (>2)'.format(rtype, value, qtype))
                 return True
 
             # Non-SRV records with underscores in qname
-            elif qtype != 'SRV' and value.count('_') > 0:
-                if debug: log_info('WEIRD-{0}: {1}/{2} - Non-SRV Underscore'.format(rtype, value, qtype))
-                return True
+            #elif qtype != 'SRV' and value.count('_') > 0:
+            #    log_info('WEIRD-{0}: {1}/{2} - Non-SRV Underscore'.format(rtype, value, qtype))
+            #    return True
 
         # Response Data
         elif rtype == 'REPLY':
             # PTR record pointing to an IP or Arpa
             if qtype == 'PTR' and ipregex.search(value):
-                if debug: log_info('WEIRD-{0}: {1}/{2} - PTR data not a domain-name'.format(rtype, value, qtype))
+                log_info('WEIRD-{0}: {1}/{2} - PTR data not a domain-name'.format(rtype, value, qtype))
                 return True
 
             # Data of response is an arpa domain, technically not wrong, just weird
             elif iparpa.search(value):
-                if debug: log_info('WEIRD-{0}: {1}/{2} - Data is ip-arpa'.format(rtype, value, qtype))
+                log_info('WEIRD-{0}: {1}/{2} - Data is ip-arpa syntax'.format(rtype, value, qtype))
                 return True
 
             # Underscores
-            elif value.count('_') > 0:
-                if debug: log_info('WEIRD-{0}: {1}/{2} - Underscore'.format(rtype, value, qtype))
-                return True
+            #elif value.count('_') > 0:
+            #    log_info('WEIRD-{0}: {1}/{2} - Underscore'.format(rtype, value, qtype))
+            #    return True
 
     return False
 
@@ -2452,6 +2473,37 @@ def rc_reply(request, rcode):
     else:
         reply.header.rcode = getattr(RCODE, rcode)
     return reply
+
+
+def expand_ip(ip):
+    '''Expand IPv6 address'''
+    if not ipregex6.search(ip):
+        return ip
+
+    new_ip = ip
+
+    prefix = False
+    if '/' in new_ip:
+        new_ip, prefix = new_ip.split('/')[0:2]
+        if new_ip.endswith(':'):
+            new_ip = new_ip + '0'
+
+    if '::' in new_ip:
+        padding = 9 - new_ip.count(':')
+        new_ip = new_ip.replace(('::'), ':' * padding)
+
+    parts = new_ip.split(':')
+    for part in range(8):
+        parts[part] = str(parts[part]).zfill(4)
+
+    new_ip = ':'.join(parts)
+
+    if prefix:
+        new_ip = new_ip + '/' + prefix
+
+    if debug: log_info('IPV6-EXPANDER: {0} -> {1}'.format(ip, new_ip))
+
+    return new_ip
 
 
 def do_query(request, handler, force):
@@ -2652,12 +2704,12 @@ class DNSServer(object):
         '''
         if not server:
             if tcp:
-                if ":" in address:
+                if ':' in address:
                     server = TCPServer6
                 else:
                     server = TCPServer4
             else:
-                if ":" in address:
+                if ':' in address:
                     server = UDPServer6
                 else:
                     server = UDPServer4
@@ -2863,7 +2915,7 @@ if __name__ == '__main__':
 
         # Whitelist used addresses to unbreak services
         for ip in redirect_addrs:
-            ip = ip.split('@')[0]
+            ip = expand_ip(ip.split('@')[0])
             if ipregex.search(ip) and (ip not in wl_ip4) and (ip not in wl_ip6):
                 log_info('WHITELIST: Added Redirect-Address \"{0}\"'.format(ip))
                 if is_v6(ip):
@@ -2879,9 +2931,9 @@ if __name__ == '__main__':
                 wl_dom[dom] = 'Forward-Domain'
             for ip in forward_servers[dom]:
                 if ipregex.search(ip) and (ip not in wl_ip4) and (ip not in wl_ip6):
-                    log_info('WHITELIST: Added Forward-Address \"{0}\"'.format(ip))
+                    log_info('WHITELIST: Added Forward-Address \"{0}\"'.format(expand_ip(ip)))
                     if is_v6(ip):
-                        wl_ip6[ip] = 'Forward-Address'
+                        wl_ip6[expand_ip(ip)] = 'Forward-Address'
                     else:
                         wl_ip4[ip] = 'Forward-Address'
 
