@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1541582719                  ###
+### Version: 1541669106                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -41,7 +41,6 @@ hsbc.ae	Shalla-Banking
 centralbank.gov.af	Shalla-Banking
 nba.ai	Shalla-Banking, UT1-Banking
 fibank.com.al	Shalla-Banking
-shekulli.com.al	UT1-Bu
 acba.am	Shalla-Banking, UT1-Banking
 internetbank.armbusinessbank.am	Adguard-Banks
 cba.am	Shalla-Banking, UT1-Banking
@@ -56,17 +55,10 @@ comafi.com.ar	Shalla-Banking, UT1-Banking
 hipotecario.com.ar	Shalla-Banking
 hsbc.com.ar	Shalla-Banking
 itau.com.ar	Shalla-Banking
-ompersonal.com.ar	UT1-Bu
 santanderrio.com.ar	Shalla-Banking
-salvador.edu.ar	UT1-Bu
-ucema.edu.ar	UT1-Bu
-gov.ar	UT1-Bu
+bcra.gov.ar	Shalla-Banking
 abe.org.ar	Shalla-Banking, UT1-Banking
-uba.ar	UT1-Bu
 1.168.192.in-addr.arpa	Chris-White
-uibk.ac.at	UT1-Bu
-iwp.uni-linz.ac.at	UT1-Bu
-univie.ac.at	UT1-Bu
 allianzinvest.at	Shalla-Banking
 alpenbank.at	Shalla-Banking, UT1-Banking
 autobank.at	Shalla-Banking
@@ -199,7 +191,7 @@ qantascu.com.au	Shalla-Banking, UT1-Banking
 rabobank.com.au	Shalla-Banking
 royalguardian.com.au	Shalla-Banking, UT1-Banking
 savingsloans.com.au	Shalla-Banking, UT1-Banking
-smh.com.au	UT1-Bu, Notracking-Whitelist
+smh.com.au	Notracking-Whitelist
 stgeorge.com.au	Shalla-Banking
 suncorpmetway.com.au	Shalla-Banking, UT1-Banking
 tmtpartners.com.au	Shalla-Banking
@@ -207,9 +199,8 @@ trustar.com.au	Shalla-Banking, UT1-Banking
 virginmoney.com.au	Shalla-Banking
 westpac.com.au	Shalla-Banking, UT1-Banking
 widebaycap.com.au	Shalla-Banking, UT1-Banking
-mcsj.unisa.edu.au	UT1-Bu
-uow.edu.au	UT1-Bu
-gov.au	UT1-Bu
+nsw.gov.au	Notracking-Whitelist
+rba.gov.au	Shalla-Banking
 abc.net.au	Notracking-Whitelist
 accessbank.az	Adguard-Banks
 afb.az	Adguard-Banks
@@ -253,16 +244,11 @@ centralbank.org.bb	Shalla-Banking, UT1-Banking
 hsbc.com.bd	Shalla-Banking
 vluggeld.140provision.be	UT1-Financial
 abb-bvb.be	Shalla-Banking
-ac.be	UT1-Bu
-amnestyinternational.be	UT1-Bu
 argenta.be	Shalla-Banking, Adguard-Banks
-asf.be	UT1-Bu
 axa.be	Shalla-Banking, UT1-Banking
 bbl.be	Shalla-Banking
 bcc.be	Shalla-Banking
-becompta.be	UT1-Bu
 belfius.be	Shalla-Banking, Adguard-Banks
-belgium.be	UT1-Bu
 bkcp.be	Shalla-Banking
 bnb.be	Shalla-Banking
 bnpparibasfortis.be	Adguard-Banks
@@ -272,71 +258,41 @@ cbc.be	Shalla-Banking
 cbfa.be	Shalla-Banking
 centea.be	Shalla-Banking
 cetelem.be	Shalla-Banking
-cfwb.be	UT1-Bu
 citibank.be	Shalla-Banking
-ciuf.be	UT1-Bu, UT1-Whitelist
+ciuf.be	UT1-Whitelist
 cofidis.be	Shalla-Banking
-coleurop.be	UT1-Bu
 cortal.be	Shalla-Banking
-cota.be	UT1-Bu
 cph.be	Shalla-Banking
 credit-agricole.be	Shalla-Banking
-cref.be	UT1-Bu
 degroof.be	Shalla-Banking
-demorgen.be	UT1-Bu
 deutschebank.be	Shalla-Banking, UT1-Banking
 dexia.be	Shalla-Banking
 ethias-banque.be	Shalla-Banking
 eural.be	Shalla-Banking
 fbe.be	Shalla-Banking
-fgov.be	UT1-Bu
 finansbank.be	Shalla-Banking
 fkbk.be	Shalla-Banking
 fortisbank.be	Shalla-Banking
-hasquin.be	UT1-Bu
-helha.be	UT1-Bu
-hemes.be	UT1-Bu
-hers.be	UT1-Bu
 horatius.be	Shalla-Banking
 ing.be	Shalla-Banking
-irri-kiib.be	UT1-Bu
-janson-baugniet.be	UT1-Bu
 kbc.be	Shalla-Banking
 keytradebank.be	Adguard-Banks
-kuleuven.be	UT1-Bu
-lsp-mas.be	UT1-Bu
-lucpire.be	UT1-Bu
 meilleur-taux-epargne.be	Shalla-Banking
-midipyreneeseurope.be	UT1-Bu
 nbb.be	Shalla-Banking
-notaire.be	UT1-Bu
 obk.be	Shalla-Banking
 ovbk.be	Shalla-Banking
-pcf.be	UT1-Bu
 petercam.be	Shalla-Banking
-philodroit.be	UT1-Bu
-plan.be	UT1-Bu
-procedurecivile.be	UT1-Bu
 puilaetco.be	Shalla-Banking
 recordbank.be	Shalla-Banking
-senate.be	UT1-Bu
-standaard.be	UT1-Bu
-sudoc.be	UT1-Bu
 users.telenet.be	Notracking-Whitelist
 triodos.be	UT1-Banking
-uclouvain.be	UT1-Bu
 vdk.be	Shalla-Banking
-vlerick.be	UT1-Bu
-vlex.be	UT1-Bu
-webtrainer.be	UT1-Bu
-wpb.be	UT1-Bu
 youtu.be	Notracking-Whitelist
 wallet.best	Adguard-Banks
 acb.bg	Shalla-Banking
 bacb.bg	Shalla-Banking
 bcaf.bg	Shalla-Banking
 bnb.bg	Shalla-Banking
-bnr.bg	UT1-Bu
 bulbank.bg	Shalla-Banking
 ccbank.bg	Shalla-Banking, UT1-Banking
 cdad.bg	Shalla-Banking
@@ -350,23 +306,18 @@ procreditbank.bg	Shalla-Banking, UT1-Banking
 raiffeisen.bg	Shalla-Banking, UT1-Banking
 sgeb.bg	Adguard-Banks
 ubb.bg	Shalla-Banking
-it.fmi.uni-sofia.bg	UT1-Bu
 unionbank.bg	Shalla-Banking
 bma.gov.bh	Shalla-Banking
 screenshot3.bid	EasyList-White
-contrats.biz	UT1-Bu
 eastbridge.biz	Shalla-Banking
 farmersandmerchants.biz	Shalla-Banking, UT1-Banking
-thomsonreuters.biz	UT1-Bu
 winfric.biz	UT1-Financial
 bma.bm	Shalla-Banking
 mabanque.bnpparibas	Shalla-Banking, Adguard-Banks
 mabanqueprivee.bnpparibas	Adguard-Banks
 asoban.bo	Shalla-Banking, UT1-Banking
 bancosol.com.bo	Shalla-Banking
-ucbcba.edu.bo	UT1-Bu
 bcb.gov.bo	Shalla-Banking
-acaodacidadania.com.br	UT1-Bu
 bahiabank.com.br	Shalla-Banking
 bancobrasil.com.br	Shalla-Banking, UT1-Banking, Adguard-Banks
 bancodobrasil.com.br	Adguard-Banks
@@ -404,10 +355,7 @@ uol.com.br	Notracking-Whitelist
 bcb.gov.br	Shalla-Banking, UT1-Banking
 bndes.gov.br	Shalla-Banking
 caixa.gov.br	Shalla-Banking, UT1-Financial
-capes.gov.br	UT1-Bu
 febraban.org.br	Shalla-Banking
-ufrn.br	UT1-Bu
-unisinos.br	UT1-Bu
 banco.bradesco	Shalla-Banking
 oceanic.bs	Shalla-Banking
 rma.org.bt	Shalla-Banking
@@ -443,11 +391,9 @@ tbank.trustbank.by	Adguard-Banks
 ibank.zepterbank.by	Adguard-Banks
 communitybank.bz	Shalla-Banking
 centralbank.org.bz	Shalla-Banking
-concordia.ab.ca	UT1-Bu
 agrifinance.ca	Shalla-Banking, UT1-Banking
-archives.ca	UT1-Bu
 bank-banque-canada.ca	Shalla-Banking, UT1-Banking
-bankofcanada.ca	Shalla-Banking, UT1-Bu
+bankofcanada.ca	Shalla-Banking
 bankwest.ca	Shalla-Banking, UT1-Banking
 banqueducanada.ca	Shalla-Banking
 banqueroyale.ca	UT1-Banking
@@ -455,71 +401,29 @@ bdc.ca	Shalla-Banking
 blogspot.ca	Notracking-Whitelist
 bnc.ca	Shalla-Banking, UT1-Banking
 bnpparibas.ca	Shalla-Banking
-canada.ca	UT1-Bu
 cba.ca	Shalla-Banking, UT1-Banking
 cbc.ca	Notracking-Whitelist
 cdic.ca	Shalla-Banking, UT1-Banking
 chasecanada.ca	Adguard-Banks
 citizensbank.ca	Shalla-Banking
-concordia.ca	UT1-Bu
 cwt.ca	Shalla-Banking, UT1-Banking
-cyberpresse.ca	UT1-Bu
-dnd.ca	UT1-Bu
 signin.ebay.ca	Adguard-Banks
 eqbank.ca	Adguard-Banks
-frontiercollege.ca	UT1-Bu
-gc.ca	UT1-Bu
-globalresearch.ca	UT1-Bu
-gnb.ca	UT1-Bu
 google.ca	Notracking-Whitelist
-hec.ca	UT1-Bu
 hsbc.ca	Adguard-Banks
 icicibank.ca	Shalla-Banking, UT1-Banking
 ingdirect.ca	Shalla-Banking
 kijiji.ca	Notracking-Whitelist
 laurentianbank.ca	UT1-Banking
-mcgill.ca	UT1-Bu
-mcluhan.ca	UT1-Bu
 mdidesign.ca	Notracking-Whitelist
-media-awareness.ca	UT1-Bu
-ucs.mun.ca	UT1-Bu
 nbc.ca	Shalla-Banking, UT1-Banking
-nrtee-trnee.ca	UT1-Bu
 pcfinancial.ca	Shalla-Banking, UT1-Banking
-agora.qc.ca	UT1-Bu
-assnat.qc.ca	UT1-Bu
-avocat.qc.ca	UT1-Bu
-barreau.qc.ca	UT1-Bu
-crepuq.qc.ca	UT1-Bu
-crpspc.qc.ca	UT1-Bu
-gouv.qc.ca	UT1-Bu
-robic.ca	UT1-Bu
 royalbank.ca	UT1-Banking
-scfp.ca	UT1-Bu
-sfu.ca	UT1-Bu
 simpletax.ca	Adguard-Banks
-statcan.ca	UT1-Bu
 tangerine.ca	Adguard-Banks
-ubishops.ca	UT1-Bu
-econ.ucalgary.ca	UT1-Bu
-ulaval.ca	UT1-Bu
-umoncton.ca	UT1-Bu
-umontreal.ca	UT1-Bu
-uottawa.ca	UT1-Bu
-uqac.ca	UT1-Bu
-uqam.ca	UT1-Bu
-uqtr.ca	UT1-Bu
-uquam.ca	UT1-Bu
-uquebec.ca	UT1-Bu
-callisto.si.usherb.ca	UT1-Bu
-usherbrooke.ca	UT1-Bu
-aaproxy.cf	UT1-Bu
-agermany.cf	UT1-Bu
-beproxxy.cf	UT1-Bu
-ukplan.cf	UT1-Bu
 abs.ch	Shalla-Banking
 abuse.ch	Chris-White
-admin.ch	UT1-Bu, Notracking-Whitelist
+admin.ch	Notracking-Whitelist
 agkb.ch	Shalla-Banking
 aikb.ch	Shalla-Banking, UT1-Banking
 akb.ch	Adguard-Banks
@@ -554,7 +458,6 @@ bjd.ch	Shalla-Banking, UT1-Banking
 bkb.ch	Shalla-Banking, Adguard-Banks
 blkb.ch	Shalla-Banking, UT1-Banking
 bonhote.ch	Shalla-Banking, UT1-Banking
-bourgeoisie-de-sion.ch	UT1-Bu
 bpl-bondpartners.ch	Shalla-Banking
 bs-bank.ch	Shalla-Banking
 bsi.ch	Shalla-Banking
@@ -565,7 +468,6 @@ casg.ch	Shalla-Banking
 cedc.ch	Shalla-Banking
 cesiviriez.ch	Shalla-Banking
 cial.ch	Shalla-Banking
-cicg.ch	UT1-Bu
 cimbanque.ch	Shalla-Banking, UT1-Banking
 cler.ch	UT1-Banking
 clientis.ch	Shalla-Banking, UT1-Banking
@@ -579,17 +481,10 @@ dexia.ch	Shalla-Banking
 dormantaccounts.ch	Shalla-Banking
 dresdner-bank.ch	Shalla-Banking
 ebb.ch	Shalla-Banking
-ebu.ch	UT1-Bu
-edicom.ch	UT1-Bu
 eek.ch	Shalla-Banking, UT1-Banking
 ekaffoltern.ch	Shalla-Banking
 eki.ch	Shalla-Banking, UT1-Banking
-ic.epfl.ch	UT1-Bu
-epsic.ch	UT1-Bu
 ersparniskasse.ch	Shalla-Banking
-etat-ge.ch	UT1-Bu
-etudiants.ch	UT1-Bu
-fcho.ch	UT1-Bu
 ferrierlullin.ch	Shalla-Banking
 finsys.ch	Shalla-Banking
 first-zurich.ch	Shalla-Banking
@@ -597,8 +492,6 @@ fkb.ch	Shalla-Banking
 futureline.ch	Shalla-Banking
 fxag.ch	Shalla-Banking
 gemoney.ch	Shalla-Banking, UT1-Banking
-geneva.ch	UT1-Bu
-geneve.ch	UT1-Bu
 gkb.ch	Shalla-Banking, UT1-Banking
 glarner-regionalbank.ch	Shalla-Banking
 glkb.ch	Shalla-Banking, UT1-Banking
@@ -606,22 +499,16 @@ gottardo.ch	Shalla-Banking
 gutzwiller.ch	Shalla-Banking, UT1-Banking
 hbl.ch	Shalla-Banking, UT1-Banking
 hofmann.ch	Shalla-Banking
-horizons-et-debats.ch	UT1-Bu
 huet.ch	Shalla-Banking
 hypobank.ch	Shalla-Banking
 hyposwiss.ch	Shalla-Banking, UT1-Banking
 icorner.ch	Shalla-Banking, Adguard-Banks
-imd.ch	UT1-Bu
 ice.infomaniak.ch	Chris-White
 irbbank.ch	Shalla-Banking, UT1-Banking
 juliusbaer.ch	Shalla-Banking
-jura.ch	UT1-Bu
 kantonalbank.ch	Shalla-Banking
 larochebanquiers.ch	Shalla-Banking
-lawscape.ch	UT1-Bu
 leihkasse-stammheim.ch	Shalla-Banking, UT1-Banking
-letemps.ch	UT1-Bu
-letempsarchives.ch	UT1-Bu
 lienhardt.ch	Shalla-Banking
 lukb.ch	Shalla-Banking
 luzerner-regiobank.ch	Shalla-Banking, UT1-Banking
@@ -630,14 +517,12 @@ migrosbank.ch	Shalla-Banking
 mlbs.ch	Shalla-Banking
 nab.ch	Shalla-Banking, UT1-Banking
 nkb.ch	Shalla-Banking, UT1-Banking
-nobel-paix.ch	UT1-Bu
 nzb.ch	Shalla-Banking
 onba.ch	Adguard-Banks
 ovb-zweisimmen.ch	Shalla-Banking
 owkb.ch	Shalla-Banking
 pbsbank.ch	Shalla-Banking, UT1-Banking
 pm-projektmanagement.ch	Shalla-Banking
-polyreg.ch	UT1-Bu
 postfinance.ch	Shalla-Banking, Adguard-Banks
 privateclientbank.ch	Shalla-Banking
 rahnbodmer.ch	Shalla-Banking
@@ -647,7 +532,6 @@ rba-holding.ch	Shalla-Banking
 saanenbank.ch	Shalla-Banking
 santis.ch	Shalla-Banking
 sbpv.ch	Shalla-Banking
-sciences.ch	UT1-Bu
 sgkb.ch	Shalla-Banking, Adguard-Banks
 shkb.ch	Shalla-Banking, UT1-Banking
 skenet.ch	Shalla-Banking
@@ -658,15 +542,12 @@ slmuensingen.ch	Shalla-Banking, UT1-Banking
 slr.ch	Shalla-Banking, UT1-Banking
 slsteffisburg.ch	Shalla-Banking
 snb.ch	Shalla-Banking
-snl.ch	UT1-Bu
-socialinfo.ch	UT1-Bu
 sparkasse-dielsdorf.ch	Shalla-Banking
 sparkasse-engelberg.ch	Shalla-Banking
 sparkasse-horgen.ch	Shalla-Banking
 sparkasse-trogen.ch	Shalla-Banking
 sparkasse-wiesendangen.ch	Shalla-Banking
 spkhorgen.ch	Shalla-Banking
-steuerrevue.ch	UT1-Bu
 swisscard.ch	Adguard-Banks
 swissfirst.ch	Shalla-Banking
 bank.swissquote.ch	Shalla-Banking
@@ -674,24 +555,13 @@ swissregiobank.ch	Shalla-Banking
 syzbank.ch	Shalla-Banking
 szkb.ch	Shalla-Banking
 szo.ch	Shalla-Banking, UT1-Banking
-tdg.ch	UT1-Bu
 tkb.ch	Shalla-Banking
 twint.ch	Adguard-Banks
 ubp.ch	Shalla-Banking
-unep.ch	UT1-Bu
-unhchr.ch	UT1-Bu
-unhcr.ch	UT1-Bu
-unifr.ch	UT1-Bu
-unige.ch	UT1-Bu
-unil.ch	UT1-Bu
-unine.ch	UT1-Bu
-unog.ch	UT1-Bu
 urkb.ch	Shalla-Banking
 vadianbank.ch	Shalla-Banking
 valiant.ch	Shalla-Banking, UT1-Banking, Adguard-Banks
 valiantprivatbank.ch	Shalla-Banking
-dse.vd.ch	UT1-Bu
-proj.vd.ch	UT1-Bu
 viseca.ch	Adguard-Banks
 visecaone.ch	Adguard-Banks
 vpbank.ch	Shalla-Banking
@@ -700,15 +570,10 @@ wyler-consulting.ch	Shalla-Banking
 zkb.ch	Shalla-Banking, Adguard-Banks
 zuercherlandbank.ch	Shalla-Banking
 zugerkb.ch	Shalla-Banking
-africa-trade.ci	UT1-Bu
 sib.ci	Shalla-Banking
 abif.cl	Shalla-Banking
 bcentral.cl	Shalla-Banking
 larrainvial.cl	Shalla-Banking
-uchile.cl	UT1-Bu
-ucv.cl	UT1-Bu
-upa.cl	UT1-Bu
-spm.gov.cm	UT1-Bu
 360.cn	Notracking-Whitelist
 4.cn	Notracking-Whitelist
 icbc.com.cn	Shalla-Banking, Adguard-Banks
@@ -718,30 +583,17 @@ beian.gov.cn	Notracking-Whitelist
 miibeian.gov.cn	Notracking-Whitelist
 miitbeian.gov.cn	Notracking-Whitelist
 pbc.gov.cn	Shalla-Banking
-china.org.cn	UT1-Bu
 sinaimg.cn	Notracking-Whitelist
 bancopopular.com.co	Shalla-Banking
-elnuevosiglo.com.co	UT1-Bu
-eltiempo.com.co	UT1-Bu
-eltiempo.terra.com.co	UT1-Bu
-semana.terra.com.co	UT1-Bu
 domainactive.co	Notracking-Whitelist
-droitweb.co	UT1-Bu
-unal.edu.co	UT1-Bu
-unicordoba.edu.co	UT1-Bu
-urosario.edu.co	UT1-Bu
 banrep.gov.co	Shalla-Banking
-presidencia.gov.co	UT1-Bu
 blocklist.greensnow.co	Chris-White
 image.ibb.co	Notracking-Whitelist
-liberalspindoctors.co	UT1-Bu
-regionsjob.co	UT1-Bu
 t.co	Notracking-Whitelist
 api.viafoura.co	Notracking-Whitelist
 0.com	Notracking-Whitelist
 02bancorp.com	Shalla-Banking, UT1-Banking
 100x100banco.com	Shalla-Banking
-123travail.com	UT1-Bu
 163.com	Notracking-Whitelist
 1688.com	Notracking-Whitelist
 1822direkt.com	Shalla-Banking, UT1-Banking
@@ -768,9 +620,7 @@ dl.360safe.com	Notracking-Whitelist
 4sq.com	Chris-White
 4thebank.com	Shalla-Banking
 500px.com	Notracking-Whitelist
-ozshy.50webs.com	UT1-Bu
 53.com	Shalla-Banking, UT1-Banking, Adguard-Banks
-a-toulouse.com	UT1-Bu
 aaadir.com	Shalla-Banking, UT1-Banking
 cdn-icloud-content.g.aaplimg.com	Chris-White
 aareal-bank.com	Shalla-Banking
@@ -798,29 +648,26 @@ abtbank.com	Shalla-Banking, UT1-Banking
 abtexas.com	Shalla-Banking, UT1-Banking
 academybank.com	Shalla-Banking
 acbanks.com	Shalla-Banking
-accentlang.com	UT1-Bu
 terminal.accentpay.com	Adguard-Banks
-accesfac.com	UT1-Bu
 accessbankplc.com	Adguard-Banks
 accesshorizon.com	Shalla-Banking, UT1-Banking
 accrobourse.com	UT1-Financial
 accuweather.com	Notracking-Whitelist
-achats-industriels.com	UT1-Bu
 aciforex.com	Shalla-Banking
 acledabank-internetbanking.com	Adguard-Banks
 acommunitybank.com	Shalla-Banking, UT1-Banking
 acquirethisname.com	Notracking-Whitelist
 secure.acquiropay.com	Adguard-Banks
 acs-education.com	Adguard-Banks
-actu-philosophia.com	UT1-Bu
 adamsbank.com	Shalla-Banking
 adcbindia.com	Shalla-Banking
 adcbuae.com	Shalla-Banking
-adermip.com	UT1-Bu
 adguard.com	Chris-White
-adminet.com	UT1-Bu, UT1-Whitelist
+adminet.com	UT1-Whitelist
 admuncher.com	Chris-White
-adobe.com	UT1-Bu, Notracking-Whitelist
+adobe.com	Notracking-Whitelist
+assets.adobedtm.com	Notracking-Whitelist
+xd.adobelanding.com	Notracking-Whitelist
 adrianstatebank.com	Shalla-Banking, UT1-Banking
 advancefinancial.com	Shalla-Banking
 advantagebank.com	Shalla-Banking
@@ -832,15 +679,7 @@ fr.advfn.com	UT1-Financial
 adweek.com	Notracking-Whitelist
 live.adyen.com	Adguard-Banks
 aea-bank.com	Shalla-Banking, UT1-Banking
-aerospace-valley.com	UT1-Bu
 afcmerchantbank.com	Shalla-Banking, UT1-Banking
-affaires-publiques.com	UT1-Bu
-afg-asffi.com	UT1-Bu
-afp.com	UT1-Bu
-africatime.com	UT1-Bu
-afrik.com	UT1-Bu
-afrikinfo.com	UT1-Bu
-afrique-express.com	UT1-Bu
 afsbonline.com	Shalla-Banking, UT1-Banking
 agfirst.com	Shalla-Banking, UT1-Banking
 agri-bank.com	Shalla-Banking
@@ -851,24 +690,19 @@ agtrust.com	Shalla-Banking
 ahli.com	Shalla-Banking, UT1-Banking
 aigpb.com	Shalla-Banking
 aigprivatebank.com	Shalla-Banking
-airbus.com	UT1-Bu
 airbus-group-bank.com	Adguard-Banks
 ajib.com	Shalla-Banking
-akademiai.com	UT1-Bu
 akbank.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 akibabank.com	Shalla-Banking
 aktia.com	Shalla-Banking
 al-baraka.com	Shalla-Banking
 alabamalandloan.com	Shalla-Banking
 alahli.com	Shalla-Banking
-alapage.com	UT1-Bu
-alb-net.com	UT1-Bu
 albambank.com	Shalla-Banking
 aldenbank.com	Shalla-Banking, UT1-Banking
 alexbank.com	Shalla-Banking, UT1-Banking
 alfa-bank.com	Shalla-Banking
 alfransi.com	Shalla-Banking, UT1-Banking
-algerie-dz.com	UT1-Bu
 alibaba.com	Notracking-Whitelist
 alicdn.com	Notracking-Whitelist
 reputation.alienvault.com	Chris-White
@@ -877,7 +711,6 @@ alignedpartners.com	Shalla-Banking
 alipay.com	Adguard-Banks
 aliyun.com	Notracking-Whitelist
 aljazeera.com	Notracking-Whitelist
-fr.allafrica.com	UT1-Bu
 allahabadbank.com	Shalla-Banking, UT1-Banking
 allbank.com	Shalla-Banking
 allegiancebank.com	Shalla-Banking, UT1-Banking
@@ -886,20 +719,14 @@ alliancebank.com	Shalla-Banking, UT1-Banking
 alliancebankofarizona.com	Shalla-Banking
 alliancebk.com	Shalla-Banking, UT1-Banking
 alliantcreditunion.com	Adguard-Banks
-reference.allrefer.com	UT1-Bu
 allstatebank.com	Shalla-Banking
 ally.com	Shalla-Banking, Adguard-Banks
 almprofessional.com	Shalla-Banking
 alpinebank.com	Shalla-Banking, UT1-Banking
-alquds.com	UT1-Bu
 altajirbank.com	Shalla-Banking, UT1-Banking
-altarama.com	UT1-Bu
-altavista.com	UT1-Bu
 altbank.com	Adguard-Banks
-altema.com	UT1-Bu
-amadoo.com	UT1-Bu
 amanath-bank.com	Shalla-Banking, UT1-Banking
-amazon.com	Chris-White, UT1-Bu, Notracking-Whitelist
+amazon.com	Chris-White, Notracking-Whitelist
 amazonaws.com	Notracking-Whitelist
 ambfinancial.com	Shalla-Banking, UT1-Banking
 amco-bank.com	Shalla-Banking, UT1-Banking
@@ -913,7 +740,6 @@ americanfederalbank.com	Shalla-Banking
 americanfederalsavingsbank.com	Shalla-Banking, UT1-Banking
 americanfinsvcs.com	Shalla-Banking
 americanfsb.com	Shalla-Banking, UT1-Banking
-americanlawreview.com	UT1-Bu
 americanmarinebank.com	Shalla-Banking, UT1-Banking
 americannationalbank.com	Shalla-Banking
 americansecuritization.com	Shalla-Banking
@@ -939,37 +765,27 @@ anchorsb.com	Shalla-Banking
 andbanc.com	Shalla-Banking, UT1-Banking
 andhrabank-india.com	Shalla-Banking
 android.com	Chris-White, Notracking-Whitelist
-anglaisfacile.com	UT1-Bu
 angloirishbank.com	Shalla-Banking
-animjobs.com	UT1-Bu
 annabank.com	Shalla-Banking, UT1-Banking
 annapolisbankandtrust.com	Shalla-Banking
-annufinance.com	UT1-Bu
 ebank.ansarbank.com	Adguard-Banks
-antiqbook.com	UT1-Bu
 anveo.com	Chris-White
-anyway.com	UT1-Bu
 anz.com	Shalla-Banking, Adguard-Banks
 aol.com	Notracking-Whitelist
 apc.com	Chris-White
 apcc.com	Chris-White
-apce.com	UT1-Bu
-apecita.com	UT1-Bu
 aplma.com	Shalla-Banking
 pcbank.apollotrust.com	Shalla-Banking
 appalachianbank.com	Shalla-Banking
-apr-job.com	UT1-Bu
+appleiphonecell.com	Notracking-Whitelist
 apsiyon.com	Adguard-Banks
 arabbank.com	Shalla-Banking
 arabbanking.com	Shalla-Banking
-arcane-france.com	UT1-Bu
 archerbank.com	Shalla-Banking, UT1-Banking
 secure5.arcot.com	Adguard-Banks
-arfe-cursus.com	UT1-Bu
 arjil-associes.com	Shalla-Banking
 arkansasonlinebank.com	Shalla-Banking
 arknatl.com	Shalla-Banking
-armand-colin.com	UT1-Bu
 arrowfinancial.com	Shalla-Banking
 ars-in4matica.com	Shalla-Banking
 arstechnica.com	Notracking-Whitelist
@@ -981,9 +797,7 @@ aseanfocus.com	Shalla-Banking
 asfc.com	Shalla-Banking
 ashefederal.com	Shalla-Banking
 asianamericanbank.com	Shalla-Banking
-asiatraveltips.com	UT1-Bu
 asociacionbancaria.com	Shalla-Banking, UT1-Banking
-aspenpublishers.com	UT1-Bu
 assocbank.com	Shalla-Banking, UT1-Banking
 associatedbank.com	Shalla-Banking
 astoriafederal.com	Shalla-Banking
@@ -993,13 +807,10 @@ atb.com	Shalla-Banking
 athemes.com	Notracking-Whitelist
 athensfederal.com	Shalla-Banking, UT1-Banking
 athensfirstbank.com	Shalla-Banking, UT1-Banking
-atimes.com	UT1-Bu
 atlanticcentral.com	Shalla-Banking, UT1-Banking
 atlasbank.com	Shalla-Banking, UT1-Banking
-atraxio.com	UT1-Bu
 att.com	Notracking-Whitelist
 attijari.com	Shalla-Banking
-au-troisieme-oeil.com	UT1-Bu
 auburnbank.com	Shalla-Banking
 audi-bank.com	Shalla-Banking
 audi-bankdirect.com	Shalla-Banking
@@ -1007,19 +818,13 @@ audibank.com	Shalla-Banking
 ausbanca.com	Shalla-Banking
 austinbank.com	Shalla-Banking
 australiancu.com	Shalla-Banking, UT1-Banking
-autex.com	UT1-Bu
-autexnow.com	UT1-Bu
 cdn.auth0.com	Notracking-Whitelist
-auvergnat.com	UT1-Bu
 auxmoney.com	Adguard-Banks
-auxurnescitoyens.com	UT1-Bu
 av.com	Notracking-Whitelist
 avalcard.com	Shalla-Banking
 avangate.com	Adguard-Banks
 avanzaprivatebanking.com	Shalla-Banking
 avbpgh.com	Shalla-Banking, UT1-Banking
-avocats-francais.com	UT1-Bu
-avocats-toulouse.com	UT1-Bu
 axisbank.com	Shalla-Banking, Adguard-Banks
 axs.com	Notracking-Whitelist
 azmortgagelenders.com	Shalla-Banking
@@ -1252,9 +1057,7 @@ barings-guernsey.com	Shalla-Banking
 barnatl.com	Shalla-Banking
 barnesandnoble.com	Notracking-Whitelist
 barringtonbank.com	Shalla-Banking, UT1-Banking
-bartair.com	UT1-Bu
 bartowcountybank.com	Shalla-Banking, UT1-Banking
-muriel.batisseurs.com	UT1-Bu
 bawagpsk.com	Shalla-Banking
 bayportbank.com	Shalla-Banking
 bayshorebank.com	Shalla-Banking
@@ -1272,7 +1075,6 @@ bccinzago.com	Shalla-Banking
 ibank.bcs-bank.com	Adguard-Banks
 bealbank.com	Shalla-Banking
 belgolaise.com	Shalla-Banking
-bellgully.com	UT1-Bu
 belmontbank.com	Shalla-Banking
 beneficialsavings.com	Shalla-Banking
 benfranklinbank.com	Shalla-Banking
@@ -1288,16 +1090,13 @@ bgpindosuez.com	Shalla-Banking
 bhbt.com	Shalla-Banking
 bhf-bank.com	Shalla-Banking, Adguard-Banks
 bibank.com	Shalla-Banking, UT1-Banking
-bibelec.com	UT1-Bu
-biblioscape.com	UT1-Bu
-bibliotique.com	UT1-Bu
 bicentenariobu.com	Shalla-Banking
 bicsa.com	Shalla-Banking, UT1-Banking
 bigcartel.com	Notracking-Whitelist
 bigskybank.com	Shalla-Banking, UT1-Banking
 billdesk.com	Adguard-Banks
 binarydefense.com	Chris-White
-bing.com	UT1-Bu, Notracking-Whitelist
+bing.com	Notracking-Whitelist
 biochim.com	Shalla-Banking, UT1-Banking
 birdislandbank.com	Shalla-Banking, UT1-Banking
 birlaglobal.com	Shalla-Banking
@@ -1306,27 +1105,22 @@ bjbgc.com	Notracking-Whitelist
 bkb.com	Shalla-Banking
 bkbank.com	Shalla-Banking
 bkme.com	Shalla-Banking
-blackwellreference.com	UT1-Bu
 blcnet.com	Shalla-Banking, UT1-Banking
 blogger.com	Notracking-Whitelist
-cours.blogspirit.com	UT1-Bu
-util.blogspirit.com	UT1-Bu
 blogspot.com	Notracking-Whitelist
 blombank.com	Adguard-Banks
-bloomberg.com	UT1-Bu, Notracking-Whitelist
+bloomberg.com	Notracking-Whitelist
 bluebillywig.com	Notracking-Whitelist
 bluehost.com	Notracking-Whitelist
 cp.bluesnap.com	Adguard-Banks
-bmj.com	UT1-Bu, Notracking-Whitelist
-bmlisieux.com	UT1-Bu
+bmj.com	Notracking-Whitelist
 bmo.com	Shalla-Banking, Adguard-Banks
 bmoharris.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 bmoinvesting.com	Shalla-Banking
 bmtc.com	Shalla-Banking
 bnbank.com	Shalla-Banking
 bnccorp.com	Shalla-Banking, UT1-Banking
-bnpparibas.com	Shalla-Banking, UT1-Bu, UT1-Banking, Adguard-Banks
-bnpparibasfortis.com	UT1-Bu
+bnpparibas.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 bny-imb.com	Shalla-Banking
 bnymellon.com	Shalla-Banking
 boaam.com	Shalla-Banking
@@ -1339,11 +1133,9 @@ bofb.com	Shalla-Banking
 bofm.com	Shalla-Banking, UT1-Banking
 boh.com	Shalla-Banking
 bokf.com	Shalla-Banking
-bolivia.com	UT1-Bu
 booking.com	Notracking-Whitelist
 boonebank.com	Shalla-Banking
 maxcdn.bootstrapcdn.com	Notracking-Whitelist
-bordeaux-region.com	UT1-Bu
 bordier.com	Shalla-Banking
 borel.com	Shalla-Banking
 borregospringsbank.com	Shalla-Banking, UT1-Banking
@@ -1352,18 +1144,16 @@ bostonprivate.com	Shalla-Banking
 botc.com	Shalla-Banking
 botw-ep.com	Shalla-Banking, UT1-Banking
 botwodessa.com	Shalla-Banking
-boubah.com	UT1-Bu
 boursediscount.com	UT1-Financial
 boursica.com	UT1-Financial
-boursier.com	UT1-Bu, UT1-Financial
-boursorama.com	UT1-Bu, UT1-Banking, UT1-Financial, Adguard-Banks
+boursier.com	UT1-Financial
+boursorama.com	UT1-Banking, UT1-Financial, Adguard-Banks
 boursorama2.com	UT1-Financial
 bowc.com	Shalla-Banking
 bowmillsbank.com	Shalla-Banking
 box.com	Notracking-Whitelist
 bpc-financial.com	Shalla-Banking
 bpcprocessing.com	Adguard-Banks
-bpe-europresse.com	UT1-Bu
 bpiexpressonline.com	Shalla-Banking, Adguard-Banks
 bradesco.com	Shalla-Banking
 bradfordfsb.com	Shalla-Banking, UT1-Banking
@@ -1372,11 +1162,10 @@ brainerdsavings.com	Shalla-Banking, UT1-Banking
 brannenbanks.com	Shalla-Banking, UT1-Banking
 brattbank.com	Shalla-Banking
 brcbank.com	Shalla-Banking, UT1-Banking
-breakingviews.com	UT1-Bu
 bremenbank.com	Shalla-Banking
 bridgewatersavings.com	Shalla-Banking, UT1-Banking
-brillonline.com	UT1-Bu
-britannica.com	UT1-Bu
+edge.api.brightcove.com	Notracking-Whitelist
+f1.media.brightcove.com	Notracking-Whitelist
 broadwayfed.com	Shalla-Banking
 brooklinebank.com	Shalla-Banking, UT1-Banking
 brooklinecoop.com	Shalla-Banking, UT1-Banking
@@ -1389,7 +1178,6 @@ bsvnet.com	Shalla-Banking, UT1-Banking
 btc-e.com	Adguard-Banks
 btrab.com	Shalla-Banking
 buexpress.com	Shalla-Banking
-bull.com	UT1-Bu
 burgan.com	Shalla-Banking
 burkeandherbertbank.com	Shalla-Banking
 burlbank.com	Shalla-Banking, UT1-Banking
@@ -1397,24 +1185,17 @@ busey.com	Shalla-Banking
 businessbank.com	Shalla-Banking
 businessbankmn.com	Shalla-Banking
 businessinsider.com	Notracking-Whitelist
-businessweek.com	UT1-Bu, Notracking-Whitelist
+businessweek.com	Notracking-Whitelist
 businesswire.com	Notracking-Whitelist
 buydomains.com	Notracking-Whitelist
 buzzfeed.com	Notracking-Whitelist
-bvdep.com	UT1-Bu
-bvdinfo.com	UT1-Bu
-lemennicier.bwm-mediasoft.com	UT1-Bu
 adserver.bworldonline.com	EasyList-White
 ca-bank.com	Shalla-Banking
 ca-els.com	Shalla-Banking
 lu.ca-indosuez.com	Shalla-Banking
 ca-mozaic.com	Shalla-Banking, UT1-Banking
 cabarrusbank.com	Shalla-Banking
-cabinet-vally.com	UT1-Bu
-cadresonline.com	UT1-Bu
 cafepress.com	Notracking-Whitelist
-cahiers-naturalistes.com	UT1-Bu
-cahiers-pedagogiques.com	UT1-Bu
 cahoot.com	Shalla-Banking
 caissepopottawa.com	Shalla-Banking
 caixa-enginyers.com	UT1-Banking, Adguard-Banks
@@ -1434,20 +1215,13 @@ calyon.com	Shalla-Banking, UT1-Banking
 cambridgesavings.com	Shalla-Banking, UT1-Banking
 cambridgestatebank.com	Shalla-Banking
 camdennational.com	Shalla-Banking
-cameroun-infotourisme.com	UT1-Bu
 campaign-archive1.com	Notracking-Whitelist
 campaign-archive2.com	Notracking-Whitelist
 campuscu.com	Adguard-Banks
-canada.com	UT1-Bu
-armesauxusa.canalblog.com	UT1-Bu
-lostinmanagement.canalblog.com	UT1-Bu
 canbankindia.com	Shalla-Banking
 canonbank.com	Shalla-Banking, UT1-Banking
 cantonfarmersstatebank.com	Shalla-Banking, UT1-Banking
 canyoncommunitybank.com	Shalla-Banking
-cap-vietnam.com	UT1-Bu
-capcampus.com	UT1-Bu
-capefrance.com	UT1-Bu
 capfed.com	Shalla-Banking, UT1-Banking
 capitalbank-nc.com	Shalla-Banking, UT1-Banking
 capitalcrossing.com	Shalla-Banking
@@ -1463,17 +1237,12 @@ media.cargocollective.com	EasyList-White
 caribefederal.com	Shalla-Banking
 carifvg.com	Shalla-Banking
 carolinafirst.com	Shalla-Banking
-carriereonline.com	UT1-Bu
-carrieres-juridiques.com	UT1-Bu
-carrieres-publiques.com	UT1-Bu
 carrolltonbank.com	Shalla-Banking, UT1-Banking
 casapropia.com	Shalla-Banking
 cascadebank.com	Shalla-Banking, UT1-Banking
-casetrack.com	UT1-Bu
 cashadvanceclub.com	UT1-Financial
 casino-astucess.com	UT1-Financial
 casinoo-astuces.com	UT1-Financial
-categorynet.com	UT1-Bu
 cathaybank.com	Shalla-Banking
 cattlebank.com	Shalla-Banking, UT1-Banking
 cavb.com	Shalla-Banking
@@ -1522,7 +1291,6 @@ cdninstagram.com	Chris-White
 centerbankjax.com	Shalla-Banking, UT1-Banking
 centier.com	Shalla-Banking, UT1-Banking
 centinelbank.com	Shalla-Banking
-centpourcentdroit.com	UT1-Bu
 central-bank.com	Shalla-Banking
 centralbank.com	Shalla-Banking, UT1-Banking
 centralbankbahamas.com	Shalla-Banking, UT1-Banking
@@ -1536,7 +1304,6 @@ centralkyfsb.com	Shalla-Banking
 centralnational.com	Shalla-Banking, UT1-Banking
 centralvabank.com	Shalla-Banking
 centralvalleybank.com	Shalla-Banking, UT1-Banking
-centredeformationjuridique.com	UT1-Bu
 centreville-nat-bank.com	Shalla-Banking, UT1-Banking
 centrobank.com	Shalla-Banking
 centrumbank.com	Shalla-Banking
@@ -1544,21 +1311,14 @@ centura.com	Shalla-Banking
 centurionbank.com	Shalla-Banking
 century-bank.com	Shalla-Banking, UT1-Banking
 centurybankfl.com	Shalla-Banking
-ceri-sciencespo.com	UT1-Bu
-ceriserouge.com	UT1-Bu
 cfb-kokomo.com	Shalla-Banking
 cfbank.com	Shalla-Banking
 cfbk.com	Shalla-Banking, UT1-Banking
 cfbnk.com	Shalla-Banking
 cfbwartburg.com	Shalla-Banking
-cfdt-ag2r.com	UT1-Bu
 cfsb.com	Shalla-Banking, UT1-Banking
 cfsbancorp.com	Shalla-Banking
-dasu.cg976.com	UT1-Bu
-cgey.com	UT1-Bu
-eebo.chadwyck.com	UT1-Bu
 champlainbank.com	Shalla-Banking, UT1-Banking
-chapitre.com	UT1-Bu
 charlottestatebank.com	Shalla-Banking, UT1-Banking
 charter-bank.com	Shalla-Banking
 charterbankwa.com	Shalla-Banking, UT1-Banking
@@ -1571,8 +1331,6 @@ chemicalbankmi.com	Shalla-Banking, UT1-Banking
 chestateestatebank.com	Shalla-Banking
 chestercountybank.com	Shalla-Banking, UT1-Banking
 chevychasebank.com	Shalla-Banking, UT1-Banking
-juricours.chez.com	UT1-Bu
-jurisfac.chez.com	UT1-Bu
 chicagocommunitybank.com	Shalla-Banking
 chicagotribune.com	Notracking-Whitelist
 cbuprovidence.chickenkiller.com	Chris-White
@@ -1580,21 +1338,17 @@ chittenden.com	Shalla-Banking
 chiyubank.com	Shalla-Banking
 choiceone.com	Shalla-Banking, UT1-Banking
 chrisbuijs.com	Chris-White
-christianbourgois-editeur.com	UT1-Bu
 chron.com	Notracking-Whitelist
 payments.chronopay.com	Adguard-Banks
 chzbgr.com	Chris-White
-ci-industries.com	UT1-Bu
 cibc.com	Shalla-Banking, Adguard-Banks
 cibeg.com	Shalla-Banking
 cidel.com	Shalla-Banking
-cidj.com	UT1-Bu
 cimb.com	Shalla-Banking
 cimbislamic.com	Shalla-Banking
 cinsscore.com	Chris-White
 cisco.com	Notracking-Whitelist
 cit.com	Shalla-Banking
-citationspolitiques.com	UT1-Bu
 citi.com	Shalla-Banking
 citibank.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 citibankonline.com	Adguard-Banks
@@ -1630,18 +1384,14 @@ citystatesavings.com	Shalla-Banking, UT1-Banking
 cityunionbank.com	Shalla-Banking
 citywidebanks.com	Shalla-Banking
 civicbank.com	Shalla-Banking
-civilites.com	UT1-Bu
-civiweb.com	UT1-Bu
 clamdirect.com	Shalla-Banking
 claremontsavings.com	Shalla-Banking, UT1-Banking
 clarendonhillsbank.com	Shalla-Banking, UT1-Banking
 clariden.com	Shalla-Banking
 clarkebank.com	Shalla-Banking
-classiques-garnier.com	UT1-Bu
 clearcreeknationalbank.com	Shalla-Banking, UT1-Banking
 clearstream.com	Shalla-Banking
 clevelandstatebank.com	Shalla-Banking, UT1-Banking
-clic-droit.com	UT1-Bu
 mbz19n.accounts.clickbank.com	Adguard-Banks
 clickoptions.com	UT1-Financial
 clintonnational.com	Shalla-Banking, UT1-Banking
@@ -1666,14 +1416,12 @@ cnbtn.com	Shalla-Banking, UT1-Banking
 cnbtopeka.com	Shalla-Banking, UT1-Banking
 cnbtxk.com	Shalla-Banking
 cnet.com	Chris-White, Notracking-Whitelist
-cnn.com	UT1-Bu, Notracking-Whitelist
-cns-edu.com	UT1-Bu
+cnn.com	Notracking-Whitelist
 coastalfederal.com	Shalla-Banking
 cobizbank.com	Shalla-Banking
 codeproject.com	Notracking-Whitelist
 cohuttabank.com	Shalla-Banking, UT1-Banking
 coinbase.com	Notracking-Whitelist
-collegepolytechnique.com	UT1-Bu
 colobank.com	Shalla-Banking, UT1-Banking
 colonial4banking.com	Shalla-Banking
 colonialbank.com	Shalla-Banking, UT1-Banking
@@ -1687,13 +1435,11 @@ combanktrust.com	Shalla-Banking
 comerica.com	Shalla-Banking, UT1-Banking
 comfed.com	Shalla-Banking
 comfedbank.com	Shalla-Banking
-comitedentreprise.com	UT1-Bu
 commbank-wge.com	Shalla-Banking
 commbankna.com	Shalla-Banking
 commbanksofco.com	Shalla-Banking, UT1-Banking
 commercebank.com	Shalla-Banking
 secure.commercegate.com	Adguard-Banks
-commercemonde.com	UT1-Bu
 commerceonline.com	Shalla-Banking
 commercepc.com	Shalla-Banking
 commercialbank-stl.com	Shalla-Banking, UT1-Banking
@@ -1718,21 +1464,11 @@ communitywest.com	Shalla-Banking
 comnb.com	Shalla-Banking
 compassbank.com	Shalla-Banking
 compassweb.com	Shalla-Banking, UT1-Banking
-complinet.com	UT1-Bu
-compta-facile.com	UT1-Bu
-compta-online.com	UT1-Bu
 compubank.com	Shalla-Banking
 comtrst.com	Shalla-Banking
-concours-bce.com	UT1-Bu
-concours-fonction-publique.com	UT1-Bu
-concours-foucher.com	UT1-Bu
-conflits-actuels.com	UT1-Bu
-conseil-general.com	UT1-Bu
 constantcontact.com	Notracking-Whitelist
 consumersbank.com	Shalla-Banking, UT1-Banking
-contrat-expert.com	UT1-Bu
-livepassdl.conviva.com	Notracking-Whitelist
-conway.com	UT1-Bu
+conviva.com	Notracking-Whitelist
 conwaynationalbank.com	Shalla-Banking, UT1-Banking
 cookislandstrust.com	Shalla-Banking
 coop-bank.com	Shalla-Banking
@@ -1744,23 +1480,18 @@ cornerstonebank.com	Shalla-Banking
 cornerstoneconnect.com	Shalla-Banking
 cornhuskerbank.com	Shalla-Banking, UT1-Banking
 corpbank.com	Shalla-Banking, UT1-Banking
-corporate-de.com	UT1-Bu
 corusbank.com	Shalla-Banking, UT1-Banking
 cosmosbank.com	Shalla-Banking, UT1-Banking
 countrybank.com	Shalla-Banking, UT1-Banking
 countryclubbank.com	Shalla-Banking, UT1-Banking
 bank.countrywide.com	Shalla-Banking
 countynationalbank.com	Shalla-Banking, UT1-Banking
-courrierint.com	UT1-Bu
-courrierinternational.com	UT1-Bu
-cours-acces.com	UT1-Bu
-cours-comptabilite.com	UT1-Bu
 coutts.com	Shalla-Banking
 covefi.com	Shalla-Banking
 cpanel.com	Notracking-Whitelist
 cpbi.com	Shalla-Banking
+cdn.cpnscdn.com	Notracking-Whitelist
 cpoacc.com	Shalla-Banking
-cpuniv.com	UT1-Bu
 cranebanklimited.com	Shalla-Banking
 crbna.com	Shalla-Banking
 credit-moscow-bank.com	Shalla-Banking
@@ -1771,18 +1502,13 @@ creditlyonnais.com	Shalla-Banking
 creditmutuel.com	UT1-Banking
 creditonebank.com	Adguard-Banks
 creditoption.com	Shalla-Banking
-cremeronline.com	UT1-Bu
 crescentbank.com	Shalla-Banking
 crestar.com	Shalla-Banking
 chbrr.crimea.com	Adguard-Banks
-criminologie.com	UT1-Bu
-croissance-verte.com	UT1-Bu
 crossplainsbank.com	Shalla-Banking, UT1-Banking
-crous-toulouse.com	UT1-Bu
 crownagents.com	Shalla-Banking
 crowriverbank.com	Shalla-Banking, UT1-Banking
 crystallakebank.com	Shalla-Banking, UT1-Banking
-csa.com	UT1-Bu
 csb4me.com	Shalla-Banking, UT1-Banking
 csbanking.com	Shalla-Banking
 csbbanking.com	Shalla-Banking
@@ -1803,52 +1529,34 @@ ctbi.com	Shalla-Banking
 ctcbonline.com	Shalla-Banking, UT1-Banking
 cttrustsvcs.com	Shalla-Banking
 cubbank.com	Shalla-Banking
-cultureco.com	UT1-Bu
-cultureobs.com	UT1-Bu
 custhelp.com	Notracking-Whitelist
 cvnb.com	Shalla-Banking
 cwbank.com	Shalla-Banking, UT1-Banking
 cwe-bank.com	Shalla-Banking
-cyber-emploi-centre.com	UT1-Bu
-cyberlibris.com	UT1-Bu
 secureacceptance.cybersource.com	Adguard-Banks
-cyberutrumquejus.com	UT1-Bu
 dacotahbank.com	Shalla-Banking, UT1-Banking
-dafsaliens.com	UT1-Bu
 dailymotion.com	Notracking-Whitelist
 daimlerchrysler-bank.com	Shalla-Banking, UT1-Banking
 dairybank.com	Shalla-Banking, UT1-Banking
 dallasmortgagebankers.com	Shalla-Banking
 damariscottabank.com	Shalla-Banking, UT1-Banking
 daoheng.com	Shalla-Banking
-datamonitor.com	UT1-Bu
-datastream.com	UT1-Bu
-dawsonera.com	UT1-Bu
 db.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 dbs.com	Shalla-Banking, Adguard-Banks
 dcbl.com	Shalla-Banking, UT1-Banking
 deanbank.com	Shalla-Banking, UT1-Banking
 debankers.com	Shalla-Banking, UT1-Banking
-universite.deboeck.com	UT1-Bu
-deboecksuperieur.com	UT1-Bu
 deepgreenbank.com	Shalla-Banking
-defidoc.com	UT1-Bu
-definitions-marketing.com	UT1-Bu
 deforestbank.com	Shalla-Banking, UT1-Banking
-degruyter.com	UT1-Bu
 dekalbcommunitybank.com	Shalla-Banking, UT1-Banking
 delawarenational.com	Shalla-Banking
 delicious.com	Notracking-Whitelist
-delitfrancais.com	UT1-Bu
 dell.com	Notracking-Whitelist
 dellsbank.com	Shalla-Banking
-delphes-indexpresse.com	UT1-Bu
 delubac.com	UT1-Banking
 demon-networks.com	Notracking-Whitelist
 denabank.com	Shalla-Banking
 denizbank.com	Shalla-Banking
-dessfusac.com	UT1-Bu
-dessinemoileco.com	UT1-Bu
 detik.com	Notracking-Whitelist
 deutschebank-dbdirect.com	Shalla-Banking
 devbnkphl.com	Shalla-Banking
@@ -1858,52 +1566,32 @@ dexia.com	Shalla-Banking
 dfcugroup.com	Shalla-Banking
 dhbbank.com	Shalla-Banking, Adguard-Banks
 webtrack.dhlglobalmail.com	EasyPrivacy-White
-dico-definitions.com	UT1-Bu
-dicocitations.com	UT1-Bu
-dictionaryofeconomics.com	UT1-Bu
-dictionnaire-commercial.com	UT1-Bu
-dictionnaire-juridique.com	UT1-Bu
 digg.com	Notracking-Whitelist
-digicert.com	UT1-Bu, UT1-Whitelist
+digicert.com	UT1-Whitelist
 dime.com	Shalla-Banking, UT1-Banking
 dimewill.com	Shalla-Banking
-diploweb.com	UT1-Bu
 directdomains.com	Notracking-Whitelist
-directetudiant.com	UT1-Bu
 directfinance.com	UT1-Financial
-directformation.com	UT1-Bu
 directnet.com	Shalla-Banking, Adguard-Banks
 cdn.discordapp.com	Notracking-Whitelist
 discover.com	Shalla-Banking, Adguard-Banks
 disqus.com	Notracking-Whitelist
-dissertationsgratuites.com	UT1-Bu
 dnb4you.com	Shalla-Banking
 dnister.com	Shalla-Banking
 cbuhome.dnsalias.com	Chris-White
 dollarbank.com	Shalla-Banking, UT1-Banking
 domainnameshop.com	Notracking-Whitelist
 domestic.com	Shalla-Banking
-biblio.dominicains.com	UT1-Bu
 doralfinancial.com	Shalla-Banking
-dossierfamilial.com	UT1-Bu
 douglascountybank.com	Shalla-Banking
-dowjones.com	UT1-Bu
 downeysavings.com	Shalla-Banking
-dr-belair.com	UT1-Bu
 dragon-capital.com	Shalla-Banking
 draperbank.com	Shalla-Banking
 dreamhost.com	Notracking-Whitelist
 dresdner-bank.com	Shalla-Banking, UT1-Banking
 dresdnerbank.com	Shalla-Banking
 dribbble.com	Notracking-Whitelist
-droit-fr.com	UT1-Bu
-droit-jeu-pari.com	UT1-Bu
-droit-ntic.com	UT1-Bu
-droit21.com	UT1-Bu
-droitdessocietes.com	UT1-Bu
-droitenligne.com	UT1-Bu
-droitsenfant.com	UT1-Bu
-dropbox.com	Chris-White, UT1-Bu, Notracking-Whitelist
+dropbox.com	Chris-White, Notracking-Whitelist
 dropboxapi.com	Chris-White
 dropboxstatic.com	Chris-White
 dropboxusercontent.com	Chris-White, Notracking-Whitelist
@@ -1911,20 +1599,15 @@ dropcatch.com	Notracking-Whitelist
 drydenbank.com	Shalla-Banking, UT1-Banking
 dslreports.com	Chris-White
 dubuquebank.com	Shalla-Banking, UT1-Banking
-dumaspere.com	UT1-Bu
-dunod.com	UT1-Bu
+duckduckgo.com	UT1-Whitelist
 dvbbank.com	Adguard-Banks
 dyn.com	Chris-White
-e-anglais.com	UT1-Bu
 e-bankofbaku.com	Adguard-Banks
 e-gulfbank.com	Shalla-Banking
-e-interforum.com	UT1-Bu
-cours1eredroit.e-monsite.com	UT1-Bu
 e2ro.com	Chris-White
 ea.com	Notracking-Whitelist
 eab.com	Shalla-Banking
 eab-online.com	Shalla-Banking
-eads.com	UT1-Bu
 eagle-bank.com	Shalla-Banking, UT1-Banking
 eaglebancshares.com	Shalla-Banking
 eaglebankmd.com	Shalla-Banking
@@ -1937,8 +1620,6 @@ eastwestbank.com	Shalla-Banking
 eastwestbanker.com	Shalla-Banking
 eave.com	Shalla-Banking
 pg.eazy2pay.com	Adguard-Banks
-eb.com	UT1-Bu
-ebabylone.com	UT1-Bu
 ebank.com	Shalla-Banking, UT1-Banking
 ebankinter.com	Shalla-Banking
 ebase.com	Adguard-Banks
@@ -1948,36 +1629,19 @@ ebl-bd.com	Shalla-Banking
 eblf.com	Shalla-Banking
 ebrd.com	Shalla-Banking, UT1-Banking
 ebsb.com	Shalla-Banking, UT1-Banking
-ebsco.com	UT1-Bu
-ebsco-content.com	UT1-Bu
-ebscohost.com	UT1-Bu
 ecbbancorp.com	Shalla-Banking
 ecitizensnationalbank.com	Shalla-Banking
-eco-finanzas.com	UT1-Bu
 ecobank.com	Shalla-Banking
-ecolebourse.com	UT1-Bu
-ecolesrh.com	UT1-Bu
 ecommpay.com	Adguard-Banks
-economag.com	UT1-Bu
-economie2000.com	UT1-Bu
-economist.com	UT1-Bu, Notracking-Whitelist
+economist.com	Notracking-Whitelist
 secure.ecopayz.com	Adguard-Banks
 edbi-iran.com	Shalla-Banking
 eddiebauer.com	Chris-White
 edensbank.com	Shalla-Banking, UT1-Banking
 edgarcountybank.com	Shalla-Banking
-legal.edhec.com	UT1-Bu
-editions-joly.com	UT1-Bu
-editions-legislatives.com	UT1-Bu
-editionsmelonic.com	UT1-Bu
-editionsthemis.com	UT1-Bu
-educ21.com	UT1-Bu
-educaweb.com	UT1-Bu
-edufrance-china.com	UT1-Bu
 edwardbaskett.com	UT1-Financial
 eepurl.com	Notracking-Whitelist
 eero.com	Chris-White
-ef.com	UT1-Bu
 efggroup.com	Shalla-Banking
 efirstbank.com	Shalla-Banking, UT1-Banking
 efirstbankca.com	Shalla-Banking
@@ -1986,145 +1650,89 @@ arab-investment-bank.egypt.com	Shalla-Banking
 egyptian-witchcraft.com	UT1-Financial
 eightforums.com	Notracking-Whitelist
 eldoradosavings.com	Shalla-Banking, UT1-Banking
-elections-regionales.com	UT1-Bu
-electre.com	UT1-Bu
 elegantthemes.com	Notracking-Whitelist
-elgaronline.com	UT1-Bu
 elginfc.com	Shalla-Banking
-elkhabar.com	UT1-Bu
 ellipsbank.com	Shalla-Banking
 ellisbank.com	Adguard-Banks
-ellispub.com	UT1-Bu
 elmirabank.com	Shalla-Banking
 elmirasavingsbank.com	Shalla-Banking
-elnorte.com	UT1-Bu
-elpais.com	UT1-Bu, Notracking-Whitelist
-elperiodico.com	UT1-Bu
+elpais.com	Notracking-Whitelist
 elsb.com	Shalla-Banking, UT1-Banking
-elsevier.com	UT1-Bu
-elwatan.com	UT1-Bu
-em-lyon.com	UT1-Bu
-emailjob.com	UT1-Bu
 emarinebank.com	Shalla-Banking
 embedly.com	Notracking-Whitelist
-emeraldinsight.com	UT1-Bu
 emiratesbank.com	Shalla-Banking
 emmerossi.com	Shalla-Banking
 empirebank.com	Shalla-Banking
-emploi-conseils.com	UT1-Bu
-emploi-international.com	UT1-Bu
-emploipublic.com	UT1-Bu
 emprisebank.com	Shalla-Banking
 emptyloop.com	Notracking-Whitelist
-en-stage.com	UT1-Bu
 enable-javascript.com	Notracking-Whitelist
 encoremanagement.com	Shalla-Banking
-encyclopedies-online.com	UT1-Bu
 online.energbank.com	Adguard-Banks
 enfieldfederal.com	Shalla-Banking
 engadget.com	Notracking-Whitelist
-enligne-fr.com	UT1-Bu
 enorthfield.com	Shalla-Banking, UT1-Banking
 enpara.com	Adguard-Banks
-ensai.com	UT1-Bu
-enseignants.com	UT1-Bu
 merchantsecurity.enstage.com	Adguard-Banks
 enternetbank.com	Shalla-Banking
 enterprisebankpgh.com	Shalla-Banking, UT1-Banking
 enterpriseebank.com	Shalla-Banking, UT1-Banking
 entrepreneur.com	Notracking-Whitelist
-entreprise-carrieres.com	UT1-Bu
 eocean.com	Shalla-Banking
 eonfin.com	Shalla-Banking
-epals.com	UT1-Bu
-epnet.com	UT1-Bu
-french.epochtimes.com	UT1-Bu
-eprepa.com	UT1-Bu
 equator-principles.com	Shalla-Banking
 equitablecard.com	Shalla-Banking
 equitableonline.com	Shalla-Banking, UT1-Banking
-erprecrut.com	UT1-Bu
 esecure-transaction.com	UT1-Financial
 esfg.com	Shalla-Banking
 eshorelinebank.com	Shalla-Banking
-espace-formavocat.com	UT1-Bu
-espaceformation.com	UT1-Bu
-espagnolfacile.com	UT1-Bu
 esparkasse.com	Shalla-Banking
 espn.com	Notracking-Whitelist
 essabank.com	Shalla-Banking
 essexsavings.com	Shalla-Banking, UT1-Banking
-etatdumonde.com	UT1-Bu
 etb-ag.com	Shalla-Banking
 etebac.com	Shalla-Banking
 etrade.com	Adguard-Banks
 etradebank.com	Shalla-Banking
 etsy.com	Notracking-Whitelist
-etudes-en-france.com	UT1-Bu
-etudes-litteraires.com	UT1-Bu
-etudier.com	UT1-Bu
-etudroit.com	UT1-Bu
-fr.euabc.com	UT1-Bu
-eur-export.com	UT1-Bu
-euractiv.com	UT1-Bu
 eurambank.com	Shalla-Banking, UT1-Banking
 eurekabancorp.com	Shalla-Banking, UT1-Banking
-euridis-ecole.com	UT1-Bu
 eurobank-ua.com	Adguard-Banks
-eurobru.com	UT1-Bu
-eurofinancials.com	UT1-Bu
-eurogersinfo.com	UT1-Bu
 eurohypo.com	Shalla-Banking
-euromoneyplc.com	UT1-Bu
-euromonitor.com	UT1-Bu
 euronews.com	Notracking-Whitelist
-euronext.com	UT1-Bu
-europelibre.com	UT1-Bu
-europresse.com	UT1-Bu
 evansnationalbank.com	Shalla-Banking
 evenroute.com	Chris-White
 eventbrite.com	Notracking-Whitelist
 everbank.com	Shalla-Banking, UT1-Banking
 everettbank.com	Shalla-Banking, UT1-Banking
 evergreenbanking.com	Shalla-Banking
+c.evidon.com	Notracking-Whitelist
 evite.com	Chris-White, Notracking-Whitelist
 evobanco.com	Shalla-Banking
 evolvebank.com	Shalla-Banking
 evrtonline.com	Shalla-Banking
 ewebdevelopment.com	Notracking-Whitelist
-exalead.com	UT1-Bu
 examiner.com	Notracking-Whitelist
 example.com	Notracking-Whitelist
 exchangebk.com	Shalla-Banking
 eximb.com	Shalla-Banking, UT1-Banking
 eximbank.com	Shalla-Banking
 eximbankindia.com	Shalla-Banking
-expatriation.com	UT1-Bu
 expedia.com	Chris-White
-expertlaw.com	UT1-Bu
-experts-comptables.com	UT1-Bu
 experts-exchange.com	Notracking-Whitelist
-expressionpublique.com	UT1-Bu
-ey.com	UT1-Bu
-eyrolles.com	UT1-Bu
 fabtexas.com	Shalla-Banking
 fac.com	Shalla-Banking, UT1-Banking
-facdedroit-lyon.com	UT1-Bu
 facebook.com	Notracking-Whitelist
-factiva.com	UT1-Bu
 factorypoint.com	Shalla-Banking
 faheybank.com	Shalla-Banking
 fairfieldcountysavings.com	Shalla-Banking, UT1-Banking
 fairfieldfederal.com	Shalla-Banking, UT1-Banking
 faisalfinance.com	Shalla-Banking
-faits-et-documents.com	UT1-Bu
 falconbank.com	Shalla-Banking
 fallbrooknationalbank.com	Shalla-Banking
 familyofbanks.com	Shalla-Banking, UT1-Banking
 fanb.com	Shalla-Banking
 fandmstbk.com	Shalla-Banking, UT1-Banking
 daombank.fanspace.com	Shalla-Banking
-faq-logistique.com	UT1-Bu
 farbanca.com	Shalla-Banking
 farmcreditbank.com	Shalla-Banking, UT1-Banking
 farmcrp.com	Shalla-Banking
@@ -2165,7 +1773,6 @@ federaltrust.com	Shalla-Banking, UT1-Banking
 fednetbank.com	Shalla-Banking, Adguard-Banks
 feedburner.com	Notracking-Whitelist
 feedly.com	Notracking-Whitelist
-feminad.com	UT1-Bu
 feniciabank.com	Adguard-Banks
 ferrierlullin.com	Shalla-Banking
 ffb.com	Shalla-Banking, UT1-Banking
@@ -2192,15 +1799,11 @@ fidelity.com	Adguard-Banks
 fidelitybank.com	Shalla-Banking, UT1-Banking
 fidelitybk.com	Shalla-Banking
 fidfed.com	Shalla-Banking
-figaroetudiant.com	UT1-Bu
 fiiwarsaw.com	Shalla-Banking
-fimarkets.com	UT1-Bu
-financespubliques.com	UT1-Bu
 finansonline.com	Adguard-Banks
 finaperf.com	UT1-Financial
 fincombank.com	Shalla-Banking, UT1-Banking
-findarticles.com	UT1-Bu
-findlaw.com	UT1-Bu
+detectportal.firefox.com	UT1-Whitelist
 first-citizens.com	Shalla-Banking, UT1-Banking
 first-community-bank.com	Shalla-Banking
 first-federal.com	Shalla-Banking
@@ -2288,11 +1891,9 @@ firststatebnk.com	Shalla-Banking, UT1-Banking
 firstunion.com	Shalla-Banking
 firstusa.com	Shalla-Banking, UT1-Banking
 firstvirginia.com	Shalla-Banking, UT1-Banking
-fiscalonline.com	UT1-Bu
 fitbit.com	Chris-White
 fitbitdevelopercontent.com	Chris-White
 five-starbank.com	Shalla-Banking
-fjpansier.com	UT1-Bu
 fjsb.com	Shalla-Banking, UT1-Banking
 flagshipbank.com	Shalla-Banking
 flagstar.com	Shalla-Banking
@@ -2318,7 +1919,6 @@ fmpaynesville.com	Shalla-Banking, UT1-Banking
 fmsb.com	Shalla-Banking, UT1-Banking
 fmsb4me.com	Shalla-Banking, UT1-Banking
 fmub.com	Shalla-Banking, UT1-Banking
-fnac.com	UT1-Bu
 fnb.com	Shalla-Banking
 fnb-beatrice.com	Shalla-Banking
 fnb-columbia.com	Shalla-Banking, UT1-Banking
@@ -2385,21 +1985,13 @@ fnbwadena.com	Shalla-Banking, UT1-Banking
 fnbwy.com	Shalla-Banking
 fnbwynne.com	Shalla-Banking
 fnbwyo.com	Shalla-Banking, UT1-Banking
-fncdg.com	UT1-Bu
 foncier-international.com	Shalla-Banking
-fonctio.com	UT1-Bu
-fondations.com	UT1-Bu
 fontaine-suisse.com	Shalla-Banking
-fontaneau.com	UT1-Bu
 pro.fontawesome.com	Notracking-Whitelist
 use.fontawesome.com	Notracking-Whitelist
 foothillindbank.com	Shalla-Banking
 foothillsbank.com	UT1-Banking
 forbes.com	Notracking-Whitelist
-force.com	UT1-Bu
-foreignpolicy.com	UT1-Bu
-formatel.com	UT1-Bu
-formation-comptable.com	UT1-Bu
 mybank.fortebank.com	Adguard-Banks
 online.fortebank.com	Adguard-Banks
 fortis.com	Shalla-Banking
@@ -2407,7 +1999,6 @@ fortisbank.com	Shalla-Banking, UT1-Banking
 fortressbankmn.com	Shalla-Banking, UT1-Banking
 fortressbanks.com	Shalla-Banking, UT1-Banking
 fortune.com	Notracking-Whitelist
-deuxiemeguerremondia.forumactif.com	UT1-Bu
 online.forward-bank.com	Adguard-Banks
 fotolia.com	Notracking-Whitelist
 foundersdirect.com	Shalla-Banking
@@ -2415,11 +2006,6 @@ foursquare.com	Notracking-Whitelist
 foxborobank.com	Shalla-Banking
 foxnews.com	Notracking-Whitelist
 framinghamcoop.com	Shalla-Banking, UT1-Banking
-francaisfacile.com	UT1-Bu
-francebalade.com	UT1-Bu
-francelivrenet.com	UT1-Bu
-francenouveautes-marche.com	UT1-Bu
-francetelefirm.com	UT1-Bu
 franklinbank.com	Shalla-Banking, UT1-Banking
 franklinnetbranch.com	Shalla-Banking, UT1-Banking
 franklinsavings.com	Shalla-Banking
@@ -2427,11 +2013,9 @@ fransabank.com	Shalla-Banking
 fraud-net.com	Shalla-Banking, UT1-Banking
 freakymoney.com	UT1-Financial
 freedombankwv.com	Shalla-Banking, UT1-Banking
-freefulltext.com	UT1-Bu
 fremontbank.com	Shalla-Banking, UT1-Banking
 friendlybremenbank.com	Shalla-Banking
 frontierbank.com	Shalla-Banking, UT1-Banking
-frontnational.com	UT1-Bu
 frostbank.com	Shalla-Banking
 fsbankmctn.com	Shalla-Banking, UT1-Banking
 fsbdent-perham.com	Shalla-Banking, UT1-Banking
@@ -2469,16 +2053,13 @@ fult.com	Shalla-Banking
 fultonbank.com	Shalla-Banking, UT1-Banking
 fundmoremerchantbank.com	Shalla-Banking, UT1-Banking
 funniermoments.com	EasyList-White
-futura-sciences.com	UT1-Bu
 fvnb.com	Shalla-Banking
 fwsb.com	Shalla-Banking
-fxall.com	UT1-Bu
 fxcomtky.com	Shalla-Banking
 g2a.com	Notracking-Whitelist
 g2play.com	Notracking-Whitelist
 gab.com	Shalla-Banking
 gabankers.com	Shalla-Banking, UT1-Banking
-galegroup.com	UT1-Bu
 garantibank.com	Shalla-Banking, UT1-Banking
 secure.gate2shop.com	Adguard-Banks
 gatewaybank.com	Shalla-Banking, UT1-Banking
@@ -2486,9 +2067,6 @@ gatewaycommunitybank.com	Shalla-Banking
 gatewaysavings.com	Shalla-Banking
 gatewaysavingsbank.com	Shalla-Banking
 gatewaysb.com	Shalla-Banking
-gazdefrance.com	UT1-Bu
-gazette-du-palais.com	UT1-Bu
-gazettedupalais.com	UT1-Bu
 gbbk.com	Shalla-Banking
 gbtcalhoun.com	Shalla-Banking, UT1-Banking
 gcsbank.com	Shalla-Banking, UT1-Banking
@@ -2499,34 +2077,24 @@ geddesfederal.com	Shalla-Banking
 gefn.com	Shalla-Banking
 global.gemoney.com	Shalla-Banking
 generalbank.com	Shalla-Banking
-generalis-indexpresse.com	UT1-Bu
 geneseeregionalbank.com	Shalla-Banking, UT1-Banking
 genevaprivatebankers.com	Shalla-Banking
 geobank.com	Shalla-Banking
 geocities.com	Notracking-Whitelist
 georgetownsb.com	Shalla-Banking, UT1-Banking
-geoscopie.com	UT1-Bu
-geotrust.com	UT1-Bu
 german-banks.com	Shalla-Banking
-gers-tourisme.com	UT1-Bu
-gestiondelentreprise.com	UT1-Bu
 gfed.com	Shalla-Banking
 gfh.com	Shalla-Banking
 ggpht.com	Chris-White
 giantbank.com	Shalla-Banking, UT1-Banking
-gibert-toulouse.com	UT1-Bu
 gibonline.com	Shalla-Banking
 gibraltarbank.com	Shalla-Banking, UT1-Banking
 gibslandbank.com	Shalla-Banking, UT1-Banking
-gide.com	UT1-Bu
 giffordbank.com	Shalla-Banking
-giga-presse.com	UT1-Bu
 gigsky.com	Chris-White
 gigya.com	Notracking-Whitelist
 gilbertbank.com	Shalla-Banking, UT1-Banking
-gillesartigues.com	UT1-Bu
 gilmercountybank.com	Shalla-Banking
-girollet.com	UT1-Bu
 github.com	Chris-White, Notracking-Whitelist
 githubapp.com	Chris-White
 githubusercontent.com	Chris-White
@@ -2535,8 +2103,6 @@ gizmodo.com	Notracking-Whitelist
 glacierbank.com	Shalla-Banking, UT1-Banking
 glassdoor.com	Chris-White
 glbank.com	Shalla-Banking
-globalbusinessbyxerfi.com	UT1-Bu
-globalrelay.com	UT1-Bu
 globo.com	Notracking-Whitelist
 glsb.com	Shalla-Banking
 gmail.com	Chris-White
@@ -2552,14 +2118,11 @@ golfsavingsbank.com	Shalla-Banking, UT1-Banking
 goodbank.com	Shalla-Banking
 goodreads.com	Notracking-Whitelist
 analytics.google.com	Notracking-Whitelist
-google-analytics.com	UT1-Bu
-googleapis.com	UT1-Bu
 googlecode.com	Chris-White
 redirector.googlevideo.com	Notracking-Whitelist
 gorhamsavingsbank.com	Shalla-Banking, UT1-Banking
 gotocsb.com	Shalla-Banking, UT1-Banking
 gottardo.com	Shalla-Banking
-gpdoc.com	UT1-Bu
 gporg.com	Shalla-Banking
 3dsecure.gpwebpay.com	Adguard-Banks
 grabillbank.com	Shalla-Banking, UT1-Banking
@@ -2579,17 +2142,13 @@ greenfieldsavings.com	Shalla-Banking, UT1-Banking
 greensill-bank.com	Adguard-Banks
 greenvillesavings.com	Shalla-Banking, UT1-Banking
 greenwoodsstatebank.com	Shalla-Banking, UT1-Banking
-opencim.grenoble-em.com	UT1-Bu
 griffonbank.com	Shalla-Banking, UT1-Banking
-grioo.com	UT1-Bu
 boursorama.groupe-credit-du-nord.com	UT1-Financial
-grouperf.com	UT1-Bu
 grupobancolombia.com	Shalla-Banking
 webid2.gs.com	Adguard-Banks
 gsbfin.com	Shalla-Banking
 gsha.com	Shalla-Banking
-gstatic.com	UT1-Bu
-guadeloupe-fr.com	UT1-Bu
+gstatic.com	UT1-Whitelist
 guarantybankonline.com	Shalla-Banking
 guarantystate.com	Shalla-Banking
 guestcash.com	UT1-Financial
@@ -2602,7 +2161,6 @@ habibbank.com	Shalla-Banking
 habibbankltd.com	Shalla-Banking
 habibmetro.com	Shalla-Banking
 api.hackertarget.com	Chris-White
-hadrian-c.com	UT1-Bu
 hancockbank.com	Shalla-Banking
 hangseng.com	Shalla-Banking, UT1-Banking
 hanmi.com	Shalla-Banking
@@ -2610,7 +2168,6 @@ hansagroup.com	Shalla-Banking
 harborfederal.com	Shalla-Banking
 harrisbank.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 haspa-bank-in-hamburg.com	Shalla-Banking
-ensd1.hautetfort.com	UT1-Bu
 hawaiinational.com	Shalla-Banking, UT1-Banking
 hawthornesavings.com	Shalla-Banking
 hbtbank.com	Shalla-Banking
@@ -2619,7 +2176,6 @@ hdfcbank.com	Shalla-Banking, Adguard-Banks
 heartland-bank.com	Shalla-Banking, UT1-Banking
 heartlandbank.com	Shalla-Banking, UT1-Banking
 hebervalleybank.com	Shalla-Banking, UT1-Banking
-helinia.com	UT1-Bu
 hellenicbank.com	Shalla-Banking
 hellenicnetbanking.com	Adguard-Banks
 helmbankusa.com	Shalla-Banking
@@ -2627,7 +2183,6 @@ hemlockbank.com	Shalla-Banking
 hendersonbancshares.com	Shalla-Banking, UT1-Banking
 hendrickscountybank.com	Shalla-Banking, UT1-Banking
 henrycountybank.com	Shalla-Banking, UT1-Banking
-heraldtribune.com	UT1-Bu
 here.com	Notracking-Whitelist
 heritagebankeastbay.com	Shalla-Banking
 heritagebankna.com	Shalla-Banking, UT1-Banking
@@ -2654,7 +2209,6 @@ highpointbank.com	Shalla-Banking, UT1-Banking
 hilton.com	Notracking-Whitelist
 hinghamsavings.com	Shalla-Banking, UT1-Banking
 hinsdalebank.com	Shalla-Banking, UT1-Banking
-histoire-immigration.com	UT1-Bu
 hkbc.com	Shalla-Banking
 hnbwyo.com	Shalla-Banking, UT1-Banking
 hncbank.com	Shalla-Banking
@@ -2671,10 +2225,8 @@ homesteadbank.com	Shalla-Banking
 homestreetbank.com	Shalla-Banking, UT1-Banking
 hometownbancorp.com	Shalla-Banking
 homf.com	Shalla-Banking
-hopitalex.com	UT1-Bu
 horizon-bank.com	Shalla-Banking
 horizonbank.com	Shalla-Banking, UT1-Banking
-horlogeparlante.com	UT1-Bu
 hostgator.com	Notracking-Whitelist
 m.hotmail.com	Notracking-Whitelist
 hotspotshield.com	Notracking-Whitelist
@@ -2698,17 +2250,11 @@ hudsonvalleybank.com	Shalla-Banking, UT1-Banking
 huffingtonpost.com	Notracking-Whitelist
 humboldtbank.com	Shalla-Banking
 huntington.com	Shalla-Banking, Adguard-Banks
-huyette.com	UT1-Bu
 hvb.com	Shalla-Banking
-hyperdictionary.com	UT1-Bu
 hypo-alpe-adria.com	Shalla-Banking
 hypotirol.com	Shalla-Banking
 hypovereinsbank.com	Shalla-Banking
 iabankers.com	Shalla-Banking
-iae-aix.com	UT1-Bu
-iae-paris.com	UT1-Bu
-ialtchad.com	UT1-Bu
-iasplus.com	UT1-Bu
 ibanesto.com	Shalla-Banking
 ibankfnb.com	Shalla-Banking
 ibb-ag.com	Shalla-Banking
@@ -2716,7 +2262,7 @@ ibc.com	Shalla-Banking, UT1-Banking
 iberiabank.com	Shalla-Banking, UT1-Banking
 ibf-bih.com	Shalla-Banking
 ibkuwt.com	Shalla-Banking
-ibm.com	UT1-Bu, Notracking-Whitelist
+ibm.com	Notracking-Whitelist
 iboc.com	Shalla-Banking
 ibtco.com	Shalla-Banking
 ibyemen.com	Shalla-Banking
@@ -2729,18 +2275,13 @@ idahotrust.com	Shalla-Banking, UT1-Banking
 idbi.com	Shalla-Banking, Adguard-Banks
 idbibank.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 idbmia.com	Shalla-Banking
-iejuc.com	UT1-Bu
 ifbag.com	Shalla-Banking, UT1-Banking
 ifibank.com	Shalla-Banking, UT1-Banking
 iforex.com	UT1-Financial
-constitution-europeenne.ifrance.com	UT1-Bu
 ifsb.com	Shalla-Banking, UT1-Banking
 ifttt.com	Chris-White
 igcdn.com	Chris-White
-igstoulouse.com	UT1-Bu
 checkout.iherb.com	Adguard-Banks
-compute.ihost.com	UT1-Bu
-iht.com	UT1-Bu
 sube.iktisatbank.com	Adguard-Banks
 ilbanker.com	Shalla-Banking
 illinistatebank.com	Shalla-Banking, UT1-Banking
@@ -2756,33 +2297,18 @@ indiegogo.com	Notracking-Whitelist
 indusind.com	Shalla-Banking
 indymacbank.com	Shalla-Banking, UT1-Banking
 inetpayonline.com	Adguard-Banks
-infinancials.com	UT1-Bu
 infinas.com	Shalla-Banking
-infojuristes.com	UT1-Bu
-inforelais.com	UT1-Bu
-infosdumaroc.com	UT1-Bu
-infostages.com	UT1-Bu
-infotravail.com	UT1-Bu
 ing-usa.com	Shalla-Banking
 home.ingdirect.com	Shalla-Banking
-ingenta.com	UT1-Bu
-ingentaconnect.com	UT1-Bu
-ingentaselect.com	UT1-Bu
 ingonline.com	Adguard-Banks
 ingvysyabank.com	Shalla-Banking
-inomics.com	UT1-Bu
-inpec-toulouse.com	UT1-Bu
-insecula.com	UT1-Bu
-inseec-france.com	UT1-Bu
 insinger.com	Shalla-Banking
 insouth.com	Shalla-Banking, UT1-Banking
 instagram.com	Chris-White, Notracking-Whitelist
 instinctmoney.com	UT1-Financial
-institut-europlace.com	UT1-Bu
 insurorsbank.com	Shalla-Banking, UT1-Banking
 integrabank.com	Shalla-Banking, UT1-Banking
 interbanka.com	Shalla-Banking
-intercommunalites.com	UT1-Bu
 intercontinentalbankplc.com	Shalla-Banking
 intercontinentbank.com	Shalla-Banking
 intercreditbank.com	Shalla-Banking, UT1-Banking
@@ -2792,7 +2318,6 @@ inbiz.intesasanpaolo.com	Adguard-Banks
 intrustbank.com	Shalla-Banking
 intuit.com	Chris-White
 invensys.com	Chris-White
-invest-in-midipyrenees.com	UT1-Bu
 iob.com	Shalla-Banking
 iobsingapore.com	Shalla-Banking
 iowastatebanks.com	Shalla-Banking, UT1-Banking
@@ -2800,30 +2325,21 @@ ipchicken.com	Notracking-Whitelist
 ipdeny.com	Chris-White
 i.ipotekabank.com	Adguard-Banks
 secure.ipsp.com	Adguard-Banks
-iquesta.com	UT1-Bu
-irma-grenoble.com	UT1-Bu
 ironbank.com	Shalla-Banking, UT1-Banking
 irwinfinancial.com	Shalla-Banking
 irwinunion.com	Shalla-Banking
 isb-algona.com	Shalla-Banking, UT1-Banking
-iscparis.com	UT1-Bu
-isiknowledge.com	UT1-Bu
 islamibankbd.com	Shalla-Banking
 issbank.com	Shalla-Banking
 issuu.com	Notracking-Whitelist
 istockphoto.com	Notracking-Whitelist
-italien-facile.com	UT1-Bu
 itascabank.com	Shalla-Banking, UT1-Banking
 itlacapital.com	Shalla-Banking
-ito31.com	UT1-Bu
 itsb-iowa.com	Shalla-Banking
-iup-annecy.com	UT1-Bu
-iupmd.com	UT1-Bu
 iurisbank.com	Shalla-Banking
 bourse.ivisite.com	UT1-Financial
 jacksoncountybank.com	Shalla-Banking, UT1-Banking
 jacksonvillesavings.com	Shalla-Banking, UT1-Banking
-jamanga.com	UT1-Bu
 jamunabankbd.com	Shalla-Banking
 janatabank-bd.com	Shalla-Banking
 jbpb.com	Shalla-Banking, UT1-Banking
@@ -2832,48 +2348,21 @@ jcbank.com	Shalla-Banking, UT1-Banking
 jcsbank.com	Shalla-Banking, UT1-Banking
 jdbank.com	Shalla-Banking, UT1-Banking
 bourse.jdf.com	UT1-Financial
-jean-luc-melenchon.com	UT1-Bu
 jeffbank.com	Shalla-Banking
 jefferson-bank.com	Shalla-Banking, UT1-Banking
 jerseybankersassociation.com	Shalla-Banking, UT1-Banking
-jetudie.com	UT1-Bu
-jeuneafrique.com	UT1-Bu
 jiathis.com	Notracking-Whitelist
 jifbank.com	Shalla-Banking, UT1-Banking
 jimdo.com	Notracking-Whitelist
 jlgc.com	Shalla-Banking
 jncb.com	Shalla-Banking, UT1-Banking
-jobafrique.com	UT1-Bu
-jobstage.com	UT1-Bu
-jobvente.com	UT1-Bu
-johnedwards2004.com	UT1-Bu
 jordan-kuwait-bank.com	Shalla-Banking, UT1-Banking
 jordanislamicbank.com	Shalla-Banking, UT1-Banking
-journaldelagence.com	UT1-Bu
-journaldelemploi.com	UT1-Bu
-journaldunet.com	UT1-Bu
-jouve-hdi.com	UT1-Bu
 jpmorgan.com	Shalla-Banking, UT1-Banking
 jpmorganaccess.com	Shalla-Banking
-julienllc.com	UT1-Bu
 juliusbaer.com	Shalla-Banking, Adguard-Banks
-jullep.com	UT1-Bu
 juniper.com	Shalla-Banking
-noticias.juridicas.com	UT1-Bu
-juridiconline.com	UT1-Bu
-juriguide.com	UT1-Bu
-jurimodel.com	UT1-Bu
-juris-classeur.com	UT1-Bu
-juris-connect.com	UT1-Bu
-juris-nd.com	UT1-Bu
-jurisexpert.com	UT1-Bu
-jurispublic.com	UT1-Bu
-jurisques.com	UT1-Bu
-juristudiant.com	UT1-Bu
-juritel.com	UT1-Bu
-juritravail.com	UT1-Bu
 justcallhome.com	Shalla-Banking, UT1-Banking
-europe.justlanded.com	UT1-Bu
 jvbonline.com	Shalla-Banking, UT1-Banking
 jwpcdn.com	Notracking-Whitelist
 jwplatform.com	Notracking-Whitelist
@@ -2882,10 +2371,8 @@ jyskebank.com	Shalla-Banking
 kabulbank.com	Shalla-Banking
 cfvod.kaltura.com	Notracking-Whitelist
 kansasstatebank.com	Shalla-Banking
-kapstages.com	UT1-Bu
 karafarinbank.com	Shalla-Banking
 karnatakabank.com	Shalla-Banking
-kartoo.com	UT1-Bu
 kasbank.com	Shalla-Banking
 online.kasikornbankgroup.com	Adguard-Banks
 kasnetbank.com	Shalla-Banking
@@ -2894,8 +2381,6 @@ kbc.com	Shalla-Banking
 kbc123.com	Shalla-Banking
 kbstar.com	Shalla-Banking
 correqts.kedrbank.com	Adguard-Banks
-keepschool.com	UT1-Bu
-keljob.com	UT1-Bu
 kennebunksavings.com	Shalla-Banking, UT1-Banking
 kennettnationalbank.com	Shalla-Banking, UT1-Banking
 kermitstate.com	Shalla-Banking
@@ -2913,12 +2398,9 @@ kipling90.com	Shalla-Banking
 kishbank.com	Shalla-Banking, UT1-Banking
 kitsapbank.com	Shalla-Banking, UT1-Banking
 klikbca.com	Shalla-Banking
-kluwercompetitionlaw.com	UT1-Bu
-kluweronline.com	UT1-Bu
 knbt.com	Shalla-Banking, UT1-Banking
 kokomopostofficecu.com	Shalla-Banking
 kombank.com	Shalla-Banking
-kompass.com	UT1-Bu
 kookmin-bank.com	Shalla-Banking
 secure.koopbank.com	Adguard-Banks
 kotak.com	Shalla-Banking
@@ -2928,17 +2410,8 @@ krpartner.com	Shalla-Banking
 ksbankers.com	Shalla-Banking, UT1-Banking
 ktbnetbank.com	Shalla-Banking
 kybanks.com	Shalla-Banking
-la-croix.com	UT1-Bu
-la-lettre.com	UT1-Bu
-la-razon.com	UT1-Bu
-la-science-politique.com	UT1-Bu
 labarchitects.com	Notracking-Whitelist
-lacitoyennete.com	UT1-Bu
-ladepeche.com	UT1-Bu
-lafarge.com	UT1-Bu
 lafondazione.com	Shalla-Banking
-lagaronne.com	UT1-Bu
-lagazettedescommunes.com	UT1-Bu
 lakeareabank.com	Shalla-Banking, UT1-Banking
 lakecitybank.com	Shalla-Banking
 lakeelmobank.com	Shalla-Banking, UT1-Banking
@@ -2946,30 +2419,18 @@ lakeforestbank.com	Shalla-Banking, UT1-Banking
 lakelandbank.com	Shalla-Banking
 lakesunbank.com	Shalla-Banking
 lakewoodbank.com	Shalla-Banking, UT1-Banking
-lamy-lexel.com	UT1-Bu
 lanb.com	Shalla-Banking
 landbank.com	Shalla-Banking
 landmarkbank.com	Shalla-Banking
 landmarkbanks.com	Shalla-Banking
 lanef.com	UT1-Banking
-laportedudroit.com	UT1-Bu
-laprofessioncomptable.com	UT1-Bu
-editions.larcier.com	UT1-Bu
 larrainvial.com	Shalla-Banking
 lasallebank.com	Shalla-Banking, UT1-Banking
-lasemaineafricaine.com	UT1-Bu
 lastpass.com	Chris-White
-latimes.com	UT1-Bu, Notracking-Whitelist
-latinreporters.com	UT1-Bu
+latimes.com	Notracking-Whitelist
 laurelsb.com	Shalla-Banking
 laurentianbank.com	Shalla-Banking, UT1-Banking
-law.com	UT1-Bu
-law-lex.com	UT1-Bu
-lawinfrance.com	UT1-Bu
-lawmall.com	UT1-Bu
-lawperationnel.com	UT1-Bu
 lawrencesavings.com	Shalla-Banking, UT1-Banking
-lawyersweeklyusa.com	UT1-Bu
 lbpweaccess.com	Shalla-Banking
 lbt.com	Shalla-Banking, UT1-Banking
 lbtbank.com	Shalla-Banking, UT1-Banking
@@ -2977,63 +2438,17 @@ lbtc.com	Shalla-Banking, UT1-Banking
 lcfederal.com	Shalla-Banking
 lchbank.com	Shalla-Banking
 lcl.com	UT1-Banking
-le-dictionnaire.com	UT1-Bu
-le-smic.com	UT1-Bu
-le114.com	UT1-Bu
-lebde.com	UT1-Bu
 leboutique.com	Adguard-Banks
-lecavalierbleu.com	UT1-Bu
 lechbank.com	Shalla-Banking
-lechotouristique.com	UT1-Bu
-leconomiste.com	UT1-Bu
-lecturenow.com	UT1-Bu
-ledevoir.com	UT1-Bu
-ledroitadministratif.com	UT1-Bu
-ledroitpublic.com	UT1-Bu
 ledyardbank.com	Shalla-Banking, UT1-Banking
 leesportbank.com	Shalla-Banking
-legicite.com	UT1-Bu
-legifrance.com	UT1-Bu
-legitravail.com	UT1-Bu
-leguidetoulousepratique.com	UT1-Bu
-lejournal-hebdo.com	UT1-Bu
-lemoci.com	UT1-Bu
-lemoniteur-expert.com	UT1-Bu
-lentreprise.com	UT1-Bu
 leomoney.com	Adguard-Banks
-lepetitjournal.com	UT1-Bu
-lepoint-etudiants.com	UT1-Bu
-leporzou-associes.com	UT1-Bu
-lepublieur.com	UT1-Bu
-lerevenu.com	UT1-Bu
-lerucher.com	UT1-Bu
-les-citations.com	UT1-Bu
-lesclesdelabanque.com	UT1-Bu
-lesechos.com	UT1-Bu
-lesjuristes.com	UT1-Bu
-lettres-utiles.com	UT1-Bu
-lettresdudroit.com	UT1-Bu
+bourse.lerevenu.com	UT1-Financial
 leu.com	Shalla-Banking
-lewebpedagogique.com	UT1-Bu
-lex-publica.com	UT1-Bu
-lexicool.com	UT1-Bu
-lexilogos.com	UT1-Bu
-lexisnexis.com	UT1-Bu
-lexisocial.com	UT1-Bu
-lexpansion.com	UT1-Bu
-lexpertnet.com	UT1-Bu
-lexposia.com	UT1-Bu
-lexpressmada.com	UT1-Bu
-lextalleyrand.com	UT1-Bu
-lextenso.com	UT1-Bu
 lfg.com	Shalla-Banking
 lgbbank.com	Adguard-Banks
 lgt.com	Shalla-Banking
 lgt-bank.com	Shalla-Banking
-liaisons-rh.com	UT1-Bu
-liaisons-sociales.com	UT1-Bu
-liberation.com	UT1-Bu
-libertespubliques.com	UT1-Bu
 liberty-bank.com	Shalla-Banking, UT1-Banking
 libertybankofutah.com	Shalla-Banking, UT1-Banking
 libertybk.com	Shalla-Banking
@@ -3048,9 +2463,6 @@ lifehacker.com	Notracking-Whitelist
 lincolnbanknc.com	Shalla-Banking
 linkedin.com	Chris-White, Notracking-Whitelist
 linolakesstatebank.com	Shalla-Banking, UT1-Banking
-lintelligent.com	UT1-Bu
-encyclopedie.linternaute.com	UT1-Bu
-lipperweb.com	UT1-Bu
 liqpay.com	Adguard-Banks
 list-manage.com	Notracking-Whitelist
 list-manage1.com	Notracking-Whitelist
@@ -3060,19 +2472,13 @@ littleriverbank.com	Shalla-Banking, UT1-Banking
 live.com	Notracking-Whitelist
 livejournal.com	Notracking-Whitelist
 livestream.com	Notracking-Whitelist
-livre-rare-book.com	UT1-Bu
 llewellyn-edison.com	Shalla-Banking
-llm-guide.com	UT1-Bu
 lloydsbank.com	Shalla-Banking, Adguard-Banks
 lloydstsb.com	Shalla-Banking
 lloydstsbtransfer.com	Shalla-Banking
-lmde.com	UT1-Bu
 lmla.com	Shalla-Banking, UT1-Banking
-lmtavocats.com	UT1-Bu
 lnb.com	Shalla-Banking
 loan-market-assoc.com	Shalla-Banking
-loanconnector.com	UT1-Bu
-loanpricing.com	UT1-Bu
 localoklahoma.com	Shalla-Banking
 lodh.com	Shalla-Banking
 logansportsavings.com	Shalla-Banking
@@ -3089,22 +2495,17 @@ lsbank.com	Shalla-Banking
 lsbbancshares.com	Shalla-Banking
 lsbdirect.com	Shalla-Banking, UT1-Banking
 lsbnc.com	Shalla-Banking, UT1-Banking
-ludovia.com	UT1-Bu
 lutherbsavings.com	Shalla-Banking, UT1-Banking
-luttes-etudiantes.com	UT1-Bu
 finance.luxweb.com	Shalla-Banking, UT1-Banking
 lvbank.com	Shalla-Banking, UT1-Banking
 lyndonbank.com	Shalla-Banking
-lynxlex.com	UT1-Bu
 lyonsreg.com	Shalla-Banking
 lzbank.com	Shalla-Banking
 lzo.com	Shalla-Banking, Adguard-Banks
 maconbank.com	Shalla-Banking, UT1-Banking
 macromedia.com	UT1-Whitelist, Notracking-Whitelist
-madagascarnews.com	UT1-Bu
 madison-bank.com	Shalla-Banking
 mafbancorp.com	Shalla-Banking
-magazine-decideurs.com	UT1-Bu
 magbank.com	Shalla-Banking, UT1-Banking
 maharashtrabank.com	Shalla-Banking
 mahaskabank.com	Shalla-Banking, UT1-Banking
@@ -3119,9 +2520,6 @@ malayanbank.com	Shalla-Banking
 malwagraminbank.com	Shalla-Banking
 malwaredomainlist.com	Chris-White
 malwaredomains.com	Chris-White
-management-international.com	UT1-Bu
-manageris.com	UT1-Bu
-managingip.com	UT1-Bu
 manasquanbank.com	Shalla-Banking, UT1-Banking
 mandmbank.com	Shalla-Banking, UT1-Banking
 mandtbank.com	Shalla-Banking, UT1-Banking
@@ -3133,7 +2531,6 @@ mapquest.com	Notracking-Whitelist
 maritimebank.com	Adguard-Banks
 maritimesavings.com	Shalla-Banking
 markaz.com	Shalla-Banking
-marketlineinfo.com	UT1-Bu
 marketplacebank.com	Shalla-Banking
 marketwatch.com	Notracking-Whitelist
 markitcdn.com	Notracking-Whitelist
@@ -3144,15 +2541,10 @@ marshallsavings.com	Shalla-Banking
 martinmaurel.com	Shalla-Banking
 mascomabank.com	Shalla-Banking, UT1-Banking
 mashable.com	Notracking-Whitelist
-mass-medias.com	UT1-Bu
 massbank.com	Shalla-Banking
 massmba.com	Shalla-Banking, UT1-Banking
-master-ggrc.com	UT1-Bu
-master-igsi.com	UT1-Bu
 masterpass.com	Adguard-Banks
-maths-forum.com	UT1-Bu
 matrix-capital.com	Shalla-Banking
-maxicours.com	UT1-Bu
 maybank2u.com	Shalla-Banking
 mazobank.com	Shalla-Banking, UT1-Banking
 mazonstatebank.com	Shalla-Banking, UT1-Banking
@@ -3166,16 +2558,14 @@ mblbd.com	Shalla-Banking
 mbna.com	Shalla-Banking, UT1-Banking
 mbnainternational.com	Shalla-Banking
 mbvt.com	Shalla-Banking, UT1-Banking
-mcafee.com	UT1-Bu
+avts.mcafee.com	Chris-White
 mcb-bank.com	Shalla-Banking, UT1-Banking
 mcintoshbancshares.com	Shalla-Banking, UT1-Banking
 mcsandl.com	Shalla-Banking
 mcsbnh.com	Shalla-Banking, UT1-Banking
 mdbank.com	Shalla-Banking
 mdbankers.com	Shalla-Banking, UT1-Banking
-lepoint.mdgms.com	UT1-Bu
 e-plat.mdmbank.com	Adguard-Banks
-mdpi.com	UT1-Bu
 meabank.com	Adguard-Banks
 mecb.com	Shalla-Banking, UT1-Banking
 mechanicsbank.com	Shalla-Banking, UT1-Banking
@@ -3183,36 +2573,27 @@ mechanicssavings.com	Shalla-Banking
 mechbank.com	Shalla-Banking, UT1-Banking
 medfordcoopbank.com	Shalla-Banking
 media-amazon.com	Chris-White
-media-server.com	UT1-Bu
-media3pub.com	UT1-Bu
-mediadico.com	UT1-Bu
-mediarh.com	UT1-Bu
-mediatico.com	UT1-Bu
 medium.com	Notracking-Whitelist
 meespierson.com	Shalla-Banking
 meetup.com	Notracking-Whitelist
 meib.com	Shalla-Banking, UT1-Banking
-meilleurs-masters.com	UT1-Bu
 meinlbank.com	Shalla-Banking, UT1-Banking
 meizu.com	Notracking-Whitelist
 mejprombank-nl.com	Shalla-Banking
 mellon.com	Shalla-Banking
 melrosecoop.com	Shalla-Banking, UT1-Banking
-meltwaternews.com	UT1-Bu, UT1-Whitelist
-memoireonline.com	UT1-Bu
+meltwaternews.com	UT1-Whitelist
 mercantilebk.com	Shalla-Banking, UT1-Banking
 merchantsbankvt.com	Shalla-Banking
 merrilledge.com	Chris-White
 merrillmerchants.com	Shalla-Banking, UT1-Banking
 messagelabs.com	Chris-White
 metallinvestbank.com	Shalla-Banking
-metapress.com	UT1-Bu
 metbank.com	Shalla-Banking, UT1-Banking
 metcalfbank.com	Shalla-Banking, UT1-Banking
 metrobank-na.com	Shalla-Banking
 metrobankdirect.com	Shalla-Banking
 metrobanker.com	Shalla-Banking
-metropolehaiti.com	UT1-Bu
 metropolitanbank.com	Shalla-Banking, UT1-Banking
 metuchensavingsbank.com	Shalla-Banking, UT1-Banking
 metzler.com	Shalla-Banking, Adguard-Banks
@@ -3223,9 +2604,8 @@ mfsbank.com	Shalla-Banking
 mibank.com	Shalla-Banking, UT1-Banking
 mibankers.com	Shalla-Banking, UT1-Banking
 michigannational.com	Shalla-Banking
-microsoft.com	UT1-Bu, Notracking-Whitelist
-midinet.com	UT1-Bu, UT1-Whitelist
-midipyr.com	UT1-Bu
+microsoft.com	Notracking-Whitelist
+midinet.com	UT1-Whitelist
 midpennbank.com	Shalla-Banking, UT1-Banking
 midsouthbank.com	Shalla-Banking
 midstatebank.com	Shalla-Banking, UT1-Banking
@@ -3252,18 +2632,12 @@ mmbank.com	Shalla-Banking, UT1-Banking
 mnb1.com	Shalla-Banking, UT1-Banking
 mnbla.com	Shalla-Banking
 mobankers.com	Shalla-Banking, UT1-Banking
-modele-lettre.com	UT1-Bu
 acs2.3ds.modirum.com	Adguard-Banks
 acs2.rosbank.modirum.com	Adguard-Banks
 mohela.com	Adguard-Banks
 monaco-privatebanking.com	Shalla-Banking, UT1-Banking
-moncv.com	UT1-Bu
-mondediplo.com	UT1-Bu
-mondial-finance.com	UT1-Bu
-vatican.mondosearch.com	UT1-Bu
 mondseeland.com	Shalla-Banking
 global.moneygram.com	Adguard-Banks
-coursiejmontpellier.blog.mongenie.com	UT1-Bu
 monitorbank.com	Shalla-Banking, UT1-Banking
 mononabank.com	Shalla-Banking, UT1-Banking
 monroecountybank.com	Shalla-Banking
@@ -3283,17 +2657,14 @@ ms-bank.com	Shalla-Banking, UT1-Banking
 msbankers.com	Shalla-Banking, UT1-Banking
 msbonline.com	Shalla-Banking, UT1-Banking
 msftconnecttest.com	Chris-White
-msftncsi.com	Notracking-Whitelist
+msftncsi.com	UT1-Whitelist, Notracking-Whitelist
 mslandbank.com	Shalla-Banking, UT1-Banking
 msn.com	Notracking-Whitelist
 msnb.com	Shalla-Banking
 msnbc.com	Chris-White
-mstcf.com	UT1-Bu
 mtmckinleybank.com	Shalla-Banking, UT1-Banking
 mtochka.com	Adguard-Banks
 mtv.com	Notracking-Whitelist
-multiconcours.com	UT1-Bu
-murielle-cahen.com	UT1-Bu
 mutualsavings.com	Shalla-Banking
 mvbankonline.com	Shalla-Banking, UT1-Banking
 mvsb.com	Shalla-Banking, UT1-Banking
@@ -3306,7 +2677,6 @@ myhomefed.com	Shalla-Banking, UT1-Banking
 myindependence.com	Shalla-Banking
 myinvestorsbank.com	Shalla-Banking
 myirwinbank.com	Shalla-Banking
-environnement.mylinea.com	UT1-Bu
 mymerrill.com	Adguard-Banks
 myprovident.com	Shalla-Banking, UT1-Banking
 myshopify.com	Notracking-Whitelist
@@ -3318,14 +2688,11 @@ myvoba.com	Shalla-Banking, Adguard-Banks
 mzstatic.com	Chris-White
 n26.com	Adguard-Banks
 nabgroup.com	Shalla-Banking
-nai.com	UT1-Bu
 namebright.com	Notracking-Whitelist
 namejet.com	Notracking-Whitelist
-nantes-emplois.com	UT1-Bu
 nantucketbank.com	Shalla-Banking
 narvar.com	Chris-White
 nasb.com	Shalla-Banking, UT1-Banking
-academic.nasdaq.com	UT1-Bu
 natbankmal.com	Shalla-Banking, UT1-Banking
 national-city.com	Shalla-Banking, UT1-Banking
 nationalbanksc.com	Shalla-Banking, UT1-Banking
@@ -3337,7 +2704,7 @@ nationalinternetbank.com	Shalla-Banking
 nationsbank.com	Shalla-Banking
 natlbank.com	Shalla-Banking, UT1-Banking
 natpennbank.com	Shalla-Banking
-nature.com	UT1-Bu, Notracking-Whitelist
+nature.com	Notracking-Whitelist
 naver.com	Notracking-Whitelist
 nbank.com	Shalla-Banking
 nbbank.com	Shalla-Banking, UT1-Banking
@@ -3359,20 +2726,17 @@ nbtbank.com	Shalla-Banking
 nbtdirect.com	Shalla-Banking, UT1-Banking
 nbwc.com	Shalla-Banking, UT1-Banking
 ncbcayman.com	Shalla-Banking, UT1-Banking
-ncomputing.com	UT1-Bu
 nctrust.com	Shalla-Banking
 ndba.com	Shalla-Banking, UT1-Banking
 portal.nefteprom.com	Adguard-Banks
 nespresso.com	Chris-White
 nest.com	Chris-White
-net-iris.com	UT1-Bu
 netbank.com	Shalla-Banking, UT1-Banking
 netbankinc.com	Shalla-Banking
 netdsb.com	Shalla-Banking, UT1-Banking
 neteller.com	Adguard-Banks
 netgear.com	Chris-White
 netlify.com	Notracking-Whitelist
-edgefcs.netmedia-server.com	UT1-Bu
 netpnb.com	Shalla-Banking, Adguard-Banks
 netteller.com	Adguard-Banks
 networksolutions.com	Notracking-Whitelist
@@ -3383,7 +2747,7 @@ newnancowetabank.com	Shalla-Banking
 newsouthfederal.com	Shalla-Banking, UT1-Banking
 newsweek.com	Notracking-Whitelist
 newulmbank.com	Shalla-Banking
-newyorker.com	UT1-Bu, Notracking-Whitelist
+newyorker.com	Notracking-Whitelist
 nfrcom.com	Shalla-Banking
 nhbankers.com	Shalla-Banking, UT1-Banking
 nicbonline.com	Shalla-Banking, UT1-Banking
@@ -3391,10 +2755,8 @@ nicoletbank.com	Shalla-Banking
 nifty.com	Notracking-Whitelist
 nittanybank.com	Shalla-Banking, UT1-Banking
 njleague.com	Shalla-Banking
-aipp.iap.nl.com	UT1-Bu
 nmbank.com	Shalla-Banking, UT1-Banking
 nmbankers.com	Shalla-Banking, UT1-Banking
-nolo.com	UT1-Bu
 nordea.com	Adguard-Banks
 noriba.com	Shalla-Banking
 norrybank.com	Shalla-Banking, UT1-Banking
@@ -3417,15 +2779,12 @@ northvalleybank.com	Shalla-Banking
 northwestfederal.com	Shalla-Banking
 northwestsavingsbank.com	Shalla-Banking, UT1-Banking
 northwoodsbank.com	Shalla-Banking, UT1-Banking
-norvegiens.com	UT1-Bu
 norwest.com	Shalla-Banking
 norwoodfc.com	Shalla-Banking
-nouvelobs.com	UT1-Bu
 novabanka.com	Shalla-Banking
 novablbanka.com	Shalla-Banking
 novasavingsbank.com	Shalla-Banking
 novb.com	Shalla-Banking, UT1-Banking
-nowpublishers.com	UT1-Bu
 nsbank.com	Shalla-Banking, UT1-Banking
 nsbbank.com	Shalla-Banking, UT1-Banking
 nsbov.com	Shalla-Banking, UT1-Banking
@@ -3433,8 +2792,6 @@ nsbvt.com	Shalla-Banking, UT1-Banking
 nstarbank.com	Shalla-Banking, UT1-Banking
 ntrs.com	Shalla-Banking
 nubankinfo.com	Shalla-Banking
-numeriquepremium.com	UT1-Bu
-numilog.com	UT1-Bu
 nvbank.com	Shalla-Banking, UT1-Banking
 nvebank.com	Shalla-Banking, UT1-Banking
 nvsl.com	Shalla-Banking
@@ -3443,9 +2800,7 @@ nyba.com	Shalla-Banking, UT1-Banking
 nydailynews.com	Notracking-Whitelist
 nymag.com	Notracking-Whitelist
 nypost.com	Notracking-Whitelist
-nyse.com	UT1-Bu
-nytimes.com	UT1-Bu, Notracking-Whitelist
-o-toulouse.com	UT1-Bu
+nytimes.com	Notracking-Whitelist
 o2bancorp.com	Shalla-Banking, UT1-Banking
 oakf.com	Shalla-Banking
 oaklawnbank.com	Shalla-Banking
@@ -3454,8 +2809,6 @@ oba.com	Shalla-Banking, UT1-Banking
 obabank.com	Shalla-Banking, UT1-Banking
 obb.com	Shalla-Banking
 obcindia.com	Shalla-Banking
-objectifgrandesecoles.com	UT1-Bu
-oboulo.com	UT1-Bu
 ocbc.com	Shalla-Banking
 ocbcwhmac.com	Shalla-Banking
 oceansidebank.com	Shalla-Banking, UT1-Banking
@@ -3465,7 +2818,6 @@ office365.com	Chris-White
 offshore-bank-list.com	Shalla-Banking
 oficinadirecta.com	Shalla-Banking
 secure.ogone.com	Adguard-Banks
-ohada.com	UT1-Bu
 ohiosavings.com	Shalla-Banking, UT1-Banking
 ohiosavingsbank.com	Shalla-Banking
 secure.okpay.com	Adguard-Banks
@@ -3475,14 +2827,12 @@ oldflbank.com	Shalla-Banking
 oldnational.com	Shalla-Banking
 omahastate.com	Shalla-Banking, UT1-Banking
 omegafinancial.com	Shalla-Banking
-omnexus.com	UT1-Bu
 one.com	Notracking-Whitelist
 oneaccount.com	Adguard-Banks
 onlinebanking-ibb-ag.com	Adguard-Banks
 onlinesbi.com	Shalla-Banking, Adguard-Banks
 onlinesbm.com	Shalla-Banking
 schneiderelectric.mail.onmicrosoft.com	Chris-White
-oodoc.com	UT1-Bu
 oostburgbank.com	Shalla-Banking
 ooyala.com	Notracking-Whitelist
 opendns.com	Chris-White
@@ -3490,50 +2840,32 @@ openphish.com	Chris-White
 opera.com	Notracking-Whitelist
 api.oplata.com	Adguard-Banks
 optimumbank.com	Shalla-Banking, UT1-Banking
-optioncarriere.com	UT1-Bu
-opuscitatum.com	UT1-Bu
 oracle.com	Notracking-Whitelist
 orchardbank.com	Shalla-Banking
 oregonbankers.com	Shalla-Banking, UT1-Banking
 oregontrailbank.com	Shalla-Banking, UT1-Banking
 orgresbank.com	Shalla-Banking, UT1-Banking
-orientation.com	UT1-Bu
-orientationfinance.com	UT1-Bu
-orientations-service.com	UT1-Bu
 oschad24.com	Adguard-Banks
 oschadnybank.com	Shalla-Banking
 ossianstatebank.com	Shalla-Banking, UT1-Banking
-oumma.com	UT1-Bu
 oup.com	Notracking-Whitelist
 ourbank.com	Shalla-Banking, UT1-Banking
 outlook.com	Chris-White
 ovbc.com	Shalla-Banking
-docpostdocethno.over-blog.com	UT1-Bu
-patrickmorvan.over-blog.com	UT1-Bu
-terminal-stg-cfe.over-blog.com	UT1-Bu
-oxfordeconomics.com	UT1-Bu
-oxfordreference.com	UT1-Bu
-oxfordscholarship.com	UT1-Bu
 oysterfunds.com	Shalla-Banking
 ozarkbank.com	Shalla-Banking, UT1-Banking
 ozaukeebank.com	Shalla-Banking, UT1-Banking
 ozkmtnbank.com	Shalla-Banking, UT1-Banking
-p-wilhelm.com	UT1-Bu
 pabanker.com	Shalla-Banking, UT1-Banking
 pabbankshares.com	Shalla-Banking
 pacbank.com	Shalla-Banking
-kn.pacbell.com	UT1-Bu
 pacesetter-bank.com	Shalla-Banking
 pacifictrustbank.com	Shalla-Banking, UT1-Banking
 checkout.paddle.com	Adguard-Banks
-pagesdedoctrine.com	UT1-Bu
 pakbankers.com	Shalla-Banking
-palgraveconnect.com	UT1-Bu
 palmettobank.com	Shalla-Banking, UT1-Banking
-panapress.com	UT1-Bu
 paragonbankmn.com	Shalla-Banking, UT1-Banking
 parallels.com	Notracking-Whitelist
-parisetudiant.com	UT1-Bu
 parishnational.com	Shalla-Banking
 trade.paritem.com	Adguard-Banks
 parkbank.com	Shalla-Banking, UT1-Banking
@@ -3543,14 +2875,11 @@ parknationalbank.com	Shalla-Banking, UT1-Banking
 parkvale.com	Shalla-Banking
 parkviewfederal.com	Shalla-Banking, UT1-Banking
 partnersbank.com	Shalla-Banking, UT1-Banking
-passant-ordinaire.com	UT1-Bu
-passerelle-esc.com	UT1-Bu
 passumpsicbank.com	Shalla-Banking, UT1-Banking
 pastatebank.com	Shalla-Banking, UT1-Banking
 pastebin.com	Notracking-Whitelist
 pathfinderbank.com	Shalla-Banking, UT1-Banking
 patriotbank.com	Shalla-Banking
-paybox.com	UT1-Bu
 payeer.com	Adguard-Banks
 secure.payler.com	Adguard-Banks
 rbrem.paylynxs.com	Shalla-Banking
@@ -3594,23 +2923,16 @@ peoplesnationalbank.com	Shalla-Banking, UT1-Banking
 perencanakeuangan.com	Shalla-Banking
 nytimes.perfectmarket.com	EasyList-White
 performgroup.com	Notracking-Whitelist
-peruzzetto.com	UT1-Bu
 query.petametrics.com	EasyPrivacy-White
-petites-affiches.com	UT1-Bu
-petites-affiches-64.com	UT1-Bu
 pffbank.com	Shalla-Banking
 pfsb.com	Shalla-Banking, UT1-Banking
 phenix-girard.com	Shalla-Banking, UT1-Banking
-philippe-folliot.com	UT1-Bu
-philo52.com	UT1-Bu
 data.phishtank.com	Chris-White
 phncdn.com	Notracking-Whitelist
 phoenixsavings.com	Shalla-Banking, UT1-Banking
 phonearena.com	Notracking-Whitelist
 photobucket.com	Notracking-Whitelist
-photographie.com	UT1-Bu
 phpbb.com	Notracking-Whitelist
-pickdoc.com	UT1-Bu
 pictet.com	Shalla-Banking, Adguard-Banks
 piedmontfederal.com	Shalla-Banking, UT1-Banking
 pinecitybank.com	Shalla-Banking
@@ -3625,8 +2947,6 @@ piraeusbank.com	Adguard-Banks
 piscataqua.com	Shalla-Banking, UT1-Banking
 pittsfieldco-op.com	Shalla-Banking, UT1-Banking
 placeholder.com	Notracking-Whitelist
-placement-uk.com	UT1-Bu
-placeojeunes.com	UT1-Bu
 planters-bank.com	Shalla-Banking, UT1-Banking
 plaqbank.com	Shalla-Banking, UT1-Banking
 plategka.com	Adguard-Banks
@@ -3642,30 +2962,21 @@ pnc.com	Shalla-Banking
 pncbank.com	Shalla-Banking, UT1-Banking
 pointebank.com	Shalla-Banking, UT1-Banking
 politico.com	Notracking-Whitelist
-politics1.com	UT1-Bu
-politique-africaine.com	UT1-Bu
-politiqueinternationale.com	UT1-Bu
 popularenlinea.com	Shalla-Banking
 popularinc.com	Shalla-Banking
 mohavestbank.portalvault.com	Shalla-Banking
 bank.postil.com	Adguard-Banks
 potomacbank.com	Shalla-Banking
-pourlascience.com	UT1-Bu
 powercorp.com	Shalla-Banking
 ppbank.com	Shalla-Banking
 pr0gramm.com	Notracking-Whitelist
 prattsletter.com	Shalla-Banking
-prcisd.com	UT1-Bu
-pre-barreau.com	UT1-Bu
 premierbank.com	Shalla-Banking
 premierbanker.com	Shalla-Banking
 premierbanks.com	Shalla-Banking
 premierbnk.com	Shalla-Banking
-prepaweb.com	UT1-Bu
 presidential.com	Shalla-Banking, UT1-Banking
 presscustomizr.com	Notracking-Whitelist
-presse-news.com	UT1-Bu
-presseci.com	UT1-Bu
 prestashop.com	Notracking-Whitelist
 prime-bank.com	Shalla-Banking
 principal.com	Shalla-Banking, UT1-Banking
@@ -3679,14 +2990,10 @@ privatinvestbank.com	Shalla-Banking
 prnewswire.com	Notracking-Whitelist
 pro-strategie.com	Shalla-Banking
 profinium.com	Shalla-Banking, UT1-Banking
-progema-info.com	UT1-Bu
-progisphere.com	UT1-Bu
 progressbank.com	Shalla-Banking
 progressiveozarkbank.com	Shalla-Banking
-proquest.com	UT1-Bu
 prosperitybanktx.com	Shalla-Banking, UT1-Banking
 provcombank.com	Shalla-Banking
-proverbes-citations.com	UT1-Bu
 providencejournal.com	Chris-White
 provident-financial.com	Shalla-Banking
 providentbanking.com	Shalla-Banking
@@ -3700,14 +3007,8 @@ psbwesthope.com	Shalla-Banking
 ibank2.pskb.com	Adguard-Banks
 psmla.com	Shalla-Banking, UT1-Banking
 psychologytoday.com	Notracking-Whitelist
-ptidico.com	UT1-Bu
-ptolemee.com	UT1-Bu
 ptsbank.com	Shalla-Banking, UT1-Banking
-pubgouv.com	UT1-Bu
-publibuilder.com	UT1-Bu
-public-trust.com	UT1-Bu
 pueblobankandtrust.com	Shalla-Banking, UT1-Banking
-puf.com	UT1-Bu
 pulaskibankstl.com	Shalla-Banking
 pwbank.com	Shalla-Banking, UT1-Banking
 qatarbank.com	Shalla-Banking, UT1-Banking
@@ -3721,15 +3022,14 @@ qnbfinansbank.com	Adguard-Banks
 qq.com	Notracking-Whitelist
 quaintoak.com	Shalla-Banking, UT1-Banking
 qweb.quercia.com	Adguard-Banks
-qwam.com	UT1-Bu
+qwant.com	UT1-Whitelist
 qzccbank.com	Shalla-Banking
-rabac.com	UT1-Bu
 rabobank.com	Shalla-Banking, UT1-Banking
 rackcdn.com	Notracking-Whitelist
 moj.raiffeisenpolbank.com	Adguard-Banks
 rainierpac.com	Shalla-Banking
 rankia.com	Shalla-Banking
-rapportdestage.com	UT1-Bu
+cdn.ravenjs.com	Notracking-Whitelist
 rbc.com	Shalla-Banking
 rbcroyalbank.com	Shalla-Banking, Adguard-Banks
 rbs.com	Shalla-Banking
@@ -3741,19 +3041,13 @@ rcbank.com	Shalla-Banking
 rcbc.com	Shalla-Banking
 rcbcsavings.com	Shalla-Banking
 rcollard.com	Notracking-Whitelist
-reacteur.com	UT1-Bu
 rebelmouse.com	Notracking-Whitelist
-recrutement-sncf.com	UT1-Bu
 redcent.com	Shalla-Banking
 reddit.com	Notracking-Whitelist
-reed-elsevier.com	UT1-Bu
 reelfootbank.com	Shalla-Banking
 regal-bank.com	Shalla-Banking
-regard-est.com	UT1-Bu
 regentsbank.com	Shalla-Banking, UT1-Banking
 regions.com	Shalla-Banking, UT1-Banking
-regionsjob.com	UT1-Bu
-reinfo-israel.com	UT1-Bu
 reliabank.com	Shalla-Banking, UT1-Banking
 remadaro.com	Shalla-Banking
 remla.com	Shalla-Banking
@@ -3761,19 +3055,11 @@ republicbancorp.com	Shalla-Banking, UT1-Banking
 republicbank.com	Shalla-Banking, UT1-Banking
 republicbankfl.com	Shalla-Banking
 resourcebankonline.com	Shalla-Banking
-ressources-web.com	UT1-Bu
-reuters.com	UT1-Bu, Notracking-Whitelist
-reutersinsider.com	UT1-Bu
-reviensjospin.com	UT1-Bu
-revue-espaces.com	UT1-Bu
-revue-lebanquet.com	UT1-Bu
-revue-libres.com	UT1-Bu
-reynier.com	UT1-Bu
+reuters.com	Notracking-Whitelist
 rfcu.com	Adguard-Banks
 rgonline.com	Shalla-Banking
 rhbank.com	Shalla-Banking
 rhbbank.com	Shalla-Banking
-rhjob.com	UT1-Bu
 ib.ribbank.com	Adguard-Banks
 ibank.ricbank.com	Adguard-Banks
 ibankr.ricbank.com	Adguard-Banks
@@ -3786,9 +3072,9 @@ riverviewbank.com	Shalla-Banking, UT1-Banking
 rivolibank.com	Shalla-Banking
 rjbank.com	Shalla-Banking, UT1-Banking
 rmbank.com	Shalla-Banking, UT1-Banking
-robertniles.com	UT1-Bu
 robinhood.com	Adguard-Banks
 rocklandtrust.com	Shalla-Banking, UT1-Banking
+prod.telemetry.ros.rockstargames.com	Notracking-Whitelist
 rodovidbank.com	Shalla-Banking
 rolfestatebank.com	Shalla-Banking, UT1-Banking
 rollingstone.com	Notracking-Whitelist
@@ -3801,6 +3087,7 @@ royalbank.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 royalbankpa.com	Shalla-Banking
 track2.royalmail.com	EasyPrivacy-White
 royaloaksbank.com	Shalla-Banking
+widget-cdn.rpxnow.com	Notracking-Whitelist
 rrsb.com	Shalla-Banking, UT1-Banking
 ruralvia.com	UT1-Banking
 rusnarbank.com	Adguard-Banks
@@ -3814,17 +3101,13 @@ sabadellatlantico.com	UT1-Banking
 saderbank.com	Shalla-Banking
 saferpay.com	Adguard-Banks
 safewayselectbank.com	Shalla-Banking
-sagepub.com	UT1-Bu, Notracking-Whitelist
+sagepub.com	Notracking-Whitelist
 salemfive.com	Shalla-Banking
-salesforce.com	UT1-Bu
-salesforceliveagent.com	UT1-Bu
 samba.com	Shalla-Banking
 samortgagebankers.com	Shalla-Banking
 samsung.com	Notracking-Whitelist
 sandridgebank.com	Shalla-Banking
 sangli-bank.com	Shalla-Banking
-sangonet.com	UT1-Bu
-sanofi-aventis.com	UT1-Bu
 sanpaolo.com	Shalla-Banking
 sanpaolobancodinapoli.com	Shalla-Banking
 santander-serfin.com	Shalla-Banking
@@ -3832,11 +3115,9 @@ santanderbank.com	Adguard-Banks
 saradar.com	Shalla-Banking
 sarasin.com	Shalla-Banking, UT1-Banking
 saraswatbank.com	Shalla-Banking, UT1-Banking
-sarbanes-oxley.com	UT1-Bu
-sas.com	UT1-Bu
+ec-ns.sascdn.com	Notracking-Whitelist
 gws.sauberbank.com	Adguard-Banks
 savingsinstitute.com	Shalla-Banking
-saycocorporativo.com	UT1-Bu
 dove.saymedia.com	EasyList-White
 sbankonline.com	Shalla-Banking, UT1-Banking
 sbbjbank.com	Shalla-Banking, UT1-Banking
@@ -3847,28 +3128,23 @@ sbiepay.com	Adguard-Banks
 sbijapan.com	Shalla-Banking, UT1-Banking
 sbmct.com	Shalla-Banking
 sbr.com	Shalla-Banking, UT1-Banking
-sbs-organisation.com	UT1-Bu
 sbsbank.com	Shalla-Banking
 sbsu.com	Shalla-Banking, UT1-Banking
 sc.com	Shalla-Banking
-scarabee.com	UT1-Bu
 scb-bc.com	Shalla-Banking
 scbam.com	Shalla-Banking
 scbandt.com	Shalla-Banking
 schneider-electric.com	Chris-White
-scholarvox.com	UT1-Bu
 schwab.com	Adguard-Banks
 scibank.com	Shalla-Banking
 sciencedaily.com	Notracking-Whitelist
-sciencedirect.com	UT1-Bu, Notracking-Whitelist
-scienceshumaines.com	UT1-Bu
+sciencedirect.com	Notracking-Whitelist
 scientificamerican.com	Notracking-Whitelist
-hub.sciverse.com	UT1-Bu
 scnb.com	Shalla-Banking, UT1-Banking
 scnbank.com	Shalla-Banking, UT1-Banking
 scotiabank.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 scotiabankinverlat.com	Shalla-Banking
-scribd.com	UT1-Bu, Notracking-Whitelist
+scribd.com	Notracking-Whitelist
 scrippsbank.com	Shalla-Banking
 scsalliance.com	Shalla-Banking
 sdba.com	Shalla-Banking
@@ -3888,15 +3164,9 @@ securityfirst.com	Shalla-Banking
 securitysbank.com	Shalla-Banking, UT1-Banking
 sedo.com	Notracking-Whitelist
 info.seek.com	Notracking-Whitelist
-segap.com	UT1-Bu
 secure4.segpay.com	Adguard-Banks
 selftrade.com	Shalla-Banking
 senecafederal.com	Shalla-Banking, UT1-Banking
-senegalaisement.com	UT1-Bu
-dictionary.sensagent.com	UT1-Bu
-dictionnaire.sensagent.com	UT1-Bu
-serdi-fr.com	UT1-Bu
-serialssolutions.com	UT1-Bu
 settlersbank.com	Shalla-Banking, UT1-Banking
 sevenforums.com	Notracking-Whitelist
 severnbank.com	Shalla-Banking
@@ -3904,10 +3174,8 @@ seviercobank.com	Shalla-Banking, UT1-Banking
 sex1950.com	UT1-Financial
 sfgate.com	Notracking-Whitelist
 sfnb.com	Shalla-Banking
-sharelatex.com	UT1-Bu
 shelllakestatebank.com	Shalla-Banking, UT1-Banking
 sherburnestatebank.com	Shalla-Banking, UT1-Banking
-sherdog.com	UT1-Bu
 sheshunoff.com	Shalla-Banking
 shinhanbank.com	Shalla-Banking
 kz.shinhanglobal.com	Adguard-Banks
@@ -3916,14 +3184,12 @@ shorebank.com	Shalla-Banking, UT1-Banking
 shorebankcorp.com	Shalla-Banking, UT1-Banking
 shorecommunitybank.com	Shalla-Banking, UT1-Banking
 shorelinebank.com	Shalla-Banking
-siam-toulouse.com	UT1-Bu, UT1-Whitelist
+siam-toulouse.com	UT1-Whitelist
 cb1.sichbank.com	Adguard-Banks
 sidbi.com	Shalla-Banking
-silverplatter.com	UT1-Bu
 simmonsfirst.com	Shalla-Banking, UT1-Banking
 simsburybank.com	Shalla-Banking
 static.siteheart.com	Adguard-Banks
-criseetdroit.sitew.com	UT1-Bu
 sixrivers.com	Shalla-Banking, UT1-Banking
 sjbank.com	Shalla-Banking
 sjnb.com	Shalla-Banking
@@ -3939,17 +3205,12 @@ slate.com	Notracking-Whitelist
 sloveniansavings.com	Shalla-Banking, UT1-Banking
 smartcomparisons.com	UT1-Financial
 smbonline.com	Shalla-Banking, UT1-Banking
-smithbarney.com	UT1-Bu
 smugmug.com	Notracking-Whitelist
 snbenid.com	Shalla-Banking, UT1-Banking
 snbonline.com	Shalla-Banking
-sncf.com	UT1-Bu, UT1-Whitelist
-encyclopedie-fr.snyke.com	UT1-Bu
-socgen.com	Shalla-Banking, UT1-Bu
+sncf.com	UT1-Whitelist
+socgen.com	Shalla-Banking
 socgenyu.com	Shalla-Banking
-social-online.com	UT1-Bu
-societe.com	UT1-Bu
-mathitude.societeg.com	UT1-Bu
 societegenerale.com	Shalla-Banking, Adguard-Banks
 sofitasa.com	Shalla-Banking
 static.reverse.softlayer.com	Chris-White
@@ -3977,11 +3238,8 @@ sparkasse-bank-malta.com	Shalla-Banking
 sparkassemuenchen.com	Shalla-Banking
 spencersavingsloans.com	Shalla-Banking, UT1-Banking
 spkbz.com	Shalla-Banking
-sportu-toulouse.com	UT1-Bu
 spotify.com	Chris-White, Notracking-Whitelist
-springer.com	UT1-Bu, Notracking-Whitelist
-springerlink.com	UT1-Bu
-springeronline.com	UT1-Bu
+springer.com	Notracking-Whitelist
 squarespace.com	Chris-White, Notracking-Whitelist
 ssbia.com	Shalla-Banking, UT1-Banking
 ssbnd.com	Shalla-Banking, UT1-Banking
@@ -3990,7 +3248,6 @@ ssbsheldoniowa.com	Shalla-Banking
 ssbwa.com	Shalla-Banking, UT1-Banking
 ssl-images-amazon.com	Chris-White
 ssnb.com	Shalla-Banking, UT1-Banking
-ssrn.com	UT1-Bu
 sssb.com	Shalla-Banking, UT1-Banking
 stackoverflow.com	Notracking-Whitelist
 stadtsparkasse-muenchen.com	Shalla-Banking
@@ -4023,7 +3280,6 @@ statenationalbank.com	Shalla-Banking, UT1-Banking
 statenb.com	Shalla-Banking
 statesavingsbank.com	Shalla-Banking, UT1-Banking
 staticflickr.com	Notracking-Whitelist
-statista.com	UT1-Bu
 steamcommunity.com	Notracking-Whitelist
 stearns-bank.com	Shalla-Banking, UT1-Banking
 sterlingbank.com	Shalla-Banking, UT1-Banking
@@ -4044,23 +3300,14 @@ stopandshop.com	Chris-White
 stopforumspam.com	Chris-White
 stopmortgagefraud.com	Shalla-Banking, UT1-Banking
 storify.com	Notracking-Whitelist
-stradalex.com	UT1-Bu
-strasmag.com	UT1-Bu
-strategie-aims.com	UT1-Bu
 streamillimit.com	Notracking-Whitelist
 stripe.com	UT1-Banking, Adguard-Banks
-studility.com	UT1-Bu
 studiopress.com	Notracking-Whitelist
-studya.com	UT1-Bu
-studyrama.com	UT1-Bu
 stumbleupon.com	Notracking-Whitelist
-sudouest.com	UT1-Bu
-sudouestjob.com	UT1-Bu
 summit-bank.com	Shalla-Banking
 summitbank.com	Shalla-Banking
 summitbk.com	Shalla-Banking
 sumterbank.com	Shalla-Banking, UT1-Banking
-java.sun.com	UT1-Bu
 sunbancorp.com	Shalla-Banking
 suncommunity.com	Shalla-Banking
 player.sundaysky.com	EasyPrivacy-White
@@ -4069,7 +3316,6 @@ sunmarkbank.com	Shalla-Banking
 suntrust.com	Shalla-Banking
 superiorbank.com	Shalla-Banking, UT1-Banking
 suretybank.com	Shalla-Banking
-surfeco21.com	UT1-Bu
 surveymonkey.com	Notracking-Whitelist
 susqbanc.com	Shalla-Banking
 sv-bank.com	Shalla-Banking, UT1-Banking
@@ -4080,32 +3326,30 @@ swbank.com	Shalla-Banking, UT1-Banking
 swbanktx.com	Shalla-Banking, UT1-Banking
 swbnv.com	Shalla-Banking, UT1-Banking
 swcbank.com	Shalla-Banking
-swetswise.com	UT1-Bu
 swissbankaccount.com	Shalla-Banking
 swissnetbank.com	Shalla-Banking
 swissprivatebankers.com	Shalla-Banking
 syandus.com	Notracking-Whitelist
-sydom-aveyron.com	UT1-Bu
 symantec.com	Notracking-Whitelist
-symcb.com	UT1-Bu
-symcd.com	UT1-Bu, Notracking-Whitelist
+s1.symcb.com	Notracking-Whitelist
+s2.symcb.com	Notracking-Whitelist
+s3.symcb.com	Notracking-Whitelist
+s4.symcb.com	Notracking-Whitelist
+s5.symcb.com	Notracking-Whitelist
+sa.symcb.com	Notracking-Whitelist
+symcd.com	Notracking-Whitelist
 symphonis.com	UT1-Financial
 syndicatebank.com	Shalla-Banking, UT1-Banking
-synergie-ceei.com	UT1-Bu
-synergieprepa.com	UT1-Bu
 synergybank.com	Shalla-Banking
-synonymes.com	UT1-Bu
 synthesisbank.com	Shalla-Banking, UT1-Financial
 syzbank.com	Shalla-Banking
 tabbank.com	Shalla-Banking, UT1-Banking
 tac.com	Chris-White
-tagemage.com	UT1-Bu
-tahiti-pacifique.com	UT1-Bu
 taib.com	Shalla-Banking, UT1-Banking
 taifungbank.com	Shalla-Banking, UT1-Banking
 talosintel.com	Chris-White
 talstatebank.com	Shalla-Banking, UT1-Banking
-tandfonline.com	UT1-Bu, Notracking-Whitelist
+tandfonline.com	Notracking-Whitelist
 taobao.com	Notracking-Whitelist
 target.com	Notracking-Whitelist
 tcfbank.com	Shalla-Banking, UT1-Banking
@@ -4117,7 +3361,6 @@ tdcanadatrust.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 teamviewer.com	Notracking-Whitelist
 techcrunch.com	Notracking-Whitelist
 ted.com	Notracking-Whitelist
-telquel-online.com	UT1-Bu
 tenforums.com	Notracking-Whitelist
 tescobank.com	Adguard-Banks
 teslathemes.com	Notracking-Whitelist
@@ -4129,9 +3372,7 @@ texaslandbank.com	Shalla-Banking, UT1-Banking
 texasstatebank.com	Shalla-Banking, UT1-Banking
 texnational.com	Shalla-Banking
 tfp.com	Shalla-Banking, UT1-Banking
-thalesgroup.com	UT1-Bu
 thatsmybank.com	Shalla-Banking, UT1-Banking
-thawte.com	UT1-Bu
 the-bank.com	Shalla-Banking, UT1-Banking
 the-exchange-bank.com	Shalla-Banking
 the-fidelity.com	Shalla-Banking
@@ -4155,7 +3396,6 @@ thedailybeast.com	Notracking-Whitelist
 thefarmbank.com	Shalla-Banking, UT1-Banking
 thefirst.com	Shalla-Banking
 thefoothillsbank.com	Shalla-Banking, UT1-Banking
-thefreedictionary.com	UT1-Bu
 thefsb.com	Shalla-Banking, UT1-Banking
 theglobeandmail.com	Notracking-Whitelist
 theguarantybank.com	Shalla-Banking, UT1-Banking
@@ -4170,19 +3410,13 @@ thepeoples.com	Shalla-Banking
 thestatebank.com	Shalla-Banking, UT1-Banking
 thetrustpeople.com	Shalla-Banking
 theverge.com	Notracking-Whitelist
-theworldpress.com	UT1-Bu
 thisisyourbank.com	Shalla-Banking, UT1-Banking
-streetsight.thomson.com	UT1-Bu
-thomsonreuters.com	UT1-Bu
-thomsonscientific.com	UT1-Bu
 thsbank.com	Shalla-Banking, UT1-Banking
-thucydide.com	UT1-Bu
 tibbank.com	Shalla-Banking, UT1-Banking
 tibsite.com	Shalla-Banking
 timberlandbank.com	Shalla-Banking
-time.com	UT1-Bu, Notracking-Whitelist
-times.com	UT1-Bu
-timor.com	UT1-Bu
+time.com	Notracking-Whitelist
+etl.tindersparks.com	Notracking-Whitelist
 tinyurl.com	Notracking-Whitelist
 tiscoasset.com	Shalla-Banking
 tlnbank.com	Shalla-Banking
@@ -4190,7 +3424,6 @@ tnbank.com	Shalla-Banking, UT1-Banking
 tnbonline.com	Shalla-Banking, UT1-Banking
 tncommercebank.com	Shalla-Banking, UT1-Banking
 tnmbonline.com	Shalla-Banking, UT1-Banking
-tns-sofres.com	UT1-Bu
 i.tochka.com	Adguard-Banks
 my.tochka.com	Adguard-Banks
 z.tochka.com	Adguard-Banks
@@ -4199,18 +3432,11 @@ todo1.com	Shalla-Banking
 tomshardware.com	Notracking-Whitelist
 tomtom.com	Chris-White
 touchbank.com	Adguard-Banks
-toutapprendre.com	UT1-Bu
-toutsurlacom.com	UT1-Bu
 townebank.com	Shalla-Banking, UT1-Banking
-tradelawguide.com	UT1-Bu
 trader-workstation.com	UT1-Financial
 tradersbank.com	Shalla-Banking, UT1-Banking
-tradeweb.com	UT1-Bu
-traindelafrancelibre.com	UT1-Bu
 ibank.transcapital.com	Adguard-Banks
-travail-social.com	UT1-Bu
 img.travidia.com	EasyList-White
-dictionaries.travlang.com	UT1-Bu
 trbsinc.com	Shalla-Banking
 tricobank.com	Shalla-Banking
 tricountiesbank.com	Shalla-Banking
@@ -4233,13 +3459,11 @@ tucows.com	Notracking-Whitelist
 tucowsdomains.com	Notracking-Whitelist
 tumblr.com	Notracking-Whitelist
 tunein.com	Chris-White
-tunisieinfo.com	UT1-Bu
 esube.turkishbank.com	Adguard-Banks
 turkishbanks.com	Shalla-Banking, UT1-Banking
 esube.turkishcards.com	Adguard-Banks
 adserver.tvcatchup.com	EasyList-White
 adverts.cdn.tvcatchup.com	EasyList-White
-twin-school.com	UT1-Bu
 twinriverbank.com	Shalla-Banking, UT1-Banking
 twitter.com	Notracking-Whitelist
 tworiversstatebank.com	Shalla-Banking
@@ -4281,11 +3505,8 @@ ultimabank.com	Shalla-Banking, UT1-Banking
 umb.com	Shalla-Banking
 umblr.com	Notracking-Whitelist
 umbrellabank.com	Shalla-Banking, UT1-Banking
-umi.com	UT1-Bu
-umipevry.com	UT1-Bu
 umpquabank.com	Shalla-Banking
 unbank.com	Shalla-Banking, UT1-Banking
-uncdg.com	UT1-Bu
 unionbank.com	Shalla-Banking
 unionbankjo.com	Shalla-Banking, UT1-Banking
 unionbanknig.com	Shalla-Banking
@@ -4293,7 +3514,6 @@ unionbankofblair.com	Shalla-Banking, UT1-Banking
 unionbankofindia.com	UT1-Banking
 unionbankph.com	Shalla-Banking, UT1-Banking
 unionbankvt.com	Shalla-Banking
-uniondesvictimesdeletat.com	UT1-Bu
 unionfederalbank.com	Shalla-Banking
 unionplanters.com	Shalla-Banking
 unionsavings.com	Shalla-Banking, UT1-Banking
@@ -4315,23 +3535,18 @@ unitedtrust.com	Shalla-Banking, UT1-Banking
 unity3d.com	Notracking-Whitelist
 unitybank.com	Shalla-Banking, UT1-Banking
 universalbank.com	Shalla-Banking, UT1-Banking
-universalis-edu.com	UT1-Bu
-universites-entreprises.com	UT1-Bu
 university-bank.com	Shalla-Banking, UT1-Banking
-universitypressscholarship.com	UT1-Bu
 uno-e.com	Shalla-Banking
 uobgroup.com	Shalla-Banking
 dbo1.uralfinance.com	Adguard-Banks
-urbamet.com	UT1-Bu
 urlblacklist.com	Chris-White
 usaa.com	Adguard-Banks
 usaccessbank.com	Shalla-Banking
-usatoday.com	UT1-Bu, Notracking-Whitelist
+usatoday.com	Notracking-Whitelist
 usbancorp.com	Shalla-Banking
 usbank.com	Shalla-Banking, UT1-Banking
 usbarkcity.com	Shalla-Banking
-usertrust.com	UT1-Bu, UT1-Whitelist
-uslegalforms.com	UT1-Bu
+usertrust.com	UT1-Whitelist
 usnews.com	Notracking-Whitelist
 ustrust.com	Shalla-Banking, UT1-Banking
 usvisa-info.com	Chris-White
@@ -4346,58 +3561,42 @@ vanguard.com	Adguard-Banks
 variety.com	Notracking-Whitelist
 vbnv.com	Shalla-Banking
 vcbonline.com	Shalla-Banking
-vdict.com	UT1-Bu
-vediorbis.com	UT1-Bu
 venezolano.com	Shalla-Banking
 venmo.com	Adguard-Banks
 venturacountybusinessbank.com	Shalla-Banking, UT1-Banking
-veoliaenvironnement.com	UT1-Bu
-verisign.com	UT1-Bu
+ocsp.verisign.com	UT1-Whitelist
 vermontmba.com	Shalla-Banking
 vermontnationalbank.com	Shalla-Banking
-verseaudeveloppement.com	UT1-Bu
 vesperexchange.com	UT1-Financial
 viabcp.com	Shalla-Banking
 vibcorp.com	Shalla-Banking
 vice.com	Notracking-Whitelist
-victimesdelavie.com	UT1-Bu
-victorialaw.com	UT1-Bu
 videoposte.com	Shalla-Banking
-vieuniversitaire.com	UT1-Bu, UT1-Whitelist
+vieuniversitaire.com	UT1-Whitelist
 vijayabank.com	Shalla-Banking, UT1-Banking
-vilaweb.com	UT1-Bu
 village-bank.com	Shalla-Banking, UT1-Banking
-village-justice.com	UT1-Bu
 villagebankonline.com	Shalla-Banking, UT1-Banking
 vimeo.com	Notracking-Whitelist
 vineyardbank.com	Shalla-Banking, UT1-Banking
 vintagebank.com	Shalla-Banking, UT1-Banking
 virginiamla.com	Shalla-Banking, UT1-Banking
-virtuadroit.com	UT1-Bu
 virtualbank.com	Shalla-Banking, UT1-Banking
 visma.com	Notracking-Whitelist
-viti-vini.com	UT1-Bu
 vk.com	Notracking-Whitelist
-vlex.com	UT1-Bu
 vnbnm.com	Shalla-Banking
 volksbank-erzgebirge.com	Shalla-Banking
 volstatebank.com	Shalla-Banking, UT1-Banking
 vontobel.com	Shalla-Banking
-voxlatina.com	UT1-Bu
 voxmedia.com	Notracking-Whitelist
-voyages-sncf.com	UT1-Bu
 vpbank.com	Shalla-Banking
 vtbanker.com	Shalla-Banking, UT1-Banking
 vtbindia.com	Shalla-Banking
-vuibert.com	UT1-Bu
 vwdservices.com	Notracking-Whitelist
 wabankers.com	Shalla-Banking, UT1-Banking
 wachovia.com	Shalla-Banking, UT1-Banking
 wadenastatebank.com	Shalla-Banking, UT1-Banking
-wadsworth.com	UT1-Bu
 wainwrightbank.com	Shalla-Banking
 wallisbank.com	Shalla-Banking
-wallstreetjournal.com	UT1-Bu
 walmart.com	Notracking-Whitelist
 walpolebank.com	Shalla-Banking, UT1-Banking
 walworthbank.com	Shalla-Banking, UT1-Banking
@@ -4406,11 +3605,10 @@ wargny.com	UT1-Financial
 warringtonbank.com	Shalla-Banking, UT1-Banking
 washingtonfederal.com	Shalla-Banking
 washingtonfederalbank.com	Shalla-Banking, UT1-Banking
-washingtonpost.com	UT1-Bu, Notracking-Whitelist
+washingtonpost.com	Notracking-Whitelist
 washingtontimes.com	Notracking-Whitelist
 washsavbk.com	Shalla-Banking
 washtrust.com	Shalla-Banking
-waternunc.com	UT1-Bu
 watrust.com	Shalla-Banking, UT1-Banking
 waukeestatebank.com	Shalla-Banking
 waukeshabank.com	Shalla-Banking, UT1-Banking
@@ -4419,7 +3617,6 @@ waypointbank.com	Shalla-Banking, UT1-Banking
 waze.com	Chris-White
 wbpr.com	Shalla-Banking
 wcnbwooster.com	Shalla-Banking
-wdtinc.com	UT1-Bu
 wealthbar.com	Adguard-Banks
 wealthsimple.com	Adguard-Banks
 weather.com	Notracking-Whitelist
@@ -4427,16 +3624,11 @@ web-revenue.com	UT1-Financial
 webbankir.com	Adguard-Banks
 trade.webborsam.com	Adguard-Banks
 webcityfed.com	Shalla-Banking
-webct.com	UT1-Bu
-webencyclo.com	UT1-Bu
-webex.com	UT1-Bu
-webexpat.com	UT1-Bu
+schneider-electric.webex.com	Chris-White
 webmd.com	Notracking-Whitelist
-webofknowledge.com	UT1-Bu
 websterbank.com	Shalla-Banking, UT1-Banking
 weebly.com	Notracking-Whitelist
 weibo.com	Notracking-Whitelist
-weishardt.com	UT1-Bu
 wellsfargo.com	Chris-White, Shalla-Banking, UT1-Banking, Adguard-Banks
 wellsfargoadvisors.com	Chris-White
 wellsfargomedia.com	Chris-White
@@ -4450,10 +3642,8 @@ westernsecuritybank.com	Shalla-Banking, UT1-Banking
 westernspringsbank.com	Shalla-Banking
 westernunion.com	Shalla-Banking
 westernuniongold.com	Shalla-Banking
-westlaw.com	UT1-Bu
 westpointebank.com	Shalla-Banking
 westsuburbanbank.com	Shalla-Banking
-whatislife.com	UT1-Bu
 whatsapp.com	Chris-White
 whbhk.com	Shalla-Banking
 whbmac.com	Shalla-Banking
@@ -4463,15 +3653,14 @@ wibank.com	Shalla-Banking
 wienerprivatbank.com	Shalla-Banking, UT1-Banking
 wikia.com	Notracking-Whitelist
 wikihow.com	Notracking-Whitelist
-wikipedia.com	UT1-Bu
 wilberbank.com	Shalla-Banking, UT1-Banking
-wiley.com	UT1-Bu, Notracking-Whitelist
+wiley.com	Notracking-Whitelist
 willowgrovebank.com	Shalla-Banking
 wilmingtontrust.com	Shalla-Banking, UT1-Banking
 wilshirebank.com	Shalla-Banking, UT1-Banking
 wilsonbank.com	Shalla-Banking, UT1-Banking
 windowsphone.com	Notracking-Whitelist
-windowsupdate.com	Chris-White, UT1-Bu, Notracking-Whitelist
+windowsupdate.com	Chris-White, Notracking-Whitelist
 wingspanbank.com	Shalla-Banking
 winonanationalbank.com	Shalla-Banking, UT1-Banking
 winterhillbank.com	Shalla-Banking, UT1-Banking
@@ -4493,8 +3682,6 @@ woodlandbank.com	Shalla-Banking, UT1-Banking
 wooppay.com	Adguard-Banks
 wooribank.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 wordpress.com	Notracking-Whitelist
-wordreference.com	UT1-Bu
-worldlingo.com	UT1-Bu
 worldwidebanking.com	Shalla-Banking
 wp.com	Notracking-Whitelist
 wsbcbank.com	Shalla-Banking
@@ -4508,21 +3695,14 @@ wvacb.com	Shalla-Banking, UT1-Banking
 wyomingbank.com	Shalla-Banking, UT1-Banking
 wyomingbankers.com	Shalla-Banking, UT1-Banking
 wyzecam.com	Chris-White
-x-recherche.com	UT1-Bu
 xkms.xbolive.com	Notracking-Whitelist
 xboxlive.com	Notracking-Whitelist
 xda-cdn.com	Chris-White
 xda-developers.com	Chris-White
-xerfi.com	UT1-Bu
-xerfi-knowledge.com	UT1-Bu
-xerfi700.com	UT1-Bu
-xerfiknowledge.com	UT1-Bu
 xing.com	Notracking-Whitelist
 xinhuanet.com	Notracking-Whitelist
 imgs.xkcd.com	Notracking-Whitelist
 xmccb.com	Shalla-Banking
-xrt.com	UT1-Bu
-yabiladi.com	UT1-Bu
 yahoo.com	Notracking-Whitelist
 yui.yahooapis.com	Notracking-Whitelist
 yalebankiowa.com	Shalla-Banking, UT1-Banking
@@ -4530,10 +3710,8 @@ ycbank.com	Shalla-Banking
 yellowstonebank.com	Shalla-Banking, UT1-Banking
 yelp.com	Notracking-Whitelist
 ykb.com	Shalla-Banking
-yocreoencolombia.com	UT1-Bu
 yolobank.com	Shalla-Banking
 youku.com	Notracking-Whitelist
-youplabourse.com	UT1-Bu
 yourhomebank.com	Shalla-Banking
 yourlocalbank.com	Shalla-Banking
 youronlinechoices.com	Notracking-Whitelist
@@ -4541,14 +3719,12 @@ youtube.com	Notracking-Whitelist
 youtube-nocookie.com	Chris-White, Notracking-Whitelist
 zagury.com	Shalla-Banking
 zaim.com	Adguard-Banks
-zakafrance.com	UT1-Bu
 zdnet.com	Notracking-Whitelist
 zendesk.com	Notracking-Whitelist
 zenithbank.com	Shalla-Banking
 zionsbancorporation.com	Shalla-Banking
 zionsbank.com	Shalla-Banking, UT1-Banking
 zjcbank.com	Shalla-Banking
-zonaeuropa.com	UT1-Bu
 zonebourse.com	UT1-Financial
 abcul.coop	Shalla-Banking
 bvr.coop	Shalla-Banking
@@ -4570,7 +3746,6 @@ centralbank.gov.cy	Shalla-Banking
 ba-ca.cz	Shalla-Banking
 bawag.cz	Shalla-Banking
 ceb.cz	Shalla-Banking
-cefres.cz	UT1-Bu
 cnb.cz	Shalla-Banking
 commerzbank.cz	Shalla-Banking
 csas.cz	Adguard-Banks
@@ -4589,12 +3764,9 @@ ppfbanka.cz	Shalla-Banking
 rb.cz	Shalla-Banking, Adguard-Banks
 sberbankcz.cz	Adguard-Banks
 servis24.cz	Adguard-Banks
-slovnik.seznam.cz	UT1-Bu
-srovnavacipravo.cz	UT1-Bu
 turris.cz	Chris-White
 volksbank.cz	Shalla-Banking
 wuestenrot.cz	Shalla-Banking
-zcu.cz	UT1-Bu
 1822direkt.de	Adguard-Banks
 1822direkt-banking.de	Adguard-Banks
 1plusi.de	Shalla-Banking
@@ -4611,7 +3783,6 @@ akbank.de	Adguard-Banks
 akf.de	Shalla-Banking, UT1-Banking, Adguard-Banks
 akf24.de	Adguard-Banks
 aktiv-financial-services.de	Shalla-Banking
-algeria-watch.de	UT1-Bu
 allebanken.de	Shalla-Banking
 allgaeuer-volksbank.de	Adguard-Banks
 alxinger-bank.de	Adguard-Banks
@@ -4683,7 +3854,6 @@ bmwfs.de	Shalla-Banking
 bodenseebank.de	Adguard-Banks
 bopfinger-bank.de	Adguard-Banks
 bordesholmer-sparkasse.de	Shalla-Banking, Adguard-Banks
-brandenburg.de	UT1-Bu
 brandenburgerbank.de	Shalla-Banking
 bremerlandesbank.de	Shalla-Banking
 bremischevb.de	Adguard-Banks
@@ -4691,8 +3861,6 @@ bruehlerbank.de	Adguard-Banks
 bsv.de	Shalla-Banking
 buergerbank.de	Shalla-Banking
 bundesbank.de	Shalla-Banking, UT1-Banking
-bundesregierung.de	UT1-Bu
-bundestag.de	UT1-Bu
 bv-activebanking.de	Adguard-Banks
 bvr.de	Shalla-Banking
 bw-bank.de	Shalla-Banking
@@ -4709,7 +3877,6 @@ creditplus.de	Adguard-Banks
 cronbank.de	Adguard-Banks
 cvw-privatbank-ag.de	Adguard-Banks
 dab-bank.de	Shalla-Banking, UT1-Banking, Adguard-Banks
-das-ranking.de	UT1-Bu
 degussa-bank.de	Adguard-Banks
 deine-volksbank.de	Adguard-Banks
 deka.de	Shalla-Banking
@@ -4755,7 +3922,6 @@ ethikbank.de	Shalla-Banking
 eurocitybank-onlinebanking.de	Adguard-Banks
 evb-meppen.de	Adguard-Banks
 evenordbank.de	Adguard-Banks
-faz.de	UT1-Bu
 federseebank.de	Adguard-Banks
 ffb.de	Adguard-Banks
 fidor.de	Adguard-Banks
@@ -4816,9 +3982,7 @@ hkb.de	Adguard-Banks
 hoernerbank.de	Shalla-Banking, UT1-Banking
 hsbctrinkaus.de	Shalla-Banking
 hsh-nordbank.de	Shalla-Banking, UT1-Banking
-hu-berlin.de	UT1-Bu
 huemmlinger-volksbank.de	Adguard-Banks
-humanrights.de	UT1-Bu
 husumer-volksbank.de	Adguard-Banks
 hvb.de	Shalla-Banking
 hypovereinsbank.de	Shalla-Banking, Adguard-Banks
@@ -4826,7 +3990,6 @@ hypverband.de	Shalla-Banking
 ib-sachsen-anhalt.de	Shalla-Banking
 iban-rechner.de	Shalla-Banking
 ibanrechner.de	Shalla-Banking
-ifsh.de	UT1-Bu
 ihrziel.de	Adguard-Banks
 ikb.de	Adguard-Banks
 ing-diba.de	Shalla-Banking, UT1-Banking, Adguard-Banks
@@ -4943,10 +4106,8 @@ mlb.de	Adguard-Banks
 mlp.de	Adguard-Banks
 modern-banking.de	Shalla-Banking, UT1-Banking
 moneyou.de	Shalla-Banking, Adguard-Banks
-mpg.de	UT1-Bu
 muenchner-bank.de	Adguard-Banks
 mueritz-sparkasse.de	Shalla-Banking, Adguard-Banks
-fim.musin.de	UT1-Bu
 mvb.de	Shalla-Banking, Adguard-Banks
 my-direktbank.de	Shalla-Banking, UT1-Banking
 my-volksbank.de	Adguard-Banks
@@ -5044,7 +4205,6 @@ psd-rhein-ruhr.de	Adguard-Banks
 psd-rheinneckarsaar.de	Adguard-Banks
 psd-westfalen-lippe.de	Adguard-Banks
 psdbank-ht.de	Adguard-Banks
-publikation-deutschland.de	UT1-Bu
 r-volksbank.de	Shalla-Banking, Adguard-Banks
 r2p.de	Shalla-Banking, UT1-Banking
 raiba-aiglsbach.de	Adguard-Banks
@@ -5339,7 +4499,6 @@ rbtl.de	Shalla-Banking, UT1-Banking
 rbtodenbuettel.de	Adguard-Banks
 rbui.de	Adguard-Banks
 rbuv.de	Adguard-Banks
-reader-sipo.de	UT1-Bu
 realease-mainz.de	Shalla-Banking
 regiogeld.de	Shalla-Banking, UT1-Banking
 reisebank.de	Shalla-Banking, UT1-Banking
@@ -5716,8 +4875,7 @@ sparkassen-finanzgruppe-saar.de	Shalla-Banking
 sparkassenverband-bayern.de	Shalla-Banking
 spaw.de	Shalla-Banking, Adguard-Banks
 sperrer.de	Adguard-Banks
-spiegel.de	UT1-Bu, Notracking-Whitelist
-spielemaus.de	UT1-Bu
+spiegel.de	Notracking-Whitelist
 spk-aic-sob.de	Adguard-Banks
 spk-arnstadt-ilmenau.de	Shalla-Banking, Adguard-Banks
 spk-aschaffenburg.de	Adguard-Banks
@@ -5794,7 +4952,6 @@ sskborken.de	Adguard-Banks
 sskduesseldorf.de	Shalla-Banking, Adguard-Banks
 sskm.de	Shalla-Banking, UT1-Banking, Adguard-Banks
 sskpw.de	Adguard-Banks
-staat-modern.de	UT1-Bu
 stadt-sparkasse-haan.de	Shalla-Banking, Adguard-Banks
 stadtsparkasse-barsinghausen.de	Adguard-Banks
 stadtsparkasse-bocholt.de	Adguard-Banks
@@ -5818,33 +4975,15 @@ stefangessner.de	Shalla-Banking
 steyler-bank.de	Shalla-Banking
 steylerbank.de	Adguard-Banks
 stuttgarter-volksbank.de	Shalla-Banking, UT1-Banking
-sueddeutsche.de	UT1-Bu
 sutorbank.de	Adguard-Banks
-sv-konstanz.de	UT1-Bu
 swkbank.de	Shalla-Banking, Adguard-Banks
 sylter-bank.de	Adguard-Banks
 t-online.de	Notracking-Whitelist
-tagesschau.de	UT1-Bu
 targobank.de	Adguard-Banks
 taunussparkasse.de	Shalla-Banking, Adguard-Banks
 teba-kreditbank.de	Adguard-Banks
 api.tech26.de	Adguard-Banks
-tu-muenchen.de	UT1-Bu
 umweltbank.de	Shalla-Banking, UT1-Banking, Adguard-Banks
-uni-bonn.de	UT1-Bu
-uni-dortmund.de	UT1-Bu
-uni-duesseldorf.de	UT1-Bu
-uni-erlangen.de	UT1-Bu
-uni-giessen.de	UT1-Bu
-uni-goettingen.de	UT1-Bu
-ub.uni-heidelberg.de	UT1-Bu
-uni-leipzig.de	UT1-Bu
-uni-magdeburg.de	UT1-Bu
-uni-marburg.de	UT1-Bu
-uni-muenchen.de	UT1-Bu
-uni-passau.de	UT1-Bu
-jura.uni-sb.de	UT1-Bu
-uni-tuebingen.de	UT1-Bu
 unicredit.de	Shalla-Banking
 union-investment.de	Adguard-Banks
 unionbank.de	Adguard-Banks
@@ -6339,7 +5478,6 @@ warburg-bank.de	Adguard-Banks
 wartburg-sparkasse.de	Adguard-Banks
 i0.web.de	Notracking-Whitelist
 weberbank.de	Adguard-Banks
-webtrainer.de	UT1-Bu
 wespa.de	Adguard-Banks
 westernunion.de	Shalla-Banking
 westerwaldbank.de	Adguard-Banks
@@ -6350,7 +5488,6 @@ winterbacher-bank.de	Adguard-Banks
 winterlinger-bank.de	Adguard-Banks
 wirecardbank.de	Adguard-Banks
 wivoba.de	Shalla-Banking, UT1-Banking
-wiwo.de	UT1-Bu
 wlsgv-muenster.de	Shalla-Banking
 wolfganglbrunner.de	Shalla-Banking
 wuestenrot.de	Shalla-Banking, Adguard-Banks
@@ -6359,15 +5496,11 @@ wvb.de	Adguard-Banks
 ww-ag.de	Adguard-Banks
 xn--httenberger-bank-jzb.de	Adguard-Banks
 zahlungsverkehrsfragen.de	Shalla-Banking
-zbw-kiel.de	UT1-Bu
-zeit.de	UT1-Bu
 ziraatbank.de	Shalla-Banking, UT1-Banking
 zka.de	Shalla-Banking
-zum.de	UT1-Bu
 al-bank.dk	Shalla-Banking
 almbrand.dk	Shalla-Banking
 amagerbanken.dk	Shalla-Banking, UT1-Banking
-amba-france.dk	UT1-Bu
 andelskassen.dk	Shalla-Banking, UT1-Banking
 bankinvest.dk	Shalla-Banking
 basisbank.dk	Shalla-Banking, UT1-Banking
@@ -6458,44 +5591,35 @@ bpd.com.do	Shalla-Banking
 leon.com.do	Shalla-Banking
 progreso.com.do	Shalla-Banking
 bancentral.gov.do	Shalla-Banking
-aps.dz	UT1-Bu
 bank-of-algeria.dz	Shalla-Banking
-douanes-cnis.dz	UT1-Bu
 bce.fin.ec	Shalla-Banking
 asobancos.org.ec	Shalla-Banking
 mirror.cedia.org.ec	Chris-White
-academia.edu	UT1-Bu, Notracking-Whitelist
-bem.edu	UT1-Bu
-berkeley.edu	UT1-Bu, Notracking-Whitelist
+academia.edu	Notracking-Whitelist
+berkeley.edu	Notracking-Whitelist
 cmu.edu	Notracking-Whitelist
 columbia.edu	Notracking-Whitelist
 cornell.edu	Notracking-Whitelist
-depauw.edu	UT1-Bu
-harvard.edu	UT1-Bu, Notracking-Whitelist
-mit.edu	UT1-Bu, Notracking-Whitelist
+harvard.edu	Notracking-Whitelist
+mit.edu	Notracking-Whitelist
 nyu.edu	Notracking-Whitelist
-princeton.edu	UT1-Bu, Notracking-Whitelist
+princeton.edu	Notracking-Whitelist
 psu.edu	Notracking-Whitelist
 sans.edu	Chris-White
 si.edu	Notracking-Whitelist
-solvay.edu	UT1-Bu
-stanford.edu	UT1-Bu, Notracking-Whitelist
-uchicago.edu	UT1-Bu, Notracking-Whitelist
+stanford.edu	Notracking-Whitelist
+uchicago.edu	Notracking-Whitelist
 ucla.edu	Notracking-Whitelist
-udg.edu	UT1-Bu
 umd.edu	Notracking-Whitelist
 umich.edu	Notracking-Whitelist
 umn.edu	Notracking-Whitelist
 unc.edu	Notracking-Whitelist
-upenn.edu	UT1-Bu, Notracking-Whitelist
+upenn.edu	Notracking-Whitelist
 usc.edu	Notracking-Whitelist
 utexas.edu	Notracking-Whitelist
-uvm.edu	UT1-Bu
-vanderbilt.edu	UT1-Bu
-econ.vt.edu	UT1-Bu
 washington.edu	Notracking-Whitelist
-wisc.edu	UT1-Bu, Notracking-Whitelist
-yale.edu	UT1-Bu, Notracking-Whitelist
+wisc.edu	Notracking-Whitelist
+yale.edu	Notracking-Whitelist
 bigbank.ee	Adguard-Banks
 danskebank.ee	Adguard-Banks
 krediidipank.ee	Shalla-Banking, UT1-Banking
@@ -6509,10 +5633,8 @@ bdc.com.eg	Shalla-Banking
 nbe.com.eg	Shalla-Banking
 scbank.com.eg	Shalla-Banking
 cbe.org.eg	Shalla-Banking
-cedej.org.eg	UT1-Bu
 acarl.es	Shalla-Banking
 aebanca.es	Shalla-Banking
-aeci.es	UT1-Bu
 atca.es	Shalla-Banking
 aurora.es	UT1-Banking
 ausbanc.es	Shalla-Banking, UT1-Banking
@@ -6537,8 +5659,6 @@ bbva.es	Shalla-Banking, UT1-Banking, Adguard-Banks
 bde.es	Shalla-Banking, UT1-Banking
 bef.es	Shalla-Banking
 bes.es	UT1-Banking
-bne.es	UT1-Bu
-boe.es	UT1-Bu
 cai.es	Shalla-Banking, UT1-Banking
 caixacatalunya.es	UT1-Banking
 caixagalicia.es	UT1-Banking
@@ -6580,102 +5700,49 @@ colonya.es	UT1-Banking
 blogspot.com.es	Notracking-Whitelist
 credit-suisse.es	Shalla-Banking
 deutsche-bank.es	Shalla-Banking, UT1-Banking, Adguard-Banks
-dip-badajoz.es	UT1-Bu
 ebankinter.es	Shalla-Banking
-elmundo.es	UT1-Bu
-elpais.es	UT1-Bu
 fibanc.es	UT1-Banking
 fibancmediolanum.es	Shalla-Banking
 fimestic.es	Shalla-Banking
-google.es	UT1-Bu, Notracking-Whitelist
+google.es	Notracking-Whitelist
 gruposantander.es	Shalla-Banking
 ibercaja.es	Shalla-Banking
 ing.es	Adguard-Banks
 ingdirect.es	Shalla-Banking, UT1-Banking, Adguard-Banks
-educa.jcyl.es	UT1-Bu
-juntadeandalucia.es	UT1-Bu
 kutxa.es	UT1-Banking
 lacaixa.es	Shalla-Banking, UT1-Banking
 larural.es	UT1-Banking
-lavanguardia.es	UT1-Bu
 lloydsbank.es	UT1-Banking
-mec.es	UT1-Bu
-monde-diplomatique.es	UT1-Bu
 openbank.es	UT1-Banking
 popularbancaprivada.es	Shalla-Banking
-rae.es	UT1-Bu
 santanderconsumer.es	Shalla-Banking
 santanderconsumeronline.es	Shalla-Banking
 selfbank.es	Shalla-Banking
 selftrade.es	Shalla-Banking
 triodos.es	Adguard-Banks
-cv1.cpd.ua.es	UT1-Bu
-uab.es	UT1-Bu
-ub.es	UT1-Bu
-uc3m.es	UT1-Bu
-ucm.es	UT1-Bu
-udg.es	UT1-Bu
-udl.es	UT1-Bu
-ugr.es	UT1-Bu
-ugt.es	UT1-Bu
-um.es	UT1-Bu
-unav.es	UT1-Bu
-uniovi.es	UT1-Bu
-unirioja.es	UT1-Bu
-unizar.es	UT1-Bu
-artico.lma.fi.upm.es	UT1-Bu
-upv.es	UT1-Bu
-urjc.es	UT1-Bu
-siff.us.es	UT1-Bu
-usal.es	UT1-Bu
-uv.es	UT1-Bu
-vanguardia.es	UT1-Bu
 nbe.gov.et	Shalla-Banking
-ader.eu	UT1-Bu
 ib.baltikums.eu	Adguard-Banks
 botvrij.eu	Chris-White
-centredoc.eu	UT1-Bu
 online.citi.eu	Adguard-Banks
 cryoutcreations.eu	Notracking-Whitelist
-dbfbruxelles.eu	UT1-Bu
 e-norvik.eu	Adguard-Banks
-elaotest.eu	UT1-Bu
-em-strasbourg.eu	UT1-Bu
-europa.eu	UT1-Bu, Notracking-Whitelist
-europe-en-midipyrenees.eu	UT1-Bu
-europeanpubliclaw.eu	UT1-Bu
+europa.eu	Notracking-Whitelist
 ib.expobank.eu	Adguard-Banks
 h3x.eu	Chris-White
-ipj.eu	UT1-Bu
-academic.lexisnexis.eu	UT1-Bu
-europedia.moussis.eu	UT1-Bu
-moveonnet.eu	UT1-Bu
-neeoproject.eu	UT1-Bu
 epayment.nets.eu	Adguard-Banks
 acs-visa.norvik.eu	Adguard-Banks
 onlinebanking-herzogpark.eu	Adguard-Banks
-paris-europe.eu	UT1-Bu
 secure.payza.eu	Adguard-Banks
-peruzzetto.eu	UT1-Bu
-reseau-terra.eu	UT1-Bu
-revuegeneraledudroit.eu	UT1-Bu
-rtdh.eu	UT1-Bu
 acs.sia.eu	Adguard-Banks
-successions-europe.eu	UT1-Bu
-fr.toefl.eu	UT1-Bu
-fr.toeic.eu	UT1-Bu
-touteleurope.eu	UT1-Bu
-tse-fr.eu	UT1-Bu
 aktia.fi	Shalla-Banking, UT1-Banking
 alandsbanken.fi	Shalla-Banking
 bof.fi	Shalla-Banking
 verkkopankki2.danskebank.fi	Adguard-Banks
 eksp.fi	Shalla-Banking
 handelsbanken.fi	Shalla-Banking, Adguard-Banks
-helsinki.fi	UT1-Bu
 mandatum.fi	Shalla-Banking
 mbnet.fi	Notracking-Whitelist
-nordea.fi	Shalla-Banking, UT1-Bu
+nordea.fi	Shalla-Banking
 osuuspankki.fi	Shalla-Banking, UT1-Banking
 otto.fi	Shalla-Banking, UT1-Banking
 paikallisosuuspankit.fi	Shalla-Banking
@@ -6684,157 +5751,60 @@ sampo.fi	Shalla-Banking
 savings-banks.fi	Shalla-Banking
 suupohjanosuuspankki.fi	Shalla-Banking, UT1-Banking
 tiistenjoenop.fi	Shalla-Banking
-odette.utu.fi	UT1-Bu
 reservebank.gov.fj	Shalla-Banking, UT1-Banking
-saint-pierre-et-miquelon.fr.fm	UT1-Bu, UT1-Whitelist
-podcastscience.fm	UT1-Bu
+saint-pierre-et-miquelon.fr.fm	UT1-Whitelist
 landsbank.fo	Shalla-Banking
-univ-tlse.1.fr	UT1-Bu
 1and1.fr	Notracking-Whitelist
-20minutes.fr	UT1-Bu
-2lreflex.fr	UT1-Bu
 aaadvisors.fr	Shalla-Banking
-abebooks.fr	UT1-Bu
-abes.fr	UT1-Bu
-ac-aix-marseille.fr	UT1-Bu, UT1-Whitelist
-ac-amiens.fr	UT1-Bu, UT1-Whitelist
-ac-besancon.fr	UT1-Bu, UT1-Whitelist
-ac-bordeaux.fr	UT1-Bu, UT1-Whitelist
-ac-caen.fr	UT1-Bu, UT1-Whitelist
-ac-clermont.fr	UT1-Bu, UT1-Whitelist
-ac-corse.fr	UT1-Bu, UT1-Whitelist
-ac-creteil.fr	UT1-Bu, UT1-Whitelist
-ac-dijon.fr	UT1-Bu, UT1-Whitelist
-ac-grenoble.fr	UT1-Bu, UT1-Whitelist
-ac-guadeloupe.fr	UT1-Bu, UT1-Whitelist
-ac-guyane.fr	UT1-Bu, UT1-Whitelist
-ac-lille.fr	UT1-Bu, UT1-Whitelist
-ac-limoges.fr	UT1-Bu, UT1-Whitelist
-ac-lyon.fr	UT1-Bu, UT1-Whitelist
-ac-martinique.fr	UT1-Bu, UT1-Whitelist
-ac-mayotte.fr	UT1-Bu
-ac-montpellier.fr	UT1-Bu, UT1-Whitelist
-ac-nancy-metz.fr	UT1-Bu, UT1-Whitelist
-ac-nantes.fr	UT1-Bu, UT1-Whitelist
-ac-nice.fr	UT1-Bu, UT1-Whitelist
-ac-orleans-tours.fr	UT1-Bu, UT1-Whitelist
-ac-paris.fr	UT1-Bu, UT1-Whitelist
-ac-poitiers.fr	UT1-Bu, UT1-Whitelist
-ac-reims.fr	UT1-Bu, UT1-Whitelist
-ac-rennes.fr	UT1-Bu, UT1-Whitelist
-ac-reunion.fr	UT1-Bu, UT1-Whitelist
-ac-rouen.fr	UT1-Bu, UT1-Whitelist
-ac-strasbourg.fr	UT1-Bu, UT1-Whitelist
-ac-toulouse.fr	UT1-Bu, UT1-Whitelist
-ac-versailles.fr	UT1-Bu, UT1-Whitelist
-academie-francaise.fr	UT1-Bu
-academie-sciences.fr	UT1-Bu, UT1-Whitelist
-acoss.fr	UT1-Bu
-actufinance.fr	UT1-Bu
-actutoulouse.fr	UT1-Bu
-ademe.fr	UT1-Bu, UT1-Whitelist
-adit.fr	UT1-Bu, UT1-Whitelist
-administral.fr	UT1-Bu
-admission-postbac.fr	UT1-Bu
-adobe.fr	UT1-Bu
-adri.fr	UT1-Bu
-adrien.fr	UT1-Bu
-adum.fr	UT1-Bu
-advantage.fr	UT1-Bu
-toulouse.aeroport.fr	UT1-Bu
-afb.fr	Shalla-Banking, UT1-Bu, UT1-Banking
-afnet.fr	UT1-Bu
-afnor.fr	UT1-Bu
-afp.fr	UT1-Bu
-afssa.fr	UT1-Bu
-afsset.fr	UT1-Bu
-agefi.fr	UT1-Bu
-agglo-grandtoulouse.fr	UT1-Bu
-agirhe-concours.fr	UT1-Bu
-agoravox.fr	UT1-Bu
-agropolis.fr	UT1-Bu
-ajda.fr	UT1-Bu
+ac-aix-marseille.fr	UT1-Whitelist
+ac-amiens.fr	UT1-Whitelist
+ac-besancon.fr	UT1-Whitelist
+ac-bordeaux.fr	UT1-Whitelist
+ac-caen.fr	UT1-Whitelist
+ac-clermont.fr	UT1-Whitelist
+ac-corse.fr	UT1-Whitelist
+ac-creteil.fr	UT1-Whitelist
+ac-dijon.fr	UT1-Whitelist
+ac-grenoble.fr	UT1-Whitelist
+ac-guadeloupe.fr	UT1-Whitelist
+ac-guyane.fr	UT1-Whitelist
+ac-lille.fr	UT1-Whitelist
+ac-limoges.fr	UT1-Whitelist
+ac-lyon.fr	UT1-Whitelist
+ac-martinique.fr	UT1-Whitelist
+ac-montpellier.fr	UT1-Whitelist
+ac-nancy-metz.fr	UT1-Whitelist
+ac-nantes.fr	UT1-Whitelist
+ac-nice.fr	UT1-Whitelist
+ac-orleans-tours.fr	UT1-Whitelist
+ac-paris.fr	UT1-Whitelist
+ac-poitiers.fr	UT1-Whitelist
+ac-reims.fr	UT1-Whitelist
+ac-rennes.fr	UT1-Whitelist
+ac-reunion.fr	UT1-Whitelist
+ac-rouen.fr	UT1-Whitelist
+ac-strasbourg.fr	UT1-Whitelist
+ac-toulouse.fr	UT1-Whitelist
+ac-versailles.fr	UT1-Whitelist
+academie-sciences.fr	UT1-Whitelist
+ademe.fr	UT1-Whitelist
+adit.fr	UT1-Whitelist
+afb.fr	Shalla-Banking, UT1-Banking
 allianzbanque.fr	UT1-Banking
-alternatives-economiques.fr	UT1-Bu
-alternatives-internationales.fr	UT1-Bu
-amazon.fr	UT1-Bu, Notracking-Whitelist
-amb-chine.fr	UT1-Bu
-amb-grece.fr	UT1-Bu
-ameli.fr	UT1-Bu
-amue.fr	UT1-Bu
-anact.fr	UT1-Bu
-anah.fr	UT1-Bu
-andcp.fr	UT1-Bu
-andra.fr	UT1-Bu, UT1-Whitelist
-anpe.fr	UT1-Bu
-anvar.fr	UT1-Bu, UT1-Whitelist
+amazon.fr	Notracking-Whitelist
+andra.fr	UT1-Whitelist
+anvar.fr	UT1-Whitelist
 bourse.aol.fr	UT1-Financial
-apec.fr	UT1-Bu
-arcep.fr	UT1-Bu
-toulouse.archi.fr	UT1-Bu
-archives-ouvertes.fr	UT1-Bu
-arhmip.fr	UT1-Bu
-arss.fr	UT1-Bu
-art-telecom.fr	UT1-Bu
-asmp.fr	UT1-Bu
-cartobenef.asp-public.fr	UT1-Bu
-assedic.fr	UT1-Bu
-assemblee-nat.fr	UT1-Bu, UT1-Whitelist
-assemblee-nationale.fr	UT1-Bu
-acat.asso.fr	UT1-Bu
+assemblee-nat.fr	UT1-Whitelist
 acef-toulousepyrenees.asso.fr	Shalla-Banking
-acep.asso.fr	UT1-Bu
-adermip.asso.fr	UT1-Bu, UT1-Whitelist
-adeus.asso.fr	UT1-Bu
-adm54.asso.fr	UT1-Bu
-admiroutes.asso.fr	UT1-Bu, UT1-Whitelist
-aef.asso.fr	UT1-Bu
-afsmi.asso.fr	UT1-Bu
-amnesty.asso.fr	UT1-Bu
-anrt.asso.fr	UT1-Bu
-cco.asso.fr	UT1-Bu, UT1-Whitelist
-cemaforre.asso.fr	UT1-Bu
-cemea.asso.fr	UT1-Bu
-cge.asso.fr	UT1-Bu
-cidj.asso.fr	UT1-Bu
-egee.asso.fr	UT1-Bu
-egide.asso.fr	UT1-Bu
-eptb.asso.fr	UT1-Bu
-fmd.asso.fr	UT1-Bu
-fnde.asso.fr	UT1-Bu
-fne.asso.fr	UT1-Bu
-forceu.asso.fr	UT1-Bu
-fupl.asso.fr	UT1-Bu
-ict-toulouse.asso.fr	UT1-Bu
-idei.asso.fr	UT1-Bu
-irma.asso.fr	UT1-Bu
-lecercledeseconomistes.asso.fr	UT1-Bu
-notre-europe.asso.fr	UT1-Bu
-philosophie-droit.asso.fr	UT1-Bu
-poluninorm.asso.fr	UT1-Bu
-preau.asso.fr	UT1-Bu, UT1-Whitelist
-sffp.asso.fr	UT1-Bu
-societe-de-strategie.asso.fr	UT1-Bu
-societes-savantes-toulouse.asso.fr	UT1-Bu
-solidarite.asso.fr	UT1-Bu
-souffle.asso.fr	UT1-Bu
-teli.asso.fr	UT1-Bu
-uja.asso.fr	UT1-Bu
-unadel.asso.fr	UT1-Bu
-unef.asso.fr	UT1-Bu
-uni.asso.fr	UT1-Bu
-atilf.fr	UT1-Bu
-etudiant.aujourdhui.fr	UT1-Bu
-aunege.fr	UT1-Bu
-auto-entrepreneur.fr	UT1-Bu
-autoritedelaconcurrence.fr	UT1-Bu
-avocat.fr	UT1-Bu
-avocats.fr	UT1-Bu
-bankexam.fr	UT1-Bu
+adermip.asso.fr	UT1-Whitelist
+admiroutes.asso.fr	UT1-Whitelist
+cco.asso.fr	UT1-Whitelist
+preau.asso.fr	UT1-Whitelist
 banque.fr	UT1-Banking
 banque-accord.fr	UT1-Banking
 banque-courtois.fr	Shalla-Banking, UT1-Banking
-banque-france.fr	Shalla-Banking, UT1-Bu, UT1-Banking
+banque-france.fr	Shalla-Banking, UT1-Banking
 banque-kolb.fr	Shalla-Banking
 banque-laydernier.fr	Shalla-Banking
 banque-nuger.fr	Shalla-Banking
@@ -6850,33 +5820,22 @@ banquedorsay.fr	Shalla-Banking
 banquefinama.fr	Shalla-Banking, UT1-Banking
 banquepopulaire.fr	Shalla-Banking, UT1-Banking
 barclays.fr	Shalla-Banking, UT1-Banking
-paris.barreau.fr	UT1-Bu
 bemo.fr	Shalla-Banking, UT1-Banking
-bibliothequedetoulouse.fr	UT1-Bu
-bicentenaireducodecivil.fr	UT1-Bu
-biu-toulouse.fr	UT1-Bu, UT1-Whitelist
+biu-toulouse.fr	UT1-Whitelist
 blogspot.fr	Notracking-Whitelist
-bm-lyon.fr	UT1-Bu
-bm-toulouse.fr	UT1-Bu
-bnds.fr	UT1-Bu
-bnf.fr	UT1-Bu, UT1-Whitelist
+bnf.fr	UT1-Whitelist
 aixenprovence.bnp.fr	Shalla-Banking
 evry91.bnp.fr	Shalla-Banking
 melun.bnp.fr	Shalla-Banking
 reims.bnp.fr	Shalla-Banking, UT1-Banking
 bnpparibas.fr	Shalla-Banking, UT1-Banking
-boistard.fr	UT1-Bu
-bottin.fr	UT1-Bu
 bourse.fr	UT1-Financial
 boursedirect.fr	UT1-Financial
 boursica.fr	UT1-Financial
 bpam.fr	Shalla-Banking
-bpi.fr	UT1-Bu
 bplc.fr	UT1-Banking
 bred.fr	Shalla-Banking
-brgm.fr	UT1-Bu, UT1-Whitelist
-encyclopedie.bseditions.fr	UT1-Bu
-bull.fr	UT1-Bu
+brgm.fr	UT1-Whitelist
 ca-alpesprovence.fr	Shalla-Banking, UT1-Banking
 ca-anjou-maine.fr	Shalla-Banking, UT1-Banking
 ca-aquitaine.fr	Shalla-Banking, UT1-Banking
@@ -6907,859 +5866,233 @@ ca-norddefrance.fr	Shalla-Banking
 ca-normand.fr	Shalla-Banking, UT1-Banking
 ca-normandie-seine.fr	Shalla-Banking, UT1-Banking
 ca-oise.fr	Shalla-Banking
-ca-paris.fr	UT1-Bu
 ca-pca.fr	Shalla-Banking, UT1-Banking
 ca-reunion.fr	Shalla-Banking, UT1-Banking
 ca-sudmed.fr	Shalla-Banking, UT1-Banking
 ca-sudrhonealpes.fr	Shalla-Banking, UT1-Banking
 ca-toulousain.fr	Shalla-Banking, UT1-Banking
 ca-tourainepoitou.fr	Shalla-Banking, UT1-Banking
-cadremploi.fr	UT1-Bu
-caf.fr	UT1-Bu, UT1-Whitelist
-caisse-epargne.fr	Shalla-Banking, UT1-Bu, UT1-Banking, Adguard-Banks
+caf.fr	UT1-Whitelist
+caisse-epargne.fr	Shalla-Banking, UT1-Banking, Adguard-Banks
 caixabank.fr	Shalla-Banking
-campus-electronique.fr	UT1-Bu
-forum-concours.cap-public.fr	UT1-Bu
-capital.fr	UT1-Bu
-penseesociale.catholique.fr	UT1-Bu
 ccf.fr	Shalla-Banking
-cci.fr	UT1-Bu
-cci-paris-idf.fr	UT1-Bu
-ccip.fr	UT1-Bu
-ccne-ethique.fr	UT1-Bu
-ccomptes.fr	UT1-Bu
 ccso.fr	Shalla-Banking, UT1-Banking
-cdfs-85.fr	UT1-Bu
-cdg18.fr	UT1-Bu
-cdg31.fr	UT1-Bu
-cdg82.fr	UT1-Bu
-cdt.fr	UT1-Bu
-cea.fr	UT1-Bu, UT1-Whitelist
+cea.fr	UT1-Whitelist
 cedicam.fr	Shalla-Banking
-cee.fr	UT1-Bu, UT1-Whitelist
-catholique-toulouse.cef.fr	UT1-Bu
-pu.cef.fr	UT1-Bu
-cefam.fr	UT1-Bu
-celog.fr	UT1-Bu
-celsa.fr	UT1-Bu
-cemagref.fr	UT1-Bu, UT1-Whitelist
-centre-inffo.fr	UT1-Bu
-centredoc.fr	UT1-Bu
-cepii.fr	UT1-Bu
-cereq.fr	UT1-Bu
-cerimes.fr	UT1-Bu
-cerlis.fr	UT1-Bu
-certu.fr	UT1-Bu, UT1-Whitelist
-cesr-midi-pyrenees.fr	UT1-Bu
-cfdt.fr	UT1-Bu
-cfmm.fr	UT1-Bu
-cg11.fr	UT1-Bu
-cg28.fr	UT1-Bu
-cg31.fr	UT1-Bu, UT1-Whitelist
-culture.cg44.fr	UT1-Bu
-cg61.fr	UT1-Bu
-cg66.fr	UT1-Bu
-cg71.fr	UT1-Bu
-cg78.fr	UT1-Bu
-cg81.fr	UT1-Bu
-tresor.cgt.fr	UT1-Bu
-cheuvreux-associes.fr	UT1-Bu
-boltanski.chez-alice.fr	UT1-Bu
-christianvanneste.fr	UT1-Bu
-chu-toulouse.fr	UT1-Bu
+cee.fr	UT1-Whitelist
+cemagref.fr	UT1-Whitelist
+certu.fr	UT1-Whitelist
+cg31.fr	UT1-Whitelist
 cic.fr	Shalla-Banking, UT1-Banking, Adguard-Banks
-cict.fr	UT1-Bu, UT1-Whitelist
-ciep.fr	UT1-Bu
-cines.fr	UT1-Bu, UT1-Whitelist
-cirad.fr	UT1-Bu, UT1-Whitelist
-cite-sciences.fr	UT1-Bu, UT1-Whitelist
-citechaillot.fr	UT1-Bu
-cityworks.fr	UT1-Bu
-cleiss.fr	UT1-Bu
-bdesclau.club.fr	UT1-Bu
-sbraudo.club.fr	UT1-Bu
-xlab.club.fr	UT1-Bu
-cm-toulouse.fr	UT1-Bu
-cnac-gp.fr	UT1-Bu
-cnam.fr	UT1-Bu, UT1-Whitelist
-cnam-hautrhin.fr	UT1-Bu
-cnamintec.fr	UT1-Bu
-legislation.cnav.fr	UT1-Bu
-cnccfp.fr	UT1-Bu
-cndp.fr	UT1-Bu, UT1-Whitelist
-cned.fr	UT1-Bu, UT1-Whitelist
-cnes.fr	UT1-Bu, UT1-Whitelist
-cnfpt.fr	UT1-Bu
-cng.fr	UT1-Bu, UT1-Whitelist
-cnig.fr	UT1-Bu, UT1-Whitelist
-cnil.fr	UT1-Bu
-cnis.fr	UT1-Bu
-cnnumerique.fr	UT1-Bu
-cnous.fr	UT1-Bu, UT1-Whitelist
-cnrs.fr	UT1-Bu, UT1-Whitelist
-cnrs-nancy.fr	UT1-Bu
-cnrtl.fr	UT1-Bu
-cns.fr	UT1-Bu, UT1-Whitelist
-cns-cachan.fr	UT1-Bu, UT1-Whitelist
-cnusc.fr	UT1-Bu, UT1-Whitelist
-cob.fr	UT1-Bu
-cofacerating.fr	UT1-Bu
-college-de-france.fr	UT1-Bu, UT1-Whitelist
-anrtheses.com.fr	UT1-Bu
-revuedumauss.com.fr	UT1-Bu
-comedie-francaise.fr	UT1-Bu
-commerciaux.fr	UT1-Bu
-commission-droits-homme.fr	UT1-Bu
-commission-refugies.fr	UT1-Bu
-comptable-etat.fr	UT1-Bu
-comptanat.fr	UT1-Bu
-comundi.fr	UT1-Bu
-concours-territoriaux.fr	UT1-Bu
-confdelorientation.fr	UT1-Bu
-congres-afsp.fr	UT1-Bu
-conseil-concurrence.fr	UT1-Bu
-conseil-constitutionnel.fr	UT1-Bu, UT1-Whitelist
-conseil-economique-et-social.fr	UT1-Bu
-conseil-etat.fr	UT1-Bu
-conseil-superieur-magistrature.fr	UT1-Bu
-conservatoire-du-littoral.fr	UT1-Bu
-constitution-europeenne.fr	UT1-Bu
-corep.fr	UT1-Bu
-corpoarsenal.fr	UT1-Bu
+cict.fr	UT1-Whitelist
+cines.fr	UT1-Whitelist
+cirad.fr	UT1-Whitelist
+cite-sciences.fr	UT1-Whitelist
+cnam.fr	UT1-Whitelist
+cndp.fr	UT1-Whitelist
+cned.fr	UT1-Whitelist
+cnes.fr	UT1-Whitelist
+cng.fr	UT1-Whitelist
+cnig.fr	UT1-Whitelist
+cnous.fr	UT1-Whitelist
+cnrs.fr	UT1-Whitelist
+cns.fr	UT1-Whitelist
+cns-cachan.fr	UT1-Whitelist
+cnusc.fr	UT1-Whitelist
+college-de-france.fr	UT1-Whitelist
+conseil-constitutionnel.fr	UT1-Whitelist
 cortalconsors.fr	UT1-Financial
-courdecassation.fr	UT1-Bu
-courrierinternational.fr	UT1-Bu
-cours-univ.fr	UT1-Bu
-cpcnu.fr	UT1-Bu
-cpge-brizeux.fr	UT1-Bu
-cpu.fr	UT1-Bu
-cr-languedocroussillon.fr	UT1-Bu
-cr-mip.fr	UT1-Bu, UT1-Whitelist
-crdp-montpellier.fr	UT1-Bu
-crdp-toulouse.fr	UT1-Bu, UT1-Whitelist
-cre.fr	UT1-Bu
-credit-agricole.fr	Shalla-Banking, UT1-Bu, UT1-Banking
+cr-mip.fr	UT1-Whitelist
+crdp-toulouse.fr	UT1-Whitelist
+credit-agricole.fr	Shalla-Banking, UT1-Banking
 credit-du-nord.fr	Shalla-Banking, UT1-Banking
 credit-municipal-lyon.fr	Shalla-Banking
 credit-municipal-toulouse.fr	UT1-Banking
 creditfoncier.fr	Shalla-Banking
 creditlyonnais.fr	Shalla-Banking
 creditmutuel.fr	Shalla-Banking, UT1-Banking, Adguard-Banks
-crest.fr	UT1-Bu
-croix-rouge.fr	UT1-Bu
-crous-nice.fr	UT1-Bu
-crous-paris.fr	UT1-Bu
-crous-reims.fr	UT1-Bu
-crous-toulouse.fr	UT1-Bu
-cru.fr	UT1-Bu
-csa.fr	UT1-Bu
-cstb.fr	UT1-Bu, UT1-Whitelist
-culture.fr	UT1-Bu, UT1-Whitelist
-curie.fr	UT1-Bu, UT1-Whitelist
-dafsaliens.fr	UT1-Bu
-dalloz.fr	UT1-Bu
-dalloz-actualite.fr	UT1-Bu
-dalloz-avocat.fr	UT1-Bu
-dalloz-bibliotheque.fr	UT1-Bu
-dalloz-etudiant.fr	UT1-Bu
-dalloz-revues.fr	UT1-Bu
-dauphine.fr	UT1-Bu, UT1-Whitelist
-davidtate.fr	UT1-Bu
-dawsonenter.fr	UT1-Bu
-decitre.fr	UT1-Bu
-defenseurdesdroits.fr	UT1-Bu
-defenseurdesenfants.fr	UT1-Bu
-defrenois.fr	UT1-Bu
-denistouret.fr	UT1-Bu
-deptinfo.fr	UT1-Bu
+cstb.fr	UT1-Whitelist
+culture.fr	UT1-Whitelist
+curie.fr	UT1-Whitelist
+dauphine.fr	UT1-Whitelist
 dexiaplus.fr	Shalla-Banking
-dgac.fr	UT1-Bu, UT1-Whitelist
-dicophilo.fr	UT1-Bu
-digischool.fr	UT1-Bu
-dimitri-houtcieff.fr	UT1-Bu
-diplomatie.fr	UT1-Bu, UT1-Whitelist
-distrijob.fr	UT1-Bu
-doc-etudiant.fr	UT1-Bu
-docsurgrandecran.fr	UT1-Bu
-doctrinal.fr	UT1-Bu
-doctrinalplus.fr	UT1-Bu
-documentissime.fr	UT1-Bu
-droit.fr	UT1-Bu
-droitdunet.fr	UT1-Bu
-droitjuridique.fr	UT1-Bu
-droitzoom.fr	UT1-Bu
-dynact.fr	UT1-Bu
-easydroit.fr	UT1-Bu
-eau-adour-garonne.fr	UT1-Bu
-eau-seine-normandie.fr	UT1-Bu
-eaurmc.fr	UT1-Bu
-ec-lille.fr	UT1-Bu, UT1-Whitelist
-ec-lyon.fr	UT1-Bu, UT1-Whitelist
-ec-nantes.fr	UT1-Bu, UT1-Whitelist
-ecoleavocats-toulouse.fr	UT1-Bu
-ecoledenotariat-toulouse.fr	UT1-Bu
-ecp.fr	UT1-Bu, UT1-Whitelist
-editions-breal.fr	UT1-Bu
-editions-dalloz.fr	UT1-Bu
-editions-ellipses.fr	UT1-Bu
-editions-foucher.fr	UT1-Bu
-editions-harmattan.fr	UT1-Bu
-editions-hermes.fr	UT1-Bu
-editions-legislatives.fr	UT1-Bu
-editions-tissot.fr	UT1-Bu
-editionsducerf.fr	UT1-Bu
-editionsladecouverte.fr	UT1-Bu
-educagri.fr	UT1-Bu
-educasource.fr	UT1-Bu, UT1-Whitelist
-education.fr	UT1-Bu, UT1-Whitelist
-education-et-numerique.fr	UT1-Bu
-edufrance.fr	UT1-Bu, UT1-Whitelist
-eduroam.fr	UT1-Bu
-efl.fr	UT1-Bu
-ehess.fr	UT1-Bu, UT1-Whitelist
-eja.fr	UT1-Bu
-ejt.fr	UT1-Bu
-eliops.fr	UT1-Bu
-elnet.fr	UT1-Bu
-elysee.fr	UT1-Bu, UT1-Whitelist
-emarketing.fr	UT1-Bu
-emploi-store.fr	UT1-Bu
-emploipublic.fr	UT1-Bu
-emse.fr	UT1-Bu
-ena.fr	UT1-Bu, UT1-Whitelist
-enac.fr	UT1-Bu
-encyclopedie-larousse.fr	UT1-Bu
-enfa.fr	UT1-Bu
-enpc.fr	UT1-Bu, UT1-Whitelist
-ens.fr	UT1-Bu
-ens-cachan.fr	UT1-Bu
-ens-lsh.fr	UT1-Bu
-ens-lyon.fr	UT1-Bu
-ensae.fr	UT1-Bu
-ensam.fr	UT1-Bu, UT1-Whitelist
-ensat.fr	UT1-Bu
-enscpb.fr	UT1-Bu
-enseeiht.fr	UT1-Bu
-ensiacet.fr	UT1-Bu
-ensmp.fr	UT1-Bu
-ensosp.fr	UT1-Bu
-ensp.fr	UT1-Bu, UT1-Whitelist
-enssib.fr	UT1-Bu, UT1-Whitelist
-enst-bretagne.fr	UT1-Bu
-ensta-paristech.fr	UT1-Bu
-entmip.fr	UT1-Bu
-envt.fr	UT1-Bu
-ombresblanches.epagine.fr	UT1-Bu
-epajussieu.fr	UT1-Bu, UT1-Whitelist
-epsnf.fr	UT1-Bu
-eptb-dordogne.fr	UT1-Bu
-esc-brest.fr	UT1-Bu
-esc-lille.fr	UT1-Bu
-esc-pau.fr	UT1-Bu
-esc-rennes.fr	UT1-Bu
-esc-toulouse.fr	UT1-Bu
-escna.fr	UT1-Bu
-esj-lille.fr	UT1-Bu
-essec.fr	UT1-Bu
-etatsgenerauxdelabioethique.fr	UT1-Bu
-etudiantdeparis.fr	UT1-Bu
-eurostaf.fr	UT1-Bu
-evene.fr	UT1-Bu
-exam.fr	UT1-Bu
-experts-comptables.fr	UT1-Bu
-fallaitpasfairedudroit.fr	UT1-Bu
+dgac.fr	UT1-Whitelist
+diplomatie.fr	UT1-Whitelist
+ec-lille.fr	UT1-Whitelist
+ec-lyon.fr	UT1-Whitelist
+ec-nantes.fr	UT1-Whitelist
+ecp.fr	UT1-Whitelist
+educasource.fr	UT1-Whitelist
+education.fr	UT1-Whitelist
+edufrance.fr	UT1-Whitelist
+ehess.fr	UT1-Whitelist
+elysee.fr	UT1-Whitelist
+ena.fr	UT1-Whitelist
+enpc.fr	UT1-Whitelist
+ensam.fr	UT1-Whitelist
+ensp.fr	UT1-Whitelist
+enssib.fr	UT1-Whitelist
+epajussieu.fr	UT1-Whitelist
 fbf.fr	Shalla-Banking
-ens.fel.fr	UT1-Bu, UT1-Whitelist
-ffsa.fr	UT1-Bu
-fidal.fr	UT1-Bu
-finance-etudiant.fr	UT1-Bu
-flf.fr	UT1-Bu
-fnege.fr	UT1-Bu
-asclcp.fnsea.fr	UT1-Bu
-fop.fr	UT1-Bu
-force-ouvriere.fr	UT1-Bu
-formation-logiciel-comptabilite.fr	UT1-Bu
-formation-publique.fr	UT1-Bu
+ens.fel.fr	UT1-Whitelist
 fortisbanque.fr	Shalla-Banking
 fortuneo.fr	UT1-Banking, UT1-Financial, Adguard-Banks
-france3.fr	UT1-Bu
-france5.fr	UT1-Bu
-franceculture.fr	UT1-Bu
-education.francetv.fr	UT1-Bu
-francetvinfo.fr	UT1-Bu
-frantext.fr	UT1-Bu
-classes.belem.44.free.fr	UT1-Bu
-aget.free.fr	UT1-Bu
-alain.alcouffe.free.fr	UT1-Bu
-amiraq.free.fr	UT1-Bu
-christophe.benavent.free.fr	UT1-Bu
-benchmarkcomptable.free.fr	UT1-Bu
-bestofcompta.free.fr	UT1-Bu
-blogonsdroit.blog.free.fr	UT1-Bu
-cfdt.cap.free.fr	UT1-Bu
-ceesp.free.fr	UT1-Bu
-arnold.chassagnon.free.fr	UT1-Bu
-denise.vella.chemla.free.fr	UT1-Bu
-chrisbontemps.free.fr	UT1-Bu
-collectifdefemmes.free.fr	UT1-Bu
-corpodroit.free.fr	UT1-Bu
-coursdedroit.free.fr	UT1-Bu
-marika.demangeon.free.fr	UT1-Bu
-dhdi.free.fr	UT1-Bu
-dtouret.free.fr	UT1-Bu
-ebdv.free.fr	UT1-Bu
-edelassus.free.fr	UT1-Bu
-maitre.eolas.free.fr	UT1-Bu
-essaieco.free.fr	UT1-Bu
-federalisme.free.fr	UT1-Bu
-pcsi2.fermat.free.fr	UT1-Bu
-raymond.ferretti.free.fr	UT1-Bu
-autisme.france.free.fr	UT1-Bu
-francepolitique.free.fr	UT1-Bu
-gernika.free.fr	UT1-Bu
-geronim.free.fr	UT1-Bu
-glossairedusocial.free.fr	UT1-Bu
-guidesconcours.free.fr	UT1-Bu
-integraledesmaths.free.fr	UT1-Bu
-tanopah.jo.free.fr	UT1-Bu
-jurisfac.free.fr	UT1-Bu
-trafic.justice.free.fr	UT1-Bu
-knet.free.fr	UT1-Bu
-laicite.free.fr	UT1-Bu
-ledroitcriminel.free.fr	UT1-Bu
-johan.lemarchand.free.fr	UT1-Bu
-lexiquefle.free.fr	UT1-Bu
-lexpublica.free.fr	UT1-Bu
-libertarien.free.fr	UT1-Bu
-manco.free.fr	UT1-Bu
-maths54.free.fr	UT1-Bu
-mathscyr.free.fr	UT1-Bu
-mathsece.free.fr	UT1-Bu
-morgann.moussier.free.fr	UT1-Bu
-laurent.mucchielli.free.fr	UT1-Bu
-nah296.free.fr	UT1-Bu
-napoleontrois.free.fr	UT1-Bu
-loyer.org.free.fr	UT1-Bu
-droit.wester.ouisse.free.fr	UT1-Bu
-reseaux.parvis.free.fr	UT1-Bu
-playmendroit.free.fr	UT1-Bu
-fpj.portier.free.fr	UT1-Bu
-jpj.portier.free.fr	UT1-Bu
-prudhommesisere.free.fr	UT1-Bu
-psteger.free.fr	UT1-Bu
-aloys.rigaut.free.fr	UT1-Bu
-satamikarohm.free.fr	UT1-Bu
-ph.segur.free.fr	UT1-Bu
-sitepasteurs.free.fr	UT1-Bu
-tibet.toulouse.free.fr	UT1-Bu
-tuisp.free.fr	UT1-Bu
-undpfrance.free.fr	UT1-Bu
-universitesengreve.free.fr	UT1-Bu
-usm2000.free.fr	UT1-Bu
-vekemans.free.fr	UT1-Bu
-jeanjacques.villemag.free.fr	UT1-Bu
-webtic.free.fr	UT1-Bu
-xmaths.free.fr	UT1-Bu
-juris.freesurf.fr	UT1-Bu
-sps.fsu.fr	UT1-Bu
 garantiedesdepots.fr	Shalla-Banking, UT1-Banking
-gaullisme.fr	UT1-Bu
-gdf.fr	UT1-Bu
-gestion-des-acces.fr	UT1-Bu
-gip-recherche-justice.fr	UT1-Bu
-google.fr	UT1-Bu, Notracking-Whitelist
-gouv.fr	UT1-Bu, UT1-Whitelist
-gouvernement.fr	UT1-Bu
-greenpeace.fr	UT1-Bu
-greffe-tc-paris.fr	UT1-Bu
-grenet.fr	UT1-Bu, UT1-Whitelist
-groupe-icam.fr	UT1-Bu
-hachette-livre.fr	UT1-Bu
-has-sante.fr	UT1-Bu
-haute-garonne.fr	UT1-Bu
-hec.fr	UT1-Bu
-helinia.fr	UT1-Bu
-histoire-politique.fr	UT1-Bu
+google.fr	Notracking-Whitelist
+gouv.fr	UT1-Whitelist
+grenet.fr	UT1-Whitelist
 hsbc.fr	UT1-Banking, Adguard-Banks
-huissier-justice.fr	UT1-Bu
-humanite.fr	UT1-Bu
-iae-bordeaux.fr	UT1-Bu
-iae-france.fr	UT1-Bu
-iae-message.fr	UT1-Bu
-iae-toulouse.fr	UT1-Bu, UT1-Whitelist
-adhara.icbs.fr	UT1-Bu
-ices.fr	UT1-Bu
-icl-lille.fr	UT1-Bu
-icp.fr	UT1-Bu
-ict-toulouse.fr	UT1-Bu
-idei.fr	UT1-Bu
-iej-lyon3.fr	UT1-Bu
-iep.fr	UT1-Bu
-iep-aix.fr	UT1-Bu
-ifen.fr	UT1-Bu
-ifocop.fr	UT1-Bu
+iae-toulouse.fr	UT1-Whitelist
 iforex.fr	UT1-Financial
-ifp.fr	UT1-Bu
-ifremer.fr	UT1-Bu, UT1-Whitelist
-ign.fr	UT1-Bu
-igr.fr	UT1-Bu
-ihedn.fr	UT1-Bu
-ina.fr	UT1-Bu
-frantext.inalf.fr	UT1-Bu
-ined.fr	UT1-Bu, UT1-Whitelist
-ineris.fr	UT1-Bu, UT1-Whitelist
-inesc.fr	UT1-Bu
-info-europe.fr	UT1-Bu
-info-financiere.fr	UT1-Bu
-infoscience.fr	UT1-Bu
+ifremer.fr	UT1-Whitelist
+ined.fr	UT1-Whitelist
+ineris.fr	UT1-Whitelist
 ingdirect.fr	Shalla-Banking, UT1-Banking, Adguard-Banks
-inist.fr	UT1-Bu
-init-marketing.fr	UT1-Bu
-alexweb.injep.fr	UT1-Bu
-inp.fr	UT1-Bu
-inp-toulouse.fr	UT1-Bu
-inpg.fr	UT1-Bu, UT1-Whitelist
-inpi.fr	UT1-Bu
-inpl-nancy.fr	UT1-Bu, UT1-Whitelist
-inpt.fr	UT1-Bu, UT1-Whitelist
-inra.fr	UT1-Bu, UT1-Whitelist
-inrets.fr	UT1-Bu, UT1-Whitelist
-inria.fr	UT1-Bu, UT1-Whitelist
-inrialpes.fr	UT1-Bu
-inrp.fr	UT1-Bu, UT1-Whitelist
-inrs.fr	UT1-Bu
-insa-lyon.fr	UT1-Bu, UT1-Whitelist
-insa-rennes.fr	UT1-Bu, UT1-Whitelist
-insa-rouen.fr	UT1-Bu, UT1-Whitelist
-insa-tlse.fr	UT1-Bu, UT1-Whitelist
-insa-toulouse.fr	UT1-Bu
-insee.fr	UT1-Bu, UT1-Whitelist
-inserm.fr	UT1-Bu, UT1-Whitelist
-institut-de-france.fr	UT1-Bu, UT1-Whitelist
-int-evry.fr	UT1-Bu
-intellego.fr	UT1-Bu
-intelliagence.fr	UT1-Bu
+inpg.fr	UT1-Whitelist
+inpl-nancy.fr	UT1-Whitelist
+inpt.fr	UT1-Whitelist
+inra.fr	UT1-Whitelist
+inrets.fr	UT1-Whitelist
+inria.fr	UT1-Whitelist
+inrp.fr	UT1-Whitelist
+insa-lyon.fr	UT1-Whitelist
+insa-rennes.fr	UT1-Whitelist
+insa-rouen.fr	UT1-Whitelist
+insa-tlse.fr	UT1-Whitelist
+insee.fr	UT1-Whitelist
+inserm.fr	UT1-Whitelist
+institut-de-france.fr	UT1-Whitelist
 interepargne.fr	Shalla-Banking
-interex.fr	UT1-Bu
-interieur-formation.fr	UT1-Bu
-investir.fr	UT1-Bu, UT1-Financial
-ipesup.fr	UT1-Bu
-ipsos.fr	UT1-Bu
-ipst-cnam.fr	UT1-Bu
-ird.fr	UT1-Bu, UT1-Whitelist
-iresco.fr	UT1-Bu
-irit.fr	UT1-Bu
-isae.fr	UT1-Bu
-iseg.fr	UT1-Bu
-isthia.fr	UT1-Bu
-assembly-weu.itnetwork.fr	UT1-Bu
-iufm.fr	UT1-Bu, UT1-Whitelist
-iut-rodez.fr	UT1-Bu
-iut-tarbes.fr	UT1-Bu
-iut-tlse3.fr	UT1-Bu
+investir.fr	UT1-Financial
+ird.fr	UT1-Whitelist
+iufm.fr	UT1-Whitelist
 iwbank.fr	Shalla-Banking
-izly.fr	UT1-Bu
-jobfinance.fr	UT1-Bu
-jobpilot.fr	UT1-Bu
-juradm.fr	UT1-Bu
-juripole.fr	UT1-Bu
-juris-formatio.fr	UT1-Bu
-jussieu.fr	UT1-Bu, UT1-Whitelist
-justice.fr	UT1-Bu
+jussieu.fr	UT1-Whitelist
 jyskebank.fr	Shalla-Banking, UT1-Banking
-kartoo.fr	UT1-Bu
-kleio.fr	UT1-Bu
-kompass.fr	UT1-Bu
-la-conjugaison.fr	UT1-Bu
-laas.fr	UT1-Bu
 labanquepostale.fr	Shalla-Banking, UT1-Banking, Adguard-Banks
-miage.labri.fr	UT1-Bu
 lacotebleue.fr	UT1-Financial
-ladepeche.fr	UT1-Bu
-ladocumentationfrancaise.fr	UT1-Bu
-lamy.fr	UT1-Bu
-lamylinereflex.fr	UT1-Bu
-larousse.fr	UT1-Bu
-laterre.fr	UT1-Bu
-latribune.fr	UT1-Bu
-lavoisier.fr	UT1-Bu
+bourse.latribune.fr	UT1-Financial
 lcf-rothschild.fr	Shalla-Banking
 lcl.fr	Shalla-Banking, UT1-Banking
-lcpc.fr	UT1-Bu, UT1-Whitelist
-lecese.fr	UT1-Bu
-ledroit.fr	UT1-Bu
-lefigaro.fr	UT1-Bu
-legaletic.fr	UT1-Bu
-legavox.fr	UT1-Bu
-legifrance.fr	UT1-Bu
-legrenelle-environnement.fr	UT1-Bu
-leh.fr	UT1-Bu
-lemonde.fr	UT1-Bu, Notracking-Whitelist
-lemondedudroit.fr	UT1-Bu
-lemondepolitique.fr	UT1-Bu
+lcpc.fr	UT1-Whitelist
+bourse.lefigaro.fr	UT1-Financial
+lemonde.fr	Notracking-Whitelist
 lemoneymag.fr	UT1-Financial
-leparisien.fr	UT1-Bu
-leparticulier.fr	UT1-Bu
-lepetitjuriste.fr	UT1-Bu
-lepoint.fr	Chris-White, UT1-Bu
-leprogres.fr	UT1-Bu
-lesechos.fr	UT1-Bu
-lesechos-etudes.fr	UT1-Bu
-lesocial.fr	UT1-Bu
-letudiant.fr	UT1-Bu
-letudiant-emploi.fr	UT1-Bu
-lexbase.fr	UT1-Bu
-lexbase-academie.fr	UT1-Bu
-lexis360.fr	UT1-Bu
-lexisnexis.fr	UT1-Bu
-lexpansion.fr	UT1-Bu
-lexpress.fr	UT1-Bu
-lextenso.fr	UT1-Bu
-lgdj.fr	UT1-Bu
-liberation.fr	UT1-Bu
-librairiedalloz.fr	UT1-Bu
-librairiedialogues.fr	UT1-Bu
-librairielephenix.fr	UT1-Bu
-licp.fr	UT1-Bu
-linguee.fr	UT1-Bu
-lire.fr	UT1-Bu
-lirmm.fr	UT1-Bu
-loreal.fr	UT1-Bu
-loria.fr	UT1-Bu
-lsa.fr	UT1-Bu
-lve.fr	UT1-Bu
-lyceepourtous.fr	UT1-Bu
-ens.lyon.fr	UT1-Bu, UT1-Whitelist
+lepoint.fr	Chris-White
+bourse.lesechos.fr	UT1-Financial
+bourse.lexpress.fr	UT1-Financial
+ens.lyon.fr	UT1-Whitelist
 bourse.m6.fr	UT1-Financial
 macromedia.fr	UT1-Whitelist
-mairie-albi.fr	UT1-Bu
-mairie-lyon.fr	UT1-Bu
-mairie-marseille.fr	UT1-Bu
-mairie-toulouse.fr	UT1-Bu, UT1-Whitelist
-maitre-eolas.fr	UT1-Bu
-management.fr	UT1-Bu
-marianne.fr	UT1-Bu
-marianne-en-ligne.fr	UT1-Bu
-marianne2.fr	UT1-Bu
-marketingscan.fr	UT1-Bu
-masterdroit.fr	UT1-Bu
-maths-france.fr	UT1-Bu
-mazerolle.fr	UT1-Bu
-conseil-national.medecin.fr	UT1-Bu
-medef.fr	UT1-Bu
-mediapart.fr	UT1-Bu
-mediateur-de-la-republique.fr	UT1-Bu, UT1-Whitelist
-mediatheque-bourges.fr	UT1-Bu
-memo.fr	UT1-Bu
-memoires-tsiganes1939-1946.fr	UT1-Bu
-mercator.fr	UT1-Bu
-meteo.fr	UT1-Bu
-miage.fr	UT1-Bu
-midipyrenees.fr	UT1-Bu
-midipyrenees-expansion.fr	UT1-Bu
-mines-stetienne.fr	UT1-Bu
-miti.fr	UT1-Bu
-mjccroixdaurade.fr	UT1-Bu
-mnf.fr	UT1-Bu
-mnhn.fr	UT1-Bu, UT1-Whitelist
+mairie-toulouse.fr	UT1-Whitelist
+mediateur-de-la-republique.fr	UT1-Whitelist
+mnhn.fr	UT1-Whitelist
 monbanquierenligne.fr	UT1-Banking
-monde-diplomatique.fr	UT1-Bu
-mondepub.fr	UT1-Bu
-monep.fr	UT1-Bu
-monnaiedeparis.fr	UT1-Bu, UT1-Whitelist
-monster.fr	UT1-Bu
+monnaiedeparis.fr	UT1-Whitelist
 montepaschi-banque.fr	Shalla-Banking
-mouvementdesetudiants.fr	UT1-Bu
-msf.fr	UT1-Bu
-msh-paris.fr	UT1-Bu
-museedesantiquites.fr	UT1-Bu
-net-iris.fr	UT1-Bu
-netpme.fr	UT1-Bu
-netscape.fr	UT1-Bu
-newsweek.fr	UT1-Bu
-nordpasdecalais.fr	UT1-Bu
-notaires.fr	UT1-Bu
-note-de-synthese.fr	UT1-Bu
-novethic.fr	UT1-Bu
 nxbp.fr	Shalla-Banking
-obs-ost.fr	UT1-Bu, UT1-Whitelist
-obspm.fr	UT1-Bu, UT1-Whitelist
-odilejacob.fr	UT1-Bu
-oee.fr	UT1-Bu
-oieau.fr	UT1-Bu
-ombres-blanches.fr	UT1-Bu
-omnidroit.fr	UT1-Bu
-onera.fr	UT1-Bu, UT1-Whitelist
-onf.fr	UT1-Bu
-onisep.fr	UT1-Bu, UT1-Whitelist
-docdif.online.fr	UT1-Bu
-solidariteetprogres.online.fr	UT1-Bu
-onu.fr	UT1-Bu
-orientation.fr	UT1-Bu
-puf.ornis.fr	UT1-Bu
-ort.fr	UT1-Bu
-pagejaunes.fr	UT1-Bu
-pagesjaunes.fr	UT1-Bu, UT1-Whitelist
-haution.philosophie.pagesperso-orange.fr	UT1-Bu
-palais-decouverte.fr	UT1-Bu, UT1-Whitelist
-pantheonsorbonne.fr	UT1-Bu
-parcoursup.fr	UT1-Bu
-paris.fr	UT1-Bu
-notaires.paris-idf.fr	UT1-Bu
-paris-sorbonne.fr	UT1-Bu
-reseaupro.pariscentreuniversites.fr	UT1-Bu
-parlement.fr	UT1-Bu
-parti-socialiste.fr	UT1-Bu
-pasteur.fr	UT1-Bu, UT1-Whitelist
-pcf.fr	UT1-Bu
-pea.fr	UT1-Bu
-pearson.fr	UT1-Bu
-pec-univ.fr	UT1-Bu
-persee.fr	UT1-Bu
-peugeot.fr	UT1-Bu
-plancancer.fr	UT1-Bu
-poesie-francaise.fr	UT1-Bu
-pointrisk.fr	UT1-Bu
-pointsdevente.fr	UT1-Bu
-pole-emploi.fr	UT1-Bu
-pole-tlse.fr	UT1-Bu
-pole-toulouse.fr	UT1-Bu, UT1-Whitelist
-politis.fr	UT1-Bu
-polytechnique.fr	UT1-Bu
-portail-vie-etudiante.fr	UT1-Bu
-portailpme.fr	UT1-Bu
-pratique.fr	UT1-Bu
-prd.fr	UT1-Bu
-prepa-isp.fr	UT1-Bu
-present.fr	UT1-Bu
-presse.fr	UT1-Bu
-service.public.fr	UT1-Bu
-pug.fr	UT1-Bu
-moodle.purpan.fr	UT1-Bu
-qualite-site-internet.fr	UT1-Bu
-quid.fr	UT1-Bu
-radiofrance.fr	UT1-Bu
-recrulex.fr	UT1-Bu
-refdoc.fr	UT1-Bu
-regards.fr	UT1-Bu
-region-haute-normandie.fr	UT1-Bu
-renater.fr	UT1-Bu, UT1-Whitelist
-reseau-amerique-latine.fr	UT1-Bu
-reussirmesetudes.fr	UT1-Bu
-reuters.fr	UT1-Bu
-revue-pouvoirs.fr	UT1-Bu
-rff.fr	UT1-Bu
-rfi.fr	UT1-Bu
-rutmp.fr	UT1-Bu
-samusocial-75.fr	UT1-Bu
+obs-ost.fr	UT1-Whitelist
+obspm.fr	UT1-Whitelist
+onera.fr	UT1-Whitelist
+onisep.fr	UT1-Whitelist
+pagesjaunes.fr	UT1-Whitelist
+palais-decouverte.fr	UT1-Whitelist
+pasteur.fr	UT1-Whitelist
+pole-toulouse.fr	UT1-Whitelist
+qwant.fr	UT1-Whitelist
+renater.fr	UT1-Whitelist
 sanpaolo.fr	Shalla-Banking
-ars.sante.fr	UT1-Bu
-scei-concours.fr	UT1-Bu
-sciences-po.fr	UT1-Bu, UT1-Whitelist
-sciencesetavenir.fr	UT1-Bu
-sciencespo.fr	UT1-Bu
-sciencespo-concourscommuns.fr	UT1-Bu
-sciencespo-grenoble.fr	UT1-Bu
-doc.sciencespo-lyon.fr	UT1-Bu
-sciencespo-toulouse.fr	UT1-Bu
-sciencespobordeaux.fr	UT1-Bu
-liberte.scrl.fr	UT1-Bu
-senat.fr	UT1-Bu, UT1-Whitelist
-service-public.fr	UT1-Bu, UT1-Whitelist
-servicepublic.fr	UT1-Bu
-servirlepublic.fr	UT1-Bu
-sfrs.fr	UT1-Bu, UT1-Whitelist
-shom.fr	UT1-Bu, UT1-Whitelist
-siac.siec.fr	UT1-Bu
-signets-universites.fr	UT1-Bu
-silc.fr	UT1-Bu
-skema-bs.fr	UT1-Bu
-smbg.fr	UT1-Bu
-smeag.fr	UT1-Bu
-sncf.fr	UT1-Bu, UT1-Whitelist
-snj.fr	UT1-Bu
-snuipp.fr	UT1-Bu
+sciences-po.fr	UT1-Whitelist
+senat.fr	UT1-Whitelist
+service-public.fr	UT1-Whitelist
+sfrs.fr	UT1-Whitelist
+shom.fr	UT1-Whitelist
+sncf.fr	UT1-Whitelist
 snvb.fr	Shalla-Banking, UT1-Banking
-omi.social.fr	UT1-Bu
-societal.fr	UT1-Bu
 societegenerale.fr	Shalla-Banking, UT1-Banking, Adguard-Banks
-sorbonne.fr	UT1-Bu, UT1-Whitelist
-lettres.sorbonne-universite.fr	UT1-Bu
-sorbonne-universites.fr	UT1-Bu
-stage.fr	UT1-Bu
-statistique-publique.fr	UT1-Bu
-strategies.fr	UT1-Bu
-stud-ant-staps.fr	UT1-Bu
-sudoc.fr	UT1-Bu
-synergies-publiques.fr	UT1-Bu
-synomia.fr	UT1-Bu
-synonymo.fr	UT1-Bu
+sorbonne.fr	UT1-Whitelist
 tarneaud.fr	Shalla-Banking
-tbs-education.fr	UT1-Bu
-tdf.fr	UT1-Bu
-techniques-ingenieur.fr	UT1-Bu
-territorial.fr	UT1-Bu
-textile.fr	UT1-Bu
 bourse.tf1.fr	UT1-Financial
-theses.fr	UT1-Bu, UT1-Whitelist
-cprior.chez.tiscali.fr	UT1-Bu
-tisseo.fr	UT1-Bu
-univ.tlse1.fr	UT1-Bu
-arist.tm.fr	UT1-Bu
-ash.tm.fr	UT1-Bu
-campus-electronique.tm.fr	UT1-Bu
-filocal.tm.fr	UT1-Bu
-jurifrance.tm.fr	UT1-Bu
-parcs-naturels-regionaux.tm.fr	UT1-Bu
-sirene.tm.fr	UT1-Bu
-telexport.tm.fr	UT1-Bu
-toulemploi.fr	UT1-Bu
-toulouse.fr	UT1-Bu
-toulousetech-formation.fr	UT1-Bu
+theses.fr	UT1-Whitelist
 trader-forex.fr	UT1-Financial
-transactive.fr	UT1-Bu
-travail-et-securite.fr	UT1-Bu
-tremplin-iep.fr	UT1-Bu
-tribunal-administratif.fr	UT1-Bu
-tsm-education.fr	UT1-Bu
-tsm-research.fr	UT1-Bu
-vincentmerat.typepad.fr	UT1-Bu
-u-3mrs.fr	UT1-Bu, UT1-Whitelist
-u-bordeaux.fr	UT1-Bu, UT1-Whitelist
-u-bordeaux1.fr	UT1-Bu
-u-bordeaux2.fr	UT1-Bu, UT1-Whitelist
-u-bordeaux3.fr	UT1-Bu
-u-bordeaux4.fr	UT1-Bu
-u-bourgogne.fr	UT1-Bu, UT1-Whitelist
-u-cergy.fr	UT1-Bu, UT1-Whitelist
-u-clermont1.fr	UT1-Bu, UT1-Whitelist
-u-grenoble3.fr	UT1-Bu, UT1-Whitelist
-u-nancy.fr	UT1-Bu, UT1-Whitelist
-u-paris10.fr	UT1-Bu, UT1-Whitelist
-u-paris2.fr	UT1-Bu, UT1-Whitelist
-u-picardie.fr	UT1-Bu, UT1-Whitelist
-u-psud.fr	UT1-Bu, UT1-Whitelist
-u-strasbg.fr	UT1-Bu, UT1-Whitelist
+u-3mrs.fr	UT1-Whitelist
+u-bordeaux.fr	UT1-Whitelist
+u-bordeaux2.fr	UT1-Whitelist
+u-bourgogne.fr	UT1-Whitelist
+u-cergy.fr	UT1-Whitelist
+u-clermont1.fr	UT1-Whitelist
+u-grenoble3.fr	UT1-Whitelist
+u-nancy.fr	UT1-Whitelist
+u-paris10.fr	UT1-Whitelist
+u-paris2.fr	UT1-Whitelist
+u-picardie.fr	UT1-Whitelist
+u-psud.fr	UT1-Whitelist
+u-strasbg.fr	UT1-Whitelist
 ubaf.fr	Shalla-Banking
-uca.fr	UT1-Bu
-ucanss.fr	UT1-Bu
-uha.fr	UT1-Bu
-uhb.fr	UT1-Bu, UT1-Whitelist
-uhp-nancy.fr	UT1-Bu
-ujf-grenoble.fr	UT1-Bu, UT1-Whitelist
-umontpellier.fr	UT1-Bu
-unaf.fr	UT1-Bu
-unedic.fr	UT1-Bu
-unef.fr	UT1-Bu
-unhcr.fr	UT1-Bu
-unicaen.fr	UT1-Bu, UT1-Whitelist
-unice.fr	UT1-Bu, UT1-Whitelist
-unicef.fr	UT1-Bu
-unilim.fr	UT1-Bu, UT1-Whitelist
-unistra.fr	UT1-Bu
-univ-ag.fr	UT1-Bu, UT1-Whitelist
-univ-aix.fr	UT1-Bu
-catalogue.univ-aix-marseille.fr	UT1-Bu
-univ-amu.fr	UT1-Bu
-univ-angers.fr	UT1-Bu, UT1-Whitelist
-univ-artois.fr	UT1-Bu, UT1-Whitelist
-univ-avignon.fr	UT1-Bu, UT1-Whitelist
-univ-bpclermont.fr	UT1-Bu, UT1-Whitelist
-univ-brest.fr	UT1-Bu, UT1-Whitelist
-univ-cezanne.fr	UT1-Bu
-univ-corse.fr	UT1-Bu, UT1-Whitelist
-univ-evry.fr	UT1-Bu, UT1-Whitelist
-univ-fcomte.fr	UT1-Bu, UT1-Whitelist
-univ-inpt.fr	UT1-Bu, UT1-Whitelist
-univ-jfc.fr	UT1-Bu
-univ-lehavre.fr	UT1-Bu, UT1-Whitelist
-univ-lemans.fr	UT1-Bu, UT1-Whitelist
-univ-lille1.fr	UT1-Bu, UT1-Whitelist
-univ-lille2.fr	UT1-Bu, UT1-Whitelist
-univ-lille3.fr	UT1-Bu, UT1-Whitelist
-univ-littoral.fr	UT1-Bu, UT1-Whitelist
-univ-lorraine.fr	UT1-Bu
-univ-lr.fr	UT1-Bu, UT1-Whitelist
-univ-lyon1.fr	UT1-Bu, UT1-Whitelist
-univ-lyon2.fr	UT1-Bu, UT1-Whitelist
-univ-lyon3.fr	UT1-Bu, UT1-Whitelist
-univ-metz.fr	UT1-Bu, UT1-Whitelist
-univ-mlv.fr	UT1-Bu, UT1-Whitelist
-univ-montp1.fr	UT1-Bu, UT1-Whitelist
-univ-montp2.fr	UT1-Bu, UT1-Whitelist
-univ-montp3.fr	UT1-Bu, UT1-Whitelist
-univ-mrs.fr	UT1-Bu, UT1-Whitelist
-univ-mulhouse.fr	UT1-Bu, UT1-Whitelist
-univ-nancy2.fr	UT1-Bu, UT1-Whitelist
-univ-nantes.fr	UT1-Bu, UT1-Whitelist
-univ-orleans.fr	UT1-Bu, UT1-Whitelist
-univ-paris-diderot.fr	UT1-Bu
-univ-paris1.fr	UT1-Bu, UT1-Whitelist
-univ-paris12.fr	UT1-Bu, UT1-Whitelist
-univ-paris13.fr	UT1-Bu, UT1-Whitelist
-univ-paris2.fr	UT1-Bu
-univ-paris3.fr	UT1-Bu, UT1-Whitelist
-univ-paris5.fr	UT1-Bu, UT1-Whitelist
-univ-paris7.fr	UT1-Bu
-univ-paris8.fr	UT1-Bu, UT1-Whitelist
-univ-pau.fr	UT1-Bu, UT1-Whitelist
-univ-perp.fr	UT1-Bu, UT1-Whitelist
-univ-poitiers.fr	UT1-Bu, UT1-Whitelist
-univ-provence.fr	UT1-Bu
-univ-reims.fr	UT1-Bu, UT1-Whitelist
-univ-rennes1.fr	UT1-Bu, UT1-Whitelist
-univ-reunion.fr	UT1-Bu, UT1-Whitelist
-univ-rouen.fr	UT1-Bu, UT1-Whitelist
-univ-savoie.fr	UT1-Bu, UT1-Whitelist
-univ-st-etienne.fr	UT1-Bu, UT1-Whitelist
-univ-tln.fr	UT1-Bu, UT1-Whitelist
-univ-tlse1.fr	UT1-Bu, UT1-Whitelist
-univ-tlse2.fr	UT1-Bu, UT1-Whitelist
-univ-tlse3.fr	UT1-Bu
-univ-toulouse.fr	UT1-Bu
-univ-tours.fr	UT1-Bu, UT1-Whitelist
-univ-troyes.fr	UT1-Bu, UT1-Whitelist
-univ-ubs.fr	UT1-Bu, UT1-Whitelist
-univ-valenciennes.fr	UT1-Bu, UT1-Whitelist
-universalis.fr	UT1-Bu
-unjf.fr	UT1-Bu
-uoh.fr	UT1-Bu
-upmc.fr	UT1-Bu
-upmf-grenoble.fr	UT1-Bu, UT1-Whitelist
-ups-tlse.fr	UT1-Bu, UT1-Whitelist
-urec.fr	UT1-Bu
-urssaf.fr	UT1-Bu
-usj-cfdt.fr	UT1-Bu
-ut-capitole.fr	Chris-White, UT1-Bu
-utbm.fr	UT1-Bu, UT1-Whitelist
-utc.fr	UT1-Bu, UT1-Whitelist
-utt.fr	UT1-Bu
-uvsq.fr	UT1-Bu, UT1-Whitelist
-vie-publique.fr	UT1-Bu
-vieuniversitaire.fr	UT1-Bu
-ville-salernes.fr	UT1-Bu
-ville-tulle.fr	UT1-Bu
-vittavi.fr	UT1-Bu
-vlex.fr	UT1-Bu
-vnf.fr	UT1-Bu
-vocable.fr	UT1-Bu
-encyclo.voila.fr	UT1-Bu
-vosges.fr	UT1-Bu
+uhb.fr	UT1-Whitelist
+ujf-grenoble.fr	UT1-Whitelist
+unicaen.fr	UT1-Whitelist
+unice.fr	UT1-Whitelist
+unilim.fr	UT1-Whitelist
+univ-ag.fr	UT1-Whitelist
+univ-angers.fr	UT1-Whitelist
+univ-artois.fr	UT1-Whitelist
+univ-avignon.fr	UT1-Whitelist
+univ-bpclermont.fr	UT1-Whitelist
+univ-brest.fr	UT1-Whitelist
+univ-corse.fr	UT1-Whitelist
+univ-evry.fr	UT1-Whitelist
+univ-fcomte.fr	UT1-Whitelist
+univ-inpt.fr	UT1-Whitelist
+univ-lehavre.fr	UT1-Whitelist
+univ-lemans.fr	UT1-Whitelist
+univ-lille1.fr	UT1-Whitelist
+univ-lille2.fr	UT1-Whitelist
+univ-lille3.fr	UT1-Whitelist
+univ-littoral.fr	UT1-Whitelist
+univ-lr.fr	UT1-Whitelist
+univ-lyon1.fr	UT1-Whitelist
+univ-lyon2.fr	UT1-Whitelist
+univ-lyon3.fr	UT1-Whitelist
+univ-metz.fr	UT1-Whitelist
+univ-mlv.fr	UT1-Whitelist
+univ-montp1.fr	UT1-Whitelist
+univ-montp2.fr	UT1-Whitelist
+univ-montp3.fr	UT1-Whitelist
+univ-mrs.fr	UT1-Whitelist
+univ-mulhouse.fr	UT1-Whitelist
+univ-nancy2.fr	UT1-Whitelist
+univ-nantes.fr	UT1-Whitelist
+univ-orleans.fr	UT1-Whitelist
+univ-paris1.fr	UT1-Whitelist
+univ-paris12.fr	UT1-Whitelist
+univ-paris13.fr	UT1-Whitelist
+univ-paris3.fr	UT1-Whitelist
+univ-paris5.fr	UT1-Whitelist
+univ-paris8.fr	UT1-Whitelist
+univ-pau.fr	UT1-Whitelist
+univ-perp.fr	UT1-Whitelist
+univ-poitiers.fr	UT1-Whitelist
+univ-reims.fr	UT1-Whitelist
+univ-rennes1.fr	UT1-Whitelist
+univ-reunion.fr	UT1-Whitelist
+univ-rouen.fr	UT1-Whitelist
+univ-savoie.fr	UT1-Whitelist
+univ-st-etienne.fr	UT1-Whitelist
+univ-tln.fr	UT1-Whitelist
+univ-tlse1.fr	UT1-Whitelist
+univ-tlse2.fr	UT1-Whitelist
+univ-tours.fr	UT1-Whitelist
+univ-troyes.fr	UT1-Whitelist
+univ-ubs.fr	UT1-Whitelist
+univ-valenciennes.fr	UT1-Whitelist
+upmf-grenoble.fr	UT1-Whitelist
+ups-tlse.fr	UT1-Whitelist
+ut-capitole.fr	Chris-White
+utbm.fr	UT1-Whitelist
+utc.fr	UT1-Whitelist
+uvsq.fr	UT1-Whitelist
 bourse.votreargent.fr	UT1-Financial
-wagri.fr	UT1-Bu
-crfpa.monsite.wanadoo.fr	UT1-Bu
-whoswho.fr	UT1-Bu
-wikio.fr	UT1-Bu
-wikipedia.fr	UT1-Bu
-wk-rh.fr	UT1-Bu
-wkf.fr	UT1-Bu
-xerfi.fr	UT1-Bu
-yahoo.fr	UT1-Bu
-aaproxy.ga	UT1-Bu
-agermany.ga	UT1-Bu
-finances.gouv.ga	UT1-Bu
-karly.ga	UT1-Bu
-ukplan.ga	UT1-Bu
 bankonline.ge	Adguard-Banks
 businessonline.ge	Adguard-Banks
 e-commerce.cartubank.ge	Adguard-Banks
@@ -7788,14 +6121,11 @@ cbg.gm	Shalla-Banking
 trustbank.gm	Shalla-Banking
 gov	Chris-White
 bdaf.gp	Shalla-Banking
-aaproxy.gq	UT1-Bu
-beproxxy.gq	UT1-Bu
 alpha.gr	Shalla-Banking
 aspisbank.gr	Shalla-Banking
 bankofgreece.gr	Shalla-Banking
 cetelembank.gr	Shalla-Banking
-edia.gr	UT1-Bu
-efa.gr	UT1-Bu, UT1-Whitelist
+efa.gr	UT1-Whitelist
 eurobank.gr	Shalla-Banking
 hba.gr	Shalla-Banking
 nbg.gr	Shalla-Banking
@@ -7803,7 +6133,6 @@ piraeusbank.gr	Shalla-Banking
 void.gr	Chris-White
 winbank.gr	Shalla-Banking, Adguard-Banks
 bi.com.gt	Shalla-Banking
-elperiodico.com.gt	UT1-Bu
 banguat.gob.gt	Shalla-Banking
 abg.org.gt	Shalla-Banking
 ankofguyana.org.gy	Shalla-Banking
@@ -7821,7 +6150,6 @@ shacombank.com.hk	Shalla-Banking
 standardchartered.com.hk	Shalla-Banking, UT1-Banking
 taisangbank.com.hk	Shalla-Banking
 info.gov.hk	Shalla-Banking
-hku.hk	UT1-Bu
 hkab.org.hk	Shalla-Banking, UT1-Banking
 ahiba.hn	Shalla-Banking, UT1-Banking
 bamernet.hn	Shalla-Banking
@@ -7889,11 +6217,8 @@ ibf.ie	Shalla-Banking, UT1-Banking
 icc.ie	Shalla-Banking
 nib.ie	Shalla-Banking, UT1-Banking
 open24.ie	Shalla-Banking
-tcd.ie	UT1-Bu
-ucd.ie	UT1-Bu
 ulsterbank.ie	Shalla-Banking
 unicredito.ie	Shalla-Banking
-ac.il	UT1-Bu
 hb.aibank.co.il	Adguard-Banks
 bankhapoalim.co.il	Adguard-Banks
 hb2.bankleumi.co.il	Adguard-Banks
@@ -7937,48 +6262,17 @@ syndicatebank.in	Shalla-Banking, Adguard-Banks
 syndonline.in	Adguard-Banks
 yesbank.in	Shalla-Banking
 bankofestonia.info	Shalla-Banking
-cairn.info	UT1-Bu
-cambio16.info	UT1-Bu
-cdurable.info	UT1-Bu
-congo-siteportail.info	UT1-Bu
-constitution-europeenne.info	UT1-Bu
-eyes-2004.info	UT1-Bu
-humanrights-geneva.info	UT1-Bu
-inceste.info	UT1-Bu
-infotheque.info	UT1-Bu
-jusdata.info	UT1-Bu
-lawoftheworld.info	UT1-Bu
-lecourrierdabidjan.info	UT1-Bu
-lexique-comptable.info	UT1-Bu
-maree-noire.info	UT1-Bu
 mediserv.info	Adguard-Banks
-paxhumana.info	UT1-Bu
-pedone.info	UT1-Bu
 privatebanking.info	Shalla-Banking, UT1-Banking
-proche-orient.info	UT1-Bu
-saphirnet.info	UT1-Bu
-servicedoc.info	UT1-Bu
-studentsoftheworld.info	UT1-Bu
-terra-economica.info	UT1-Bu
 tristateleague.info	Shalla-Banking
-unionhistory.info	UT1-Bu
-wikileaks.info	UT1-Bu
 bceao.int	Shalla-Banking
 beac.int	Shalla-Banking
-coe.int	UT1-Bu
-ecb.int	Shalla-Banking, UT1-Bu
-eu.int	UT1-Bu
-icc-cpi.int	UT1-Bu
-interpol.int	UT1-Bu
-itu.int	UT1-Bu
-nato.int	UT1-Bu
-uemoa.int	UT1-Bu
-un.int	UT1-Bu
-unfccc.int	UT1-Bu
-who.int	UT1-Bu, UT1-Whitelist, Notracking-Whitelist
-wipo.int	UT1-Bu
+ecb.int	Shalla-Banking
+who.int	UT1-Whitelist, Notracking-Whitelist
 domraider.io	Notracking-Whitelist
 zerodot1.gitlab.io	Source
+boards.greenhouse.io	Notracking-Whitelist
+ipinfo.io	Notracking-Whitelist
 advertising.oriel.io	EasyList-White
 sbc.io	Chris-White
 schibsted.io	Notracking-Whitelist
@@ -8107,7 +6401,6 @@ bpm.it	Shalla-Banking
 bpmarostica.it	Shalla-Banking
 bpn.it	Shalla-Banking
 bpv.it	Shalla-Banking
-brandforum.it	UT1-Bu
 capitalia.it	Shalla-Banking
 caribz.it	Shalla-Banking
 caricast.it	Shalla-Banking
@@ -8129,12 +6422,9 @@ carit.it	Shalla-Banking
 carive.it	Shalla-Banking
 cariverona.it	Shalla-Banking
 cassarurale-treviglio.it	Shalla-Banking
-cestor.it	UT1-Bu
 chebanca.it	Shalla-Banking
 civibank.it	Shalla-Banking
-cnel.it	UT1-Bu
 cobapo.it	Shalla-Banking
-corriere.it	UT1-Bu
 cracantu.it	Shalla-Banking
 cracortina.it	Shalla-Banking, UT1-Banking
 cralessandria.it	Shalla-Banking
@@ -8152,17 +6442,15 @@ crfossano.it	Shalla-Banking
 crsaluzzo.it	Shalla-Banking
 crvolterra.it	Shalla-Banking
 deutsche-bank.it	Shalla-Banking, Adguard-Banks
-ecole-francaise.it	UT1-Bu, UT1-Whitelist
-esrin.esa.it	UT1-Bu, UT1-Whitelist
+ecole-francaise.it	UT1-Whitelist
+esrin.esa.it	UT1-Whitelist
 fineco.it	Shalla-Banking
-iris.firenze.it	UT1-Bu
 fitd.it	Shalla-Banking, UT1-Banking
 fondazionecarige.it	Shalla-Banking
 fondazionecaripisa.it	Shalla-Banking
 friuladria.it	Shalla-Banking
 friulcassa.it	Shalla-Banking
 gecapitalbank.it	Shalla-Banking, UT1-Banking
-giustizia.it	UT1-Bu
 google.it	Notracking-Whitelist
 gruppocarige.it	Shalla-Banking
 gruppopopolarevicenza.it	Shalla-Banking
@@ -8172,7 +6460,6 @@ ifigest.it	Shalla-Banking, UT1-Banking
 ingdirect.it	Shalla-Banking, UT1-Banking
 ioconto.it	Shalla-Banking
 italease.it	Shalla-Banking
-iue.it	UT1-Bu
 iwbank.it	Shalla-Banking
 lacassarurale.it	Shalla-Banking
 lavalsabbina.it	Shalla-Banking
@@ -8198,7 +6485,6 @@ bancopostaonline.poste.it	Shalla-Banking
 postepay.it	Shalla-Banking
 quiubi.it	Shalla-Banking
 rasbank.it	Shalla-Banking
-repubblica.it	UT1-Bu
 retesportelli.it	Shalla-Banking
 rivierbanco.it	Shalla-Banking
 santanderconsumer.it	Shalla-Banking
@@ -8206,19 +6492,9 @@ sella.it	Shalla-Banking
 sparkasse.it	Shalla-Banking
 steinonline.it	Shalla-Banking
 ubibanca.it	Shalla-Banking
-uiltn.it	UT1-Bu
-uni-bocconi.it	UT1-Bu
 unicredit.it	Shalla-Banking
 unicredit-italia.it	Shalla-Banking
 unicreditbanca.it	Shalla-Banking
-unige.it	UT1-Bu
-unimi.it	UT1-Bu
-unipv.it	UT1-Bu
-uniroma.it	UT1-Bu
-uniroma1.it	UT1-Bu
-uniroma2.it	UT1-Bu
-unistrapg.it	UT1-Bu
-uniud.it	UT1-Bu
 venetobanca.it	Shalla-Banking
 volkswagenbank.it	Shalla-Banking
 webank.it	Shalla-Banking
@@ -8285,7 +6561,6 @@ gbank.rsk.kg	Adguard-Banks
 acledabank.com.kh	Shalla-Banking
 abc.org.kh	Shalla-Banking
 nbc.org.kh	Shalla-Banking
-ac.kr	UT1-Bu
 abnamro.co.kr	Shalla-Banking
 bnpparibas.co.kr	Shalla-Banking
 chohungbank.co.kr	Shalla-Banking
@@ -8385,7 +6660,6 @@ bia.lu	Shalla-Banking
 bnpparibas.lu	Shalla-Banking, UT1-Banking
 carnegie.lu	Shalla-Banking
 cebank.lu	Shalla-Banking
-cordis.lu	UT1-Bu
 cortal.lu	Shalla-Banking
 cortalconsors.lu	Shalla-Banking, UT1-Banking
 creditlyonnais.lu	Shalla-Banking
@@ -8393,20 +6667,13 @@ dexia.lu	Shalla-Banking
 dexia-bil.lu	Shalla-Banking
 dzi.lu	Shalla-Banking
 ebanking.lu	Shalla-Banking
-ena.lu	UT1-Bu
-erm.lu	UT1-Bu
-etat.lu	UT1-Bu
 f-i-s.lu	Shalla-Banking
 fortisbank.lu	Shalla-Banking
 hsbctrinkaus.lu	Shalla-Banking
 hvb.lu	Shalla-Banking
-iuil.lu	UT1-Bu
 kaupthing.lu	Shalla-Banking
-europaforum.public.lu	UT1-Bu
-legilux.public.lu	UT1-Bu
 raiffeisen.lu	Shalla-Banking
 sarasin.lu	Shalla-Banking, UT1-Banking
-uae.lu	UT1-Bu
 westlb.lu	Shalla-Banking
 wgz-bank.lu	Shalla-Banking
 bank.lv	Shalla-Banking
@@ -8418,7 +6685,6 @@ ibank.ekp.lv	Adguard-Banks
 secureshop.firstdata.lv	Adguard-Banks
 paritate.lv	Shalla-Banking, UT1-Banking
 rietumu.lv	Shalla-Banking, UT1-Banking
-rsu.lv	UT1-Bu
 ibanka.seb.lv	Adguard-Banks
 ib.swedbank.lv	Adguard-Banks
 tkb.lv	Shalla-Banking, UT1-Banking
@@ -8426,25 +6692,15 @@ bit.ly	Chris-White, Notracking-Whitelist
 embed.ly	Notracking-Whitelist
 cbl.gov.ly	Shalla-Banking
 ow.ly	Notracking-Whitelist
-ac.ma	UT1-Bu
-aujourdhui.ma	UT1-Bu
 bkam.ma	Shalla-Banking
 bmcebank.ma	Shalla-Banking
 bmcedirect.ma	Adguard-Banks
 bmci.co.ma	Shalla-Banking
 cdm.co.ma	Shalla-Banking
 gbp.ma	Adguard-Banks
-gov.ma	UT1-Bu
-lematin.ma	UT1-Bu
-lopinion.ma	UT1-Bu
-casanet.net.ma	UT1-Bu
-press.ma	UT1-Bu
-usfp.ma	UT1-Bu
 cmb.mc	Shalla-Banking
-gouv.mc	UT1-Bu
 24banking.md	Adguard-Banks
 24comertbank.md	Adguard-Banks
-azi.md	UT1-Bu
 bcr.md	Adguard-Banks
 bem.md	Shalla-Banking, UT1-Banking
 cb.comertbank.md	Adguard-Banks
@@ -8465,12 +6721,9 @@ perevedi.me	Adguard-Banks
 telegram.me	Notracking-Whitelist
 wp.me	Notracking-Whitelist
 banque-centrale.mg	Shalla-Banking
-midi-madagasikara.mg	UT1-Bu
 army.mil	Notracking-Whitelist
 kb.com.mk	Shalla-Banking
 nbrm.gov.mk	Shalla-Banking, UT1-Banking
-beproxxy.ml	UT1-Bu
-ukplan.ml	UT1-Bu
 egolomt.mn	Adguard-Banks
 ibank.mn	Adguard-Banks
 mba.mn	Shalla-Banking
@@ -8480,7 +6733,6 @@ amcm.macau.gov.mo	Shalla-Banking
 mcm.gov.mo	Shalla-Banking
 clientis-sparkasse-horgen-niederlassung-hirzel.firmen24.mobi	Shalla-Banking
 j.mp	Notracking-Whitelist
-mauritania.mr	UT1-Bu
 1drv.ms	Notracking-Whitelist
 myip.ms	Chris-White
 bom.intnet.mu	Shalla-Banking
@@ -8501,17 +6753,11 @@ santander.com.mx	Shalla-Banking
 scotiabank.com.mx	Shalla-Banking
 serfin.com.mx	Shalla-Banking
 vwb.com.mx	Shalla-Banking
-unicach.edu.mx	UT1-Bu
 banobras.gob.mx	Shalla-Banking
 banrural.gob.mx	Shalla-Banking
 bansefi.gob.mx	Shalla-Banking
-sep.gob.mx	UT1-Bu
-trife.gob.mx	UT1-Bu
 abm.org.mx	Shalla-Banking, UT1-Banking
-aeci.org.mx	UT1-Bu
 banxico.org.mx	Shalla-Banking
-uas.mx	UT1-Bu
-jornada.unam.mx	UT1-Bu
 affinbank.com.my	Shalla-Banking, UT1-Banking
 allianceonline.com.my	Adguard-Banks
 ambank.com.my	Adguard-Banks
@@ -8541,24 +6787,11 @@ bankwindhoek.com.na	Shalla-Banking
 bon.com.na	Shalla-Banking
 fnbnamibia.com.na	Shalla-Banking, UT1-Banking
 standardbank.com.na	Shalla-Banking
-ac-noumea.nc	UT1-Bu, UT1-Whitelist
-etat.nc	UT1-Bu
-douane.gouv.nc	UT1-Bu
-dtnc.gouv.nc	UT1-Bu
-info.lnc.nc	UT1-Bu
-univ-nc.nc	UT1-Bu, UT1-Whitelist
+ac-noumea.nc	UT1-Whitelist
+univ-nc.nc	UT1-Whitelist
 s0.2mdn.net	Notracking-Whitelist
-54homson.112.2o7.net	UT1-Bu
-56homson.112.2o7.net	UT1-Bu
-thomson.112.2o7.net	UT1-Bu
-abidjan.net	UT1-Bu
-abog.net	UT1-Bu
-action-emploi.net	UT1-Bu
 adicae.net	Shalla-Banking
-admi.net	UT1-Bu
-aesplus.net	UT1-Bu
 afrinic.net	Chris-White
-aiaccess.net	UT1-Bu
 cb.aic.net	Shalla-Banking
 apple-support.akadns.net	Chris-White
 blobstore-apple.com.akadns.net	Chris-White
@@ -8569,32 +6802,21 @@ fe2.update.microsoft.com.akadns.net	Notracking-Whitelist
 sls.update.microsoft.com.akadns.net	Notracking-Whitelist
 statsfe2.update.microsoft.com.akadns.net	Notracking-Whitelist
 sonos.com.edgekey.net.globalredir.akadns.net	Chris-White
-akamai.net	UT1-Bu
 apnic.net	Chris-White
 apple-dns.net	Chris-White
-aqolad.net	UT1-Bu
 arin.net	Chris-White
-assas.net	UT1-Bu
-athensams.net	UT1-Bu
 bro-tracker.atlassian.net	Chris-White
 audibank.net	Shalla-Banking
-australianreview.net	UT1-Bu
 awbank.net	Shalla-Banking
-balde.net	UT1-Bu
 bancnet.net	Shalla-Banking
 bancoguayana.net	Shalla-Banking
 login.banknetpower.net	Adguard-Banks
 bankofneworleans.net	Shalla-Banking, UT1-Banking
 bankofromney.net	Shalla-Banking, UT1-Banking
 barclays.net	Shalla-Banking
-bastiat.net	UT1-Bu
 baycitiesbank.net	Shalla-Banking, UT1-Banking
-bdcconline.net	UT1-Bu
 behance.net	Notracking-Whitelist
-beninensis.net	UT1-Bu
-berclo.net	UT1-Bu
 pay.best2pay.net	Adguard-Banks
-bibmath.net	UT1-Bu
 bing.net	Notracking-Whitelist
 bipielle.net	Shalla-Banking
 arabbankers.bluestep.net	Shalla-Banking, UT1-Banking
@@ -8603,57 +6825,29 @@ brb-bi.net	Shalla-Banking
 brh.net	Shalla-Banking
 brickyardbank.net	Shalla-Banking, UT1-Banking
 calbank.net	Shalla-Banking
-my.calendars.net	UT1-Bu
-cameroon-info.net	UT1-Bu
 canadiabank.net	Shalla-Banking
 carolinabank.net	Shalla-Banking, UT1-Banking
 cbbonline.net	Shalla-Banking, UT1-Banking
 cbt.net	Shalla-Banking, UT1-Banking
 centralbank.net	Shalla-Banking, UT1-Banking
-cerphi.net	UT1-Bu
-cfpc.net	UT1-Bu
 maps.chitika.net	EasyList-White
 maps-static.chitika.net	EasyList-White
 citizenscommunityfederal.net	Shalla-Banking
 fitbit.com.cdn.cloudflare.net	Chris-White
 cloudfront.net	Notracking-Whitelist
-ccle.collectifs.net	UT1-Bu
-commentcamarche.net	UT1-Bu
-communautarisme.net	UT1-Bu
-consulat.net	UT1-Bu
-cossalter.net	UT1-Bu
 cpanel.net	Notracking-Whitelist
 cpb.net	Shalla-Banking
 cr-ledro.net	Shalla-Banking
-lerucher.cv1.net	UT1-Bu
-cybertaria.net	UT1-Bu
-dac-concours.net	UT1-Bu
 darksky.net	Chris-White
-decisionnel.net	UT1-Bu
-denistouret.net	UT1-Bu
-developpement-durable.net	UT1-Bu
-doubleclick.net	UT1-Bu
-droitconstitutionnel.net	UT1-Bu
-droitpublic.net	UT1-Bu
 dropbox.net	Chris-White
 p13.dynect.net	Chris-White
-e-joussour.net	UT1-Bu
-e-midipyrenees.net	UT1-Bu
-edgefcs.net	UT1-Bu
 sonos.com.edgekey.net	Chris-White
 ax.phobos.apple.com.edgesuite.net	Notracking-Whitelist
 weeklyad.target.com.edgesuite.net	Notracking-Whitelist
 edupole.net	UT1-Whitelist
 emergingthreats.net	Chris-White
-emploiquebec.net	UT1-Bu
-escp-eap.net	UT1-Bu
-espace-citoyen.net	UT1-Bu
-eurasie.net	UT1-Bu
 connect.facebook.net	Notracking-Whitelist
 graph.facebook.net	Notracking-Whitelist
-factbook.net	UT1-Bu
-fashionlaw.net	UT1-Bu
-faz.net	UT1-Bu
 fbcdn.net	Notracking-Whitelist
 fbtonline.net	Adguard-Banks
 fcbweb.net	Shalla-Banking, UT1-Banking
@@ -8663,16 +6857,11 @@ v.firebog.net	Chris-White
 first-state.net	Shalla-Banking, UT1-Banking
 firstbank.net	Shalla-Banking
 firstpeoplesbank.net	Shalla-Banking, UT1-Banking
-confidentiel.firstream.net	UT1-Bu
 firstunited.net	Shalla-Banking, UT1-Banking
-flashxpress.net	UT1-Bu
 flba.net	Shalla-Banking
-fluctuat.net	UT1-Bu
 fnbchillicothe.net	Shalla-Banking, UT1-Banking
-fnege.net	UT1-Bu
+fast.fonts.net	Notracking-Whitelist
 footprint.net	Notracking-Whitelist
-france-enseignement.net	UT1-Bu
-francofil.net	UT1-Bu
 franklinbank.net	Shalla-Banking
 fsnb.net	Shalla-Banking
 ftbcc.net	Shalla-Banking
@@ -8680,59 +6869,26 @@ adblock.gardar.net	Chris-White
 checkout.gateline.net	Adguard-Banks
 gbba.net	Shalla-Banking, UT1-Banking
 gcmba.net	Shalla-Banking, UT1-Banking
-geo-phile.net	UT1-Bu
-geoscopies.net	UT1-Bu
 i0.gmx.net	Notracking-Whitelist
-grjm.net	UT1-Bu
 gtld-servers.net	Chris-White
-gymnopedie-juridique.net	UT1-Bu
-hcch.net	UT1-Bu
-hep-hei-esj.net	UT1-Bu
-herodote.net	UT1-Bu
 hkexporter.net	Shalla-Banking
 hockeyapp.net	Notracking-Whitelist
-publiatis.hooste.net	UT1-Bu
-ottawa.hostedbyfdi.net	UT1-Bu
 hosts-file.net	Chris-White, Notracking-Whitelist
-opac.ict-intra.net	UT1-Bu
-ilemaths.net	UT1-Bu
 placeholdit.imgix.net	Notracking-Whitelist
-ferretti.imingo.net	UT1-Bu
-homeomath.imingo.net	UT1-Bu
 infokredit.net	Shalla-Banking
-internet-juridique.net	UT1-Bu
 internetzwerk.net	Shalla-Banking
 intuitcdn.net	Chris-White
 islamic-commerce.net	Shalla-Banking
-islamonline.net	UT1-Bu
-istom.net	UT1-Bu
 ituneslogin.net	Chris-White
-iup-management.net	UT1-Bu
-iup-tlse.net	UT1-Bu
-iut-mpy.net	UT1-Bu
-iutenligne.net	UT1-Bu
-izf.net	UT1-Bu
 jkbank.net	Shalla-Banking, UT1-Banking
-jobetudiant.net	UT1-Bu
 cdn.jsdelivr.net	Notracking-Whitelist
-juridix.net	UT1-Bu
-juriscom.net	UT1-Bu
+crbcdn.jsfiddle.net	Notracking-Whitelist
 kasbonspecialist.net	Shalla-Banking
 keysbank.net	Shalla-Banking, UT1-Banking
 ibank.kicb.net	Adguard-Banks
-klubdroit.net	UT1-Bu
 lacnic.net	Chris-White
-lapres.net	UT1-Bu
-yonne.lautre.net	UT1-Bu
-lecnam.net	UT1-Bu
-legalis.net	UT1-Bu
-les-mathematiques.net	UT1-Bu
-lexalgeria.net	UT1-Bu
-lexinter.net	UT1-Bu
-lipietz.net	UT1-Bu
 natbank.malawi.net	Shalla-Banking
 rbm.malawi.net	Shalla-Banking
-matheureka.net	UT1-Bu
 megabank.net	Shalla-Banking, UT1-Banking, Adguard-Banks
 memberdirect.net	Adguard-Banks
 mercantile.net	Shalla-Banking
@@ -8740,58 +6896,33 @@ miba.net	Shalla-Banking, UT1-Banking
 microsoftwindowsupdate.net	Notracking-Whitelist
 midwestbank.net	Shalla-Banking, UT1-Banking
 mmla.net	Shalla-Banking
-mobilite-territoriale.net	UT1-Bu
-mondediplo.net	UT1-Bu
 morganbank.net	Shalla-Banking, UT1-Banking
 mortgage-rates-guide.net	UT1-Financial
-mots-cles-justice.msi-sa.net	UT1-Bu
+hello.myfonts.net	Notracking-Whitelist
 fe3.delivery.dsp.mp.microsoft.com.nsatc.net	Notracking-Whitelist
-observatoire-culture.net	UT1-Bu
-odas.net	UT1-Bu
-oeconomia.net	UT1-Bu
 nbcume.sc.omtrdc.net	Chris-White
 bankofamerica.tt.omtrdc.net	Chris-White
+h-sdk.online-metrix.net	Notracking-Whitelist
 ooklaserver.net	Chris-White
-mon.orientation.net	UT1-Bu
-enap-mediatheque.paprika.net	UT1-Bu
 parex.net	Shalla-Banking
-paris-europlace.net	UT1-Bu
-philagora.net	UT1-Bu
 php.net	Notracking-Whitelist
 plantersbank.net	Shalla-Banking
-politeia.net	UT1-Bu
-poltic.net	UT1-Bu
-populationdata.net	UT1-Bu
-prim.net	UT1-Bu
 ve1.provinet.net	Shalla-Banking
 prudentbank.net	Shalla-Banking
 pushover.net	Notracking-Whitelist
-refchatter.net	UT1-Bu
-reforme.net	UT1-Bu
-researchgate.net	UT1-Bu, Notracking-Whitelist
-reseau-integration.net	UT1-Bu
-reseau-tee.net	UT1-Bu
-reseauvoltaire.net	UT1-Bu
-reutersmedia.net	UT1-Bu
-reverso.net	UT1-Bu
+researchgate.net	Notracking-Whitelist
 ripe.net	Chris-White
 riversidebank.net	Shalla-Banking
 root-servers.net	Chris-White
 rs6.net	Notracking-Whitelist
 rurbanfinancial.net	Shalla-Banking, UT1-Banking
-samizdat.net	UT1-Bu
 scbt.net	Shalla-Banking
-sciencepolitique.net	UT1-Bu
-sdgateway.net	UT1-Bu
 secureserver.net	Notracking-Whitelist
 securitybank.net	Shalla-Banking
 securityfederal.net	Shalla-Banking, UT1-Banking
 seesaa.net	Notracking-Whitelist
-shabakatvoltaire.net	UT1-Bu
-skyminds.net	UT1-Bu
-slideshare.net	UT1-Bu, Notracking-Whitelist
+slideshare.net	Notracking-Whitelist
 sma-trade.net	UT1-Financial
-sos-papa.net	UT1-Bu
 southportbank.net	Shalla-Banking, UT1-Banking
 speedtest.net	Chris-White
 bankofamerica.com.srip.net	Shalla-Banking
@@ -8799,37 +6930,23 @@ sterlingsavingsbank.net	Shalla-Banking, UT1-Banking
 susquehanna.net	Shalla-Banking
 i.taatta.net	Adguard-Banks
 taleo.net	Chris-White
-techno-science.net	UT1-Bu
-tefl-china.net	UT1-Bu
-temps-reels.net	UT1-Bu
 territorialsavings.net	Shalla-Banking, UT1-Banking
 themeforest.net	Notracking-Whitelist
-thomsonreuters.net	UT1-Bu
-tourisme-durable.net	UT1-Bu
-transfert.net	UT1-Bu
+typekit.net	Notracking-Whitelist
 ube.net	Shalla-Banking
 ucbank.net	Shalla-Banking
 wget-mirrors.uceprotect.net	Chris-White
 unicreditbanking.net	Adguard-Banks
 unionstate.net	Shalla-Banking
-vernimmen.net	UT1-Bu
 viafoura.net	Notracking-Whitelist
-vigile.net	UT1-Bu
 virtualearth.net	Notracking-Whitelist
-vnexpress.net	UT1-Bu
 vobadirekt.net	Shalla-Banking
-vrtnieuws.net	UT1-Bu
-sante.w3sites.net	UT1-Bu
 washingtonsavings.net	Shalla-Banking, UT1-Banking
-weblettres.net	UT1-Bu
 whatsapp.net	Chris-White
 wideup.net	Adguard-Banks
 plex.r.worldssl.net	Notracking-Whitelist
 xpanama.net	EasyList-White
-youth-convention.net	UT1-Bu
 zencdn.net	Notracking-Whitelist
-zetud.net	UT1-Bu
-zetudiants.net	UT1-Bu
 bcn.gob.ni	Shalla-Banking
 abnamro.nl	Shalla-Banking, UT1-Financial, Adguard-Banks
 ad.nl	Chris-White
@@ -8837,7 +6954,6 @@ artesia.nl	Shalla-Banking
 asnbank.nl	Shalla-Banking
 asrbank.nl	Shalla-Banking
 bankofscotland.nl	Adguard-Banks
-belastingdienst.nl	UT1-Bu
 bng.nl	Shalla-Banking
 cene.nl	Shalla-Banking
 crediteurope.nl	Adguard-Banks
@@ -8846,12 +6962,9 @@ dexiabank.nl	Shalla-Banking
 direktbank.nl	Shalla-Banking, UT1-Banking
 dnb.nl	Shalla-Banking
 dsbbank.nl	Shalla-Banking, UT1-Banking
-eipa.nl	UT1-Bu
-eur.nl	UT1-Bu
 fghbank.nl	Shalla-Banking, UT1-Banking
 finansbank.nl	Shalla-Banking
 frontpage.fok.nl	Notracking-Whitelist
-fontys.nl	UT1-Bu
 foreignbankers.nl	Shalla-Banking
 fortisasr.nl	Shalla-Banking
 fortisbank.nl	Shalla-Banking
@@ -8866,23 +6979,18 @@ ictergezocht.nl	Chris-White
 ing.nl	Shalla-Banking, Adguard-Banks
 ingbank.nl	Shalla-Banking, UT1-Banking
 internet.nl	Chris-White
-irc.nl	UT1-Bu
 kempen.nl	Shalla-Banking
 kocbank.nl	Shalla-Banking
 lieshout-partners.nl	Shalla-Banking
 lloydsbank.nl	Adguard-Banks
 lloydstsb.nl	Shalla-Banking
-maastrichtuniversity.nl	UT1-Bu
 marktplaats.nl	Notracking-Whitelist
 ads.memo2.nl	EasyList-White
 mijndomein.nl	Notracking-Whitelist
 monsterboard.nl	Chris-White
-nijhoffonline.nl	UT1-Bu
-nrc.nl	UT1-Bu
 ntco.nl	Shalla-Banking
 nvb.nl	Shalla-Banking
 nwb.nl	Shalla-Banking, UT1-Banking
-oclcpica.nl	UT1-Bu
 omroep.nl	Chris-White
 postbank.nl	Shalla-Banking, UT1-Banking
 cookiesv2.publiekeomroep.nl	Notracking-Whitelist
@@ -8890,40 +6998,27 @@ rabobank.nl	Shalla-Banking, UT1-Banking, Adguard-Banks
 reaal.nl	Chris-White
 regiobank.nl	Shalla-Banking, Adguard-Banks
 robein.nl	Shalla-Banking
-rpf.nl	UT1-Bu
 santander.nl	Adguard-Banks
 schretlen.nl	Shalla-Banking
 snsbank.nl	Shalla-Banking, UT1-Banking, Adguard-Banks
 staalbankiers.nl	Shalla-Banking, UT1-Banking
-swetsnet.nl	UT1-Bu
 triodos.nl	Shalla-Banking, UT1-Banking, Adguard-Banks
-universelle.nl	UT1-Bu
-uu.nl	UT1-Bu
-uva.nl	UT1-Bu
-uvt.nl	UT1-Bu
-vandale.nl	UT1-Bu
 vanlanschot.nl	Shalla-Banking, UT1-Banking
 vpro.nl	Chris-White
 vpv.nl	Shalla-Banking
-vu.nl	UT1-Bu
 home.wanadoo.nl	Notracking-Whitelist
 westlandutrecht.nl	Shalla-Banking, UT1-Banking
-wkap.nl	UT1-Bu
 ykb.nl	Shalla-Banking, UT1-Banking
-aftenposten.no	UT1-Bu
 nettbank2.danskebank.no	Adguard-Banks
 domeneshop.no	Notracking-Whitelist
 fnh.no	Shalla-Banking, UT1-Banking
-kilden.forskningsradet.no	UT1-Bu
 nor.no	Shalla-Banking, UT1-Banking
 nettbanken.nordea.no	Adguard-Banks
-norges-bank.no	Shalla-Banking, UT1-Bu
+norges-bank.no	Shalla-Banking
 ose.no	UT1-Financial
 oslobors.no	UT1-Financial
-uit.no	UT1-Bu
 nrb.org.np	Shalla-Banking
 hostsfile.mine.nu	Chris-White
-ac.nz	UT1-Bu
 anz.co.nz	Adguard-Banks
 asb.co.nz	Adguard-Banks
 asbbank.co.nz	Shalla-Banking
@@ -8944,71 +7039,30 @@ nbo.co.om	Shalla-Banking
 aabd.org	Shalla-Banking
 abe.org	Shalla-Banking, UT1-Banking
 aboutcookies.org	Notracking-Whitelist
-acadie-reflex.org	UT1-Bu
 acams.org	Shalla-Banking
 acbankers.org	Shalla-Banking, UT1-Banking
 acbonline.org	Shalla-Banking
-accpuf.org	UT1-Bu
-aceproject.org	UT1-Bu
-acrimed.org	UT1-Bu
-action-liberale.org	UT1-Bu
-actuaries.org	UT1-Bu
 adb.org	Shalla-Banking, UT1-Banking
 easylist-downloads.adblockplus.org	Source
-adele.org	UT1-Bu
 adfiap.org	Shalla-Banking
-adh-human-dignity-action.org	UT1-Bu
-adr.org	UT1-Bu
 adtidy.org	Chris-White
 afdb.org	Shalla-Banking
-afebalk.org	UT1-Bu
-affaires-publiques.org	UT1-Bu
-afij.org	UT1-Bu
-afm-marketing.org	UT1-Bu
-afri-ct.org	UT1-Bu
-afub.org	UT1-Bu
-agglo.org	UT1-Bu
-agora21.org	UT1-Bu
-aidh.org	UT1-Bu
 akmba.org	Shalla-Banking
 alabamabankers.org	Shalla-Banking, UT1-Banking
-algeria-watch.org	UT1-Bu
 allaboutcookies.org	Notracking-Whitelist
-alternaute.org	UT1-Bu
-alyon.org	UT1-Bu
-amares.org	UT1-Bu
-ambafrance-cm.org	UT1-Bu
-ambafrance-es.org	UT1-Bu
-ambafrance-ga.org	UT1-Bu
-ambafrance-ma.org	UT1-Bu
-ambafrance-pt.org	UT1-Bu
-amf-france.org	UT1-Bu
-amnesty.org	UT1-Bu
 ampproject.org	Chris-White
 anif.org	Shalla-Banking
-animaweb.org	UT1-Bu
-annales.org	UT1-Bu
 antipubfirefox.org	Chris-White
 ap.org	Notracking-Whitelist
 apa.org	Notracking-Whitelist
 apache.org	Notracking-Whitelist
 apbsrilanka.org	Shalla-Banking, UT1-Banking
-davidtate.apinc.org	UT1-Bu
 archive.org	Notracking-Whitelist
-ardeva.org	UT1-Bu
 arkbankers.org	Shalla-Banking, UT1-Banking
 asbaweb.org	Shalla-Banking
 aseanbankers.org	Shalla-Banking, UT1-Banking
-asf-france.org	UT1-Bu
-atd-quartmonde.org	UT1-Bu
-france.attac.org	UT1-Bu
-auf.org	UT1-Bu
-aunege.org	UT1-Bu
 austinmba.org	Shalla-Banking
 autoshun.org	Chris-White
-autre-europe.org	UT1-Bu
-avocatparis.org	UT1-Bu
-avocats-ecoa.org	UT1-Bu
 azbankers.org	Shalla-Banking
 baft.org	Shalla-Banking
 bai.org	Shalla-Banking
@@ -9017,33 +7071,17 @@ bangladesh-bank.org	Shalla-Banking
 bankofalbania.org	Shalla-Banking
 bankofsierraleone-centralbank.org	Shalla-Banking
 bankofsudan.org	Shalla-Banking
-banquemondiale.org	UT1-Bu
 baybank.org	Shalla-Banking, UT1-Banking
 bbb.org	Notracking-Whitelist
 bcu.org	Adguard-Banks
-bibliofrance.org	UT1-Bu
-bibliojuridica.org	UT1-Bu
-bief.org	UT1-Bu
-bilan-entreprise.org	UT1-Bu
 buffalo.biodome.org	Source
 bis.org	Shalla-Banking
 bitbucket.org	Chris-White, Notracking-Whitelist
 bmane.org	Shalla-Banking
 bnm.org	Shalla-Banking
 bot-tz.org	Shalla-Banking
-brises.org	UT1-Bu
 tracker.bro.org	Chris-White
-bullyonline.org	UT1-Bu
-cairnsgroup.org	UT1-Bu
-calculatrice.org	UT1-Bu
-cambridge.org	UT1-Bu
-cambridgeenglish.org	UT1-Bu
-campusfrance.org	UT1-Bu
-cariforef-pdl.org	UT1-Bu
-carrefourlocal.org	UT1-Bu
-casadevelazquez.org	UT1-Bu, UT1-Whitelist
-catchword.org	UT1-Bu
-cathares.org	UT1-Bu
+casadevelazquez.org	UT1-Whitelist
 cb-mn.org	Shalla-Banking
 cba-ok.org	Shalla-Banking, UT1-Banking
 cbai.org	Shalla-Banking, UT1-Banking
@@ -9052,287 +7090,95 @@ cbanys.org	Shalla-Banking
 cbaruba.org	Shalla-Banking
 cbo-oman.org	Shalla-Banking, UT1-Banking
 cboca.org	Shalla-Banking
-ccbe.org	UT1-Bu
-ceced.org	UT1-Bu
-cedias.org	UT1-Bu
-cefi.org	UT1-Bu
 cenbank.org	Shalla-Banking
 centralbanklanka.org	Shalla-Banking
 centralbankmalta.org	Shalla-Banking
-centresdegestion.org	UT1-Bu
-centreurope.org	UT1-Bu
-centropr.org	UT1-Bu
-cerag.org	UT1-Bu
-ceras-projet.org	UT1-Bu
-cerdi.org	UT1-Bu
-recherche.ceri-sciences-po.org	UT1-Bu
-cersa.org	UT1-Bu
-cfr.org	UT1-Bu
 change.org	Notracking-Whitelist
-charles-de-gaulle.org	UT1-Bu
-chaumont-avocat.org	UT1-Bu
 cheatengine.org	Notracking-Whitelist
 chicagofed.org	Shalla-Banking
 chicagolandcompliance.org	Shalla-Banking
 cib.org	Shalla-Banking, UT1-Banking
-cidem.org	UT1-Bu
-ciet.org	UT1-Bu
-ciia.org	UT1-Bu
-cilf.org	UT1-Bu
-cindynics.org	UT1-Bu
-cites-unies-france.org	UT1-Bu
 cmba.org	Shalla-Banking, UT1-Banking
-codesria.org	UT1-Bu
 coebank.org	Shalla-Banking, UT1-Banking
-coin-urbanisme.org	UT1-Bu
 columbusmba.org	Shalla-Banking, UT1-Banking
 comesabankers.org	Shalla-Banking
 communitybankers.org	Shalla-Banking, UT1-Banking
 communitybanks.org	Shalla-Banking, UT1-Banking
-concourscassin.org	UT1-Bu
-conflits.org	UT1-Bu
-confparis.org	UT1-Bu
-confrontations.org	UT1-Bu
-conscience-politique.org	UT1-Bu
-consulfrance-barcelone.org	UT1-Bu
-consulfrance-hcm.org	UT1-Bu
-consulfrance-vancouver.org	UT1-Bu
-coordinationsud.org	UT1-Bu
-councilexchanges.org	UT1-Bu
 creativecommons.org	Notracking-Whitelist
 creavenir.org	Shalla-Banking
-credho.org	UT1-Bu
-crij.org	UT1-Bu
-crijlorraine.org	UT1-Bu
 crmla.org	Shalla-Banking
-crossref.org	UT1-Bu
-cybertheses.org	UT1-Bu
 dallasfed.org	Shalla-Banking, UT1-Banking
 dansguardian.org	Notracking-Whitelist
 dbas.org	Shalla-Banking
 dcu.org	Adguard-Banks
 dcu-online.org	Adguard-Banks
 debian.org	Chris-White, Notracking-Whitelist
-demilly.org	UT1-Bu
-democrats.org	UT1-Bu
-dgse.org	UT1-Bu
-dialoguespourlaterre.org	UT1-Bu
-dipalme.org	UT1-Bu
-diplomarc.org	UT1-Bu
 download.dnscrypt.org	Chris-White
 docfcu.org	Adguard-Banks
-documentfoundation.org	UT1-Bu
-doi.org	UT1-Bu, Notracking-Whitelist
-dree.org	UT1-Bu, UT1-Whitelist
-droit.org	UT1-Bu
-droitconstit.org	UT1-Bu
-droitconstitutionnel.org	UT1-Bu
-droits-libertes.org	UT1-Bu
-droitshumains.org	UT1-Bu
-droz.org	UT1-Bu
+doi.org	Notracking-Whitelist
+dree.org	UT1-Whitelist
 drupal.org	Notracking-Whitelist
 dshield.org	Chris-White
 duckdns.org	Notracking-Whitelist
 dyndns.org	Chris-White
-ecb.org	UT1-Bu
 ecbs.org	Shalla-Banking
 eccb-centralbank.org	Shalla-Banking
-ecole-et-nature.org	UT1-Bu
-ecoledemocratique.org	UT1-Bu
-economistsonline.org	UT1-Bu
-ecricome.org	UT1-Bu
-educweb.org	UT1-Bu
 eib.org	Shalla-Banking
 emeap.org	Shalla-Banking
-enjeux-internationaux.org	UT1-Bu
-entente-cordiale.org	UT1-Bu
 envirobank.org	Shalla-Banking, UT1-Banking
 eoniaswap.org	Shalla-Banking
-erudit.org	UT1-Bu
-esf.org	UT1-Bu
 esmba.org	Shalla-Banking, UT1-Banking
-etuc.org	UT1-Bu
-balkans.eu.org	UT1-Bu
-folium.eu.org	UT1-Bu
-prison.eu.org	UT1-Bu
-ldh-rezo.ras.eu.org	UT1-Bu
-sos-net.eu.org	UT1-Bu
-euforic.org	UT1-Bu
 eurepo.org	Shalla-Banking, UT1-Banking
 euribor.org	Shalla-Banking
-euroguidance-france.org	UT1-Bu
-europarc-es.org	UT1-Bu
-europe-auvergne.org	UT1-Bu
-europe-et-laicite.org	UT1-Bu
-europe-liberte-securite-justice.org	UT1-Bu
-eusec.org	UT1-Bu
 evb.org	Shalla-Banking
-ewrs-et.org	UT1-Bu
-expatries.org	UT1-Bu
-experts-comptables.org	UT1-Bu
-exportation.org	UT1-Bu
-fahayek.org	UT1-Bu
-fal44.org	UT1-Bu
-fao.org	UT1-Bu
-fdlm.org	UT1-Bu
-federationdessem.org	UT1-Bu
-fidh.org	UT1-Bu
-finances-algeria.org	UT1-Bu
-fing.org	UT1-Bu
-fishbase.org	UT1-Bu
 fmlc.org	Shalla-Banking
 fondazionedivenezia.org	Shalla-Banking
-foreignaffairs.org	UT1-Bu
 fortworthmba.org	Shalla-Banking, UT1-Banking
-forumducommerce.org	UT1-Bu
-foruminternet.org	UT1-Bu
-france-adot.org	UT1-Bu
-franceradicale.org	UT1-Bu
-franceurope.org	UT1-Bu
-francophonie.org	UT1-Bu
 kc.frb.org	Shalla-Banking
-frontlinedefenders.org	UT1-Bu
-fse-esf.org	UT1-Bu
 fsround.org	Shalla-Banking
-ftu-namur.org	UT1-Bu
-genethique.org	UT1-Bu
-rffp.gerfip.org	UT1-Bu
-gipinfo.org	UT1-Bu
-gisti.org	UT1-Bu
-globalisationguide.org	UT1-Bu
-globalissues.org	UT1-Bu
-glose.org	UT1-Bu
 gnu.org	Notracking-Whitelist
 goldinstitute.org	Shalla-Banking
-greenpeace.org	UT1-Bu
-gret.org	UT1-Bu
-grip.org	UT1-Bu
-groupe-crc.org	UT1-Bu
-groupe-ump-senat.org	UT1-Bu
 guardianbank.org	Shalla-Banking
-guineenews.org	UT1-Bu
 haba.org	Shalla-Banking
-haiti.org	UT1-Bu
 hbr.org	Notracking-Whitelist
-heinonline.org	UT1-Bu
-histoire-afrique.org	UT1-Bu
-histoire-empire.org	UT1-Bu
-histoire-geo.org	UT1-Bu
-histoire-geographie.org	UT1-Bu
-histoire-image.org	UT1-Bu
-hkclic.org	UT1-Bu
-hrw.org	UT1-Bu
-huissier-justice.org	UT1-Bu
 hypo.org	Shalla-Banking
-hypotheses.org	UT1-Bu
 iacb.org	Shalla-Banking
 iadb.org	Shalla-Banking
-iae-paris.org	UT1-Bu
-iaee.org	UT1-Bu
 iana.org	Chris-White
-iasl.org	UT1-Bu
 ibaa.org	Shalla-Banking
 ibat.org	Shalla-Banking
 ibcbanks.org	Shalla-Banking, UT1-Banking
 ibfed.org	Shalla-Banking, UT1-Banking
 ibsc.org	Shalla-Banking
-icann.org	UT1-Bu, Notracking-Whitelist
+icann.org	Notracking-Whitelist
 icb.org	Shalla-Banking
 icba.org	Shalla-Banking
-iccs-isac.org	UT1-Bu
-iccwbo.org	UT1-Bu
-icj-cij.org	UT1-Bu
-icrc.org	UT1-Bu
 ieee.org	Notracking-Whitelist
-ieo-lengadoc.org	UT1-Bu
-ieqt.org	UT1-Bu
-ifgene.org	UT1-Bu
-ifri.org	UT1-Bu
 ifsaonline.org	Shalla-Banking, UT1-Banking
 iib.org	Shalla-Banking, UT1-Banking
 iibonline.org	Shalla-Banking, UT1-Banking
-iiss.org	UT1-Bu
 ilfi.org	Shalla-Banking
-ilo.org	UT1-Bu
 imba.org	Shalla-Banking
-imf.org	UT1-Bu
-inavem.org	UT1-Bu
 inbankers.org	Shalla-Banking, UT1-Banking
-increvablesanarchistes.org	UT1-Bu
 indianamba.org	Shalla-Banking, UT1-Banking
 indianbanksassociation.org	Shalla-Banking, UT1-Banking
 indorebank.org	Shalla-Banking
-belgium.indymedia.org	UT1-Bu
-inffolor.org	UT1-Bu
-infodroits.org	UT1-Bu
-infometiers.org	UT1-Bu
-informs.org	UT1-Bu
 ibank2.intercredit.org	Adguard-Banks
-intervir.org	UT1-Bu
-iop.org	UT1-Bu
-api.ipify.org	Notracking-Whitelist
-ipl.org	UT1-Bu
-ipu.org	UT1-Bu
-iram-fr.org	UT1-Bu
-ireep.org	UT1-Bu
-irinnews.org	UT1-Bu
-iris-france.org	UT1-Bu
-irmcmaghreb.org	UT1-Bu
+ipify.org	Notracking-Whitelist
 isc.org	Chris-White
-isda.org	UT1-Bu
-isis-europe.org	UT1-Bu
-islamlaicite.org	UT1-Bu
-ismea.org	UT1-Bu
-iso.org	UT1-Bu
-iss-eu.org	UT1-Bu
-item-sup.org	UT1-Bu, UT1-Whitelist
-itpa.org	UT1-Bu
-jasig.org	UT1-Bu
+item-sup.org	UT1-Whitelist
 jdownloader.org	Notracking-Whitelist
-jeunes-chercheurs.org	UT1-Bu
-jobplanet.org	UT1-Bu
 joomla.org	Notracking-Whitelist
-journee-nationale-communes.org	UT1-Bu
-jstor.org	UT1-Bu
 jumpdanceco.org	Chris-White
-juri-logement.org	UT1-Bu
-jurisfac.org	UT1-Bu
-jurisint.org	UT1-Bu
-jurispedia.org	UT1-Bu
-lacompta.org	UT1-Bu
-laicite-republique.org	UT1-Bu
-lamicrofinance.org	UT1-Bu
-lapenseedemidi.org	UT1-Bu
-law-books.org	UT1-Bu
 lba.org	Shalla-Banking, UT1-Banking
-lcps-lebanon.org	UT1-Bu
-ldh-france.org	UT1-Bu
 lede-project.org	Chris-White
-fr.lemaroc.org	UT1-Bu
-leo.org	UT1-Bu
-lex-electronica.org	UT1-Bu
-lfny.org	UT1-Bu
-liberaux.org	UT1-Bu
-libqual.org	UT1-Bu
-librarytechnology.org	UT1-Bu
-libres.org	UT1-Bu
-liens-socio.org	UT1-Bu
-lille-metropole-2015.org	UT1-Bu
+letsencrypt.org	Notracking-Whitelist
 lineageos.org	Chris-White
-linelit.org	UT1-Bu
-linux-france.org	UT1-Bu
 lsta.org	Shalla-Banking
 macb.org	Shalla-Banking
-macece.org	UT1-Bu
-magistere.org	UT1-Bu
-maisondeleau.org	UT1-Bu
-maisondudroit.org	UT1-Bu
-marievincent.org	UT1-Bu
 marinebankers.org	Shalla-Banking, UT1-Banking
-marxists.org	UT1-Bu
 massbankers.org	Shalla-Banking, UT1-Banking
 master-capital.org	Adguard-Banks
-maxhavelaarfrance.org	UT1-Bu
 mayoclinic.org	Notracking-Whitelist
 mba-pa.org	Shalla-Banking, UT1-Banking
 mbaa.org	Shalla-Banking, UT1-Banking
@@ -9351,161 +7197,71 @@ mbaswf.org	Shalla-Banking, UT1-Banking
 mbba-nh.org	Shalla-Banking, UT1-Banking
 mctcu.org	Adguard-Banks
 mdmba.org	Shalla-Banking, UT1-Banking
-mediabenin.org	UT1-Bu
-mfe.org	UT1-Bu
 mibonline.org	Shalla-Banking, UT1-Banking
 mismo.org	Shalla-Banking
-mitpressjournals.org	UT1-Bu
 mozilla.org	UT1-Whitelist, Notracking-Whitelist
-paris.msf.org	UT1-Bu
-msgfrance.org	UT1-Bu
 msmba.org	Shalla-Banking
 winhelp2002.mvps.org	Chris-White
-mwinda.org	UT1-Bu
 myfedloan.org	Adguard-Banks
 nabard.org	Shalla-Banking, UT1-Banking
 nacha.org	Shalla-Banking
-napoleon.org	UT1-Bu
-napoleonica.org	UT1-Bu
-natureetprogres.org	UT1-Bu
 navyfcu.org	Shalla-Banking
 navyfederal.org	Adguard-Banks
-nber.org	UT1-Bu
 ncbankers.org	Shalla-Banking, UT1-Banking
 ncbdc.org	Shalla-Banking
-nchrhaiti.org	UT1-Bu
 nebankers.org	Shalla-Banking, UT1-Banking
 netbank.org	Shalla-Banking
 networksec.org	Chris-White
-neweconomyindex.org	UT1-Bu
-newleftreview.org	UT1-Bu
 newyorkfed.org	Shalla-Banking
 nginx.org	Notracking-Whitelist
-nicoleborvo.org	UT1-Bu
 icba.nm.org	Shalla-Banking, UT1-Banking
 nmmba.org	Shalla-Banking
-nobelprize.org	UT1-Bu
-normalesup.org	UT1-Bu
 notabug.org	Chris-White
 nothink.org	Chris-White
 npr.org	Notracking-Whitelist
-nsc.org	UT1-Bu
-biblio.ntic.org	UT1-Bu
-catnyp.nypl.org	UT1-Bu
-oale.org	UT1-Bu
-oecd.org	UT1-Bu, Notracking-Whitelist
-oecd-ilibrary.org	UT1-Bu
-oedipe.org	UT1-Bu
-ofme.org	UT1-Bu
-ohchr.org	UT1-Bu
+oecd.org	Notracking-Whitelist
 ohiomba.org	Shalla-Banking, UT1-Banking
-oip.org	UT1-Bu
-oms.org	UT1-Bu, UT1-Whitelist
-onmi.org	UT1-Bu
-openedition.org	UT1-Bu
+oms.org	UT1-Whitelist
 opensource.org	Notracking-Whitelist
 openstreetmap.org	Notracking-Whitelist
 opensubtitles.org	Notracking-Whitelist
-optique-ingenieur.org	UT1-Bu
-orcades.org	UT1-Bu
 orx.org	Shalla-Banking
-oupjournals.org	UT1-Bu
-oxfordjournals.org	UT1-Bu, Notracking-Whitelist
+oxfordjournals.org	Notracking-Whitelist
 pacb.org	Shalla-Banking
-paixbalkans.org	UT1-Bu
-pallier.org	UT1-Bu
 palmettohealthcu.org	Adguard-Banks
-panamalaw.org	UT1-Bu
-paris-france.org	UT1-Bu
-paristech.org	UT1-Bu
-parti-federaliste.org	UT1-Bu
 pbs.org	Notracking-Whitelist
-pdm-net.org	UT1-Bu
-peinedemort.org	UT1-Bu
 pelco.org	Chris-White
 penfed.org	Adguard-Banks
 pfandbrief.org	Shalla-Banking, UT1-Banking
 piwik.org	Notracking-Whitelist
-planetecologie.org	UT1-Bu
-planetfinance.org	UT1-Bu
-planetfinancegroup.org	UT1-Bu
-planning-familial.org	UT1-Bu
-pole-emploi.org	UT1-Bu
-polytechnique.org	UT1-Bu
-portedeurope.org	UT1-Bu
 postbanking.org	Shalla-Banking
-powerscorecard.org	UT1-Bu
-prepa-hec.org	UT1-Bu
-prg78.org	UT1-Bu
-projecteuclid.org	UT1-Bu
 projecthoneypot.org	Chris-White
-psychologie-sociale.org	UT1-Bu
-quebecoislibre.org	UT1-Bu
-quechoisir.org	UT1-Bu
-rabenou.org	UT1-Bu
-rajf.org	UT1-Bu
 rbap.org	Shalla-Banking, UT1-Banking
-rdpc-toulouse.org	UT1-Bu
 redcross.org	Notracking-Whitelist
-limag.refer.org	UT1-Bu
-reforme-des-collectivites.org	UT1-Bu
-ideas.repec.org	UT1-Bu
-repercom.org	UT1-Bu
-reseau-iae.org	UT1-Bu
-reserves-naturelles.org	UT1-Bu
-revue-dm.org	UT1-Bu
-revue-ram.org	UT1-Bu
-revue-republicaine.org	UT1-Bu
-revues.org	UT1-Bu
-revues-plurielles.org	UT1-Bu
-ridi.org	UT1-Bu
 rimba.org	Shalla-Banking, UT1-Banking
-riob.org	UT1-Bu
 rmahq.org	Shalla-Banking
-robert-schuman.org	UT1-Bu
-roumanie-quotidien.org	UT1-Bu
-rsc.org	UT1-Bu
-rsf.org	UT1-Bu
-runformation.org	UT1-Bu
 sama-ksa.org	Shalla-Banking
 sans.org	Chris-White
 sc-cg.org	Shalla-Banking
 scbankers.org	Shalla-Banking, UT1-Banking
 schema.org	Chris-White
 sciencemag.org	Notracking-Whitelist
-sciencescitoyennes.org	UT1-Bu
-scrutin.org	UT1-Bu
-scuio.org	UT1-Bu
 seattlemba.org	Shalla-Banking, UT1-Banking
 securitystatebank.org	Shalla-Banking
-seerecon.org	UT1-Bu
-sgee.org	UT1-Bu
 silverinstitute.org	Shalla-Banking
-smtc-grenoble.org	UT1-Bu
 socalmba.org	Shalla-Banking
 social-banking.org	Shalla-Banking
 someonewhocares.org	Chris-White
-sommets-tourisme.org	UT1-Bu
-sourceocde.org	UT1-Bu
-sourceoecd.org	UT1-Bu
 spamhaus.org	Chris-White
 squidblacklist.org	Chris-White
-ssrc.org	UT1-Bu
 stanev.org	Chris-White
 sa-blacklist.stearns.org	Chris-White
-stratisc.org	UT1-Bu
 suncoastmba.org	Shalla-Banking
 swissbanking.org	Shalla-Banking
-syndicat-magistrature.org	UT1-Bu
 sysctl.org	Chris-White, Notracking-Whitelist
-tavinstitute.org	UT1-Bu
-campus.tbs-education.org	UT1-Bu
 team-cymru.org	Chris-White
-tee-lr.org	UT1-Bu
-tekrur.org	UT1-Bu
-terena.org	UT1-Bu, UT1-Whitelist
+terena.org	UT1-Whitelist
 texasmba.org	Shalla-Banking, UT1-Banking
-thebhc.org	UT1-Bu
 thefirma.org	Shalla-Banking
 tiaa.org	Adguard-Banks
 tmba.org	Shalla-Banking, UT1-Banking
@@ -9513,88 +7269,37 @@ tnbankers.org	Shalla-Banking, UT1-Banking
 tnmba.org	Shalla-Banking, UT1-Banking
 check.torproject.org	Chris-White
 metrics.torproject.org	EasyPrivacy-White
-toupie.org	UT1-Bu
-fr.transnationale.org	UT1-Bu
-triumemba.org	UT1-Bu
 trlibor.org	Shalla-Banking
-trolliet.org	UT1-Bu
 turkishbankers.org	Shalla-Banking, UT1-Banking
-tv5.org	UT1-Bu
-u-m-p.org	UT1-Bu
 uabonline.org	Shalla-Banking, UT1-Banking
 uba.org	Shalla-Banking, UT1-Banking
 ubcny.org	Shalla-Banking
-uef-europe.org	UT1-Bu
-ufpweb.org	UT1-Bu
 ufscla.org	Shalla-Banking
-uia.org	UT1-Bu
 umla.org	Shalla-Banking
-un.org	UT1-Bu, Notracking-Whitelist
-unac.org	UT1-Bu
-unaids.org	UT1-Bu
-uncitral.org	UT1-Bu
-uncjin.org	UT1-Bu
-unctad.org	UT1-Bu
-undp.org	UT1-Bu
-uneca.org	UT1-Bu
-unece.org	UT1-Bu
-unedesep.org	UT1-Bu
-unep.org	UT1-Bu
-unesco.org	UT1-Bu, Notracking-Whitelist
-unescocat.org	UT1-Bu
-unfpa.org	UT1-Bu
-unicef.org	UT1-Bu
-unidroit.org	UT1-Bu
-union-hlm.org	UT1-Bu
+un.org	Notracking-Whitelist
+unesco.org	Notracking-Whitelist
 unionstatebank.org	Shalla-Banking, UT1-Banking
-universalhumanrightsindex.org	UT1-Bu
-unpi.org	UT1-Bu
-unsystem.org	UT1-Bu
-unv.org	UT1-Bu
-uvpl.org	UT1-Bu
-uwpress.org	UT1-Bu
 vabankers.org	Shalla-Banking, UT1-Banking
 vacb.org	Shalla-Banking, UT1-Banking
 vibank.org	Shalla-Banking, UT1-Banking
-vote-smart.org	UT1-Bu
 vystarcu.org	Adguard-Banks
 w3.org	Notracking-Whitelist
-webref.org	UT1-Bu
-weforum.org	UT1-Bu
 wib.org	Shalla-Banking, UT1-Banking
 wicba.org	Shalla-Banking
 widscambridge.org	Chris-White
-wikiberal.org	UT1-Bu
-wikimedia.org	UT1-Bu, Notracking-Whitelist
-wikipedia.org	UT1-Bu, Notracking-Whitelist
-wikisource.org	UT1-Bu
-wikiversity.org	UT1-Bu
-wiktionary.org	UT1-Bu
+wikimedia.org	Notracking-Whitelist
+wikipedia.org	Notracking-Whitelist
 wimba.org	Shalla-Banking, UT1-Banking
 windowupdate.org	Notracking-Whitelist
-wipo.org	UT1-Bu
 wordpress.org	Notracking-Whitelist
-work-experience.org	UT1-Bu
-world-tourism.org	UT1-Bu
-worldbank.org	UT1-Bu, Notracking-Whitelist
+worldbank.org	Notracking-Whitelist
 worldbank-bangladesh.org	Shalla-Banking
-worldcat.org	UT1-Bu
-worldenergy.org	UT1-Bu
-worldwatercouncil.org	UT1-Bu
-wti.org	UT1-Bu
-wto.org	UT1-Bu
 wvbankers.org	Shalla-Banking, UT1-Banking
-x-environnement.org	UT1-Bu
 yoyo.org	Chris-White
-zotero.org	UT1-Bu
 bif.com.pe	Shalla-Banking
-unmsm.edu.pe	UT1-Bu
-up.edu.pe	UT1-Bu
 bcrp.gob.pe	Shalla-Banking
 alide.org.pe	Shalla-Banking
-agriculture.gov.pf	UT1-Bu
-ufp.pf	UT1-Bu, UT1-Whitelist
-upf.pf	UT1-Bu
+ufp.pf	UT1-Whitelist
 bsp.com.pg	Shalla-Banking
 bankpng.gov.pg	Shalla-Banking
 bancodeoro.ph	Shalla-Banking
@@ -9611,7 +7316,6 @@ chinatrust.com.ph	Shalla-Banking
 citibank.com.ph	Shalla-Banking, UT1-Banking
 devbankphil.com.ph	Shalla-Banking
 equitable.com.ph	Shalla-Banking
-france.com.ph	UT1-Bu
 ibank.com.ph	Shalla-Banking
 mart.com.ph	Shalla-Banking
 maybank2u.com.ph	Shalla-Banking
@@ -9659,10 +7363,9 @@ deutsche-bank-pbc.pl	Shalla-Banking
 deutschebank.pl	Adguard-Banks
 dominetbank.pl	Shalla-Banking
 e-dominet.pl	Shalla-Banking
-uwm.edu.pl	UT1-Bu
 secure.getinbank.pl	Adguard-Banks
 google.pl	Notracking-Whitelist
-gov.pl	UT1-Bu, Adguard-Banks
+gov.pl	Adguard-Banks
 home.pl	Notracking-Whitelist
 secure.ideabank.pl	Adguard-Banks
 ingbank.pl	Adguard-Banks
@@ -9687,7 +7390,6 @@ t-mobilebankowe.pl	Adguard-Banks
 vwbank.pl	Shalla-Banking
 vwbankdirect.pl	Shalla-Banking, UT1-Banking
 westlb.pl	Shalla-Banking
-uni.wroc.pl	UT1-Bu
 zbp.pl	Shalla-Banking
 activobank7.pt	Shalla-Banking, UT1-Banking
 banif.pt	Shalla-Banking
@@ -9706,11 +7408,8 @@ deutsche-bank.pt	Adguard-Banks
 finantia.pt	Shalla-Banking
 finibanco.pt	Shalla-Banking
 montepiogeral.pt	Shalla-Banking
-sapo.pt	UT1-Bu
 sibs.pt	Shalla-Banking
 totta.pt	Shalla-Banking
-letras.up.pt	UT1-Bu
-sigarra.up.pt	UT1-Bu
 gotcha.pw	Chris-White
 familiar.com.py	Shalla-Banking
 itau.com.py	Shalla-Banking
@@ -9720,7 +7419,6 @@ dohabank.com.qa	Shalla-Banking
 qcb.gov.qa	Shalla-Banking
 login.24banking.ro	Adguard-Banks
 alphabank.ro	Shalla-Banking
-ase.ro	UT1-Bu
 banca-agricola.ro	Shalla-Banking
 banca-romaneasca.ro	Shalla-Banking
 bancatransilvania.ro	Shalla-Banking
@@ -9734,7 +7432,6 @@ ib.btrl.ro	Adguard-Banks
 carpatica.ro	Shalla-Banking
 cbg.ro	Shalla-Banking
 cbit.ro	Shalla-Banking
-ccir.ro	UT1-Bu
 citibank.ro	Shalla-Banking
 demirbank.ro	Shalla-Banking
 eteba.ro	Shalla-Banking
@@ -9913,7 +7610,6 @@ dbo.eab.ru	Adguard-Banks
 telebank.eatpbank.ru	Adguard-Banks
 online.econombank.ru	Adguard-Banks
 ibank.economiks.ru	Adguard-Banks
-ecsocman.edu.ru	UT1-Bu
 efactoring.ru	Adguard-Banks
 efbank.ru	Adguard-Banks
 ibank.eka-bank.ru	Adguard-Banks
@@ -10042,8 +7738,6 @@ kkb.ru	Adguard-Banks
 kmb.ru	Shalla-Banking, UT1-Banking
 ib.kmbank.ru	Adguard-Banks
 online.kombank.ru	Adguard-Banks
-kostroma.ru	UT1-Bu
-kp.ru	UT1-Bu
 kranbank.ru	Adguard-Banks
 krasbank.ru	Shalla-Banking
 i.kredprombank.ru	Adguard-Banks
@@ -10110,7 +7804,6 @@ cb.mosexibank.ru	Adguard-Banks
 moskb.ru	Adguard-Banks
 ibank.mosoblbank.ru	Adguard-Banks
 wb.mosoblbank.ru	Adguard-Banks
-mospravda.ru	UT1-Bu
 mpaycard.ru	Adguard-Banks
 ibank.mpbbank.ru	Adguard-Banks
 ibank.mrbank.ru	Adguard-Banks
@@ -10207,7 +7900,6 @@ ibank.plus-bank.ru	Adguard-Banks
 my.pochtabank.ru	Adguard-Banks
 poidem.ru	Adguard-Banks
 vlab.pp.ru	Notracking-Whitelist
-pravda.ru	UT1-Bu
 ibank.prbb.ru	Adguard-Banks
 prbkbr-ibank2.ru	Adguard-Banks
 ibank.premcred.ru	Adguard-Banks
@@ -10448,7 +8140,6 @@ bankforeningen.se	Shalla-Banking
 banknorwegian.se	Adguard-Banks
 christianliljeberg.se	Chris-White
 hembanken2.danskebank.se	Adguard-Banks
-dn.se	UT1-Bu
 firstcard.se	Adguard-Banks
 foreningssparbanken.se	Shalla-Banking, UT1-Banking
 forex.se	Adguard-Banks
@@ -10456,7 +8147,6 @@ forsakringskassan.se	Adguard-Banks
 fryksdalenssparbank.se	Shalla-Banking, Adguard-Banks
 gecapitalbank.se	Shalla-Banking, UT1-Banking
 handelsbanken.se	Shalla-Banking, UT1-Banking, Adguard-Banks
-econpapers.hhs.se	UT1-Bu
 icabanken.se	Adguard-Banks
 ikanobanken.se	Shalla-Banking, UT1-Banking
 jak.se	Shalla-Banking, UT1-Banking
@@ -10477,10 +8167,8 @@ sormlandssparbank.se	Shalla-Banking, UT1-Banking
 stadshypotekbank.se	Shalla-Banking
 svenskkassaservice.se	Shalla-Banking
 swedbank.se	Shalla-Banking, Adguard-Banks
-skeptron.ilu.uu.se	UT1-Bu
 volvofinans.se	Adguard-Banks
 abnamro.com.sg	Shalla-Banking
-straitstimes.asia1.com.sg	UT1-Bu
 citibank.com.sg	Shalla-Banking, UT1-Banking
 dbs.com.sg	Shalla-Banking
 hsbc.com.sg	Shalla-Banking, UT1-Banking
@@ -10490,7 +8178,6 @@ ocbc.com.sg	Shalla-Banking, UT1-Banking
 posb.com.sg	Adguard-Banks
 standardchartered.com.sg	Shalla-Banking, UT1-Banking
 uob.com.sg	Shalla-Banking, UT1-Banking
-smu.edu.sg	UT1-Bu
 mas.gov.sg	Shalla-Banking
 abs.org.sg	Shalla-Banking, UT1-Banking
 sainthelenabank.co.sh	Shalla-Banking
@@ -10503,32 +8190,14 @@ unicreditbank.si	Shalla-Banking
 zbs-giz.si	Shalla-Banking
 asocbank.sk	Shalla-Banking
 dexia.sk	Shalla-Banking
-euba.sk	UT1-Bu
 nbs.sk	Shalla-Banking
 ib.raiffeisen.sk	Adguard-Banks
 danger.rulez.sk	Chris-White
 slsp.sk	Adguard-Banks
-sme.sk	UT1-Bu
 moja.tatrabanka.sk	Adguard-Banks
 wuestenrot.sk	Shalla-Banking
 bcsm.sm	Shalla-Banking
-aps.sn	UT1-Bu
-cesag.sn	UT1-Bu
-gouv.sn	UT1-Bu
-homeview.sn	UT1-Bu
-homeviewsenegal.sn	UT1-Bu
-lequotidien.sn	UT1-Bu
-lesoleil.sn	UT1-Bu
-lobservateur.sn	UT1-Bu
-osiris.sn	UT1-Bu
-sudonline.sn	UT1-Bu
-ucad.sn	UT1-Bu
-walf.sn	UT1-Bu
 cbvs.sr	Shalla-Banking
-eo.st	UT1-Bu
-amphitheatre.fr.st	UT1-Bu
-droit-live.fr.st	UT1-Bu
-esclavage.fr.st	UT1-Bu
 manimo.su	Adguard-Banks
 secure.ucs.su	Adguard-Banks
 terminal.ucs.su	Adguard-Banks
@@ -10542,7 +8211,6 @@ bso.com.sy	Shalla-Banking, UT1-Banking
 ibtf.com.sy	Shalla-Banking
 banquecentrale.gov.sy	Shalla-Banking, UT1-Banking
 centralbank.org.sz	Shalla-Banking
-ub.tg	UT1-Bu
 bbl.co.th	Shalla-Banking
 boa.co.th	Shalla-Banking
 ghb.co.th	Shalla-Banking
@@ -10554,20 +8222,13 @@ tba.or.th	Shalla-Banking
 homebank.tj	Adguard-Banks
 ibank.tj	Adguard-Banks
 nbt.tj	Shalla-Banking
-aaproxy.tk	UT1-Bu
-beproxxy.tk	UT1-Bu
-anpr.tn	UT1-Bu
 bct.gov.tn	Shalla-Banking
-lapresse.tn	UT1-Bu
 apbt.org.tn	Shalla-Banking
-fsjegj.rnu.tn	UT1-Bu
-isg.rnu.tn	UT1-Bu
-uma.rnu.tn	UT1-Bu
-universites.tn	UT1-Bu
 amzn.to	Notracking-Whitelist
 easylist.to	Source
 a.kickass.to	Notracking-Whitelist
 reservebank.to	Shalla-Banking
+tawk.to	Notracking-Whitelist
 abank.com.tr	Adguard-Banks
 3dsecure.akbank.com.tr	Adguard-Banks
 online.aktifbank.com.tr	Adguard-Banks
@@ -10627,7 +8288,6 @@ tbb.org.tr	Shalla-Banking
 tkbb.org.tr	Shalla-Banking, UT1-Banking
 app3.takasbank.web.tr	Adguard-Banks
 central-bank.org.tt	Shalla-Banking
-canal-u.tv	UT1-Bu
 france.tv	Chris-White
 twitch.tv	Notracking-Whitelist
 ustream.tv	Notracking-Whitelist
@@ -10747,8 +8407,8 @@ secure.upc.ua	Adguard-Banks
 online.vtb.ua	Adguard-Banks
 centenarybank.co.ug	Shalla-Banking
 bou.or.ug	Shalla-Banking
-ac.uk	UT1-Bu
-catalogue.bl.uk	UT1-Bu
+cam.ac.uk	Notracking-Whitelist
+ox.ac.uk	Notracking-Whitelist
 123-reg.co.uk	Notracking-Whitelist
 abbeynational.co.uk	Shalla-Banking
 amazon.co.uk	Notracking-Whitelist
@@ -10766,43 +8426,34 @@ centralbanking.co.uk	Shalla-Banking
 co-operativebank.co.uk	Shalla-Banking, UT1-Banking, Adguard-Banks
 coutts.co.uk	Shalla-Banking
 dailymail.co.uk	Notracking-Whitelist
-mikestrt.dircon.co.uk	UT1-Bu
 dresdnerprivatebanking.co.uk	Shalla-Banking
 ebay.co.uk	Notracking-Whitelist
 eventbrite.co.uk	Notracking-Whitelist
 google.co.uk	Notracking-Whitelist
-guardian.co.uk	UT1-Bu, Notracking-Whitelist
+guardian.co.uk	Notracking-Whitelist
 halifax.co.uk	Shalla-Banking
 halifax-online.co.uk	Shalla-Banking, Adguard-Banks
-howtobooks.co.uk	UT1-Bu
 hsbc.co.uk	Shalla-Banking, Adguard-Banks
-independent.co.uk	UT1-Bu, Notracking-Whitelist
+independent.co.uk	Notracking-Whitelist
 internationalbankers.co.uk	Shalla-Banking
 vpos.isbank.co.uk	Adguard-Banks
 lloydsbank.co.uk	Shalla-Banking
 lloydstsb.co.uk	Shalla-Banking
-mirror.co.uk	UT1-Bu, Notracking-Whitelist
+mirror.co.uk	Notracking-Whitelist
 natwest.co.uk	Shalla-Banking
-oup.co.uk	UT1-Bu
 persiabank.co.uk	Shalla-Banking, UT1-Banking
-prudential.co.uk	UT1-Bu
 retail.santander.co.uk	Adguard-Banks
 scotbanks.co.uk	Shalla-Banking
 telegraph.co.uk	Notracking-Whitelist
-theherald.co.uk	UT1-Bu
-thetimes.co.uk	UT1-Bu, Notracking-Whitelist
-timesonline.co.uk	UT1-Bu
+thetimes.co.uk	Notracking-Whitelist
 tripadvisor.co.uk	Notracking-Whitelist
 tsb.co.uk	Shalla-Banking
 ulsterbank.co.uk	Shalla-Banking
 volkswagenbank.co.uk	Shalla-Banking
-westlaw.co.uk	UT1-Bu
 gov.uk	Notracking-Whitelist
 nhs.uk	Notracking-Whitelist
-aest.org.uk	UT1-Bu
 afs.org.uk	Shalla-Banking
 bankingcode.org.uk	Shalla-Banking
-barcouncil.org.uk	UT1-Bu
 bba.org.uk	Shalla-Banking
 bsa.org.uk	Shalla-Banking
 building-societies-members.org.uk	Shalla-Banking
@@ -10811,16 +8462,14 @@ cml.org.uk	Shalla-Banking
 fla.org.uk	Shalla-Banking
 ifsl.org.uk	Shalla-Banking, UT1-Banking
 jmlsg.org.uk	Shalla-Banking
-lawsociety.org.uk	UT1-Bu
 lbma.org.uk	Shalla-Banking
 liba.org.uk	Shalla-Banking
 lppm.org.uk	Shalla-Banking
 ofta.org.uk	Shalla-Banking
 restoreuk.org.uk	Shalla-Banking
 scotbanks.org.uk	Shalla-Banking
-tuc.org.uk	UT1-Bu
-ukcosa.org.uk	UT1-Bu
 wmba.org.uk	Shalla-Banking
+airport.us	UT1-Whitelist
 icio.us	Notracking-Whitelist
 squidguard.mesd.k12.or.us	Chris-White
 state.tx.us	Notracking-Whitelist
@@ -10829,7 +8478,6 @@ ibank.kdb.uz	Adguard-Banks
 ebank.ofb.uz	Adguard-Banks
 ibank.ravnaqbank.uz	Adguard-Banks
 ibank.ubank.uz	Adguard-Banks
-vatican.va	UT1-Bu
 asobanca.com.ve	Shalla-Banking, UT1-Banking
 bancamiga.com.ve	Shalla-Banking
 bancaribe.com.ve	Shalla-Banking
@@ -10865,7 +8513,6 @@ sterlingbank.ws	Shalla-Banking, UT1-Banking
 xn--80aae3af7av6a7a.xn--p1ai	Adguard-Banks
 ybrd.com.ye	Shalla-Banking
 centralbank.gov.ye	Shalla-Banking
-unisa.ac.za	UT1-Bu
 absa.co.za	Shalla-Banking, UT1-Banking, Adguard-Banks
 absadirect.co.za	Shalla-Banking
 africanbank.co.za	Shalla-Banking
@@ -10904,10 +8551,7 @@ AS36692	Chris-ASN-White
 37.77.184.0/21	Chris-ASN-White-AS2906
 45.57.0.0/17	Chris-ASN-White-AS2906
 45.58.64.0/20	Chris-ASN-White-AS19679
-62.32.98.7/32	UT1-Bu
-62.50.132.93/32	UT1-Bu
 64.120.128.0/17	Chris-ASN-White-AS2906
-65.18.216.88/32	UT1-Bu
 66.197.128.0/17	Chris-ASN-White-AS2906
 67.215.68.0/22	Chris-ASN-White-AS36692
 67.215.74.0/23	Chris-ASN-White-AS36692
@@ -10918,7 +8562,6 @@ AS36692	Chris-ASN-White
 67.215.84.0/22	Chris-ASN-White-AS36692
 67.215.88.0/21	Chris-ASN-White-AS36692
 69.53.224.0/19	Chris-ASN-White-AS2906
-69.63.217.23/32	UT1-Bu
 95.56.246.182/32	Adguard-Banks
 108.160.160.0/20	Chris-ASN-White-AS19679
 108.175.32.0/20	Chris-ASN-White-AS2906
@@ -10960,19 +8603,7 @@ AS36692	Chris-ASN-White
 192.168.1.0/24	Chris-White
 192.168.100.0/25	Chris-White
 192.173.64.0/18	Chris-ASN-White-AS2906
-193.49.53.175/32	UT1-Bu
-193.52.26.10/32	UT1-Bu
-193.52.26.28/32	UT1-Bu
 194.105.148.87/32	Adguard-Banks
-194.199.119.54/32	UT1-Bu
-195.68.32.134/32	UT1-Bu
-195.83.2.11/32	UT1-Bu
-195.101.101.220/32	UT1-Bu
-195.101.154.89/32	UT1-Bu
-195.154.196.81/32	UT1-Bu
-195.154.196.85/32	UT1-Bu
-195.154.196.86/32	UT1-Bu
-195.220.59.120/32	UT1-Bu
 198.38.96.0/19	Chris-ASN-White-AS2906
 198.45.48.0/20	Chris-ASN-White-AS2906
 199.47.216.0/22	Chris-ASN-White-AS19679
@@ -10980,7 +8611,6 @@ AS36692	Chris-ASN-White
 208.67.220.0/24	Chris-ASN-White-AS36692
 208.67.222.0/24	Chris-ASN-White-AS36692
 208.69.32.0/21	Chris-ASN-White-AS36692
-213.30.183.10/32	UT1-Bu
 213.135.106.194/32	Adguard-Banks
 213.230.210.230/32	Chris-White
 ### WHITELIST IPv6 ###
