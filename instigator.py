@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.45-20181108 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.50-20181109 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -305,6 +305,7 @@ bl_asn = dict() # ASN Blacklist
 aliases = OrderedDict() # Aliases
 aliases_rx = OrderedDict() # Alias generators/regexes
 ttls = OrderedDict() # TTL aliases
+toggles = dict()
 
 # Work caches
 #indom_cache = dict() # Cache results of domain hits
@@ -380,6 +381,9 @@ isasn = regex.compile('^AS[0-9]+$', regex.I)
 
 # Regex for numbers
 isnum = regex.compile('^[0-9]+$')
+
+# Has an option
+hasoption = regex.compile('^[a-z0-9,\+\-]+\s*~.*$', regex.I)
 
 ##############################################################
 
@@ -482,13 +486,14 @@ def check_blacklist(rid, rtype, rrtype, value):
 
 
     # Block IP-Family
-    if blockv4 is not False and (rrtype == 'A' or (rtype == 'REQUEST' and rrtype == 'PTR' and ip4arpa.search(testvalue))):
-        log_info('BLOCK-IPV4-HIT [{0}]: {1} \"{2}/{3}\"'.format(tid, rtype, value, rrtype))
-        return True
+    # !!! Done by strip_reply !!!
+    #if blockv4 is not False and (rrtype == 'A' or (rtype == 'REQUEST' and rrtype == 'PTR' and ip4arpa.search(testvalue))):
+    #    log_info('BLOCK-IPV4-HIT [{0}]: {1} \"{2}/{3}\"'.format(tid, rtype, value, rrtype))
+    #    return True
 
-    if blockv6 is not False and (rrtype == 'AAAA' or (rtype == 'REQUEST' and rrtype == 'PTR' and ip6arpa.search(testvalue))):
-        log_info('BLOCK-IPV6-HIT [{0}]: {1} \"{2}/{3}\"'.format(tid, rtype, value, rrtype))
-        return True
+    #if blockv6 is not False and (rrtype == 'AAAA' or (rtype == 'REQUEST' and rrtype == 'PTR' and ip6arpa.search(testvalue))):
+    #    log_info('BLOCK-IPV6-HIT [{0}]: {1} \"{2}/{3}\"'.format(tid, rtype, value, rrtype))
+    #    return True
 
 
     # Check if an REVDOM/IP
@@ -780,6 +785,41 @@ def who_is(ip, desc):
     return asn, prefix, owner
 
 
+def strip_reply(request, reply, cip):
+    '''Strip v4 or v6 addresses from reply'''
+    hid = id_str(request.header.id)
+
+    strip4 = False
+    strip6 = False
+
+    if blockv4 or (blockv4 is None and is_v6(cip) is True):
+        strip4 = True
+
+    if blockv6 or (blockv6 is None and is_v6(cip) is False):
+        strip6 = True
+
+    new_reply = rc_reply(request, 'NOERROR')
+    for record in reply.rr:
+        rqname = normalize_dom(record.rname)
+        rqtype = QTYPE[record.rtype]
+        data = normalize_dom(record.rdata)
+
+        if debug: log_info('STRIP-IP-REPLY [{0}]: Checking IP RR \"{1} {2} {3}\" 4:{4}/{5} 6:{6}/{7}'.format(hid, rqname, rqtype, data, blockv4, strip4, blockv6, strip6))
+
+        if strip4 and (rqtype == 'A' or ip4arpa.search(rqname) or ipregex4.search(data)):
+            log_info('STRIP-IPV4-REPLY [{0}]: Stripping IPv4 RR \"{1} {2} {3}\"'.format(hid, rqname, rqtype, data))
+        elif strip6 and (rqtype == 'AAAA' or ip6arpa.search(rqname) or ipregex6.search(data)):
+            log_info('STRIP-IPV6-REPLY [{0}]: Stripping IPv6 RR \"{1} {2} {3}\"'.format(hid, rqname, rqtype, data))
+        else:
+            if debug: log_info('STRIP-IP-REPLY [{0}]: Allowed IP RR \"{1} {2} {3}\"'.format(hid, rqname, rqtype, data))
+            new_reply.add_answer(record)
+
+    if not new_reply.rr:
+        new_reply = rc_reply(request, hitrcode)
+
+    return new_reply
+   
+
 def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
     '''Do query'''
     global broken_exist
@@ -1035,7 +1075,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
 
                 if blockit:
                     log_info('REPLY [{0}]: {1}/IN/{2} = {3} BLACKLIST-HIT{4}'.format(nid, rqname, rqtype, data, tag))
-                    reply = generate_response(request, qname, qtype, redirect_addrs, force, 'REPLY-BLACKLISTED' + tag)
+                    reply = generate_response(request, qname, qtype, cip, redirect_addrs, force, use_tcp, 'REPLY-BLACKLISTED' + tag)
                     break
 
                 #else:
@@ -1054,7 +1094,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
     log_replies(reply, 'FETCHED-REPLY')
 
     # Collapse CNAME
-    if collapse:
+    if collapse and reply.rr:
         reply = collapse_cname(request, reply, tid)
 
     # Minimum responses
@@ -1085,7 +1125,7 @@ def num_rrs(reply):
     return numrrs
 
 
-def generate_response(request, qname, qtype, redirect_addrs, force, comment):
+def generate_response(request, qname, qtype, cip, redirect_addrs, use_tcp, force, comment):
     '''Generate response when blocking'''
     queryname = qname + '/IN/' + qtype
 
@@ -1103,11 +1143,11 @@ def generate_response(request, qname, qtype, redirect_addrs, force, comment):
         reply = rc_reply(request, hitrcode)
 
     else:
+        answers = set()
         reply = rc_reply(request, 'NOERROR')
-        addanswer = set()
         if qtype in ('ANY', 'TXT'):
             answer = RR(qname, QTYPE.TXT, ttl=filterttl, rdata=TXT('BLACKLISTED!'))
-            addanswer.add('BLACKLISTED!')
+            answers.add('BLACKLISTED')
             answer.set_rname(request.q.qname)
             reply.add_answer(answer)
 
@@ -1131,39 +1171,42 @@ def generate_response(request, qname, qtype, redirect_addrs, force, comment):
                         answer = RR(qname, QTYPE.CNAME, ttl=filterttl, rdata=CNAME(addr))
 
                 if answer is not None:
-                    addanswer.add(addr)
+                    answers.add(addr)
                     answer.set_rname(request.q.qname)
                     reply.add_answer(answer)
                     if not ipregex.search(addr):
-                        if qtype not in ('A', 'AAAA'):
-                            aqtypes = ('A', 'AAAA')
+                        # Work around ANY rrtype issues
+                        if qtype == 'ANY' or (qtype not in ('A', 'AAAA')):
+                            aqtypes = list(['A', 'AAAA'])
                         else:
-                            aqtypes = (qtype)
+                            aqtypes = list([qtype])
 
                         for aqtype in aqtypes:
-                            subreply = dns_query(request, addr, aqtype, False, request.header.id, 'GENERATE-RESOLVER', False, False)
+                            subreply = dns_query(request, addr, aqtype, use_tcp, request.header.id, 'GENERATE-RESOLVER', True, False)
                             rcode = str(RCODE[subreply.header.rcode])
                             if rcode == 'NOERROR' and subreply.rr:
                                 for record in subreply.rr:
                                     rqtype = QTYPE[record.rtype]
                                     data = normalize_dom(record.rdata)
-                                    if data not in addanswer:
-                                        addanswer.add(data)
-                                        if rqtype == 'A':
+                                    if data not in answers:
+                                        answers.add(data)
+                                        if aqtype == 'A' and rqtype == 'A':
                                             answer = RR(addr, QTYPE.A, ttl=filterttl, rdata=A(data))
                                             answer.set_rname(addr)
                                             reply.add_answer(answer)
-                                        if rqtype == 'AAAA':
+                                        if aqtype == 'AAAA' and rqtype == 'AAAA':
                                             answer = RR(addr, QTYPE.AAAA, ttl=filterttl, rdata=AAAA(data))
                                             answer.set_rname(addr)
                                             reply.add_answer(answer)
 
-        if collapse:
+        if collapse and reply.rr:
             reply = collapse_cname(request, reply, request.header.id)
 
         log_replies(reply, 'GENERATE-REPLY')
 
-        if not addanswer:
+        if reply.rr:
+            log_info('GENERATE-REDIRECT [{0}]: {1} -> {2}'.format(hid, queryname, ', '.join(redirect_addrs)))
+        else:
             reply = rc_reply(request, hitrcode)
             log_info('GENERATE [{0}]: {1} for {2}'.format(hid, hitrcode, queryname))
 
@@ -1172,7 +1215,7 @@ def generate_response(request, qname, qtype, redirect_addrs, force, comment):
     return reply
 
 
-def generate_alias(request, qname, qtype, use_tcp, force, newalias):
+def generate_alias(request, qname, qtype, cip, use_tcp, force, newalias):
     '''Generate alias response'''
     queryname = qname + '/IN/' + qtype
 
@@ -1241,7 +1284,7 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
         if israndom and qtype == 'CNAME':
             rcode = 'NODATA'
         else:
-            subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, 'ALIAS-RESOLVER', False, False)
+            subreply = dns_query(request, alias, qtype, use_tcp, request.header.id, 'ALIAS-RESOLVER', True, False)
             rcode = str(RCODE[subreply.header.rcode])
 
         if rcode == 'NOERROR' and subreply.rr:
@@ -1274,7 +1317,7 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
     #if collapse and aliasqname:
     #    log_info('{0} [{1}]: COLLAPSE {2}/IN/CNAME'.format(tag, hid, qname))
 
-    if collapse:
+    if collapse and reply.rr:
         reply = collapse_cname(request, reply, reply.header.id)
 
     if newalias:
@@ -1559,6 +1602,26 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
             # If entry ends in ampersand, it is a "safelisted" entry. Not supported.
             if entry.endswith('&'):
                 entry = False
+
+            # If line start with an option. !!!!!!!!!!! WIP !!!!!!!!!!!
+            #
+            # Syntax: [(+|-)]<option>[,[(+|-)]<option>, ...]<~><entry>
+            # Entry as any other entry, just prepended with option and tilde
+            # Options: 4 - IPv4 family only
+            #          6 - IPv6 family only
+            #          <RR-Type> (A, AAAA, CNAME, etc) - This RR-type only
+            #          Prepend options with a '+' sign (default) to use option as matching, '-' sign to negate
+            #          
+            # Exampleis: 4,A,CNAME~domain.com - Filter/Hit domain.com only for IPv4 when A or CNAME records
+            #            6~/^.*$/=REFUSED - Filter/Hit all IPv6 related records and respond with REFUSED
+            #            -A~domain.com - Filter/Hit when record-types are NOT A-Records for domain.com domains and subdomains
+            #
+            #options = False
+            #if hasoption.search(entry):
+            #    elements = regex.split('\s*~\s*', entry)
+            #    options = ','.join(regex.split('\s*,\s*', elements[0]))
+            #    entry = '~'.join(elements[1:]) 
+            #    if debug: log_info('{0} OPTIONS [{1}]: \"{2}\" for \"{3}\"'.format(listname, count, options, entry))
 
             # Process entry
             if entry and (not entry.startswith('#')):
@@ -2130,7 +2193,7 @@ def cache_prefetch_list():
     now = int(time.time())
     # Formula: At least one RR-Record, at least 2 cache-hits, hitrate > 0 and hits are above/equal hitrate
     # value list entries: 0:reply - 1:expire - 2:qname/class/type - 3:hits - 4:orgttl - 5:domainname - 6:comment
-    return list(dict((k, v) for k, v in cache.items() if len(v[0].rr) > 0 and v[3] > 1 and int(round(v[4] / prefetchhitrate)) > 0 and v[1] - now <= int(round(v[4] / prefetchgettime)) and v[3] >= int((round(v[4] / prefetchhitrate)) - (round((v[1] - now) / prefetchhitrate)))).keys()) or False
+    return list(dict((k, v) for k, v in cache.items() if v[0].rr and v[3] > 1 and int(round(v[4] / prefetchhitrate)) > 0 and v[1] - now <= int(round(v[4] / prefetchgettime)) and v[3] >= int((round(v[4] / prefetchhitrate)) - (round((v[1] - now) / prefetchhitrate)))).keys()) or False
 
 
 def cache_dom_list(qclass, qtype):
@@ -2639,7 +2702,7 @@ def do_query(request, handler, force):
         # Generate ALIAS response when hit !!! Needs to be last in if-elif chain
         if reply is None:
             generated = in_regex(qname, aliases_rx, True, 'Generator') or False
-            reply = generate_alias(request, qname, qtype, use_tcp, force, generated)
+            reply = generate_alias(request, qname, qtype, cip, use_tcp, force, generated)
 
         # Check query/response against lists
         if reply is None:
@@ -2652,7 +2715,7 @@ def do_query(request, handler, force):
                     # Check against lists
                     ismatch = match_blacklist(rid, 'REQUEST', qtype, qname)
                     if ismatch is True: # Blacklisted
-                        reply = generate_response(request, qname, qtype, redirect_addrs, force, 'REQUEST-BLACKLISTED')
+                        reply = generate_response(request, qname, qtype, cip, redirect_addrs, use_tcp, force, 'REQUEST-BLACKLISTED')
                     elif ismatch is None and checkresponse: # Not listed
                         reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, force)
                     else: # Whitelisted
@@ -2666,6 +2729,9 @@ def do_query(request, handler, force):
 
     # Cache if REQUEST/Query is filtered
     if reply:
+        # Strip any v4/v6 records when needed
+        reply = strip_reply(request, reply, cip)
+
         if queryfiltered:
             #ttl = normalize_ttl(qname, reply.rr)
             to_cache(qname, 'IN', qtype, reply, force, filterttl, 'REQUEST-BLACKLISTED')
