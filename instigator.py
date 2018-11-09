@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.44-20181107 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.45-20181108 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1106,7 +1106,7 @@ def generate_response(request, qname, qtype, redirect_addrs, force, comment):
         reply = rc_reply(request, 'NOERROR')
         addanswer = set()
         if qtype in ('ANY', 'TXT'):
-            answer = RR(qname, QTYPE.TXT, ttl=filterttl, rdata=TXT('BLACKLISTED'))
+            answer = RR(qname, QTYPE.TXT, ttl=filterttl, rdata=TXT('BLACKLISTED!'))
             addanswer.add('BLACKLISTED!')
             answer.set_rname(request.q.qname)
             reply.add_answer(answer)
@@ -1134,12 +1134,36 @@ def generate_response(request, qname, qtype, redirect_addrs, force, comment):
                     addanswer.add(addr)
                     answer.set_rname(request.q.qname)
                     reply.add_answer(answer)
+                    if not ipregex.search(addr):
+                        if qtype not in ('A', 'AAAA'):
+                            aqtypes = ('A', 'AAAA')
+                        else:
+                            aqtypes = (qtype)
+
+                        for aqtype in aqtypes:
+                            subreply = dns_query(request, addr, aqtype, False, request.header.id, 'GENERATE-RESOLVER', False, False)
+                            rcode = str(RCODE[subreply.header.rcode])
+                            if rcode == 'NOERROR' and subreply.rr:
+                                for record in subreply.rr:
+                                    rqtype = QTYPE[record.rtype]
+                                    data = normalize_dom(record.rdata)
+                                    if data not in addanswer:
+                                        addanswer.add(data)
+                                        if rqtype == 'A':
+                                            answer = RR(addr, QTYPE.A, ttl=filterttl, rdata=A(data))
+                                            answer.set_rname(addr)
+                                            reply.add_answer(answer)
+                                        if rqtype == 'AAAA':
+                                            answer = RR(addr, QTYPE.AAAA, ttl=filterttl, rdata=AAAA(data))
+                                            answer.set_rname(addr)
+                                            reply.add_answer(answer)
+
+        if collapse:
+            reply = collapse_cname(request, reply, request.header.id)
 
         log_replies(reply, 'GENERATE-REPLY')
 
-        if addanswer:
-            log_info('GENERATE [{0}]: REDIRECT/NOERROR for {1} -> {2}'.format(hid, queryname, ', '.join(addanswer)))
-        else:
+        if not addanswer:
             reply = rc_reply(request, hitrcode)
             log_info('GENERATE [{0}]: {1} for {2}'.format(hid, hitrcode, queryname))
 
@@ -1221,10 +1245,12 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
             rcode = str(RCODE[subreply.header.rcode])
 
         if rcode == 'NOERROR' and subreply.rr:
-            if collapse:
-                aliasqname = realqname
-            else:
-                aliasqname = alias
+            #if collapse:
+            #    aliasqname = realqname
+            #else:
+            #    aliasqname = alias
+
+            aliasqname = alias
 
             ttl = normalize_ttl(aliasqname, subreply.rr)
 
@@ -1245,8 +1271,11 @@ def generate_alias(request, qname, qtype, use_tcp, force, newalias):
     else:
         reply = rc_reply(request, 'NXDOMAIN')
 
-    if collapse and aliasqname:
-        log_info('{0} [{1}]: COLLAPSE {2}/IN/CNAME'.format(tag, hid, qname))
+    #if collapse and aliasqname:
+    #    log_info('{0} [{1}]: COLLAPSE {2}/IN/CNAME'.format(tag, hid, qname))
+
+    if collapse:
+        reply = collapse_cname(request, reply, reply.header.id)
 
     if newalias:
         to_cache(qname, 'IN', qtype, reply, force, False, 'GENERATED-ALIAS')
