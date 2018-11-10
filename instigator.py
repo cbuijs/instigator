@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.50-20181109 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.51-20181109 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -28,7 +28,8 @@ ToDo/Ideas:
 - Itterative resolution besides only forwarding (as is today). Status: Backburner.
 - Add more security-features against hammering, dns-drip, ddos, etc. Status: Backburner.
 - Fix SYSLOG on MacOS. Status: To-be-done.
-- Redo randomness blocking
+- Redo randomness blocking, Status: Backburner.
+- Options per entry to have more precise blocking, Status: Ongoing.
 
 =========================================================================================
 '''
@@ -305,7 +306,6 @@ bl_asn = dict() # ASN Blacklist
 aliases = OrderedDict() # Aliases
 aliases_rx = OrderedDict() # Alias generators/regexes
 ttls = OrderedDict() # TTL aliases
-toggles = dict()
 
 # Work caches
 #indom_cache = dict() # Cache results of domain hits
