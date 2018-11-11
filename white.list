@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1541841910                  ###
+### Version: 1541928304                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -6989,6 +6989,7 @@ marktplaats.nl	Notracking-Whitelist
 ads.memo2.nl	EasyList-White
 mijndomein.nl	Notracking-Whitelist
 monsterboard.nl	Chris-White
+nationalevacaturebank.nl	Chris-White
 ntco.nl	Shalla-Banking
 nvb.nl	Shalla-Banking
 nwb.nl	Shalla-Banking, UT1-Banking
@@ -7005,6 +7006,7 @@ snsbank.nl	Shalla-Banking, UT1-Banking, Adguard-Banks
 staalbankiers.nl	Shalla-Banking, UT1-Banking
 triodos.nl	Shalla-Banking, UT1-Banking, Adguard-Banks
 vanlanschot.nl	Shalla-Banking, UT1-Banking
+vnumediaonline.nl	Chris-White
 vpro.nl	Chris-White
 vpv.nl	Shalla-Banking
 home.wanadoo.nl	Notracking-Whitelist
