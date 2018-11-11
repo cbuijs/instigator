@@ -13,3 +13,4 @@ stats.*
 *.build/
 *.txt
 nat-reflect.list
+*.data
