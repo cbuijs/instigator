@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.51-20181109 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.52-20181111 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -383,7 +383,7 @@ isasn = regex.compile('^AS[0-9]+$', regex.I)
 isnum = regex.compile('^[0-9]+$')
 
 # Has an option
-hasoption = regex.compile('^[a-z0-9,\+\-]+\s*~.*$', regex.I)
+#hasoption = regex.compile('^[a-z0-9,\+\-]+\s*~.*$', regex.I)
 
 ##############################################################
 
@@ -449,7 +449,7 @@ def match_blacklist(rid, rtype, rrtype, value):
     # When reply, only check Requests or RRTypes that have a data-field ending in an IP or Domain-name
     if value != '.' and (rtype == 'REQUEST' or (rtype == 'REPLY' and rrtype in ('A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SRV'))):
         tag = 'MATCH-FROM-CACHE'
-        cachekey = hash(value + '/' + rrtype)
+        cachekey = query_hash(value, 'IN', rrtype)
         result = match_cache.get(cachekey, 'NOTCACHED')
         if result == 'NOTCACHED':
             result = check_blacklist(rid, rtype, rrtype, value)
@@ -804,14 +804,13 @@ def strip_reply(request, reply, cip):
         rqtype = QTYPE[record.rtype]
         data = normalize_dom(record.rdata)
 
-        if debug: log_info('STRIP-IP-REPLY [{0}]: Checking IP RR \"{1} {2} {3}\" 4:{4}/{5} 6:{6}/{7}'.format(hid, rqname, rqtype, data, blockv4, strip4, blockv6, strip6))
-
+        #if debug: log_info('STRIP-IP-REPLY-CHECK [{0}]: Checking IP RR \"{1} {2} {3}\" 4:{4}/{5} 6:{6}/{7}'.format(hid, rqname, rqtype, data, blockv4, strip4, blockv6, strip6))
         if strip4 and (rqtype == 'A' or ip4arpa.search(rqname) or ipregex4.search(data)):
             log_info('STRIP-IPV4-REPLY [{0}]: Stripping IPv4 RR \"{1} {2} {3}\"'.format(hid, rqname, rqtype, data))
         elif strip6 and (rqtype == 'AAAA' or ip6arpa.search(rqname) or ipregex6.search(data)):
             log_info('STRIP-IPV6-REPLY [{0}]: Stripping IPv6 RR \"{1} {2} {3}\"'.format(hid, rqname, rqtype, data))
         else:
-            if debug: log_info('STRIP-IP-REPLY [{0}]: Allowed IP RR \"{1} {2} {3}\"'.format(hid, rqname, rqtype, data))
+            #if debug: log_info('STRIP-IP-REPLY [{0}]: Allowed IP RR \"{1} {2} {3}\"'.format(hid, rqname, rqtype, data))
             new_reply.add_answer(record)
 
     if not new_reply.rr:
@@ -1062,9 +1061,9 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                             desc = rebind4.get(data, 'None')
 
                         if blockit:
-                            log_info('REBIND-BLOCK [{0}]: {1}/IN/{2} = {3} matches {4} ({5}){6}'.format(nid, rqname, rqtype, data, prefix, desc, tag))
+                            log_info('REBIND-BLOCK [{0}]: {1} -> {2}/IN/{3} = {4} matches {5} ({6}){7}'.format(nid, queryname, rqname, rqtype, data, prefix, desc, tag))
                         else:
-                            log_info('REBIND-ALLOW [{0}]: {1}/IN/{2} = {3} (DNS Server in REBIND ranges){4}'.format(nid, rqname, rqtype, data, tag))
+                            log_info('REBIND-ALLOW [{0}]: {1} -> {2}/IN/{3} = {4} (DNS Server in REBIND ranges){5}'.format(nid, queryname, rqname, rqtype, data, tag))
 
                     if blockit is False:
                         matchrep = match_blacklist(tid, 'REPLY', rqtype, data)
@@ -1074,13 +1073,9 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                             blockit = True
 
                 if blockit:
-                    log_info('REPLY [{0}]: {1}/IN/{2} = {3} BLACKLIST-HIT{4}'.format(nid, rqname, rqtype, data, tag))
+                    log_info('REPLY [{0}]: {1} -> {2}/IN/{3} = {4} BLACKLIST-HIT{5}'.format(nid, queryname, rqname, rqtype, data, tag))
                     reply = generate_response(request, qname, qtype, cip, redirect_addrs, force, use_tcp, 'REPLY-BLACKLISTED' + tag)
                     break
-
-                #else:
-                #    log_info('REPLY [{0}]: {1}/IN/{2} = {3} NOERROR{4}'.format(nid, rqname, rqtype, data, tag))
-
 
     else:
         reply = rc_reply(request, rcode)
@@ -1620,6 +1615,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
             #if hasoption.search(entry):
             #    elements = regex.split('\s*~\s*', entry)
             #    options = ','.join(regex.split('\s*,\s*', elements[0]))
+            #    name = options + '~' + name
             #    entry = '~'.join(elements[1:]) 
             #    if debug: log_info('{0} OPTIONS [{1}]: \"{2}\" for \"{3}\"'.format(listname, count, options, entry))
 
@@ -2316,7 +2312,7 @@ def cache_maintenance(flushall, olderthen, clist, plist):
         else:
             log_info('CACHE-STATS: purged {0} entries ({1} RRs), {2} left in cache'.format(before - after, totalrrs, after))
 
-        log_info('CACHE-STATS: INRX={0} INDOM={1} MATCH={2} entries'.format(len(inrx_cache), len(indom_cache), len(match_cache)))
+        log_info('WORKCACHE-STATS: INRX={0} INDOM={1} MATCH={2} entries'.format(len(inrx_cache), len(indom_cache), len(match_cache)))
 
         save_cache(cachefile)
 
@@ -2364,6 +2360,7 @@ def del_cache_entry(queryhash):
     global cache_maintenance_busy
     cache_maintenance_busy = True
     _ = cache.pop(queryhash, None)
+    _ = match_cache.pop(queryhash, None)
     cache_maintenance_busy = False
     return True
 
