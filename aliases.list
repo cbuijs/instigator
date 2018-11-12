@@ -97,6 +97,4 @@ test.chrisbuijs.com=RANDOM
 #/^(.*\.)((?!(in-addr|ip6)).)*\.arpa$/=blackhole.invalid
 #/^(.*)\.(in-addr|ip6)\.arpa$/=\1.blackhole.invalid
 
-6~/^.*$/=NODATA
-
 # <EOF>
