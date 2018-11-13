@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1542101108                  ###
+### Version: 1542127972                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -139,7 +139,7 @@ bankers.asn.au	Shalla-Banking, UT1-Banking
 adelaidebank.com.au	Shalla-Banking
 advance.com.au	Shalla-Banking
 afma.com.au	Shalla-Banking
-alluremedia.com.au	Notracking-Whitelist
+alluremedia.com.au	Notracking-Whitelist, Anudeep-Whitelist
 americanexpress.com.au	Shalla-Banking, UT1-Banking
 ampbanking.com.au	Shalla-Banking, UT1-Banking
 anz.com.au	Shalla-Banking
@@ -287,7 +287,7 @@ recordbank.be	Shalla-Banking
 users.telenet.be	Notracking-Whitelist
 triodos.be	UT1-Banking
 vdk.be	Shalla-Banking
-youtu.be	Notracking-Whitelist
+youtu.be	Notracking-Whitelist, Anudeep-Whitelist
 wallet.best	Adguard-Banks
 acb.bg	Shalla-Banking
 bacb.bg	Shalla-Banking
@@ -391,6 +391,13 @@ tbank.trustbank.by	Adguard-Banks
 ibank.zepterbank.by	Adguard-Banks
 communitybank.bz	Shalla-Banking
 centralbank.org.bz	Shalla-Banking
+cpms.spop10.ams.plex.bz	Anudeep-Whitelist
+cpms35.spop10.ams.plex.bz	Anudeep-Whitelist
+meta.plex.bz	Anudeep-Whitelist
+proxy02.pop.ord.plex.bz	Anudeep-Whitelist
+proxy.plex.bz	Anudeep-Whitelist
+pubsub.plex.bz	Anudeep-Whitelist
+meta-db-worker02.pop.ric.plex.bz	Anudeep-Whitelist
 agrifinance.ca	Shalla-Banking, UT1-Banking
 bank-banque-canada.ca	Shalla-Banking, UT1-Banking
 bankofcanada.ca	Shalla-Banking
@@ -570,6 +577,7 @@ wyler-consulting.ch	Shalla-Banking
 zkb.ch	Shalla-Banking, Adguard-Banks
 zuercherlandbank.ch	Shalla-Banking
 zugerkb.ch	Shalla-Banking
+crisp.chat	Anudeep-Whitelist
 sib.ci	Shalla-Banking
 abif.cl	Shalla-Banking
 bcentral.cl	Shalla-Banking
@@ -589,7 +597,7 @@ domainactive.co	Notracking-Whitelist
 banrep.gov.co	Shalla-Banking
 blocklist.greensnow.co	Chris-White
 image.ibb.co	Notracking-Whitelist
-t.co	Notracking-Whitelist
+t.co	Notracking-Whitelist, Anudeep-Whitelist
 api.viafoura.co	Notracking-Whitelist
 0.com	Notracking-Whitelist
 02bancorp.com	Shalla-Banking, UT1-Banking
@@ -599,6 +607,7 @@ api.viafoura.co	Notracking-Whitelist
 1822direkt.com	Shalla-Banking, UT1-Banking
 1ambassador.com	Shalla-Banking
 1and1.com	Notracking-Whitelist
+1drv.com	Anudeep-Whitelist
 1natbanker.com	Shalla-Banking
 1st-annapolis.com	Shalla-Banking
 1stbk.com	Shalla-Banking, UT1-Banking
@@ -693,6 +702,7 @@ aigpb.com	Shalla-Banking
 aigprivatebank.com	Shalla-Banking
 airbus-group-bank.com	Adguard-Banks
 ajib.com	Shalla-Banking
+akamaitechnologies.com	Anudeep-Whitelist
 akbank.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 akibabank.com	Shalla-Banking
 aktia.com	Shalla-Banking
@@ -728,7 +738,7 @@ altajirbank.com	Shalla-Banking, UT1-Banking
 altbank.com	Adguard-Banks
 amanath-bank.com	Shalla-Banking, UT1-Banking
 amazon.com	Chris-White, Notracking-Whitelist
-amazonaws.com	Notracking-Whitelist
+amazonaws.com	Notracking-Whitelist, Anudeep-Whitelist
 ambfinancial.com	Shalla-Banking, UT1-Banking
 amco-bank.com	Shalla-Banking, UT1-Banking
 amcore.com	Shalla-Banking
@@ -799,6 +809,7 @@ asfc.com	Shalla-Banking
 ashefederal.com	Shalla-Banking
 asianamericanbank.com	Shalla-Banking
 asociacionbancaria.com	Shalla-Banking, UT1-Banking
+aspnetcdn.com	Anudeep-Whitelist
 assocbank.com	Shalla-Banking, UT1-Banking
 associatedbank.com	Shalla-Banking
 astoriafederal.com	Shalla-Banking
@@ -816,6 +827,7 @@ auburnbank.com	Shalla-Banking
 audi-bank.com	Shalla-Banking
 audi-bankdirect.com	Shalla-Banking
 audibank.com	Shalla-Banking
+ws.audioscrobbler.com	Anudeep-Whitelist
 ausbanca.com	Shalla-Banking
 austinbank.com	Shalla-Banking
 australiancu.com	Shalla-Banking, UT1-Banking
@@ -1064,6 +1076,7 @@ bayportbank.com	Shalla-Banking
 bayshorebank.com	Shalla-Banking
 baystatebank.com	Shalla-Banking
 baystatesavings.com	Shalla-Banking
+display.ugc.bazaarvoice.com	Anudeep-Whitelist
 bbacbank.com	Adguard-Banks
 bbandt.com	Shalla-Banking, UT1-Banking
 bbc.com	Notracking-Whitelist
@@ -1097,7 +1110,7 @@ bigcartel.com	Notracking-Whitelist
 bigskybank.com	Shalla-Banking, UT1-Banking
 billdesk.com	Adguard-Banks
 binarydefense.com	Chris-White
-bing.com	Notracking-Whitelist
+bing.com	Notracking-Whitelist, Anudeep-Whitelist
 biochim.com	Shalla-Banking, UT1-Banking
 birdislandbank.com	Shalla-Banking, UT1-Banking
 birlaglobal.com	Shalla-Banking
@@ -1165,8 +1178,9 @@ brattbank.com	Shalla-Banking
 brcbank.com	Shalla-Banking, UT1-Banking
 bremenbank.com	Shalla-Banking
 bridgewatersavings.com	Shalla-Banking, UT1-Banking
-edge.api.brightcove.com	Notracking-Whitelist
+edge.api.brightcove.com	Notracking-Whitelist, Anudeep-Whitelist
 f1.media.brightcove.com	Notracking-Whitelist
+secure.brightcove.com	Anudeep-Whitelist
 broadwayfed.com	Shalla-Banking
 brooklinebank.com	Shalla-Banking, UT1-Banking
 brooklinecoop.com	Shalla-Banking, UT1-Banking
@@ -1179,6 +1193,7 @@ bsvnet.com	Shalla-Banking, UT1-Banking
 btc-e.com	Adguard-Banks
 btrab.com	Shalla-Banking
 buexpress.com	Shalla-Banking
+bufferapp.com	Anudeep-Whitelist
 burgan.com	Shalla-Banking
 burkeandherbertbank.com	Shalla-Banking
 burlbank.com	Shalla-Banking, UT1-Banking
@@ -1268,7 +1283,7 @@ cboktulsa.com	Shalla-Banking, UT1-Banking
 cboviedo.com	Shalla-Banking
 cbs-bank.com	Shalla-Banking
 cbsbank.com	Shalla-Banking
-om.cbsi.com	Notracking-Whitelist
+om.cbsi.com	Notracking-Whitelist, Anudeep-Whitelist
 cbslocal.com	Notracking-Whitelist
 cbsnews.com	Notracking-Whitelist
 cbtcnet.com	Shalla-Banking
@@ -1398,7 +1413,8 @@ clickoptions.com	UT1-Financial
 clintonnational.com	Shalla-Banking, UT1-Banking
 clintonsavings.com	Shalla-Banking, UT1-Banking
 ajax.cloudflare.com	Notracking-Whitelist
-res.cloudinary.com	Notracking-Whitelist
+cdnjs.cloudflare.com	Anudeep-Whitelist
+res.cloudinary.com	Notracking-Whitelist, Anudeep-Whitelist
 clydesavings.com	Shalla-Banking, UT1-Banking
 cmba.com	Shalla-Banking, UT1-Banking
 cmla.com	Shalla-Banking
@@ -1542,6 +1558,7 @@ dairybank.com	Shalla-Banking, UT1-Banking
 dallasmortgagebankers.com	Shalla-Banking
 damariscottabank.com	Shalla-Banking, UT1-Banking
 daoheng.com	Shalla-Banking
+dataplicity.com	Anudeep-Whitelist
 db.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 dbs.com	Shalla-Banking, Adguard-Banks
 dcbl.com	Shalla-Banking, UT1-Banking
@@ -1592,6 +1609,8 @@ dreamhost.com	Notracking-Whitelist
 dresdner-bank.com	Shalla-Banking, UT1-Banking
 dresdnerbank.com	Shalla-Banking
 dribbble.com	Notracking-Whitelist
+drift.com	Anudeep-Whitelist
+driftt.com	Anudeep-Whitelist
 dropbox.com	Chris-White, Notracking-Whitelist
 dropboxapi.com	Chris-White
 dropboxstatic.com	Chris-White
@@ -1988,8 +2007,8 @@ fnbwynne.com	Shalla-Banking
 fnbwyo.com	Shalla-Banking, UT1-Banking
 foncier-international.com	Shalla-Banking
 fontaine-suisse.com	Shalla-Banking
-pro.fontawesome.com	Notracking-Whitelist
-use.fontawesome.com	Notracking-Whitelist
+pro.fontawesome.com	Notracking-Whitelist, Anudeep-Whitelist
+use.fontawesome.com	Notracking-Whitelist, Anudeep-Whitelist
 foothillindbank.com	Shalla-Banking
 foothillsbank.com	UT1-Banking
 forbes.com	Notracking-Whitelist
@@ -2096,7 +2115,8 @@ gigsky.com	Chris-White
 gigya.com	Notracking-Whitelist
 gilbertbank.com	Shalla-Banking, UT1-Banking
 gilmercountybank.com	Shalla-Banking
-github.com	Chris-White, Notracking-Whitelist
+giphy.com	Anudeep-Whitelist
+github.com	Chris-White, Notracking-Whitelist, Anudeep-Whitelist
 githubapp.com	Chris-White
 githubusercontent.com	Chris-White
 gitlab.com	Chris-White
@@ -2119,8 +2139,10 @@ golfsavingsbank.com	Shalla-Banking, UT1-Banking
 goodbank.com	Shalla-Banking
 goodreads.com	Notracking-Whitelist
 analytics.google.com	Notracking-Whitelist
+googleapis.com	Anudeep-Whitelist
 googlecode.com	Chris-White
-redirector.googlevideo.com	Notracking-Whitelist
+manifest.googlevideo.com	Anudeep-Whitelist
+redirector.googlevideo.com	Notracking-Whitelist, Anudeep-Whitelist
 gorhamsavingsbank.com	Shalla-Banking, UT1-Banking
 gotocsb.com	Shalla-Banking, UT1-Banking
 gottardo.com	Shalla-Banking
@@ -2130,7 +2152,7 @@ grabillbank.com	Shalla-Banking, UT1-Banking
 grandbankflorida.com	Shalla-Banking, UT1-Banking
 grandbk.com	Shalla-Banking
 granitebank.com	Shalla-Banking
-gravatar.com	Notracking-Whitelist
+gravatar.com	Notracking-Whitelist, Anudeep-Whitelist
 greatbasinbank.com	Shalla-Banking, UT1-Banking
 greatercommunity.com	Shalla-Banking
 greaterromebank.com	Shalla-Banking, UT1-Banking
@@ -2149,7 +2171,7 @@ grupobancolombia.com	Shalla-Banking
 webid2.gs.com	Adguard-Banks
 gsbfin.com	Shalla-Banking
 gsha.com	Shalla-Banking
-gstatic.com	UT1-Whitelist
+gstatic.com	UT1-Whitelist, Anudeep-Whitelist
 guarantybankonline.com	Shalla-Banking
 guarantystate.com	Shalla-Banking
 guestcash.com	UT1-Financial
@@ -2229,7 +2251,7 @@ homf.com	Shalla-Banking
 horizon-bank.com	Shalla-Banking
 horizonbank.com	Shalla-Banking, UT1-Banking
 hostgator.com	Notracking-Whitelist
-m.hotmail.com	Notracking-Whitelist
+m.hotmail.com	Notracking-Whitelist, Anudeep-Whitelist
 hotspotshield.com	Notracking-Whitelist
 hottinger.com	Shalla-Banking
 houston-mba.com	Shalla-Banking, UT1-Banking
@@ -2361,6 +2383,7 @@ jordan-kuwait-bank.com	Shalla-Banking, UT1-Banking
 jordanislamicbank.com	Shalla-Banking, UT1-Banking
 jpmorgan.com	Shalla-Banking, UT1-Banking
 jpmorganaccess.com	Shalla-Banking
+jquery.com	Anudeep-Whitelist
 juliusbaer.com	Shalla-Banking, Adguard-Banks
 juniper.com	Shalla-Banking
 justcallhome.com	Shalla-Banking, UT1-Banking
@@ -2462,7 +2485,7 @@ licdn.com	Chris-White
 customer.lichousing.com	Adguard-Banks
 lifehacker.com	Notracking-Whitelist
 lincolnbanknc.com	Shalla-Banking
-linkedin.com	Chris-White, Notracking-Whitelist
+linkedin.com	Chris-White, Notracking-Whitelist, Anudeep-Whitelist
 linolakesstatebank.com	Shalla-Banking, UT1-Banking
 liqpay.com	Adguard-Banks
 list-manage.com	Notracking-Whitelist
@@ -2470,7 +2493,7 @@ list-manage1.com	Notracking-Whitelist
 list-manage2.com	Notracking-Whitelist
 lithium.com	Notracking-Whitelist
 littleriverbank.com	Shalla-Banking, UT1-Banking
-live.com	Notracking-Whitelist
+live.com	Notracking-Whitelist, Anudeep-Whitelist
 livejournal.com	Notracking-Whitelist
 livestream.com	Notracking-Whitelist
 llewellyn-edison.com	Shalla-Banking
@@ -2605,7 +2628,8 @@ mfsbank.com	Shalla-Banking
 mibank.com	Shalla-Banking, UT1-Banking
 mibankers.com	Shalla-Banking, UT1-Banking
 michigannational.com	Shalla-Banking
-microsoft.com	Notracking-Whitelist
+microsoft.com	Notracking-Whitelist, Anudeep-Whitelist
+microsoftonline.com	Anudeep-Whitelist
 midinet.com	UT1-Whitelist
 midpennbank.com	Shalla-Banking, UT1-Banking
 midsouthbank.com	Shalla-Banking
@@ -2658,7 +2682,7 @@ ms-bank.com	Shalla-Banking, UT1-Banking
 msbankers.com	Shalla-Banking, UT1-Banking
 msbonline.com	Shalla-Banking, UT1-Banking
 msftconnecttest.com	Chris-White
-msftncsi.com	UT1-Whitelist, Notracking-Whitelist
+msftncsi.com	UT1-Whitelist, Notracking-Whitelist, Anudeep-Whitelist
 mslandbank.com	Shalla-Banking, UT1-Banking
 msn.com	Notracking-Whitelist
 msnb.com	Shalla-Banking
@@ -2669,7 +2693,7 @@ mtv.com	Notracking-Whitelist
 mutualsavings.com	Shalla-Banking
 mvbankonline.com	Shalla-Banking, UT1-Banking
 mvsb.com	Shalla-Banking, UT1-Banking
-keystone.mwbsys.com	Notracking-Whitelist
+keystone.mwbsys.com	Notracking-Whitelist, Anudeep-Whitelist
 pay.my.com	Adguard-Banks
 mybankcsb.com	Shalla-Banking
 mybankfirstunited.com	Shalla-Banking
@@ -2758,6 +2782,7 @@ nittanybank.com	Shalla-Banking, UT1-Banking
 njleague.com	Shalla-Banking
 nmbank.com	Shalla-Banking, UT1-Banking
 nmbankers.com	Shalla-Banking, UT1-Banking
+no-ip.com	Anudeep-Whitelist
 nordea.com	Adguard-Banks
 noriba.com	Shalla-Banking
 norrybank.com	Shalla-Banking, UT1-Banking
@@ -2814,8 +2839,8 @@ ocbc.com	Shalla-Banking
 ocbcwhmac.com	Shalla-Banking
 oceansidebank.com	Shalla-Banking, UT1-Banking
 oevag.com	Shalla-Banking, UT1-Banking
-office.com	Notracking-Whitelist
-office365.com	Chris-White
+office.com	Notracking-Whitelist, Anudeep-Whitelist
+office365.com	Chris-White, Anudeep-Whitelist
 offshore-bank-list.com	Shalla-Banking
 oficinadirecta.com	Shalla-Banking
 secure.ogone.com	Adguard-Banks
@@ -2840,6 +2865,9 @@ opendns.com	Chris-White
 openphish.com	Chris-White
 opera.com	Notracking-Whitelist
 api.oplata.com	Adguard-Banks
+cdn.optimizely.com	Anudeep-Whitelist
+cdn2.optimizely.com	Anudeep-Whitelist
+cdn3.optimizely.com	Anudeep-Whitelist
 optimumbank.com	Shalla-Banking, UT1-Banking
 oracle.com	Notracking-Whitelist
 orchardbank.com	Shalla-Banking
@@ -2940,7 +2968,7 @@ pinecitybank.com	Shalla-Banking
 pineislandbank.com	Shalla-Banking, UT1-Banking
 pineriverstatebank.com	Shalla-Banking, UT1-Banking
 pinnbank.com	Shalla-Banking, UT1-Banking
-pinterest.com	Notracking-Whitelist
+pinterest.com	Notracking-Whitelist, Anudeep-Whitelist
 pioneerbankandtrust.com	Shalla-Banking, UT1-Banking
 pioneerbankstl.com	Shalla-Banking
 pioneersb.com	Shalla-Banking
@@ -2954,7 +2982,10 @@ plategka.com	Adguard-Banks
 secure.platononline.com	Adguard-Banks
 plazabankillinois.com	Shalla-Banking, UT1-Banking
 plesk.com	Notracking-Whitelist
-my.plexapp.com	Notracking-Whitelist
+my.plexapp.com	Notracking-Whitelist, Anudeep-Whitelist
+node.plexapp.com	Anudeep-Whitelist
+nine.plugins.plexapp.com	Anudeep-Whitelist
+tvthemes.plexapp.com	Anudeep-Whitelist
 plimus.com	Adguard-Banks
 pmbank.com	Shalla-Banking
 pnbindia.com	Shalla-Banking, UT1-Banking
@@ -3044,7 +3075,7 @@ rcbcsavings.com	Shalla-Banking
 rcollard.com	Notracking-Whitelist
 rebelmouse.com	Notracking-Whitelist
 redcent.com	Shalla-Banking
-reddit.com	Notracking-Whitelist
+reddit.com	Notracking-Whitelist, Anudeep-Whitelist
 reelfootbank.com	Shalla-Banking
 regal-bank.com	Shalla-Banking
 regentsbank.com	Shalla-Banking, UT1-Banking
@@ -3088,7 +3119,7 @@ royalbank.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 royalbankpa.com	Shalla-Banking
 track2.royalmail.com	EasyPrivacy-White
 royaloaksbank.com	Shalla-Banking
-widget-cdn.rpxnow.com	Notracking-Whitelist
+widget-cdn.rpxnow.com	Notracking-Whitelist, Anudeep-Whitelist
 rrsb.com	Shalla-Banking, UT1-Banking
 ruralvia.com	UT1-Banking
 rusnarbank.com	Adguard-Banks
@@ -3096,6 +3127,8 @@ russlavbank.com	Shalla-Banking
 russobank.com	Adguard-Banks
 rzbgroup.com	Shalla-Banking
 s-b-a.com	Shalla-Banking, UT1-Banking
+c.s-microsoft.com	Anudeep-Whitelist
+i.s-microsoft.com	Anudeep-Whitelist
 i-technet.sec.s-msft.com	Notracking-Whitelist
 s-nbcnews.com	Chris-White
 sabadellatlantico.com	UT1-Banking
@@ -3116,7 +3149,7 @@ santanderbank.com	Adguard-Banks
 saradar.com	Shalla-Banking
 sarasin.com	Shalla-Banking, UT1-Banking
 saraswatbank.com	Shalla-Banking, UT1-Banking
-ec-ns.sascdn.com	Notracking-Whitelist
+ec-ns.sascdn.com	Notracking-Whitelist, Anudeep-Whitelist
 gws.sauberbank.com	Adguard-Banks
 savingsinstitute.com	Shalla-Banking
 dove.saymedia.com	EasyList-White
@@ -3175,6 +3208,7 @@ seviercobank.com	Shalla-Banking, UT1-Banking
 sex1950.com	UT1-Financial
 sfgate.com	Notracking-Whitelist
 sfnb.com	Shalla-Banking
+sharepoint.com	Anudeep-Whitelist
 shelllakestatebank.com	Shalla-Banking, UT1-Banking
 sherburnestatebank.com	Shalla-Banking, UT1-Banking
 sheshunoff.com	Shalla-Banking
@@ -3200,7 +3234,7 @@ authentication-api.skimlinks.com	EasyList-White
 skodabank.com	Shalla-Banking
 pay.skrill.com	Adguard-Banks
 skyfi.com	Shalla-Banking
-skype.com	Chris-White, Notracking-Whitelist
+skype.com	Chris-White, Notracking-Whitelist, Anudeep-Whitelist
 secure.skypeassets.com	Notracking-Whitelist
 slate.com	Notracking-Whitelist
 sloveniansavings.com	Shalla-Banking, UT1-Banking
@@ -3217,6 +3251,7 @@ sofitasa.com	Shalla-Banking
 static.reverse.softlayer.com	Chris-White
 sogou.com	Notracking-Whitelist
 sohu.com	Notracking-Whitelist
+solaredge.com	Anudeep-Whitelist
 solbank.com	UT1-Banking
 solbankspain.com	Shalla-Banking
 solonstatebank.com	Shalla-Banking, UT1-Banking
@@ -3317,7 +3352,7 @@ sunmarkbank.com	Shalla-Banking
 suntrust.com	Shalla-Banking
 superiorbank.com	Shalla-Banking, UT1-Banking
 suretybank.com	Shalla-Banking
-surveymonkey.com	Notracking-Whitelist
+surveymonkey.com	Notracking-Whitelist, Anudeep-Whitelist
 susqbanc.com	Shalla-Banking
 sv-bank.com	Shalla-Banking, UT1-Banking
 svb.com	Shalla-Banking
@@ -3337,11 +3372,12 @@ s2.symcb.com	Notracking-Whitelist
 s3.symcb.com	Notracking-Whitelist
 s4.symcb.com	Notracking-Whitelist
 s5.symcb.com	Notracking-Whitelist
-sa.symcb.com	Notracking-Whitelist
+sa.symcb.com	Notracking-Whitelist, Anudeep-Whitelist
 symcd.com	Notracking-Whitelist
 symphonis.com	UT1-Financial
 syndicatebank.com	Shalla-Banking, UT1-Banking
 synergybank.com	Shalla-Banking
+synology.com	Anudeep-Whitelist
 synthesisbank.com	Shalla-Banking, UT1-Financial
 syzbank.com	Shalla-Banking
 tabbank.com	Shalla-Banking, UT1-Banking
@@ -3362,6 +3398,7 @@ tdcanadatrust.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 teamviewer.com	Notracking-Whitelist
 techcrunch.com	Notracking-Whitelist
 ted.com	Notracking-Whitelist
+tedcdn.com	Anudeep-Whitelist
 tenforums.com	Notracking-Whitelist
 tescobank.com	Adguard-Banks
 teslathemes.com	Notracking-Whitelist
@@ -3407,9 +3444,11 @@ theidahobank.com	Shalla-Banking, UT1-Banking
 theinstapay.com	Adguard-Banks
 thelakebank.com	Shalla-Banking, UT1-Banking
 themegrill.com	Notracking-Whitelist
+themoviedb.com	Anudeep-Whitelist
 thepeoples.com	Shalla-Banking
 thestatebank.com	Shalla-Banking, UT1-Banking
 thetrustpeople.com	Shalla-Banking
+thetvdb.com	Anudeep-Whitelist
 theverge.com	Notracking-Whitelist
 thisisyourbank.com	Shalla-Banking, UT1-Banking
 thsbank.com	Shalla-Banking, UT1-Banking
@@ -3418,7 +3457,7 @@ tibsite.com	Shalla-Banking
 timberlandbank.com	Shalla-Banking
 time.com	Notracking-Whitelist
 etl.tindersparks.com	Notracking-Whitelist
-tinyurl.com	Notracking-Whitelist
+tinyurl.com	Notracking-Whitelist, Anudeep-Whitelist
 tiscoasset.com	Shalla-Banking
 tlnbank.com	Shalla-Banking
 tnbank.com	Shalla-Banking, UT1-Banking
@@ -3465,8 +3504,9 @@ turkishbanks.com	Shalla-Banking, UT1-Banking
 esube.turkishcards.com	Adguard-Banks
 adserver.tvcatchup.com	EasyList-White
 adverts.cdn.tvcatchup.com	EasyList-White
+twimg.com	Anudeep-Whitelist
 twinriverbank.com	Shalla-Banking, UT1-Banking
-twitter.com	Notracking-Whitelist
+twitter.com	Notracking-Whitelist, Anudeep-Whitelist
 tworiversstatebank.com	Shalla-Banking
 txbank.com	Shalla-Banking
 txloanstar.com	Shalla-Banking
@@ -3538,6 +3578,7 @@ unitybank.com	Shalla-Banking, UT1-Banking
 universalbank.com	Shalla-Banking, UT1-Banking
 university-bank.com	Shalla-Banking, UT1-Banking
 uno-e.com	Shalla-Banking
+unsplash.com	Anudeep-Whitelist
 uobgroup.com	Shalla-Banking
 dbo1.uralfinance.com	Adguard-Banks
 urlblacklist.com	Chris-White
@@ -3577,7 +3618,7 @@ vieuniversitaire.com	UT1-Whitelist
 vijayabank.com	Shalla-Banking, UT1-Banking
 village-bank.com	Shalla-Banking, UT1-Banking
 villagebankonline.com	Shalla-Banking, UT1-Banking
-vimeo.com	Notracking-Whitelist
+vimeo.com	Notracking-Whitelist, Anudeep-Whitelist
 vineyardbank.com	Shalla-Banking, UT1-Banking
 vintagebank.com	Shalla-Banking, UT1-Banking
 virginiamla.com	Shalla-Banking, UT1-Banking
@@ -3682,9 +3723,9 @@ woodforest.com	Shalla-Banking, UT1-Banking
 woodlandbank.com	Shalla-Banking, UT1-Banking
 wooppay.com	Adguard-Banks
 wooribank.com	Shalla-Banking, UT1-Banking, Adguard-Banks
-wordpress.com	Notracking-Whitelist
+wordpress.com	Notracking-Whitelist, Anudeep-Whitelist
 worldwidebanking.com	Shalla-Banking
-wp.com	Notracking-Whitelist
+wp.com	Notracking-Whitelist, Anudeep-Whitelist
 wsbcbank.com	Shalla-Banking
 wsfsbank.com	Shalla-Banking, UT1-Banking
 wsimg.com	Notracking-Whitelist
@@ -3697,14 +3738,14 @@ wyomingbank.com	Shalla-Banking, UT1-Banking
 wyomingbankers.com	Shalla-Banking, UT1-Banking
 wyzecam.com	Chris-White
 xkms.xbolive.com	Notracking-Whitelist
-xboxlive.com	Notracking-Whitelist
+xboxlive.com	Notracking-Whitelist, Anudeep-Whitelist
 xda-cdn.com	Chris-White
 xda-developers.com	Chris-White
 xing.com	Notracking-Whitelist
 xinhuanet.com	Notracking-Whitelist
-imgs.xkcd.com	Notracking-Whitelist
+imgs.xkcd.com	Notracking-Whitelist, Anudeep-Whitelist
 xmccb.com	Shalla-Banking
-yahoo.com	Notracking-Whitelist
+yahoo.com	Notracking-Whitelist, Anudeep-Whitelist
 yui.yahooapis.com	Notracking-Whitelist
 yalebankiowa.com	Shalla-Banking, UT1-Banking
 ycbank.com	Shalla-Banking
@@ -3716,8 +3757,11 @@ youku.com	Notracking-Whitelist
 yourhomebank.com	Shalla-Banking
 yourlocalbank.com	Shalla-Banking
 youronlinechoices.com	Notracking-Whitelist
-youtube.com	Notracking-Whitelist
-youtube-nocookie.com	Chris-White, Notracking-Whitelist
+youtube.com	Notracking-Whitelist, Anudeep-Whitelist
+youtube-nocookie.com	Chris-White, Notracking-Whitelist, Anudeep-Whitelist
+i.ytimg.com	Anudeep-Whitelist
+i1.ytimg.com	Anudeep-Whitelist
+s.ytimg.com	Anudeep-Whitelist
 zagury.com	Shalla-Banking
 zaim.com	Adguard-Banks
 zdnet.com	Notracking-Whitelist
@@ -6271,8 +6315,10 @@ beac.int	Shalla-Banking
 ecb.int	Shalla-Banking
 who.int	UT1-Whitelist, Notracking-Whitelist
 domraider.io	Notracking-Whitelist
+filament.io	Anudeep-Whitelist
 zerodot1.gitlab.io	Source
 boards.greenhouse.io	Notracking-Whitelist
+intercom.io	Anudeep-Whitelist
 ipinfo.io	Notracking-Whitelist
 advertising.oriel.io	EasyList-White
 sbc.io	Chris-White
@@ -6475,7 +6521,7 @@ mpsbancapersonale.it	Shalla-Banking
 nlb.it	Shalla-Banking
 osservatoriofinanziario.it	Shalla-Banking
 passbanca.it	Shalla-Banking, UT1-Banking
-placehold.it	Notracking-Whitelist
+placehold.it	Notracking-Whitelist, Anudeep-Whitelist
 popcortona.it	Shalla-Banking, UT1-Banking
 popolarebari.it	Shalla-Banking
 popolarevicenza.it	Shalla-Banking
@@ -6733,7 +6779,7 @@ bnu.com.mo	Shalla-Banking
 amcm.macau.gov.mo	Shalla-Banking
 mcm.gov.mo	Shalla-Banking
 clientis-sparkasse-horgen-niederlassung-hirzel.firmen24.mobi	Shalla-Banking
-j.mp	Notracking-Whitelist
+j.mp	Notracking-Whitelist, Anudeep-Whitelist
 1drv.ms	Notracking-Whitelist
 myip.ms	Chris-White
 bom.intnet.mu	Shalla-Banking
@@ -6803,6 +6849,8 @@ fe2.update.microsoft.com.akadns.net	Notracking-Whitelist
 sls.update.microsoft.com.akadns.net	Notracking-Whitelist
 statsfe2.update.microsoft.com.akadns.net	Notracking-Whitelist
 sonos.com.edgekey.net.globalredir.akadns.net	Chris-White
+akamaihd.net	Anudeep-Whitelist
+akamaized.net	Anudeep-Whitelist
 apnic.net	Chris-White
 apple-dns.net	Chris-White
 arin.net	Chris-White
@@ -6825,6 +6873,7 @@ bnpparibas.net	UT1-Banking
 brb-bi.net	Shalla-Banking
 brh.net	Shalla-Banking
 brickyardbank.net	Shalla-Banking, UT1-Banking
+brightcove.net	Anudeep-Whitelist
 calbank.net	Shalla-Banking
 canadiabank.net	Shalla-Banking
 carolinabank.net	Shalla-Banking, UT1-Banking
@@ -6834,7 +6883,7 @@ centralbank.net	Shalla-Banking, UT1-Banking
 maps.chitika.net	EasyList-White
 maps-static.chitika.net	EasyList-White
 citizenscommunityfederal.net	Shalla-Banking
-fitbit.com.cdn.cloudflare.net	Chris-White
+cdn.cloudflare.net	Anudeep-Whitelist
 cloudfront.net	Notracking-Whitelist
 cpanel.net	Notracking-Whitelist
 cpb.net	Shalla-Banking
@@ -6843,7 +6892,7 @@ darksky.net	Chris-White
 dropbox.net	Chris-White
 p13.dynect.net	Chris-White
 sonos.com.edgekey.net	Chris-White
-ax.phobos.apple.com.edgesuite.net	Notracking-Whitelist
+ax.phobos.apple.com.edgesuite.net	Notracking-Whitelist, Anudeep-Whitelist
 weeklyad.target.com.edgesuite.net	Notracking-Whitelist
 edupole.net	UT1-Whitelist
 emergingthreats.net	Chris-White
@@ -6875,14 +6924,14 @@ gtld-servers.net	Chris-White
 hkexporter.net	Shalla-Banking
 hockeyapp.net	Notracking-Whitelist
 hosts-file.net	Chris-White, Notracking-Whitelist
-placeholdit.imgix.net	Notracking-Whitelist
+imgix.net	Anudeep-Whitelist
 infokredit.net	Shalla-Banking
 internetzwerk.net	Shalla-Banking
 intuitcdn.net	Chris-White
 islamic-commerce.net	Shalla-Banking
 ituneslogin.net	Chris-White
 jkbank.net	Shalla-Banking, UT1-Banking
-cdn.jsdelivr.net	Notracking-Whitelist
+jsdelivr.net	Anudeep-Whitelist
 crbcdn.jsfiddle.net	Notracking-Whitelist
 kasbonspecialist.net	Shalla-Banking
 keysbank.net	Shalla-Banking, UT1-Banking
@@ -6901,11 +6950,13 @@ morganbank.net	Shalla-Banking, UT1-Banking
 mortgage-rates-guide.net	UT1-Financial
 hello.myfonts.net	Notracking-Whitelist
 fe3.delivery.dsp.mp.microsoft.com.nsatc.net	Notracking-Whitelist
+office.net	Anudeep-Whitelist
 nbcume.sc.omtrdc.net	Chris-White
 bankofamerica.tt.omtrdc.net	Chris-White
 h-sdk.online-metrix.net	Notracking-Whitelist
 ooklaserver.net	Chris-White
 parex.net	Shalla-Banking
+clientconfig.passport.net	Anudeep-Whitelist
 php.net	Notracking-Whitelist
 plantersbank.net	Shalla-Banking
 ve1.provinet.net	Shalla-Banking
@@ -7177,6 +7228,7 @@ lba.org	Shalla-Banking, UT1-Banking
 lede-project.org	Chris-White
 letsencrypt.org	Notracking-Whitelist
 lineageos.org	Chris-White
+linuxtracker.org	Anudeep-Whitelist
 lsta.org	Shalla-Banking
 macb.org	Shalla-Banking
 marinebankers.org	Shalla-Banking, UT1-Banking
@@ -7291,7 +7343,7 @@ wib.org	Shalla-Banking, UT1-Banking
 wicba.org	Shalla-Banking
 widscambridge.org	Chris-White
 wikimedia.org	Notracking-Whitelist
-wikipedia.org	Notracking-Whitelist
+wikipedia.org	Notracking-Whitelist, Anudeep-Whitelist
 wimba.org	Shalla-Banking, UT1-Banking
 windowupdate.org	Notracking-Whitelist
 wordpress.org	Notracking-Whitelist
@@ -8231,7 +8283,7 @@ amzn.to	Notracking-Whitelist
 easylist.to	Source
 a.kickass.to	Notracking-Whitelist
 reservebank.to	Shalla-Banking
-tawk.to	Notracking-Whitelist
+tawk.to	Notracking-Whitelist, Anudeep-Whitelist
 abank.com.tr	Adguard-Banks
 3dsecure.akbank.com.tr	Adguard-Banks
 online.aktifbank.com.tr	Adguard-Banks
@@ -8292,6 +8344,12 @@ tkbb.org.tr	Shalla-Banking, UT1-Banking
 app3.takasbank.web.tr	Adguard-Banks
 central-bank.org.tt	Shalla-Banking
 france.tv	Chris-White
+plex.tv	Anudeep-Whitelist
+apt.sonarr.tv	Anudeep-Whitelist
+download.sonarr.tv	Anudeep-Whitelist
+forums.sonarr.tv	Anudeep-Whitelist
+services.sonarr.tv	Anudeep-Whitelist
+skyhook.sonarr.tv	Anudeep-Whitelist
 twitch.tv	Notracking-Whitelist
 ustream.tv	Notracking-Whitelist
 vidible.tv	Notracking-Whitelist
