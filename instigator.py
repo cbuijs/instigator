@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.52-20181111 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.60-20181112 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -29,7 +29,9 @@ ToDo/Ideas:
 - Add more security-features against hammering, dns-drip, ddos, etc. Status: Backburner.
 - Fix SYSLOG on MacOS. Status: To-be-done.
 - Redo randomness blocking, Status: Backburner.
-- Options per entry to have more precise blocking, Status: Ongoing.
+- Options per entry to have more precise blocking, Status: Ongoing/WIP.
+- TTL with value -1 will be statically cached. Status: Done/Finetuning.
+- Load BIND style DB zones into static cache: Partially-Done/Finetuning.
 
 =========================================================================================
 '''
@@ -48,7 +50,7 @@ random.seed(os.urandom(256))
 
 # Syslogging / Logging
 import syslog
-syslog.openlog(ident='INSTIGATOR')
+syslog.openlog(ident='INSTIGATOR', logoption=syslog.LOG_NOWAIT)
 
 # Ordered Dictionaries
 from collections import OrderedDict
@@ -325,8 +327,9 @@ list_status[False] = 'WHITELISTED'
 list_status[None] = 'NOTLISTED'
 list_status['NOTCACHED'] = 'NOTCACHED'
 
-# Cache
+# Caches
 cache = dict() # DNS cache
+static_cache = dict() # Zones cache
 
 # Pending IDs
 pending = dict() # Pending queries
@@ -1076,6 +1079,12 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                     log_info('REPLY [{0}]: {1} -> {2}/IN/{3} = {4} BLACKLIST-HIT{5}'.format(nid, queryname, rqname, rqtype, data, tag))
                     reply = generate_response(request, qname, qtype, cip, redirect_addrs, force, use_tcp, 'REPLY-BLACKLISTED' + tag)
                     break
+
+                #else: # cache rr's
+                #    if replycount > 1:
+                #        rr_reply = make_reply(rqname, rqtype, record.ttl, data)
+                #        _ = add_cache_entry(rqname, 'IN', rqtype, -1, record.ttl, rr_reply, 'RR') # Use expiry of -1 to make static
+
 
     else:
         reply = rc_reply(request, rcode)
@@ -2026,6 +2035,7 @@ def from_cache(qname, qclass, qtype, tid):
         return None
 
     queryhash = query_hash(qname, qclass, qtype)
+
     cacheentry = cache.get(queryhash, None)
     if cacheentry is None:
         return None
@@ -2034,11 +2044,16 @@ def from_cache(qname, qclass, qtype, tid):
 
     expire = cacheentry[1]
     queryname = cacheentry[2]
-    now = int(time.time())
-    ttl = expire - now
     orgttl = cacheentry[4]
+    if expire == -1: # Static Entry
+        ttl = orgttl
+        hitsneeded = 0
+    else:
+        now = int(time.time())
+        ttl = expire - now
+        hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
+
     hits = cacheentry[3]
-    hitsneeded = int(round(orgttl / prefetchhitrate)) or 1
     numrrs = len(cacheentry[0].rr)
     rcode = str(RCODE[cacheentry[0].header.rcode])
     comment = cacheentry[5]
@@ -2176,7 +2191,7 @@ def cache_expired_list():
     '''get list of purgable items'''
     now = int(time.time())
     #return list(dict((k, v) for k, v in cache.items() if v[1] - now < 1).keys()) or False
-    return list(dict((k, v) for k, v in cache.items() if v[1] - now < 2).keys()) or False
+    return list(dict((k, v) for k, v in cache.items() if v[1] != -1 and v[1] - now < 2).keys()) or False
 
 
 def no_noerror_list():
@@ -2189,7 +2204,7 @@ def cache_prefetch_list():
     now = int(time.time())
     # Formula: At least one RR-Record, at least 2 cache-hits, hitrate > 0 and hits are above/equal hitrate
     # value list entries: 0:reply - 1:expire - 2:qname/class/type - 3:hits - 4:orgttl - 5:domainname - 6:comment
-    return list(dict((k, v) for k, v in cache.items() if v[0].rr and v[3] > 1 and int(round(v[4] / prefetchhitrate)) > 0 and v[1] - now <= int(round(v[4] / prefetchgettime)) and v[3] >= int((round(v[4] / prefetchhitrate)) - (round((v[1] - now) / prefetchhitrate)))).keys()) or False
+    return list(dict((k, v) for k, v in cache.items() if v[1] != -1 and v[0].rr and v[3] > 1 and int(round(v[4] / prefetchhitrate)) > 0 and v[1] - now <= int(round(v[4] / prefetchgettime)) and v[3] >= int((round(v[4] / prefetchhitrate)) - (round((v[1] - now) / prefetchhitrate)))).keys()) or False
 
 
 def cache_dom_list(qclass, qtype):
@@ -2256,7 +2271,7 @@ def cache_maintenance(flushall, olderthen, clist, plist):
     if lst:
         for queryhash in lst:
             record = cache.get(queryhash, None)
-            if queryhash not in elist:
+            if queryhash not in elist and record[1] != -1:
                 if record is not None:
                     now = int(time.time())
 
@@ -2334,6 +2349,9 @@ def add_cache_entry(qname, qclass, qtype, expire, ttl, reply, comment):
     '''Add entry to cache'''
     global cache_maintenance_busy
 
+    if reply is None:
+        return False
+
     cache_maintenance_busy = True
 
     hashname = qname + '/' + qclass + '/' + qtype
@@ -2342,13 +2360,18 @@ def add_cache_entry(qname, qclass, qtype, expire, ttl, reply, comment):
 
     cache[queryhash] = list([reply, expire, hashname, 1, ttl, comment]) # reply - expire - qname/class/type - hits - orgttl - comment
 
+    if expire == -1:
+        tag = 'STATIC-CACHE-UPDATE'
+    else:
+        tag = 'CACHE-UPDATE'
+
     numrrs = len(cache.get(queryhash, defaultlist)[0].rr)
     if numrrs == 0:
         if rcode == 'NOERROR':
             rcode = 'NODATA'
-        log_info('CACHE-UPDATE ({0} entries): Cached {1} for {2} (TTL:{3}) - {4}'.format(len(cache), rcode, hashname, ttl, comment))
+        log_info('{0} ({1} entries): Cached {2} for {3} (TTL:{4}) - {5}'.format(tag, len(cache), rcode, hashname, ttl, comment))
     else:
-        log_info('CACHE-UPDATE ({0} entries): Cached {1} RRs for {2} {3} (TTL:{4}) - {5}'.format(len(cache), numrrs, hashname, rcode, ttl, comment))
+        log_info('{0} ({1} entries): Cached {2} RRs for {3} {4} (TTL:{5}) - {6}'.format(tag, len(cache), numrrs, hashname, rcode, ttl, comment))
 
     cache_maintenance_busy = False
 
@@ -2974,6 +2997,108 @@ def get_dns_servers(file, fservers):
 #
 #    return True
 
+
+def to_secs(value):
+    '''Convert date/time format into seconds'''
+    units = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
+    return int(value[:-1]) * units[value[-1]]
+
+
+def load_zone(domain, file, defttl):
+    '''Load BIND style DB zone-files as static-cache entriesi !!! WIP !!!'''
+    global cachesize
+
+    log_info('ZONE: Loading zone \"{0}\" from \"{1}\"'.format(domain, file))
+    previous = domain
+    try:
+        f = open(file, 'r')
+        lines = f.read().splitlines()
+        f.close()
+
+    except BaseException as err:
+        log_err('ERROR: Unable to open/read/process file \"{0}\" - {1}'.format(file, err))
+
+    count = 0
+    for line in lines:
+        count += 1
+
+        entry = regex.split(';', line)[0].strip().lower()
+
+        if entry:
+            elements = regex.split('\s+', regex.sub('\s+in\s+', ' ', entry))
+            if elements[0] == '':
+                elements[0] = previous
+            elif elements[0] == '@':
+                elements[0] = domain + '.'
+
+            previous = elements[0]
+
+            if not isnum.search(elements[1]):
+                elements.insert(1, defttl)
+
+            if len(elements) > 3:
+                owner = elements[0]
+                if owner.endswith('.'):
+                    owner = owner.rstrip('.')
+                else:
+                    owner = owner + '.' + domain
+
+                if isdomain.search(owner) or iparpa.search(owner):
+                    ttl = int(elements[1])
+                    rrtype = elements[2].upper()
+                    data = ' '.join(elements[3:])
+
+                    cachekey = query_hash(owner, 'IN', rrtype)
+                    if cachekey not in static_cache:
+                        cachereply = make_reply(owner, rrtype, ttl, data)
+                        _ = add_cache_entry(owner, 'IN', rrtype, -1, ttl, cachereply, 'ZONE') # Use expiry of -1 to make static
+
+            else:
+                    eog_info('ZONE \"{0}\" [{1}]: Invalid/Unsupported Syntax -cache {2}'.format(domain, count, line))
+
+    return True
+
+def make_reply(owner, rrtype, ttl, data):
+    '''Build reply package for caching'''
+    request = DNSRecord(q=DNSQuestion(owner, getattr(QTYPE, rrtype)))
+    reply = request.reply()
+
+    answer = False
+    if rrtype == 'A' and ipregex4.search(data):
+        answer = RR(owner, QTYPE.A, ttl=ttl, rdata=A(data))
+    elif rrtype == 'AAAA' and ipregex6.search(data):
+        answer = RR(owner, QTYPE.AAAA, ttl=ttl, rdata=AAAA(data))
+    elif not ipregex.search(data):
+        if rrtype == 'CNAME' and isdomain.search(data):
+            answer = RR(owner, QTYPE.CNAME, ttl=ttl, rdata=CNAME(data))
+        if rrtype == 'PTR' and isdomain.search(data):
+            answer = RR(owner, QTYPE.PTR, ttl=ttl, rdata=PTR(data))
+        elif rrtype == 'MX':
+            prio, mailserver = regex.split('\s+', data)
+            if isdomain.search(mailserver):
+                answer = RR(owner, QTYPE.MX, ttl=ttl, rdata=MX(mailserver, prio))
+        elif rrtype == 'NS' and isdomain.search(data):
+            answer = RR(owner, QTYPE.NS, ttl=ttl, rdata=NS(data))
+        elif rrtype == 'SOA':
+            ns, hostmaster, serial, refresh, retry, expire, minimum = regex.split('\s+', data)
+            if isdomain.search(ns):
+                if ttl > defttl:
+                    defttl = ttl
+
+                answer = RR(owner, QTYPE.SOA, ttl=ttl, rdata=SOA(ns, hostmaster, (int(serial), to_secs(refresh), to_secs(retry), to_secs(expire), to_secs(minimum))))
+
+        elif rrtype == 'SRV':
+            prio, weight, port, host = regex.split('\s+', data)
+            if isdomain.search(host):
+                answer = RR(owner, QTYPE.SRV, ttl=ttl, rdata=SRV(prio, weight, port, host))
+
+    if answer:
+        answer.set_rname(request.q.qname)
+        reply.add_answer(answer)
+        return reply
+
+    return None
+    
 
 if __name__ == '__main__':
     '''Main beef'''
