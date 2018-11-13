@@ -14,3 +14,4 @@ stats.*
 *.txt
 nat-reflect.list
 *.data
+db.*
