@@ -320,6 +320,12 @@ match_cache = TTLCache(cachesize * 4, filterttl)
 notlisted = TTLCache(cachesize * 4, filterttl)
 #random_cache = TTLCache(cachesize * 4, filterttl)
 
+# Clear caches
+indom_cache.clear()
+inrx_cache.clear()
+match_cache.clear()
+#random_cache.clear()
+
 # List status match_cache
 list_status = dict()
 list_status[True] = 'BLACKLISTED'
@@ -1311,7 +1317,6 @@ def generate_alias(request, qname, qtype, cip, use_tcp, force, newalias):
                     answer = RR(aliasqname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(data))
                     reply.add_answer(answer)
 
-            log_replies(reply, tag + '-REPLY')
         else:
             reply = rc_reply(request, rcode)
 
@@ -1323,6 +1328,8 @@ def generate_alias(request, qname, qtype, cip, use_tcp, force, newalias):
 
     if collapse and reply.rr:
         reply = collapse_cname(request, reply, reply.header.id)
+
+    log_replies(reply, tag + '-REPLY')
 
     if newalias:
         to_cache(qname, 'IN', qtype, reply, force, False, 'GENERATED-ALIAS')
@@ -2729,7 +2736,12 @@ def do_query(request, handler, force):
 
         # Generate ALIAS response when hit !!! Needs to be last in if-elif chain
         if reply is None:
-            generated = in_regex(qname, aliases_rx, True, 'Generator') or False
+            generated = in_domain(qname, aliases, 'Alias', False)
+            if generated is False and (not in_domain(qname, forward_servers, 'Forward', False)):
+                generated = in_regex(qname, aliases_rx, True, 'Generator') or False
+            else:
+                generated = aliases.get(generated, False)
+
             reply = generate_alias(request, qname, qtype, cip, use_tcp, force, generated)
 
         # Check query/response against lists
