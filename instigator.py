@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.60-20181112 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.61-20181112 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -52,9 +52,6 @@ random.seed(os.urandom(256))
 import syslog
 syslog.openlog(ident='INSTIGATOR', logoption=syslog.LOG_NOWAIT)
 
-# Ordered Dictionaries
-from collections import OrderedDict
-
 # DNSLib module
 from dnslib import *
 from dnslib.server import *
@@ -68,6 +65,9 @@ from cymruwhois import Client
 # Use zxcvbn to determine guessability. The harder, it probably is more random. To catch DGA.
 #from zxcvbn import zxcvbn
 #from zxcvbn.matching import add_frequency_lists
+
+# Ordered Dictionaries
+from collections import OrderedDict
 
 # Simple caches
 from cachetools import TTLCache
@@ -329,7 +329,7 @@ list_status['NOTCACHED'] = 'NOTCACHED'
 
 # Caches
 cache = dict() # DNS cache
-static_cache = dict() # Zones cache
+result_cache = TTLCache(cachesize * 8, filterttl)
 
 # Pending IDs
 pending = dict() # Pending queries
@@ -2315,11 +2315,18 @@ def cache_maintenance(flushall, olderthen, clist, plist):
 
     after = len(cache)
 
+
     if flushall:
         indom_cache.clear()
         inrx_cache.clear()
         match_cache.clear()
         #random_cache.clear()
+    else:
+        indom_cache.expire()
+        inrx_cache.expire()
+        match_cache.expire()
+        #random_cache.clear()
+
 
     if before != after:
         if totalrrs == 0:
@@ -2331,11 +2338,12 @@ def cache_maintenance(flushall, olderthen, clist, plist):
 
         save_cache(cachefile)
 
-    if debug: log_info('CACHE-MAINT: FINISH')
 
     gc.collect()
 
     cache_maintenance_busy = False
+
+    if debug: log_info('CACHE-MAINT: FINISH')
 
     return True
 
@@ -3049,7 +3057,7 @@ def load_zone(domain, file, defttl):
                     data = ' '.join(elements[3:])
 
                     cachekey = query_hash(owner, 'IN', rrtype)
-                    if cachekey not in static_cache:
+                    if cachekey not in cache:
                         cachereply = make_reply(owner, rrtype, ttl, data)
                         _ = add_cache_entry(owner, 'IN', rrtype, -1, ttl, cachereply, 'ZONE') # Use expiry of -1 to make static
 
@@ -3057,6 +3065,7 @@ def load_zone(domain, file, defttl):
                     eog_info('ZONE \"{0}\" [{1}]: Invalid/Unsupported Syntax -cache {2}'.format(domain, count, line))
 
     return True
+
 
 def make_reply(owner, rrtype, ttl, data):
     '''Build reply package for caching'''
