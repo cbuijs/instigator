@@ -37,10 +37,10 @@ time.google.com=north-america.pool.ntp.org
 
 # Forwarding example
 #local>192.168.1.1
-1.1.10.in-addr.arpa>192.168.1.1@53
-1.16.172.in-addr.arpa>192.168.1.1@53
-1.168.192.in-addr.arpa>192.168.1.1@53
-frutch>192.168.1.1
+#1.1.10.in-addr.arpa>192.168.1.1@53
+#1.16.172.in-addr.arpa>192.168.1.1@53
+#1.168.192.in-addr.arpa>192.168.1.1@53
+#frutch>192.168.1.1
 #google.com>8.8.8.8@53,8.8.4.4@53
 #chrisbuijs.com>9.9.9.9@53,149.112.112.112@53
 
@@ -52,10 +52,10 @@ localhost=127.0.0.1
 #blocked.eero.com=172.16.1.1
 
 # TTL override
-frutch!3600
-1.1.10.in-addr.arpa!3600
-1.16.172.in-addr.arpa!3600
-1.168.192.in-addr.arpa!3600
+#frutch!3600
+#1.1.10.in-addr.arpa!3600
+#1.16.172.in-addr.arpa!3600
+#1.168.192.in-addr.arpa!3600
 iotcplatform.com!3600
 
 # Generator examples
@@ -64,7 +64,7 @@ iotcplatform.com!3600
 #/^([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.([0-9a-f])\.ip6\.arpa$/=rev-ipv6.\32\31\30\29.\28\27\26\25.\24\23\22\21.\20\19\18\17.\16\15\14\13.\12\11\10\9.\8\7\6\5.\4\3\2\1.invalid
 
 # Search domain
-frutch*
+#frutch*
 
 corp*
 example*
