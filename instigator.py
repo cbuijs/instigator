@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.61-20181112 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.70-20181112 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -32,6 +32,8 @@ ToDo/Ideas:
 - Options per entry to have more precise blocking, Status: Ongoing/WIP.
 - TTL with value -1 will be statically cached. Status: Done/Finetuning.
 - Load BIND style DB zones into static cache: Partially-Done/Finetuning.
+- Use dotty_dict for cache storage (https://github.com/pawelzny/dotty_dict): Investigating
+- Unduplicate some calls (like Cache-Maintence).
 
 =========================================================================================
 '''
@@ -3297,7 +3299,7 @@ if __name__ == '__main__':
     # Keep things running
     try:
         while True:
-            time.sleep(1) # Seconds
+            time.sleep(1.5) # Seconds
             if cache_maintenance_busy is False and prefetching_busy is False:
                 cachelist = cache_expired_list()
                 prefetchlist = cache_prefetch_list()
