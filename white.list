@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1542273938                  ###
+### Version: 1543846674                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -172,7 +172,8 @@ homedirect.com.au	Shalla-Banking
 homeonline.com.au	Shalla-Banking
 hsbc.com.au	Shalla-Banking, UT1-Banking, Adguard-Banks
 imb.com.au	Shalla-Banking
-ingdirect.com.au	Shalla-Banking, UT1-Banking
+ing.com.au	Adguard-Banks
+ingdirect.com.au	Shalla-Banking, UT1-Banking, Adguard-Banks
 ingnv.com.au	Shalla-Banking
 leasepac.com.au	Shalla-Banking
 loancorp.com.au	Shalla-Banking
@@ -311,6 +312,7 @@ bma.gov.bh	Shalla-Banking
 screenshot3.bid	EasyList-White
 eastbridge.biz	Shalla-Banking
 farmersandmerchants.biz	Shalla-Banking, UT1-Banking
+ns-cdn.neustar.biz	Notracking-Whitelist
 winfric.biz	UT1-Financial
 bma.bm	Shalla-Banking
 mabanque.bnpparibas	Shalla-Banking, Adguard-Banks
@@ -2007,8 +2009,8 @@ fnbwynne.com	Shalla-Banking
 fnbwyo.com	Shalla-Banking, UT1-Banking
 foncier-international.com	Shalla-Banking
 fontaine-suisse.com	Shalla-Banking
-pro.fontawesome.com	Notracking-Whitelist, Anudeep-Whitelist
-use.fontawesome.com	Notracking-Whitelist, Anudeep-Whitelist
+pro.fontawesome.com	Notracking-Whitelist
+use.fontawesome.com	Notracking-Whitelist
 foothillindbank.com	Shalla-Banking
 foothillsbank.com	UT1-Banking
 forbes.com	Notracking-Whitelist
@@ -2506,6 +2508,7 @@ loan-market-assoc.com	Shalla-Banking
 localoklahoma.com	Shalla-Banking
 lodh.com	Shalla-Banking
 logansportsavings.com	Shalla-Banking
+loggly.com	Notracking-Whitelist
 lombardodierdarierhentsch.com	Shalla-Banking
 lonestarflba.com	Shalla-Banking, UT1-Banking
 longviewbank.com	Shalla-Banking
@@ -6441,14 +6444,14 @@ cbg.gm	Shalla-Banking
 trustbank.gm	Shalla-Banking
 gov	Chris-White
 bdaf.gp	Shalla-Banking
-alpha.gr	Shalla-Banking
+alpha.gr	Shalla-Banking, Adguard-Banks
 aspisbank.gr	Shalla-Banking
 bankofgreece.gr	Shalla-Banking
 cetelembank.gr	Shalla-Banking
 efa.gr	UT1-Whitelist
-eurobank.gr	Shalla-Banking
+eurobank.gr	Shalla-Banking, Adguard-Banks
 hba.gr	Shalla-Banking
-nbg.gr	Shalla-Banking
+nbg.gr	Shalla-Banking, Adguard-Banks
 piraeusbank.gr	Shalla-Banking
 void.gr	Chris-White
 winbank.gr	Shalla-Banking, Adguard-Banks
@@ -6556,6 +6559,7 @@ gitter.im	Notracking-Whitelist
 alb.org.im	Shalla-Banking
 spot.im	Notracking-Whitelist
 blogspot.in	Notracking-Whitelist
+canarabank.in	Adguard-Banks
 axisbank.co.in	Adguard-Banks
 centralbankofindia.co.in	Shalla-Banking
 citibank.co.in	Shalla-Banking
@@ -7331,6 +7335,7 @@ regiobank.nl	Shalla-Banking, Adguard-Banks
 robein.nl	Shalla-Banking
 santander.nl	Adguard-Banks
 schretlen.nl	Shalla-Banking
+snmmd.nl	Notracking-Whitelist
 snsbank.nl	Shalla-Banking, UT1-Banking, Adguard-Banks
 staalbankiers.nl	Shalla-Banking, UT1-Banking
 triodos.nl	Shalla-Banking, UT1-Banking, Adguard-Banks
