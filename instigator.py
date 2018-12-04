@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.70-20181112 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.71-20181204 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -162,6 +162,8 @@ lists = OrderedDict()
 
 lists['blacklist'] = basedir + 'black.list' # Blacklist
 lists['whitelist'] = basedir + 'white.list' # Whitelist
+lists['ck-blacklist'] = basedir + 'ck-black.list' # Blacklist
+lists['ck-whitelist'] = basedir + 'ck-white.list' # Whitelist
 lists['aliases'] = basedir + 'aliases.list' # Aliases/Forwards/TTLS/etc
 lists['malicious-ip'] = basedir + 'malicious-ip.list' # Bad IP's
 lists['tlds'] = basedir + 'tlds.list' # Allowed TLD's, negated regex-list, generates NXDOMAIN for none IANA TLD's
@@ -177,8 +179,8 @@ lists['nat'] = basedir + 'nat-reflect.list' # Handout local IP's for public name
 #lists['shalla-updatesites'] = '/opt/instigator/shallalist/updatesites/domains'
 #lists['shalla-warez'] = '/opt/instigator/shallalist/warez/domains'
 
-blacklist = list(['blacklist', 'shalla-ads', 'shalla-costtraps', 'shalla-porn', 'shalla-gamble', 'shalla-spyware', 'shalla-warez', 'malicious-ip'])
-whitelist = list(['whitelist', 'aliases', 'shalla-banking', 'shalla-updatesites', 'tlds', 'nat'])
+blacklist = list(['blacklist', 'ck-blacklist', 'shalla-ads', 'shalla-costtraps', 'shalla-porn', 'shalla-gamble', 'shalla-spyware', 'shalla-warez', 'malicious-ip'])
+whitelist = list(['whitelist', 'ck-whitelist', 'aliases', 'shalla-banking', 'shalla-updatesites', 'tlds', 'nat'])
 searchdom = set()
 
 # Root servers # !!! WIP
