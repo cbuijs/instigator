@@ -1461,7 +1461,6 @@ def save_lists(file):
         log_err('ERROR: Unable to open/write file \"{0}\" - {1}'.format(file, err))
         return False
 
-
     return True
 
 
@@ -3177,7 +3176,6 @@ if __name__ == '__main__':
     # Load/Read lists
     loadcache = False
     if alwaysfresh or (not load_lists(savefile)):
-        #for lst in lists.keys():
         for lst in lists:
             if lst in whitelist:
                 wl_dom, wl_ip4, wl_ip6, wl_rx, aliases_rx, aliases, forward_servers, ttls, wl_asn = read_list(lists[lst], lst, 'Whitelist', wl_dom, wl_ip4, wl_ip6, wl_rx, aliases_rx, aliases, forward_servers, ttls, wl_asn)
