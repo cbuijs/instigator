@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.71-20181204 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.8-20181205 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -31,9 +31,10 @@ ToDo/Ideas:
 - Redo randomness blocking, Status: Backburner.
 - Options per entry to have more precise blocking, Status: Ongoing/WIP.
 - TTL with value -1 will be statically cached. Status: Done/Finetuning.
-- Load BIND style DB zones into static cache: Partially-Done/Finetuning.
+- Load BIND style DB zones into static cache. Status: Partially-Done/Finetuning.
 - Use dotty_dict for cache storage (https://github.com/pawelzny/dotty_dict): Investigating
-- Unduplicate some calls (like Cache-Maintence).
+- Unduplicate some calls (like Cache-Maintence). Status: Maybe-Fixed.
+- Support URL's for lists. Status: Almost-Done
 
 =========================================================================================
 '''
@@ -67,6 +68,9 @@ from cymruwhois import Client
 # Use zxcvbn to determine guessability. The harder, it probably is more random. To catch DGA.
 #from zxcvbn import zxcvbn
 #from zxcvbn.matching import add_frequency_lists
+
+# Use requests to fetch lists online
+import requests
 
 # Ordered Dictionaries
 from collections import OrderedDict
@@ -160,13 +164,17 @@ savefile = basedir + 'save.shelve'
 defaultlist = list([None, 0, '', 0, 0, '']) # reply - expire - qname/class/type - hits - orgttl - comment
 lists = OrderedDict()
 
-lists['blacklist'] = basedir + 'black.list' # Blacklist
-lists['whitelist'] = basedir + 'white.list' # Whitelist
+#lists['blacklist'] = basedir + 'black.list' # Blacklist
+lists['blacklist'] = 'https://raw.githubusercontent.com/cbuijs/accomplist/master/standard/black.list' # Blacklist
+#lists['whitelist'] = basedir + 'white.list' # Whitelist
+lists['whitelist'] = 'https://raw.githubusercontent.com/cbuijs/accomplist/master/standard/white.list' # Whitelist
 #lists['ck-blacklist'] = basedir + 'ck-black.list' # Blacklist
 #lists['ck-whitelist'] = basedir + 'ck-white.list' # Whitelist
 lists['aliases'] = basedir + 'aliases.list' # Aliases/Forwards/TTLS/etc
-lists['malicious-ip'] = basedir + 'malicious-ip.list' # Bad IP's
-lists['tlds'] = basedir + 'tlds.list' # Allowed TLD's, negated regex-list, generates NXDOMAIN for none IANA TLD's
+#lists['malicious-ip'] = basedir + 'malicious-ip.list' # Bad IP's
+lists['malicious-ip'] = 'https://raw.githubusercontent.com/cbuijs/accomplist/master/malicious-ip/black.list' # Bad IP's
+#lists['tlds'] = basedir + 'tlds.list' # Allowed TLD's, negated regex-list, generates NXDOMAIN for none IANA TLD's
+lists['tlds'] = 'https://raw.githubusercontent.com/cbuijs/accomplist/master/chris/tld-black.regex' # Allowed TLD's, negated regex-list, generates NXDOMAIN for none IANA TLD's
 lists['nat'] = basedir + 'nat-reflect.list' # Handout local IP's for public names hosted locally
 
 #lists['shalla-ads'] = '/opt/instigator/shallalist/adv/domains'
@@ -256,11 +264,18 @@ blocksearchdom = True
 #blockrandommononly = True
 #random_threshhold = 42
 
+# Allow "Forced" entries (entries ending in exclaimation mark)
+allowforced = True
+
+# Optimize lists, makes startup longer but memory usage smaller
+optimizelists = True
+
 # SafeDNS
 safedns = False
 safednsmononly = True
 safednsratio = 50 # Percent
-ipasnfile = basedir + 'ipasn.list'
+#ipasnfile = basedir + 'ipasn.list'
+ipasnfile = 'https://raw.githubusercontent.com/cbuijs/ipasn/master/ipasn-all-cidr-aggregated-complete.dat'
 #ipasnfile = False # To disable loading of IPASN and rely on whois
 ipasn4 = pytricia.PyTricia(32)
 ipasn6 = pytricia.PyTricia(128)
@@ -1011,7 +1026,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
             log_err('DNS-QUERY [{0}]: SAFEDNS Block {1} {2}{3}'.format(hid, queryname, hitrcode, tag))
             reply = rc_reply(query, hitrcode)
         else: # Regurlar error
-            log_err('DNS-QUERY [{0}]: ERROR Resolving {1} SERVFAIL{2}'.format(hid, queryname, tag))
+            log_err('DNS-QUERY [{0}]: ERROR Resolving {1} using {2} - SERVFAIL{3}'.format(hid, queryname, forward_server, tag))
             reply = rc_reply(query, 'SERVFAIL')
 
         reply.header.id = tid
@@ -1452,19 +1467,9 @@ def save_lists(file):
 
 def load_asn(file, asn4, asn6):
     '''Load IPASN'''
-    log_info('ASN: Loading IPASN from \"{0}\"'.format(file))
+    lines = get_lines(file, 'IPASN')
 
-    if file_exist(file, False):
-        try:
-            f = open(file, 'r')
-            #lines = f.readlines()
-            lines = f.read().splitlines()
-            f.close()
-
-        except BaseException as err:
-            log_err('ERROR: Unable to open/read/process ASN file \"{0}\" - {1}'.format(file, err))
-            return False
-
+    if lines:
         count = 0
         for line in lines:
             count += 1
@@ -1574,26 +1579,50 @@ def log_totals():
     return True
 
 
+def get_lines(file, listname):
+    '''Get lines from file or URL'''
+    lines = False
+
+    if file.startswith('http://') or file.startswith('https://'):
+        log_info('FETCH: Downloading \"{0}\" from URL \"{1}\"'.format(listname, file))
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'}
+        try:
+            r = requests.get(file, timeout=10, headers=headers, allow_redirects=True)
+            if r.status_code == 200:
+                lines = r.text.splitlines()
+            else:
+                log_err('ERROR: Unable to download from \"{0}\" ({1})'.format(file, r.status_code))
+
+        except BaseException as err:
+            log_err('ERROR: Unable to download from \"{0}\" ({1})'.format(file, err))
+
+    elif file_exist(file, False):
+        log_info('FETCH: Fetching \"{0}\" from file \"{1}\"'.format(listname, file))
+        try:
+            f = open(file, 'r')
+            lines = f.read().splitlines()
+            f.close()
+
+        except BaseException as err:
+            log_err('ERROR: Unable to open/read/process file \"{0}\" - {1}'.format(file, err))
+            return False
+
+    return lines
+
+
 # Read filter lists, see "accomplist" to provide ready-2-use lists:
 # https://github.com/cbuijs/accomplist
 def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, alist, flist, tlist, asnlist):
     '''Read/Load lists'''
     listname = listname.upper()
-    log_info('Fetching {0} \"{1}\" entries from \"{2}\"'.format(bw, listname, file))
+    #log_info('FETCH: Fetching {0} \"{1}\" entries from \"{2}\"'.format(bw, listname, file))
 
     count = 0
     fetched = 0
 
-    if file_exist(file, False):
-        try:
-            f = open(file, 'r')
-            #lines = f.readlines()
-            lines = f.read().splitlines()
-            f.close()
+    lines = get_lines(file, listname)
 
-        except BaseException as err:
-            log_err('ERROR: Unable to open/read/process list-file \"{0}\" - {1}'.format(file, err))
-
+    if lines:
         for line in lines:
             count += 1
 
@@ -1612,12 +1641,17 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
             # !!! Note: Accomplist already did the logic and clean whitelist. If using other cleanup yourself, no code for that here.
             forced = False
             if entry.endswith('!'):
-                entry = entry.rstrip('!')
-                if isdomain.search(entry):
-                    forced = True
+                if allowforced:
+                    if isdomain.search(entry):
+                        entry = entry.rstrip('!')
+                        forced = True
+                    else:
+                        entry = None
+                else:
+                    entry = None
 
             # If entry ends in ampersand, it is a "safelisted" entry. Not supported.
-            if entry.endswith('&'):
+            if entry and entry.endswith('&'):
                 entry = False
 
             # If line start with an option. !!!!!!!!!!! WIP !!!!!!!!!!!
@@ -1770,8 +1804,8 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                         sdom = normalize_dom(entry.rstrip('*').strip())
                         if isdomain.search(sdom):
                             if sdom not in searchdom:
-                                if sdom not in wl_dom:
-                                    domlist[sdom] = 'Search-Domain'
+                                if sdom not in domlist:
+                                    domlist[sdom] = 'Search-Domain' # Whitelist it
                                 fetched += 1
                                 searchdom.add(sdom)
                                 log_info('{0} ALIAS-SEARCH-DOMAIN [{1}]: \"{2}\"'.format(listname, count, sdom))
@@ -1782,8 +1816,6 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                 else:
                     log_err('{0} INVALID/BOGUS LINE [{1}]: {2}'.format(listname, count, entry))
 
-    else:
-        log_err('ERROR: Cannot open \"{0}\" - Does not exist'.format(file))
 
     log_info('{0} Processed {1} lines and used {2}'.format(listname, count, fetched))
 
@@ -2899,6 +2931,9 @@ def read_config(file):
     List: <varname> = <value1>,<value2>,<value3>, ...
     Dictionary (with list values): <varname> = <key> > <value1>,<value2>,<value3>, ...
     '''
+
+    global forward_servers
+
     if file and file_exist(file, False):
         log_info('CONFIG: Loading config from config-file \"{0}\"'.format(file))
         try:
@@ -3199,26 +3234,27 @@ if __name__ == '__main__':
         wl_dom[command] = 'Command-TLD'
 
         # Optimize lists
-        wl_ip4 = reduce_ip(wl_ip4, 'IPv4 Whitelist')
-        bl_ip4 = reduce_ip(bl_ip4, 'IPv4 Blacklist')
-        bl_ip4 = unwhite_ip(wl_ip4, bl_ip4, 'IPv4 Blacklist')
+        if optimizelists:
+            wl_ip4 = reduce_ip(wl_ip4, 'IPv4 Whitelist')
+            bl_ip4 = reduce_ip(bl_ip4, 'IPv4 Blacklist')
+            bl_ip4 = unwhite_ip(wl_ip4, bl_ip4, 'IPv4 Blacklist')
 
-        wl_ip6 = reduce_ip(wl_ip6, 'IPv6 Whitelist')
-        bl_ip6 = reduce_ip(bl_ip6, 'IPv6 Blacklist')
-        bl_ip6 = unwhite_ip(wl_ip6, bl_ip6, 'IPv6 Blacklist')
+            wl_ip6 = reduce_ip(wl_ip6, 'IPv6 Whitelist')
+            bl_ip6 = reduce_ip(bl_ip6, 'IPv6 Blacklist')
+            bl_ip6 = unwhite_ip(wl_ip6, bl_ip6, 'IPv6 Blacklist')
 
-        wl_dom = reduce_dom(wl_dom, 'Domain Whitelist')
-        bl_dom = reduce_dom(bl_dom, 'Domain Blacklist')
+            wl_dom = reduce_dom(wl_dom, 'Domain Whitelist')
+            bl_dom = reduce_dom(bl_dom, 'Domain Blacklist')
 
-        wl_dom = unblack_dom(bl_dom, wl_dom, 'Domain Forced Black/Whitelist') # Remove forced blacklist entries from whitelist
+            wl_dom = unblack_dom(bl_dom, wl_dom, 'Domain Forced Black/Whitelist') # Remove forced blacklist entries from whitelist
 
-        bl_dom = unwhite_dom(wl_dom, bl_dom, 'Domain White/Blacklist')
+            bl_dom = unwhite_dom(wl_dom, bl_dom, 'Domain White/Blacklist')
 
-        wl_dom = unreg_dom(wl_rx, wl_dom, 'Domains Whitelist')
-        bl_dom = unreg_dom(bl_rx, bl_dom, 'Domain Blacklist')
-        bl_dom = unreg_dom(wl_rx, bl_dom, 'Domain White/Blacklist')
+            wl_dom = unreg_dom(wl_rx, wl_dom, 'Domains Whitelist')
+            bl_dom = unreg_dom(bl_rx, bl_dom, 'Domain Blacklist')
+            bl_dom = unreg_dom(wl_rx, bl_dom, 'Domain White/Blacklist')
 
-        bl_asn = unwhite_asn(wl_asn, bl_asn, 'ASN White/Blacklist')
+            bl_asn = unwhite_asn(wl_asn, bl_asn, 'ASN White/Blacklist')
 
         save_lists(savefile)
 
@@ -3303,13 +3339,14 @@ if __name__ == '__main__':
     # Keep things running
     try:
         while True:
-            time.sleep(1.5) # Seconds
+            time.sleep(1) # Seconds
             if cache_maintenance_busy is False and prefetching_busy is False:
+                cache_maintenance_busy = True
                 cachelist = cache_expired_list()
                 prefetchlist = cache_prefetch_list()
-
                 if cache_maintenance_now or cachelist or prefetchlist:
                     cache_maintenance(False, False, cachelist, prefetchlist)
+                cache_maintenance_busy = False
 
     except (KeyboardInterrupt, SystemExit):
         log_info('INSTIGATOR SHUTTING DOWN')
