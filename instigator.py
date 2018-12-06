@@ -191,7 +191,9 @@ lists['nat'] = basedir + 'nat-reflect.list' # Handout local IP's for public name
 #whitelist = list(['whitelist', 'ck-whitelist', 'aliases', 'shalla-banking', 'shalla-updatesites', 'tlds', 'nat'])
 blacklist = list(['blacklist', 'shalla-ads', 'shalla-costtraps', 'shalla-porn', 'shalla-gamble', 'shalla-spyware', 'shalla-warez', 'malicious-ip'])
 whitelist = list(['whitelist', 'aliases', 'shalla-banking', 'shalla-updatesites', 'tlds', 'nat'])
-searchdom = set()
+
+# Search domains
+searchdom = dict()
 
 # Root servers # !!! WIP
 #root_servers = list(['198.41.0.4', '2001:503:ba3e::2:30', '199.9.14.201', '2001:500:200::b', '192.33.4.12', '2001:500:2::c', '199.7.91.13', '2001:500:2d::d', '192.203.230.10', '2001:500:a8::e', '192.5.5.241', '2001:500:2f::f', '192.112.36.4', '2001:500:12::d0d', '198.97.190.53', '2001:500:1::53', '192.36.148.17', '2001:7fe::53', '192.58.128.30', '2001:503:c27::2:30', '193.0.14.129', '2001:7fd::1', '199.7.83.42', '2001:500:9f::42', '202.12.27.33', '2001:dc3::35'])
@@ -420,7 +422,6 @@ isnum = regex.compile('^[0-9]+$')
 def log_info(message):
     '''Log INFO messages to syslog'''
     if debug:
-        #print('{0} {1}'.format(time.strftime('%a %d-%b-%Y %H:%M:%S'), message))
         print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message)[:msglength])
         sys.stdout.flush()
     syslog.syslog(syslog.LOG_INFO, message[:msglength]) # !!! Fix SYSLOG on MacOS
@@ -431,7 +432,6 @@ def log_err(message):
     '''Log ERR messages to syslog'''
     message = '!!! STRESS: {0}'.format(message)
     if debug:
-        #print('{0} {1}'.format(time.strftime('%a %d-%b-%Y %H:%M:%S'), message))
         print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message)[:msglength])
         sys.stdout.flush()
     syslog.syslog(syslog.LOG_ERR, message[:msglength]) # !!! Fix SYSLOG on MacOS
@@ -1806,7 +1806,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                 if sdom not in domlist:
                                     domlist[sdom] = 'Search-Domain' # Whitelist it
                                 fetched += 1
-                                searchdom.add(sdom)
+                                searchdom[sdom] = 'Search-Domain'
                                 log_info('{0} ALIAS-SEARCH-DOMAIN [{1}]: \"{2}\"'.format(listname, count, sdom))
                         else:
                             log_err('{0} INVALID SEARCH-DOMAIN [{1}]: {2}'.format(listname, count, entry))
@@ -2772,9 +2772,9 @@ def do_query(request, handler, force):
                             break
 
         # Generate ALIAS response when hit !!! Needs to be last in if-elif chain
-        if reply is None:
+        if reply is None and (not in_domain(qname, forward_servers, 'Forward', False)) and (not in_domain(qname, searchdom, 'Search', False)):
             generated = in_domain(qname, aliases, 'Alias', False)
-            if generated is False and (not in_domain(qname, forward_servers, 'Forward', False)):
+            if generated is False:
                 generated = in_regex(qname, aliases_rx, True, 'Generator') or False
             else:
                 generated = aliases.get(generated, False)
@@ -2931,8 +2931,6 @@ def read_config(file):
     Dictionary (with list values): <varname> = <key> > <value1>,<value2>,<value3>, ...
     '''
 
-    global forward_servers
-
     if file and file_exist(file, False):
         log_info('CONFIG: Loading config from config-file \"{0}\"'.format(file))
         try:
@@ -2957,19 +2955,23 @@ def read_config(file):
                             key = dictelements[0]
                             val = dictelements[1]
                             log_info('CONFIG-SETTING-DICT: {0}[{1}] = {2}'.format(var, key, val))
-                            globals()[var] = {key : regex.split('\s*,\s*', val)}
+                            globals()[var].update({key : regex.split('\s*,\s*', val)})
+
                         elif val.startswith('\'') and val.endswith('\''):
                             log_info('CONFIG-SETTING-STR: {0} = {1}'.format(var, val))
                             globals()[var] = str(regex.split('\'', val)[1].strip())
+
                         elif val.lower() in ('false', 'none', 'true'):
                             log_info('CONFIG-SETTING-BOOL: {0} = {1}'.format(var, val))
                             if val.lower() == 'true':
                                 globals()[var] = bool(1)
                             else:
                                 globals()[var] = bool(0)
+
                         elif regex.match('^[0-9]+$', val):
                             log_info('CONFIG-SETTING-INT: {0} = {1}'.format(var, val))
                             globals()[var] = int(val)
+
                         else:
                             log_info('CONFIG-SETTING-LIST: {0} = {1}'.format(var, val))
                             globals()[var] = regex.split('\s*,\s*', val)
@@ -2978,16 +2980,23 @@ def read_config(file):
         log_info('CONFIG: Skipping config from file, config-file \"{0}\" does not exist'.format(file))
 
 
-    if blocksearchdom and file_exist(resolvfile, False):
-        log_info('CONFIG: Loading domains from \"{0}\"'.format(resolvfile))
+    #globals().update(locals()) # Make sure global variables get updated, use with CAUTION!!!
+
+    return True
+
+
+def get_doms(file, sdom):
+    '''Get domain and search domains from resolv.conf'''
+    if blocksearchdom and file_exist(file, False):
+        log_info('CONFIG: Loading domains from \"{0}\"'.format(file))
         try:
-            f = open(resolvfile, 'r')
+            f = open(file, 'r')
             #lines = f.readlines()
             lines = f.read().splitlines()
             f.close()
 
         except BaseException as err:
-            log_err('ERROR: Unable to open/read/process file \"{0}\" - {1}'.format(resolvfile, err))
+            log_err('ERROR: Unable to open/read/process file \"{0}\" - {1}'.format(file, err))
 
         for line in lines:
             entry = regex.split('#', line)[0].strip().lower()
@@ -2995,40 +3004,43 @@ def read_config(file):
                 elements = regex.split('\s+', entry)
                 if elements[0] == 'domain' or elements[0] == 'search':
                     for dom in elements[1:]:
-                        if dom not in searchdom:
-                            log_info('CONFIG: Fetched {0} \"{1}\" from \"{2}\"'. format(elements[0], dom, resolvfile))
-                            searchdom.add(dom)
+                        if dom not in sdom:
+                            log_info('CONFIG: Fetched {0} \"{1}\" from \"{2}\"'. format(elements[0], dom, file))
+                            #searchdom.add(dom)
+                            sdom[dom] = 'Search-Domain'
 
-    return True
+    return sdom
 
 
 def get_dns_servers(file, fservers):
-    log_info('CONFIG: Loading nameservers from \"{0}\"'.format(file))
-    try:
-        f = open(file, 'r')
-        #lines = f.readlines()
-        lines = f.read().splitlines()
-        f.close()
+    '''Get DNS Servers from resolv.conf'''
+    if not fservers:
+        log_info('CONFIG: Loading nameservers from \"{0}\"'.format(file))
+        try:
+            f = open(file, 'r')
+            #lines = f.readlines()
+            lines = f.read().splitlines()
+            f.close()
 
-    except BaseException as err:
-        log_err('ERROR: Unable to open/read/process file \"{0}\" - {1}'.format(file, err))
+        except BaseException as err:
+            log_err('ERROR: Unable to open/read/process file \"{0}\" - {1}'.format(file, err))
 
-    ns = list()
-    for line in lines:
-        entry = regex.split('#', line)[0].strip().lower()
-        if entry:
-            elements = regex.split('\s+', entry)
-            if elements[0] == 'nameserver':
-                for ip in elements[1:]:
-                    if ip not in ns and ipregex.search(ip):
-                        log_info('CONFIG: Fetched {0} \"{1}\" from \"{2}\"'.format(elements[0], ip, file))
-                        ns.append(ip)
+        ns = list()
+        for line in lines:
+            entry = regex.split('#', line)[0].strip().lower()
+            if entry:
+                elements = regex.split('\s+', entry)
+                if elements[0] == 'nameserver':
+                    for ip in elements[1:]:
+                        if ip not in ns and ipregex.search(ip):
+                            log_info('CONFIG: Fetched {0} \"{1}\" from \"{2}\"'.format(elements[0], ip, file))
+                            ns.append(ip)
 
-    if ns:
-        if '.' in fservers:
-            fservers['.'] += ns
-        else:
-            fservers['.'] = ns
+        if ns:
+            if '.' in fservers:
+                fservers['.'] += ns
+            else:
+                fservers['.'] = ns
 
     return fservers
 
@@ -3163,7 +3175,6 @@ def make_reply(owner, rrtype, ttl, data):
 
 if __name__ == '__main__':
     '''Main beef'''
-
     log_info('-----------------------')
     log_info('Initializing INSTIGATOR')
 
@@ -3189,6 +3200,9 @@ if __name__ == '__main__':
         # Get DNS servers from resolv.conf
         if '.' not in forward_servers:
             forward_servers = get_dns_servers(resolvfile, forward_servers)
+
+        # Get DNS domain/searchdomains from resolv.conf
+        searchdom = get_doms(resolvfile, searchdom)
 
         # Whitelist used addresses to unbreak services
         for ip in redirect_addrs:
