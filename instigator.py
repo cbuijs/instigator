@@ -787,11 +787,11 @@ def who_is(ip, desc):
         if ip in rebind6:
             prefix = rebind6.get_key(ip)
             owner = 'REBIND {0}'.format(rebind6.get(prefix, owner))
-        else
+        else:
             ipasn = ipasn6
             prefix = ip + '/128'
 
-    else
+    else:
         if ip in rebind4:
             prefix = rebind4.get_key(ip)
             owner = 'REBIND {0}'.format(rebind4.get(prefix, owner))
