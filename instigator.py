@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.8-20181205 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.81-20181212 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -54,7 +54,11 @@ random.seed(os.urandom(256))
 # Syslogging / Logging
 import syslog
 syslog.openlog(ident='INSTIGATOR', logoption=syslog.LOG_NOWAIT)
-
+logfile = '/opt/instigator/instigator.log'
+flogfile = False
+if logfile:
+    flogfile = open(logfile, 'a', 1)
+    
 # DNSLib module
 from dnslib import *
 from dnslib.server import *
@@ -98,7 +102,8 @@ basedir = '/'.join(os.path.realpath(__file__).split('/')[0:-1]) + '/'
 configfile = basedir + 'instigator.conf'
 
 # Resolv.conf file
-resolvfile = '/etc/resolv.conf'
+resolvfile = False
+#resolvfile = '/etc/resolv.conf'
 
 # Listen for queries
 #listen_on = list(['192.168.1.251@53', '127.0.0.1@53']) # IPv4 only for now.
@@ -110,7 +115,7 @@ listen_on = list(['@53']) # Listen on all interfaces/ip's
 # See list of servers here: https://www.lifewire.com/free-and-public-dns-servers-2626062
 forward_timeout = 5 # Seconds, keep on 5 seconds or higher
 forward_servers = dict()
-#forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare !!! TTLs inconsistent !!!
+forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
@@ -248,6 +253,7 @@ collapse = True
 # Block IPV4 or IPv6 based queries, True = Block, False = NotBlock and None = Based on transport
 blockv4 = False
 blockv6 = None
+blockrcode = 'NODATA'
 
 # Block illegal names
 blockillegal = True
@@ -421,20 +427,27 @@ isnum = regex.compile('^[0-9]+$')
 
 def log_info(message):
     '''Log INFO messages to syslog'''
+    timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+    msg = '{0} {1}'.format(timestamp, message)[:msglength]
     if debug:
-        print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message)[:msglength])
+        print(msg)
         sys.stdout.flush()
     syslog.syslog(syslog.LOG_INFO, message[:msglength]) # !!! Fix SYSLOG on MacOS
+    if flogfile:
+        flogfile.write('{0}\n'.format(msg))
     return True
 
 
 def log_err(message):
     '''Log ERR messages to syslog'''
-    message = '!!! STRESS: {0}'.format(message)
+    timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+    msg = '{0} !!! PANIC: {1}'.format(timestamp, message)[:msglength]
     if debug:
-        print('{0} {1}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), message)[:msglength])
+        print(msg)
         sys.stdout.flush()
     syslog.syslog(syslog.LOG_ERR, message[:msglength]) # !!! Fix SYSLOG on MacOS
+    if flogfile:
+        flogfile.write('{0}\n'.format(msg))
     return True
 
 
@@ -513,17 +526,6 @@ def check_blacklist(rid, rtype, rrtype, value):
     tid = id_str(rid)
     testvalue = value
     itisanip = False
-
-
-    # Block IP-Family
-    # !!! Done by strip_reply !!!
-    #if blockv4 is not False and (rrtype == 'A' or (rtype == 'REQUEST' and rrtype == 'PTR' and ip4arpa.search(testvalue))):
-    #    log_info('BLOCK-IPV4-HIT [{0}]: {1} \"{2}/{3}\"'.format(tid, rtype, value, rrtype))
-    #    return True
-
-    #if blockv6 is not False and (rrtype == 'AAAA' or (rtype == 'REQUEST' and rrtype == 'PTR' and ip6arpa.search(testvalue))):
-    #    log_info('BLOCK-IPV6-HIT [{0}]: {1} \"{2}/{3}\"'.format(tid, rtype, value, rrtype))
-    #    return True
 
 
     # Check if an REVDOM/IP
@@ -844,7 +846,7 @@ def strip_reply(request, reply, cip):
             new_reply.add_answer(record)
 
     if not new_reply.rr:
-        new_reply = rc_reply(request, hitrcode)
+        new_reply = rc_reply(request, blockrcode)
 
     return new_reply
    
@@ -2754,12 +2756,12 @@ def do_query(request, handler, force):
             # Block IPv4 based queries when client request comes in on IPv6
             if blockv4 is None and ipregex6.search(cip) and (qtype == 'A' or (qtype == 'PTR' and ip4arpa.search(qname))):
                 log_info('AUTOBLOCK-IPV4-HIT [{0}]: Request from {1} for {2} {3}'.format(tid, cip, queryname, hitrcode))
-                reply = rc_reply(request, hitrcode)
+                reply = rc_reply(request, blockrcode)
 
             # Block IPv6 based queries when client request comes in on IPv4
             elif blockv6 is None and ipregex4.search(cip) and (qtype == 'AAAA' or (qtype == 'PTR' and ip6arpa.search(qname))):
                 log_info('AUTOBLOCK-IPV6-HIT [{0}]: Request from {1} for {2} {3}'.format(tid, cip, queryname, hitrcode))
-                reply = rc_reply(request, hitrcode)
+                reply = rc_reply(request, blockrcode)
 
             # Search-Domain blocker
             elif blocksearchdom and searchdom:
@@ -3014,7 +3016,7 @@ def get_doms(file, sdom):
 
 def get_dns_servers(file, fservers):
     '''Get DNS Servers from resolv.conf'''
-    if not fservers:
+    if file and (not fservers):
         log_info('CONFIG: Loading nameservers from \"{0}\"'.format(file))
         try:
             f = open(file, 'r')
