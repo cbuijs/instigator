@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.81-20181212 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.83-20181212 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -115,7 +115,7 @@ listen_on = list(['@53']) # Listen on all interfaces/ip's
 # See list of servers here: https://www.lifewire.com/free-and-public-dns-servers-2626062
 forward_timeout = 5 # Seconds, keep on 5 seconds or higher
 forward_servers = dict()
-forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare !!! TTLs inconsistent !!!
+#forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['128.52.130.209@53']) # DEFAULT OpenNIC MIT
 # Alternatives:
@@ -126,7 +126,7 @@ forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare !!
 #forward_servers['.'] = list(['209.244.0.3@53','209.244.0.4@53']) # DEFAULT Level-3
 #forward_servers['.'] = list(['8.8.8.8@53','8.8.4.4@53']) # DEFAULT Google !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['208.67.222.222@443','208.67.220.220@443', '208.67.222.220@443', '208.67.220.222@443']) # DEFAULT OpenDNS
-#forward_servers['.'] = list(['208.67.222.123@443','208.67.220.123@443']) # DEFAULT OpenDNS FamilyShield
+forward_servers['.'] = list(['208.67.222.123@443','208.67.220.123@443']) # DEFAULT OpenDNS FamilyShield
 #forward_servers['.'] = list(['8.26.56.26@53','8.20.247.20@53']) # DEFAULT Comodo
 #forward_servers['.'] = list(['199.85.126.10@53','199.85.127.10@53']) # DEFAULT Norton
 #forward_servers['.'] = list(['64.6.64.6@53','64.6.65.6@53']) # DEFAULT Verisign
@@ -232,6 +232,9 @@ checkrequest = True # When False, only responses are checked and queries are ign
 
 # Check responses/answers
 checkresponse = True # When False, only queries are checked and responses are ignored (passthru)
+
+# Check ASN against black/white lists
+checkasn = False
 
 # Logging
 logreplies = True # Improves response times a little bit when False
@@ -581,14 +584,15 @@ def check_blacklist(rid, rtype, rrtype, value):
 
     # Check against IP-Lists
     if itisanip:
-        asn, prefix, owner = who_is(testvalue, '[' + tid + '] ' + rtype)
-        if asn != '0':
-            if asn in wl_asn: # Whitelist
-                log_info('WHITELIST-ASN-HIT [{0}]: {1} {2}/{3} matched against \"AS{4}\" ({5}/{6}) - {7}'.format(tid, rtype, value, testvalue, asn, wl_asn[asn], prefix, owner))
-                return False
-            elif asn in bl_asn: # Blacklist
-                log_info('BLACKLIST-ASN-HIT [{0}]: {1} {2}/{3} matched against \"AS{4}\" ({5}/{6}) - {7}'.format(tid, rtype, value, testvalue, asn, wl_asn[asn], prefix, owner))
-                return True
+        if checkasn:
+            asn, prefix, owner = who_is(testvalue, '[' + tid + '] ' + rtype)
+            if asn != '0':
+                if asn in wl_asn: # Whitelist
+                    log_info('WHITELIST-ASN-HIT [{0}]: {1} {2}/{3} matched against \"AS{4}\" ({5}/{6}) - {7}'.format(tid, rtype, value, testvalue, asn, wl_asn[asn], prefix, owner))
+                    return False
+                elif asn in bl_asn: # Blacklist
+                    log_info('BLACKLIST-ASN-HIT [{0}]: {1} {2}/{3} matched against \"AS{4}\" ({5}/{6}) - {7}'.format(tid, rtype, value, testvalue, asn, wl_asn[asn], prefix, owner))
+                    return True
 
         if is_v6(testvalue):
             wip = wl_ip6
@@ -780,39 +784,49 @@ def who_is(ip, desc):
     owner = 'UNKNOWN'
 
     if is_v6(ip):
-        ipasn = ipasn6
-        prefix = ip + '/128'
-    else:
-        ipasn = ipasn4
-        prefix = ip + '/32'
+        if ip in rebind6:
+            prefix = rebind6.get_key(ip)
+            owner = 'REBIND {0}'.format(rebind6.get(prefix, owner))
+        else
+            ipasn = ipasn6
+            prefix = ip + '/128'
 
-    if ip in ipasn:
-        prefix = ipasn.get_key(ip)
-        elements = regex.split('\s+', ipasn.get(prefix, asn + ' ' + owner))
-        if elements:
-            asn = elements[0]
-            owner = ' '.join(elements[1:])
-            if debug: log_info('WHOIS-CACHE-HIT: {0} {1} AS{2} ({3}) - {4}'.format(desc, ip, asn, prefix, owner))
-
-    else:
-        log_info('WHOIS-LOOKUP: {0} {1}'.format(desc, ip))
-        try:
-            whois = Client()
-            lookup = whois.lookup(ip)
-            asn = str(lookup.asn)
-        except BaseException as err:
-            log_err('WHOIS-ERROR: {0} {1} - {2}'.format(desc, ip, err))
-            asn = 'NONE'
-
-        if asn != 'NONE' and asn != '' and asn != 'NA' and asn is not None:
-            prefix = str(lookup.prefix)
-            owner = str(lookup.owner).upper()
-            log_info('WHOIS-RESULT: {0} {1} AS{2} ({3}) - {4}'.format(desc, ip, asn, prefix, owner))
+    else
+        if ip in rebind4:
+            prefix = rebind4.get_key(ip)
+            owner = 'REBIND {0}'.format(rebind4.get(prefix, owner))
         else:
-            asn = '0'
-            log_info('WHOIS-UNKNOWN: {0}'.format(ip))
+            ipasn = ipasn4
+            prefix = ip + '/32'
 
-        ipasn[prefix] = asn + ' ' + owner
+    if owner == 'UNKNOWN':
+        if ip in ipasn:
+            prefix = ipasn.get_key(ip)
+            elements = regex.split('\s+', ipasn.get(prefix, asn + ' ' + owner))
+            if elements:
+                asn = elements[0]
+                owner = ' '.join(elements[1:])
+                if debug: log_info('WHOIS-CACHE-HIT: {0} {1} AS{2} ({3}) - {4}'.format(desc, ip, asn, prefix, owner))
+
+        else:
+            log_info('WHOIS-LOOKUP: {0} {1}'.format(desc, ip))
+            try:
+                whois = Client()
+                lookup = whois.lookup(ip)
+                asn = str(lookup.asn)
+            except BaseException as err:
+                log_err('WHOIS-ERROR: {0} {1} - {2}'.format(desc, ip, err))
+                asn = 'NONE'
+
+            if asn != 'NONE' and asn != '' and asn != 'NA' and asn is not None:
+                prefix = str(lookup.prefix)
+                owner = str(lookup.owner).upper()
+                log_info('WHOIS-RESULT: {0} {1} AS{2} ({3}) - {4}'.format(desc, ip, asn, prefix, owner))
+            else:
+                asn = '0'
+                log_info('WHOIS-UNKNOWN: {0}'.format(ip))
+
+            ipasn[prefix] = asn + ' ' + owner
 
     return asn, prefix, owner
 
