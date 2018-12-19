@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.90-20181219 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.91-20181219 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1093,7 +1093,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
 
                 if replycount > 1: # Query-part of first RR in RRSET set already checked
                     if rqname not in matched:
-                        matchreq = match_blacklist(tid, 'CHAIN', rqtype, rqname)
+                        matchreq = match_blacklist(tid, 'CHAIN-QUERY', rqtype, rqname)
                         if matchreq is False:
                             break
                         elif matchreq is True:
@@ -1123,7 +1123,11 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                             log_info('REBIND-ALLOW [{0}]: {1} -> {2}/IN/{3} = {4} (DNS Server in REBIND ranges){5}'.format(nid, queryname, rqname, rqtype, data, tag))
 
                     if blockit is False:
-                        matchrep = match_blacklist(tid, 'REPLY', rqtype, data)
+                        if replycount > 1:
+                            matchrep = match_blacklist(tid, 'CHAIN-REPLY', rqtype, data)
+                        else:
+                            matchrep = match_blacklist(tid, 'REPLY', rqtype, data)
+ 
                         if matchrep is False:
                             break
                         elif matchrep is True:
