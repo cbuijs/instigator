@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.83-20181212 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.90-20181219 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -721,14 +721,25 @@ def in_domain(name, domlist, domid, checksub):
     else:
         testname = name
 
-    while testname:
-        if testname in domlist:
-            indom_cache[domidname] = testname
-            return testname
-        elif testname.find('.') == -1:
-            break
+#    while testname:
+#        if testname in domlist:
+#            indom_cache[domidname] = testname
+#            return testname
+#        elif testname.find('.') == -1:
+#            break
+#        else:
+#            testname = testname[testname.find('.') + 1:]
+
+    fqdn = False
+    for label in testname.split('.')[::-1]:
+        if fqdn:
+            fqdn = label + '.' + fqdn
         else:
-            testname = testname[testname.find('.') + 1:]
+            fqdn = label
+
+        if fqdn in domlist:
+            indom_cache[domidname] = fqdn
+            return fqdn
 
     indom_cache[domidname] = False
     return False
@@ -1657,7 +1668,7 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
             forced = False
             if entry.endswith('!'):
                 if allowforced:
-                    if isdomain.search(entry):
+                    if isdomain.search(entry.rstrip('!')):
                         entry = entry.rstrip('!')
                         forced = True
                     else:
