@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.91-20181219 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.92-20181219 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -215,7 +215,7 @@ persistentcache = True
 alwaysfresh = False
 
 # TTL Settings
-ttlstrategy = 'average' # average/lowest/highest/random - Egalize TTL on all RRs in RRSET
+ttlstrategy = 'average' # average/lowest/highest/random/first/last - Egalize TTL on all RRs in RRSET
 filterttl = 900 # Seconds - For filtered/blacklisted/alias entry caching
 minttl = 60 # Seconds
 maxttl = 86400 # Seconds - 3600 = 1 Hour, 86400 = 1 Day, 604800 = 1 Week
@@ -2032,7 +2032,11 @@ def normalize_ttl(qname, rr):
         elif ttlstrategy == 'highest':
             ttl = max(x.ttl for x in rr) # Take Highest TTL found on all RR's
         elif ttlstrategy == 'average':
-            ttl = int(sum(x.ttl for x in rr) / len(rr)) # Take Average TTL of all RR's
+            ttl = int(sum(x.ttl for x in rr) / len(rr)) # Take average TTL among all RR's
+        elif ttlstrategy == 'first':
+            ttl = rr[0].ttl # Take TTL of first RR
+        elif ttlstrategy == 'last':
+            ttl = rr[-1].ttl # Take TTL of last RR, handy for CNAME-Collapsing to be more compliant
         else:
             ttl = random.randint(minttl, maxttl) # Random between minttl and maxttl
 
