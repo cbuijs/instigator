@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.95-20181220 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.96-20181220 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -977,6 +977,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                     #qstart = time.time()
                     q = query.send(forward_address, forward_port, tcp=tcp_use, timeout=forward_timeout, ipv6=useip6)
                     reply = DNSRecord.parse(q)
+                    if debug: log_info('DNS-INFO [{0}]: {1} - {2} - {3}'.format(hid, qname, str(RCODE[reply.header.rcode]), type(reply.rr)))
                     #qend = time.time()
                     #if debug: log_info('DNS-RTT [' + hid + ']: ' + str(qend - qstart) + ' seconds' + tag)
 
@@ -1173,11 +1174,8 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
     if minresp:
         reply.auth = list()
         reply.ar = list()
-
-    # Fixup
-    #rcode = str(RCODE[reply.header.rcode])
-    #if rcode != 'NOERROR' and num_rrs(reply) == 0:
-    #    reply = rc_reply(request, rcode)
+        if len(reply.rr) == 0:
+            reply.rr = list()
 
     # Stash in cache
     if blockit:
@@ -3004,11 +3002,11 @@ def read_config(file):
                             dictelements = regex.split('\s*>\s*', val)
                             key = dictelements[0]
                             val = dictelements[1]
-                            log_info('CONFIG-SETTING-DICT: {0}[{1}] = {2}'.format(var, key, val))
+                            log_info('CONFIG-SETTING-DICT: {0}[\'{1}\'] = {2}'.format(var, key, val))
                             globals()[var].update({key : regex.split('\s*,\s*', val)})
 
                         elif val.startswith('\'') and val.endswith('\''):
-                            log_info('CONFIG-SETTING-STR: {0} = {1}'.format(var, val))
+                            log_info('CONFIG-SETTING-STR: {0} = \'{1}\''.format(var, val))
                             globals()[var] = str(regex.split('\'', val)[1].strip())
 
                         elif val.lower() in ('false', 'none', 'true'):
