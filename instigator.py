@@ -1175,9 +1175,9 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
         reply.ar = list()
 
     # Fixup
-    rcode = str(RCODE[reply.header.rcode])
-    if rcode != 'NOERROR' and num_rrs(reply) == 0:
-        reply = rc_reply(request, rcode)
+    #rcode = str(RCODE[reply.header.rcode])
+    #if rcode != 'NOERROR' and num_rrs(reply) == 0:
+    #    reply = rc_reply(request, rcode)
 
     # Stash in cache
     if blockit:
