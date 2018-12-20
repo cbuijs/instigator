@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.97-20181220 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.99-20181220 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -987,6 +987,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                 except BaseException as err:
                     error = err
                     success = False
+                    log_err('ERROR: Issue using DNS Server {0}@{1} - {2}'.format(forward_address, forward_port, err))
 
                 if success is True:
                     rcode = str(RCODE[reply.header.rcode])
@@ -1037,6 +1038,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                     if error != 'SERVFAIL':
                         broken_exist = True
                         to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force, retryttl, 'ERROR' + tag)
+
 
             #if debug and safedns is False: log_info('DNS-QUERY [' + hid + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port) + tag)
             if debug and safedns is False: log_info('DNS-QUERY [{0}]: Skipped broken/invalid forwarder {1}@{2}{3}'.format(hid, forward_address, forward_port, tag))
