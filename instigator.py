@@ -1027,7 +1027,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                         else:
                             break
 
-                else:
+                elif error != 'SERVFAIL':
                     log_err('DNS-QUERY [{0}]: ERROR Resolving {1} using {2}@{3} - {4}{5}'.format(hid, queryname, forward_address, forward_port, error, tag))
                     broken_exist = True
                     to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force, retryttl, 'ERROR' + tag)
