@@ -221,7 +221,7 @@ minttl = 60 # Seconds
 maxttl = 86400 # Seconds - 3600 = 1 Hour, 86400 = 1 Day, 604800 = 1 Week
 rcodettl = 30 # Seconds - For return-codes caching
 failttl = 10 # Seconds - When failure/error happens
-retryttl = 5 # Seconds - Retry time
+retryttl = 10 # Seconds - Retry time
 nottl = 0 # Seconds - when no TTL or zero ttl
 
 # Filtering on or off
