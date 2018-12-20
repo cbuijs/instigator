@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.961-20181220 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.97-20181220 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -854,6 +854,10 @@ def who_is(ip, desc):
 
 def strip_reply(request, reply, cip):
     '''Strip v4 or v6 addresses from reply'''
+    rcode = str(RCODE[reply.header.rcode])
+    if rcode != 'NOERROR' or (not reply.rr):
+        return reply
+
     hid = id_str(request.header.id)
 
     strip4 = False
@@ -865,7 +869,7 @@ def strip_reply(request, reply, cip):
     if blockv6 or (blockv6 is None and is_v6(cip) is False):
         strip6 = True
 
-    new_reply = rc_reply(request, 'NOERROR')
+    new_reply = rc_reply(request, rcode)
     for record in reply.rr:
         rqname = normalize_dom(record.rname)
         rqtype = QTYPE[record.rtype]
