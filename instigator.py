@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v7.0-20181220 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v7.01-20181220 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -2019,8 +2019,7 @@ def unreg_dom(rxlist, domlist, listname):
 def normalize_dom(dom):
     '''Normalize Domain Names'''
     newdom = str(dom).strip().strip('.').lower().encode('idna').decode('utf-8') or '.'
-    if newdom != dom:
-        log_info('NORMALIZE-DOM: {0} -> {1}'.format(dom, newdom))
+    if debug and newdom != dom: log_info('NORMALIZE-DOM: \"{0}\" -> \"{1}\"'.format(dom, newdom))
     return newdom
 
 
