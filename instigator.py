@@ -1033,12 +1033,13 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                     else:
                         success = False
 
-                if success is False or reply is None:
+                if success is False:
                     log_err('DNS-QUERY [{0}]: ERROR Resolving {1} using {2}@{3} - {4}{5}'.format(hid, queryname, forward_address, forward_port, error, tag))
                     if error != 'SERVFAIL':
                         broken_exist = True
                         to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force, retryttl, 'ERROR' + tag)
-
+                elif reply is None:
+                    log_err('DNS-QUERY [{0}]: ERROR Resolving {1} using {2}@{3} - EMPTY REPLY{4}'.format(hid, queryname, forward_address, forward_port, tag))
 
             #if debug and safedns is False: log_info('DNS-QUERY [' + hid + ']: Skipped broken/invalid forwarder ' + forward_address + '@' + str(forward_port) + tag)
             if debug and safedns is False: log_info('DNS-QUERY [{0}]: Skipped broken/invalid forwarder {1}@{2}{3}'.format(hid, forward_address, forward_port, tag))
