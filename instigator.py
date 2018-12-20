@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.992-20181220 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v7.0-20181220 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -113,7 +113,7 @@ listen_on = list(['@53']) # Listen on all interfaces/ip's
 
 # Forwarding queries to
 # See list of servers here: https://www.lifewire.com/free-and-public-dns-servers-2626062
-forward_timeout = 5 # Seconds, keep on 5 seconds or higher
+forward_timeout = 10 # Seconds, keep on 5 seconds or higher
 forward_servers = dict()
 #forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
@@ -2018,7 +2018,10 @@ def unreg_dom(rxlist, domlist, listname):
 
 def normalize_dom(dom):
     '''Normalize Domain Names'''
-    return str(dom).strip().strip('.').lower() or '.'
+    newdom = str(dom).strip().strip('.').lower().encode('idna').decode('utf-8') or '.'
+    if newdom != dom:
+        log_info('NORMALIZE-DOM: {0} -> {1}'.format(dom, newdom))
+    return newdom
 
 
 def normalize_ttl(qname, rr):
