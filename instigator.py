@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v6.92-20181219 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v6.95-20181220 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -624,6 +624,16 @@ def check_blacklist(rid, rtype, rrtype, value):
 
     # Check against Sub-Domain-Lists
     elif itisanip is False and testvalue.find('.') > 0 and isdomain.search(testvalue):
+        fd_found = in_domain(testvalue, forward_servers, 'Forward', False)
+        if fd_found is not False:
+            log_info('WHITELIST-{0} [{1}]: {2} \"{3}\" matched against forward-domain \"{4}\"'.format('FORWARD-HIT', tid, rtype, value, fd_found))
+            return False
+
+        sd_found = in_domain(testvalue, searchdom, 'Search', False)
+        if sd_found is not False:
+            log_info('WHITELIST-{0} [{1}]: {2} \"{3}\" matched against search-domain \"{4}\"'.format('SEARCH-HIT', tid, rtype, value, sd_found))
+            return False
+
         for testvalue in (value + '!', value):
             if testvalue.endswith('!'):
                 tag = 'FORCED-HIT'
