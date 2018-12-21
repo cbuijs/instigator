@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v7.01-20181220 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v7.05-20181221 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -113,7 +113,7 @@ listen_on = list(['@53']) # Listen on all interfaces/ip's
 
 # Forwarding queries to
 # See list of servers here: https://www.lifewire.com/free-and-public-dns-servers-2626062
-forward_timeout = 5 # Seconds, keep on 5 seconds or higher
+forward_timeout = 3 # Seconds, keep on 5 seconds or higher
 forward_servers = dict()
 #forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
@@ -351,6 +351,7 @@ inrx_cache = TTLCache(cachesize * 4, filterttl)
 match_cache = TTLCache(cachesize * 4, filterttl)
 notlisted = TTLCache(cachesize * 4, filterttl)
 #random_cache = TTLCache(cachesize * 4, filterttl)
+broken_servers = TTLCache(16, retryttl) # Broken DNS Servers
 
 # Clear caches
 indom_cache.clear()
@@ -371,9 +372,6 @@ result_cache = TTLCache(cachesize * 8, filterttl)
 
 # Pending IDs
 pending = dict() # Pending queries
-
-# Broken forwarders flag
-broken_exist = False # Global flag, don't change!
 
 ## Regexes
 
@@ -892,7 +890,7 @@ def strip_reply(request, reply, cip):
 
 def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
     '''Do query'''
-    global broken_exist
+    global broken_servers
 
     queryname = qname + '/IN/' + qtype
     hid = id_str(tid)
@@ -954,23 +952,19 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
             log_info('SAFEDNS-QUERY [{0}]: Forwarding query from {1} to all forwarders for {2}{3}'.format(hid, cip, queryname, tag))
 
         for addr in addrs:
-            forward_address = addr.split('@')[0]
-            if addr.find('@') > 0:
-                forward_port = int(addr.split('@')[1])
-            else:
-                forward_port = 53
+            if addr not in broken_servers:
+                forward_address = addr.split('@')[0]
+                if addr.find('@') > 0:
+                    forward_port = int(addr.split('@')[1])
+                else:
+                    forward_port = 53
 
-            if forward_port != 53:
-                if debug: log_info('DNS-TCP: Using TCP because port is not 53 ({0})'.format(forward_port))
-                tcp_use = True
-            else:
-                tcp_use = use_tcp
+                if forward_port != 53:
+                    if debug: log_info('DNS-TCP: Using TCP because port is not 53 ({0})'.format(forward_port))
+                    tcp_use = True
+                else:
+                    tcp_use = use_tcp
 
-            if not safedns:
-                log_info('DNS-QUERY [{0}]: Forwarding query from {1} to {2}@{3} ({4}) for {5}{6}'.format(hid, cip, forward_address, forward_port, servername, queryname, tag))
-
-
-            if not in_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port)):
                 useip6 = is_v6(forward_address)
 
                 error = False
@@ -978,21 +972,27 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                 reply = None
 
                 # Try 3 times
-                for loop in range(1,3):
-                    if debug: log_info('DNS-QUERY-TRY [{0}]: Try {1} out of 3 for {2} using DNS Server {3}@{4}{5}'.format(hid, loop, queryname, forward_address, forward_port, tag))
+                for loop in range(1, 3):
+                    log_info('DNS-QUERY [{0}]: Forwarding (Try #{1}/3) query from {2} to {3}@{4} ({5}) for {6}{7}'.format(hid, loop, cip, forward_address, forward_port, servername, queryname, tag))
+
                     try:
-                        #qstart = time.time()
+                        qstart = time.time()
                         q = query.send(forward_address, forward_port, tcp=tcp_use, timeout=forward_timeout, ipv6=useip6)
+                        qend = time.time()
                         reply = DNSRecord.parse(q)
+                        if debug: log_info('DNS-RTT [' + hid + ']: ' + str(qend - qstart) + ' seconds' + tag)
                         break
-                        #qend = time.time()
-                        #if debug: log_info('DNS-RTT [' + hid + ']: ' + str(qend - qstart) + ' seconds' + tag)
 
                     except BaseException as err:
-                        error = err
-                        log_err('DNS-ERROR [{0}]: Issue using DNS Server {1}@{2} - {3}{4}'.format(hid, forward_address, forward_port, err, tag))
+                        log_err('DNS-ERROR [{0}]: Issue using DNS Server {1}@{2} for {3} - {4}{5}'.format(hid, forward_address, forward_port, queryname, err, tag))
+                        if err == 'SERVFAIL':
+                            error = err
+                            break
 
-                if error is False:
+                        elif loop > 2:
+                            error = err
+
+                if reply:
                     rcode = str(RCODE[reply.header.rcode])
                     if rcode != 'SERVFAIL':
                         if rcode != 'NOERROR' and firstreply is None and reply.auth:
@@ -1033,10 +1033,9 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                             if debug: log_info('DNS-REPLY [{0}]: Success resolving {1} using {2}@{3}{4}'.format(hid, queryname, forward_address, forward_port, tag))
                             break
 
-                elif error != 'SERVFAIL':
+                elif error and error != 'SERVFAIL':
                     log_err('DNS-ERROR [{0}]: ERROR Resolving {1} using {2}@{3} - {4}{5}'.format(hid, queryname, forward_address, forward_port, error, tag))
-                    broken_exist = True
-                    to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force, retryttl, 'ERROR' + tag)
+                    broken_servers[addr] = True
 
             elif safedns is False:
                 if debug: log_info('DNS-QUERY [{0}]: Skipped broken/invalid forwarder {1}@{2}{3}'.format(hid, forward_address, forward_port, tag))
@@ -1077,8 +1076,8 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
         return reply
 
     # Clear broken-forwarder cache entries
-    elif broken_exist:
-        broken_exist = False
+    elif broken_servers:
+        broken_servers.clear()
         for queryhash in no_noerror_list():
             record = cache.get(queryhash, None)
             if record is not None:
@@ -1551,6 +1550,10 @@ def load_asn(file, asn4, asn6):
 
 def load_lists(file):
     '''Load Lists'''
+    if debug:
+        log_info('DEBUG: NOT LOADING LISTS FOR SPEED SAKE')
+        return True
+
     global wl_dom
     global wl_ip4
     global wl_ip6
@@ -2228,10 +2231,13 @@ def log_replies(reply, title):
     return True
 
 
-def in_cache(qname, qclass, qtype):
+def in_cache(qname, qclass, qtype, remove):
     '''Check if in cache'''
-    if query_hash(qname, qclass, qtype) in cache:
+    queryhash = query_hash(qname, qclass, qtype)
+    if queryhash in cache:
         if debug: log_info('IN-CACHE-HIT: {0}/{1}/{2}'.format(qname, qclass, qtype))
+        if remove:
+            del_cache_entry(queryhash)
         return True
 
     return False
@@ -2246,7 +2252,7 @@ def to_cache(qname, qclass, qtype, reply, force, newttl, comment):
         return False
 
     # Already in cache
-    if force is False and in_cache(qname, qclass, qtype):
+    if force is False and in_cache(qname, qclass, qtype, False):
         return True
 
     queryname = qname + '/' + qclass + '/' + qtype
@@ -2817,7 +2823,7 @@ def do_query(request, handler, force):
                 for sdom in searchdom:
                     if qname.endswith('.' + sdom):
                         dname = qname.rstrip('.' + sdom)
-                        if in_cache(dname, 'IN', qtype):
+                        if in_cache(dname, 'IN', qtype, False):
                             log_info('SEARCH-HIT [{0}]: \"{1}\" matched \"{2} . {3}\"'.format(tid, qname, dname, sdom))
                             reply = rc_reply(request, 'NOERROR') # Empty response, NXDOMAIN provides other search-requests
                             break
@@ -3009,7 +3015,7 @@ def read_config(file):
                             globals()[var].update({key : regex.split('\s*,\s*', val)})
 
                         elif val.startswith('\'') and val.endswith('\''):
-                            log_info('CONFIG-SETTING-STR: {0} = \'{1}\''.format(var, val))
+                            log_info('CONFIG-SETTING-STR: {0} = {1}'.format(var, val))
                             globals()[var] = str(regex.split('\'', val)[1].strip())
 
                         elif val.lower() in ('false', 'none', 'true'):
