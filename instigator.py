@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v7.05-20181221 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v7.10-20181221 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1030,7 +1030,7 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                                                 if debug: log_info('SAFEDNS [{0}]: {1} UNKNOWN ASN for {2} from {3}{4}'.format(hid, queryname, ip, forward_address, tag))
 
                         else:
-                            if debug: log_info('DNS-REPLY [{0}]: Success resolving {1} using {2}@{3}{4}'.format(hid, queryname, forward_address, forward_port, tag))
+                            log_info('DNS-REPLY [{0}]: Successful in resolving {1} using {2}@{3}{4}'.format(hid, queryname, forward_address, forward_port, tag))
                             break
 
                 elif error and error != 'SERVFAIL':
