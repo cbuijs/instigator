@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1545303394                  ###
+### Version: 1545364519                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -292,6 +292,7 @@ bahiabank.com.br&	Unwhitelist
 bancobrasil.com.br&	Unwhitelist
 bancodobrasil.com.br&	Unwhitelist
 bancodonordeste.com.br&	Unwhitelist
+bancointer.com.br&	Unwhitelist
 bancoreal.com.br&	Unwhitelist
 bancorural.com.br&	Unwhitelist
 banerj.com.br&	Unwhitelist
