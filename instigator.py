@@ -113,7 +113,7 @@ listen_on = list(['@53']) # Listen on all interfaces/ip's
 
 # Forwarding queries to
 # See list of servers here: https://www.lifewire.com/free-and-public-dns-servers-2626062
-forward_timeout = 10 # Seconds, keep on 5 seconds or higher
+forward_timeout = 5 # Seconds, keep on 5 seconds or higher
 forward_servers = dict()
 #forward_servers['.'] = list(['1.1.1.1@53','1.0.0.1@53']) # DEFAULT Cloudflare !!! TTLs inconsistent !!!
 #forward_servers['.'] = list(['9.9.9.9@53','149.112.112.112@53']) # DEFAULT Quad9 !!! TTLs inconsistent !!!
@@ -966,26 +966,31 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
             else:
                 tcp_use = use_tcp
 
-            if not in_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port)):
-                if not safedns:
-                    log_info('DNS-QUERY [{0}]: Forwarding query from {1} to {2}@{3} ({4}) for {5}{6}'.format(hid, cip, forward_address, forward_port, servername, queryname, tag))
+            if not safedns:
+                log_info('DNS-QUERY [{0}]: Forwarding query from {1} to {2}@{3} ({4}) for {5}{6}'.format(hid, cip, forward_address, forward_port, servername, queryname, tag))
 
+
+            if not in_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port)):
                 useip6 = is_v6(forward_address)
 
                 error = False
 
                 reply = None
 
-                try:
-                    #qstart = time.time()
-                    q = query.send(forward_address, forward_port, tcp=tcp_use, timeout=forward_timeout, ipv6=useip6)
-                    reply = DNSRecord.parse(q)
-                    #qend = time.time()
-                    #if debug: log_info('DNS-RTT [' + hid + ']: ' + str(qend - qstart) + ' seconds' + tag)
+                # Try 3 times
+                for loop in range(1,3):
+                    if debug: log_info('DNS-QUERY-TRY [{0}]: Try {1} out of 3 for {2} using DNS Server {3}@{4}{5}'.format(hid, loop, queryname, forward_address, forward_port, tag))
+                    try:
+                        #qstart = time.time()
+                        q = query.send(forward_address, forward_port, tcp=tcp_use, timeout=forward_timeout, ipv6=useip6)
+                        reply = DNSRecord.parse(q)
+                        break
+                        #qend = time.time()
+                        #if debug: log_info('DNS-RTT [' + hid + ']: ' + str(qend - qstart) + ' seconds' + tag)
 
-                except BaseException as err:
-                    error = err
-                    log_err('DNS-ERROR [{0}]: Issue using DNS Server {1}@{2} - {3}{4}'.format(hid, forward_address, forward_port, err, tag))
+                    except BaseException as err:
+                        error = err
+                        log_err('DNS-ERROR [{0}]: Issue using DNS Server {1}@{2} - {3}{4}'.format(hid, forward_address, forward_port, err, tag))
 
                 if error is False:
                     rcode = str(RCODE[reply.header.rcode])
@@ -1025,14 +1030,16 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                                                 if debug: log_info('SAFEDNS [{0}]: {1} UNKNOWN ASN for {2} from {3}{4}'.format(hid, queryname, ip, forward_address, tag))
 
                         else:
+                            if debug: log_info('DNS-REPLY [{0}]: Success resolving {1} using {2}@{3}{4}'.format(hid, queryname, forward_address, forward_port, tag))
                             break
 
                 elif error != 'SERVFAIL':
-                    log_err('DNS--ERROR [{0}]: ERROR Resolving {1} using {2}@{3} - {4}{5}'.format(hid, queryname, forward_address, forward_port, error, tag))
+                    log_err('DNS-ERROR [{0}]: ERROR Resolving {1} using {2}@{3} - {4}{5}'.format(hid, queryname, forward_address, forward_port, error, tag))
                     broken_exist = True
                     to_cache(forward_address, 'BROKEN-FORWARDER', str(forward_port), request.reply(), force, retryttl, 'ERROR' + tag)
 
-            if debug and safedns is False: log_info('DNS-QUERY [{0}]: Skipped broken/invalid forwarder {1}@{2}{3}'.format(hid, forward_address, forward_port, tag))
+            elif safedns is False:
+                if debug: log_info('DNS-QUERY [{0}]: Skipped broken/invalid forwarder {1}@{2}{3}'.format(hid, forward_address, forward_port, tag))
 
     else:
         log_err('DNS-QUERY [{0}]: ERROR Resolving {1} ({2}) - NO DNS SERVERS AVAILBLE!{3}'.format(hid, queryname, servername, tag))
@@ -2018,8 +2025,8 @@ def unreg_dom(rxlist, domlist, listname):
 
 def normalize_dom(dom):
     '''Normalize Domain Names'''
-    newdom = str(dom).strip().strip('.').lower().encode('idna').decode('utf-8') or '.'
-    if debug and newdom != dom: log_info('NORMALIZE-DOM: \"{0}\" -> \"{1}\"'.format(dom, newdom))
+    newdom = str(str(dom).strip().strip('.').lower().encode('idna').decode('utf-8')) or str('.')
+    if debug and newdom != str(dom): log_info('NORMALIZE-DOM: \"{0}\" -> \"{1}\"'.format(dom, newdom))
     return newdom
 
 
