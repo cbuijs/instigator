@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v7.10-20181221 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v7.12-20181221 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -907,8 +907,8 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
     count = 0
     while uid in pending:
         count += 1
-        if count > 2: # Disembark after 3 seconds
-            log_info('DNS-QUERY [{0}]: Skipping query for {1} - ID \"{2}\" already processing, takes more then 3 seconds{3}'.format(hid, queryname, hid, tag))
+        if count > 4: # Disembark after 5 seconds
+            log_info('DNS-QUERY [{0}]: Skipping query for {1} - ID \"{2}\" already processing, takes more then 5 seconds{3}'.format(hid, queryname, hid, tag))
             return rc_reply(request, 'SERVFAIL')
 
         log_info('DNS-QUERY [{0}]: Delaying ({1}) query for {2} - ID \"{3}\" already in progress, waiting to finish{4}'.format(hid, count, queryname, hid, tag))
@@ -959,8 +959,8 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
                 else:
                     forward_port = 53
 
-                if forward_port != 53:
-                    if debug: log_info('DNS-TCP: Using TCP because port is not 53 ({0})'.format(forward_port))
+                if forward_port not in (53, 443, 853, 5353):
+                    if debug: log_info('DNS-TCP: Force using TCP because port is not 53, 443, 853 or 5353 ({0})'.format(forward_port))
                     tcp_use = True
                 else:
                     tcp_use = use_tcp
