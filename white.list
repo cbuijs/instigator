@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1545709319                  ###
+### Version: 1545795736                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -5101,6 +5101,7 @@ hadstenbank.dk&	Unwhitelist
 handelsbanken.dk&	Unwhitelist
 helgenaes-sparekasse.dk&	Unwhitelist
 hvidbjergbank.dk&	Unwhitelist
+jutlander-netbank.dk&	Unwhitelist
 jyskebank.dk&	Unwhitelist
 jyskenetbank.dk&	Unwhitelist
 kreditbanken.dk&	Unwhitelist
@@ -6413,6 +6414,7 @@ mctcu.org&	Unwhitelist
 mdmba.org&	Unwhitelist
 mibonline.org&	Unwhitelist
 mismo.org&	Unwhitelist
+mitfcu.org&	Unwhitelist
 msmba.org&	Unwhitelist
 winhelp2002.mvps.org&	Unwhitelist
 myfedloan.org&	Unwhitelist
