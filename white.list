@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1545882235                  ###
+### Version: 1545910130                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -6220,6 +6220,8 @@ foreignbankers.nl&	Unwhitelist
 fortisasr.nl&	Unwhitelist
 fortisbank.nl&	Unwhitelist
 frieslandbank.nl&	Unwhitelist
+fstatic.nl&	Unwhitelist
+funda.nl&	Unwhitelist
 garantibank.nl&	Unwhitelist
 glassdoor.nl&	Unwhitelist
 gwk.nl&	Unwhitelist
