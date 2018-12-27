@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1545795736                  ###
+### Version: 1545882235                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -3279,6 +3279,7 @@ wnnb.com&	Unwhitelist
 wolverinebank.com&	Unwhitelist
 woodforest.com&	Unwhitelist
 woodlandbank.com&	Unwhitelist
+woopic.com&	Unwhitelist
 wooppay.com&	Unwhitelist
 wooribank.com&	Unwhitelist
 worldwidebanking.com&	Unwhitelist
@@ -5408,6 +5409,7 @@ bourse.m6.fr&	Unwhitelist
 monbanquierenligne.fr&	Unwhitelist
 montepaschi-banque.fr&	Unwhitelist
 nxbp.fr&	Unwhitelist
+orange.fr&	Unwhitelist
 sanpaolo.fr&	Unwhitelist
 snvb.fr&	Unwhitelist
 societegenerale.fr&	Unwhitelist
