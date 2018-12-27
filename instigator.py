@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v7.12-20181221 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v7.15-20181226 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1550,9 +1550,9 @@ def load_asn(file, asn4, asn6):
 
 def load_lists(file):
     '''Load Lists'''
-    if debug:
-        log_info('DEBUG: NOT LOADING LISTS FOR SPEED SAKE')
-        return True
+#    if debug:
+#        log_info('DEBUG: NOT LOADING LISTS FOR SPEED SAKE')
+#        return True
 
     global wl_dom
     global wl_ip4
@@ -1662,7 +1662,7 @@ def get_lines(file, listname):
 def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, alist, flist, tlist, asnlist):
     '''Read/Load lists'''
     listname = listname.upper()
-    #log_info('FETCH: Fetching {0} \"{1}\" entries from \"{2}\"'.format(bw, listname, file))
+    log_info('FETCH: Fetching {0} \"{1}\" from \"{2}\"'.format(bw, listname, file))
 
     count = 0
     fetched = 0
@@ -3011,8 +3011,13 @@ def read_config(file):
                             dictelements = regex.split('\s*>\s*', val)
                             key = dictelements[0]
                             val = dictelements[1]
-                            log_info('CONFIG-SETTING-DICT: {0}[\'{1}\'] = {2}'.format(var, key, val))
-                            globals()[var].update({key : regex.split('\s*,\s*', val)})
+                            if var == 'lists':
+                                log_info('CONFIG-SETTING-DICT: {0}[\'{1}\'] = \'{2}\''.format(var, key, val))
+                                globals()[var].update({key : val})
+                            else:
+                                vals = list(regex.split('\s*,\s*', val))
+                                log_info('CONFIG-SETTING-DICT: {0}[\'{1}\'] = {2}'.format(var, key, vals))
+                                globals()[var].update({key : vals})
 
                         elif val.startswith('\'') and val.endswith('\''):
                             log_info('CONFIG-SETTING-STR: {0} = {1}'.format(var, val))
