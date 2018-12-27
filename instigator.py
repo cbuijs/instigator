@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v7.15-20181226 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v7.16-20181227 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -1078,12 +1078,13 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
     # Clear broken-forwarder cache entries
     elif broken_servers:
         broken_servers.clear()
-        for queryhash in no_noerror_list():
-            record = cache.get(queryhash, None)
-            if record is not None:
-                rcode = str(RCODE[record[0].header.rcode])
-                log_info('CACHE-MAINT-PURGE: {0} {1} (Unbroken DNS Servers){2}'.format(record[2], rcode, tag))
-                del_cache_entry(queryhash)
+        cache_maintenance(True, False, False, False)
+        #for queryhash in no_noerror_list():
+        #    record = cache.get(queryhash, None)
+        #    if record is not None:
+        #        rcode = str(RCODE[record[0].header.rcode])
+        #        log_info('CACHE-MAINT-PURGE: {0} {1} (Unbroken DNS Servers){2}'.format(record[2], rcode, tag))
+        #        del_cache_entry(queryhash)
 
     blockit = False
 
@@ -1363,23 +1364,22 @@ def generate_alias(request, qname, qtype, cip, use_tcp, force, newalias):
             rcode = str(RCODE[subreply.header.rcode])
 
         if rcode == 'NOERROR' and subreply.rr:
-            #if collapse:
-            #    aliasqname = realqname
-            #else:
-            #    aliasqname = alias
 
-            aliasqname = alias
+            # Point to new name with CNAME
+            ttl = normalize_ttl(alias, subreply.rr)
 
-            ttl = normalize_ttl(aliasqname, subreply.rr)
+            answer = RR(realqname, QTYPE.CNAME, ttl=ttl, rdata=CNAME(alias))
+            reply.add_answer(answer)
 
+            # Add new IP-Records
             for record in subreply.rr:
                 rqtype = QTYPE[record.rtype]
                 data = normalize_dom(record.rdata)
                 if rqtype == 'A':
-                    answer = RR(aliasqname, QTYPE.A, ttl=ttl, rdata=A(data))
+                    answer = RR(alias, QTYPE.A, ttl=ttl, rdata=A(data))
                     reply.add_answer(answer)
                 if rqtype == 'AAAA':
-                    answer = RR(aliasqname, QTYPE.AAAA, ttl=ttl, rdata=AAAA(data))
+                    answer = RR(alias, QTYPE.AAAA, ttl=ttl, rdata=AAAA(data))
                     reply.add_answer(answer)
 
         else:
