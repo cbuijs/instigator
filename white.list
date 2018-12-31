@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1546212318                  ###
+### Version: 1546228608                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -256,6 +256,7 @@ ovbk.be&	Unwhitelist
 petercam.be&	Unwhitelist
 puilaetco.be&	Unwhitelist
 recordbank.be&	Unwhitelist
+triodos.be&	Unwhitelist
 vdk.be&	Unwhitelist
 wallet.best&	Unwhitelist
 acb.bg&	Unwhitelist
@@ -280,6 +281,7 @@ bma.gov.bh&	Unwhitelist
 screenshot3.bid&	Unwhitelist
 eastbridge.biz&	Unwhitelist
 farmersandmerchants.biz&	Unwhitelist
+winfric.biz&	Unwhitelist
 bma.bm&	Unwhitelist
 mabanque.bnpparibas&	Unwhitelist
 mabanqueprivee.bnpparibas&	Unwhitelist
@@ -363,6 +365,7 @@ bank-banque-canada.ca&	Unwhitelist
 bankofcanada.ca&	Unwhitelist
 bankwest.ca&	Unwhitelist
 banqueducanada.ca&	Unwhitelist
+banqueroyale.ca&	Unwhitelist
 bdc.ca&	Unwhitelist
 bnc.ca&	Unwhitelist
 bnpparibas.ca&	Unwhitelist
@@ -376,8 +379,10 @@ eqbank.ca&	Unwhitelist
 hsbc.ca&	Unwhitelist
 icicibank.ca&	Unwhitelist
 ingdirect.ca&	Unwhitelist
+laurentianbank.ca&	Unwhitelist
 nbc.ca&	Unwhitelist
 pcfinancial.ca&	Unwhitelist
+royalbank.ca&	Unwhitelist
 simpletax.ca&	Unwhitelist
 tangerine.ca&	Unwhitelist
 abs.ch&	Unwhitelist
@@ -428,6 +433,7 @@ cedc.ch&	Unwhitelist
 cesiviriez.ch&	Unwhitelist
 cial.ch&	Unwhitelist
 cimbanque.ch&	Unwhitelist
+cler.ch&	Unwhitelist
 clientis.ch&	Unwhitelist
 companyonline.ch&	Unwhitelist
 coopbank.ch&	Unwhitelist
@@ -561,6 +567,7 @@ blocklist.greensnow.co&	Unwhitelist
 aaadir.com&	Unwhitelist
 cdn-icloud-content.g.aaplimg.com&	Unwhitelist
 aareal-bank.com&	Unwhitelist
+aazsysteme.com&	Unwhitelist
 aba.com&	Unwhitelist
 aba-argentina.com&	Unwhitelist
 abbey.com&	Unwhitelist
@@ -568,6 +575,7 @@ abbybank.com&	Unwhitelist
 abc.com&	Unwhitelist
 abcbancorp.com&	Unwhitelist
 abcbank.com&	Unwhitelist
+abcbourse.com&	Unwhitelist
 abcnews.com&	Unwhitelist
 abcthebank.com&	Unwhitelist
 abingtonbank.com&	Unwhitelist
@@ -585,6 +593,7 @@ acbanks.com&	Unwhitelist
 terminal.accentpay.com&	Unwhitelist
 accessbankplc.com&	Unwhitelist
 accesshorizon.com&	Unwhitelist
+accrobourse.com&	Unwhitelist
 aciforex.com&	Unwhitelist
 acledabank-internetbanking.com&	Unwhitelist
 acommunitybank.com&	Unwhitelist
@@ -602,6 +611,7 @@ mein.advanzia.com&	Unwhitelist
 advanziakonto.com&	Unwhitelist
 wallet.advcash.com&	Unwhitelist
 advest.com&	Unwhitelist
+fr.advfn.com&	Unwhitelist
 live.adyen.com&	Unwhitelist
 aea-bank.com&	Unwhitelist
 afcmerchantbank.com&	Unwhitelist
@@ -719,6 +729,7 @@ asociacionbancaria.com&	Unwhitelist
 assocbank.com&	Unwhitelist
 associatedbank.com&	Unwhitelist
 astoriafederal.com&	Unwhitelist
+at-bourse.com&	Unwhitelist
 atabank.com&	Unwhitelist
 atb.com&	Unwhitelist
 athensfederal.com&	Unwhitelist
@@ -740,6 +751,7 @@ avanzaprivatebanking.com&	Unwhitelist
 avbpgh.com&	Unwhitelist
 axisbank.com&	Unwhitelist
 azmortgagelenders.com&	Unwhitelist
+b-capital.com&	Unwhitelist
 ba-ca.com&	Unwhitelist
 babasbrew.com&	Unwhitelist
 bac-assets.com&	Unwhitelist
@@ -778,6 +790,7 @@ bancomercantil.com&	Unwhitelist
 bancomernetcash.com&	Unwhitelist
 bancomext.com&	Unwhitelist
 bancoplaza.com&	Unwhitelist
+bancopopular-e.com&	Unwhitelist
 bancoro.com&	Unwhitelist
 bancorpsouth.com&	Unwhitelist
 bancrecer-ve.com&	Unwhitelist
@@ -946,6 +959,7 @@ bankwithpsb.com&	Unwhitelist
 banorte.com&	Unwhitelist
 banplus.com&	Unwhitelist
 banplusonline.com&	Unwhitelist
+banque.com&	Unwhitelist
 banque-de-luxembourg.com&	Unwhitelist
 banque-du-louvre.com&	Unwhitelist
 banque-solidarites.com&	Unwhitelist
@@ -987,6 +1001,7 @@ bergencommercial.com&	Unwhitelist
 berliner-bank.com&	Unwhitelist
 betterbanks.com&	Unwhitelist
 beverlycoop.com&	Unwhitelist
+bforbank.com&	Unwhitelist
 bgpindosuez.com&	Unwhitelist
 bhbt.com&	Unwhitelist
 bhf-bank.com&	Unwhitelist
@@ -1035,7 +1050,11 @@ bostonprivate.com&	Unwhitelist
 botc.com&	Unwhitelist
 botw-ep.com&	Unwhitelist
 botwodessa.com&	Unwhitelist
+boursediscount.com&	Unwhitelist
+boursica.com&	Unwhitelist
+boursier.com&	Unwhitelist
 boursorama.com&	Unwhitelist
+boursorama2.com&	Unwhitelist
 bowc.com&	Unwhitelist
 bowmillsbank.com&	Unwhitelist
 bpc-financial.com&	Unwhitelist
@@ -1077,6 +1096,10 @@ cabarrusbank.com&	Unwhitelist
 cahoot.com&	Unwhitelist
 caissepopottawa.com&	Unwhitelist
 caixa-enginyers.com&	Unwhitelist
+caixacat.com&	Unwhitelist
+caixajove.com&	Unwhitelist
+caixamanresa.com&	Unwhitelist
+caixaterrassa.com&	Unwhitelist
 cajarural.com&	Unwhitelist
 calbankers.com&	Unwhitelist
 calbanktrust.com&	Unwhitelist
@@ -1112,6 +1135,7 @@ carolinafirst.com&	Unwhitelist
 carrolltonbank.com&	Unwhitelist
 casapropia.com&	Unwhitelist
 cascadebank.com&	Unwhitelist
+cashadvanceclub.com&	Unwhitelist
 cathaybank.com&	Unwhitelist
 cattlebank.com&	Unwhitelist
 cavb.com&	Unwhitelist
@@ -1254,6 +1278,7 @@ clarkebank.com&	Unwhitelist
 clearcreeknationalbank.com&	Unwhitelist
 clearstream.com&	Unwhitelist
 clevelandstatebank.com&	Unwhitelist
+clickoptions.com&	Unwhitelist
 clintonnational.com&	Unwhitelist
 clintonsavings.com&	Unwhitelist
 clydesavings.com&	Unwhitelist
@@ -1349,6 +1374,7 @@ credit-suisse.com&	Unwhitelist
 creditbank.com&	Unwhitelist
 creditdnepr.com&	Unwhitelist
 creditlyonnais.com&	Unwhitelist
+creditmutuel.com&	Unwhitelist
 creditonebank.com&	Unwhitelist
 creditoption.com&	Unwhitelist
 crescentbank.com&	Unwhitelist
@@ -1398,6 +1424,7 @@ deforestbank.com&	Unwhitelist
 dekalbcommunitybank.com&	Unwhitelist
 delawarenational.com&	Unwhitelist
 dellsbank.com&	Unwhitelist
+delubac.com&	Unwhitelist
 denabank.com&	Unwhitelist
 denizbank.com&	Unwhitelist
 deutschebank-dbdirect.com&	Unwhitelist
@@ -1409,6 +1436,7 @@ dhbbank.com&	Unwhitelist
 webtrack.dhlglobalmail.com&	Unwhitelist
 dime.com&	Unwhitelist
 dimewill.com&	Unwhitelist
+directfinance.com&	Unwhitelist
 directnet.com&	Unwhitelist
 discover.com&	Unwhitelist
 dnb4you.com&	Unwhitelist
@@ -1467,12 +1495,14 @@ edbi-iran.com&	Unwhitelist
 eddiebauer.com&	Unwhitelist
 edensbank.com&	Unwhitelist
 edgarcountybank.com&	Unwhitelist
+edwardbaskett.com&	Unwhitelist
 eero.com&	Unwhitelist
 efggroup.com&	Unwhitelist
 efirstbank.com&	Unwhitelist
 efirstbankca.com&	Unwhitelist
 efirstfed.com&	Unwhitelist
 arab-investment-bank.egypt.com&	Unwhitelist
+egyptian-witchcraft.com&	Unwhitelist
 eldoradosavings.com&	Unwhitelist
 elginfc.com&	Unwhitelist
 ellipsbank.com&	Unwhitelist
@@ -1499,6 +1529,7 @@ eonfin.com&	Unwhitelist
 equator-principles.com&	Unwhitelist
 equitablecard.com&	Unwhitelist
 equitableonline.com&	Unwhitelist
+esecure-transaction.com&	Unwhitelist
 esfg.com&	Unwhitelist
 eshorelinebank.com&	Unwhitelist
 esparkasse.com&	Unwhitelist
@@ -1549,6 +1580,7 @@ farmersbanknc.com&	Unwhitelist
 farmersfrankfort.com&	Unwhitelist
 farmersnational.com&	Unwhitelist
 fast.com&	Unwhitelist
+fat-cash.com&	Unwhitelist
 fauquierbank.com&	Unwhitelist
 fbbmilwaukee.com&	Unwhitelist
 fbnw.com&	Unwhitelist
@@ -1600,6 +1632,7 @@ fidelitybk.com&	Unwhitelist
 fidfed.com&	Unwhitelist
 fiiwarsaw.com&	Unwhitelist
 finansonline.com&	Unwhitelist
+finaperf.com&	Unwhitelist
 fincombank.com&	Unwhitelist
 first-citizens.com&	Unwhitelist
 first-community-bank.com&	Unwhitelist
@@ -1784,6 +1817,7 @@ fnbwyo.com&	Unwhitelist
 foncier-international.com&	Unwhitelist
 fontaine-suisse.com&	Unwhitelist
 foothillindbank.com&	Unwhitelist
+foothillsbank.com&	Unwhitelist
 mybank.fortebank.com&	Unwhitelist
 online.fortebank.com&	Unwhitelist
 fortis.com&	Unwhitelist
@@ -1799,6 +1833,7 @@ franklinnetbranch.com&	Unwhitelist
 franklinsavings.com&	Unwhitelist
 fransabank.com&	Unwhitelist
 fraud-net.com&	Unwhitelist
+freakymoney.com&	Unwhitelist
 freedombankwv.com&	Unwhitelist
 fremontbank.com&	Unwhitelist
 friendlybremenbank.com&	Unwhitelist
@@ -1916,6 +1951,7 @@ greensill-bank.com&	Unwhitelist
 greenvillesavings.com&	Unwhitelist
 greenwoodsstatebank.com&	Unwhitelist
 griffonbank.com&	Unwhitelist
+boursorama.groupe-credit-du-nord.com&	Unwhitelist
 grupobancolombia.com&	Unwhitelist
 webid2.gs.com&	Unwhitelist
 gsbfin.com&	Unwhitelist
@@ -1924,6 +1960,7 @@ connectivitycheck.gstatic.com&	Unwhitelist
 play-music.gstatic.com&	Unwhitelist
 guarantybankonline.com&	Unwhitelist
 guarantystate.com&	Unwhitelist
+guestcash.com&	Unwhitelist
 gunaybank.com&	Unwhitelist
 habcorp.com&	Unwhitelist
 habibamericanbank.com&	Unwhitelist
@@ -1993,10 +2030,12 @@ horizon-bank.com&	Unwhitelist
 horizonbank.com&	Unwhitelist
 hottinger.com&	Unwhitelist
 houston-mba.com&	Unwhitelist
+hpcgalleries.com&	Unwhitelist
 hsbc.com&	Unwhitelist
 hsbcgroup.com&	Unwhitelist
 hsbcnet.com&	Unwhitelist
 hsbcprivatebank.com&	Unwhitelist
+hsbcprivatebankfrance.com&	Unwhitelist
 hsbofmn.com&	Unwhitelist
 hubank.com&	Unwhitelist
 hubspot.com&	Unwhitelist
@@ -2034,6 +2073,7 @@ idbibank.com&	Unwhitelist
 idbmia.com&	Unwhitelist
 ifbag.com&	Unwhitelist
 ifibank.com&	Unwhitelist
+iforex.com&	Unwhitelist
 ifsb.com&	Unwhitelist
 ifttt.com&	Unwhitelist
 igcdn.com&	Unwhitelist
@@ -2057,12 +2097,14 @@ ingvysyabank.com&	Unwhitelist
 insinger.com&	Unwhitelist
 insouth.com&	Unwhitelist
 instagram.com&	Unwhitelist
+instinctmoney.com&	Unwhitelist
 insurorsbank.com&	Unwhitelist
 integrabank.com&	Unwhitelist
 interbanka.com&	Unwhitelist
 intercontinentalbankplc.com&	Unwhitelist
 intercontinentbank.com&	Unwhitelist
 intercreditbank.com&	Unwhitelist
+paygate.intersecurepayment.com&	Unwhitelist
 intervestnatbank.com&	Unwhitelist
 inbiz.intesasanpaolo.com&	Unwhitelist
 intrustbank.com&	Unwhitelist
@@ -2084,6 +2126,7 @@ itascabank.com&	Unwhitelist
 itlacapital.com&	Unwhitelist
 itsb-iowa.com&	Unwhitelist
 iurisbank.com&	Unwhitelist
+bourse.ivisite.com&	Unwhitelist
 jacksoncountybank.com&	Unwhitelist
 jacksonvillesavings.com&	Unwhitelist
 jamunabankbd.com&	Unwhitelist
@@ -2093,6 +2136,7 @@ jbt-stl.com&	Unwhitelist
 jcbank.com&	Unwhitelist
 jcsbank.com&	Unwhitelist
 jdbank.com&	Unwhitelist
+bourse.jdf.com&	Unwhitelist
 jeffbank.com&	Unwhitelist
 jefferson-bank.com&	Unwhitelist
 jerseybankersassociation.com&	Unwhitelist
@@ -2157,6 +2201,7 @@ lanb.com&	Unwhitelist
 landbank.com&	Unwhitelist
 landmarkbank.com&	Unwhitelist
 landmarkbanks.com&	Unwhitelist
+lanef.com&	Unwhitelist
 larrainvial.com&	Unwhitelist
 lasallebank.com&	Unwhitelist
 lastpass.com&	Unwhitelist
@@ -2169,11 +2214,13 @@ lbtbank.com&	Unwhitelist
 lbtc.com&	Unwhitelist
 lcfederal.com&	Unwhitelist
 lchbank.com&	Unwhitelist
+lcl.com&	Unwhitelist
 leboutique.com&	Unwhitelist
 lechbank.com&	Unwhitelist
 ledyardbank.com&	Unwhitelist
 leesportbank.com&	Unwhitelist
 leomoney.com&	Unwhitelist
+bourse.lerevenu.com&	Unwhitelist
 leu.com&	Unwhitelist
 lfg.com&	Unwhitelist
 lgbbank.com&	Unwhitelist
@@ -2236,6 +2283,7 @@ mahnomenbank.com&	Unwhitelist
 mainebank.com&	Unwhitelist
 mainebankers.com&	Unwhitelist
 mainlandbank.com&	Unwhitelist
+makebling.com&	Unwhitelist
 malayanbank.com&	Unwhitelist
 malwagraminbank.com&	Unwhitelist
 malwaredomainlist.com&	Unwhitelist
@@ -2333,6 +2381,7 @@ mindenexchange.com&	Unwhitelist
 mineolabank.com&	Unwhitelist
 minnbankers.com&	Unwhitelist
 mirabaud.com&	Unwhitelist
+mis34.com&	Unwhitelist
 missionoaksbank.com&	Unwhitelist
 ml.com&	Unwhitelist
 mlastan.com&	Unwhitelist
@@ -2739,12 +2788,14 @@ royalbank.com&	Unwhitelist
 royalbankpa.com&	Unwhitelist
 royaloaksbank.com&	Unwhitelist
 rrsb.com&	Unwhitelist
+ruralvia.com&	Unwhitelist
 rusnarbank.com&	Unwhitelist
 russlavbank.com&	Unwhitelist
 russobank.com&	Unwhitelist
 rzbgroup.com&	Unwhitelist
 s-b-a.com&	Unwhitelist
 s-nbcnews.com&	Unwhitelist
+sabadellatlantico.com&	Unwhitelist
 saderbank.com&	Unwhitelist
 saferpay.com&	Unwhitelist
 safewayselectbank.com&	Unwhitelist
@@ -2808,6 +2859,7 @@ senecafederal.com&	Unwhitelist
 settlersbank.com&	Unwhitelist
 severnbank.com&	Unwhitelist
 seviercobank.com&	Unwhitelist
+sex1950.com&	Unwhitelist
 sfnb.com&	Unwhitelist
 shelllakestatebank.com&	Unwhitelist
 sherburnestatebank.com&	Unwhitelist
@@ -2835,6 +2887,7 @@ pay.skrill.com&	Unwhitelist
 skyfi.com&	Unwhitelist
 skype.com&	Unwhitelist
 sloveniansavings.com&	Unwhitelist
+smartcomparisons.com&	Unwhitelist
 smbonline.com&	Unwhitelist
 snbenid.com&	Unwhitelist
 snbonline.com&	Unwhitelist
@@ -2843,6 +2896,7 @@ socgenyu.com&	Unwhitelist
 societegenerale.com&	Unwhitelist
 sofitasa.com&	Unwhitelist
 static.reverse.softlayer.com&	Unwhitelist
+solbank.com&	Unwhitelist
 solbankspain.com&	Unwhitelist
 solonstatebank.com&	Unwhitelist
 somersetsavings.com&	Unwhitelist
@@ -2943,6 +2997,7 @@ swcbank.com&	Unwhitelist
 swissbankaccount.com&	Unwhitelist
 swissnetbank.com&	Unwhitelist
 swissprivatebankers.com&	Unwhitelist
+symphonis.com&	Unwhitelist
 syndicatebank.com&	Unwhitelist
 synergybank.com&	Unwhitelist
 synthesisbank.com&	Unwhitelist
@@ -3019,6 +3074,7 @@ todo1.com&	Unwhitelist
 tomtom.com&	Unwhitelist
 touchbank.com&	Unwhitelist
 townebank.com&	Unwhitelist
+trader-workstation.com&	Unwhitelist
 tradersbank.com&	Unwhitelist
 ibank.transcapital.com&	Unwhitelist
 img.travidia.com&	Unwhitelist
@@ -3085,6 +3141,7 @@ unionbank.com&	Unwhitelist
 unionbankjo.com&	Unwhitelist
 unionbanknig.com&	Unwhitelist
 unionbankofblair.com&	Unwhitelist
+unionbankofindia.com&	Unwhitelist
 unionbankph.com&	Unwhitelist
 unionbankvt.com&	Unwhitelist
 unionfederalbank.com&	Unwhitelist
@@ -3134,6 +3191,7 @@ venmo.com&	Unwhitelist
 venturacountybusinessbank.com&	Unwhitelist
 vermontmba.com&	Unwhitelist
 vermontnationalbank.com&	Unwhitelist
+vesperexchange.com&	Unwhitelist
 viabcp.com&	Unwhitelist
 vibcorp.com&	Unwhitelist
 videoposte.com&	Unwhitelist
@@ -3159,6 +3217,7 @@ wallisbank.com&	Unwhitelist
 walpolebank.com&	Unwhitelist
 walworthbank.com&	Unwhitelist
 wamu.com&	Unwhitelist
+wargny.com&	Unwhitelist
 warringtonbank.com&	Unwhitelist
 washingtonfederal.com&	Unwhitelist
 washingtonfederalbank.com&	Unwhitelist
@@ -3174,6 +3233,7 @@ wbpr.com&	Unwhitelist
 wcnbwooster.com&	Unwhitelist
 wealthbar.com&	Unwhitelist
 wealthsimple.com&	Unwhitelist
+web-revenue.com&	Unwhitelist
 webbankir.com&	Unwhitelist
 trade.webborsam.com&	Unwhitelist
 webcityfed.com&	Unwhitelist
@@ -3247,8 +3307,10 @@ zenithbank.com&	Unwhitelist
 zionsbancorporation.com&	Unwhitelist
 zionsbank.com&	Unwhitelist
 zjcbank.com&	Unwhitelist
+zonebourse.com&	Unwhitelist
 abcul.coop&	Unwhitelist
 bvr.coop&	Unwhitelist
+credit-cooperatif.coop&	Unwhitelist
 bnv.co.cr&	Unwhitelist
 abc.fi.cr&	Unwhitelist
 banex.fi.cr&	Unwhitelist
@@ -3593,6 +3655,7 @@ leipziger-volksbank.de&	Unwhitelist
 levo-bank.de&	Unwhitelist
 ligabank.de&	Unwhitelist
 loebbecke-bank.de&	Unwhitelist
+love-money.de&	Unwhitelist
 lrp.de&	Unwhitelist
 lueghausenpartner.de&	Unwhitelist
 maerkische-bank.de&	Unwhitelist
@@ -3626,6 +3689,7 @@ naspa.de&	Unwhitelist
 national-bank.de&	Unwhitelist
 nbank.de&	Unwhitelist
 netbank.de&	Unwhitelist
+netdebit-payment.de&	Unwhitelist
 nibcdirect.de&	Unwhitelist
 blz.nifox.de&	Unwhitelist
 nispa.de&	Unwhitelist
@@ -3692,6 +3756,7 @@ ostsaechsische-sparkasse-dresden.de&	Unwhitelist
 owh.de&	Unwhitelist
 oyakankerbank.de&	Unwhitelist
 pax-bank.de&	Unwhitelist
+paypal.de&	Unwhitelist
 pommerschevb.de&	Unwhitelist
 pontosconsult.de&	Unwhitelist
 postbank.de&	Unwhitelist
@@ -4978,6 +5043,7 @@ vvcag.de&	Unwhitelist
 vvrb.de&	Unwhitelist
 vw-bankdirect.de&	Unwhitelist
 vwbank.de&	Unwhitelist
+banking.vwfs.de&	Unwhitelist
 w-saarplus.de&	Unwhitelist
 waldecker-bank.de&	Unwhitelist
 warburg-bank.de&	Unwhitelist
@@ -5118,29 +5184,82 @@ cbe.org.eg&	Unwhitelist
 acarl.es&	Unwhitelist
 aebanca.es&	Unwhitelist
 atca.es&	Unwhitelist
+aurora.es&	Unwhitelist
 ausbanc.es&	Unwhitelist
+bancaja.es&	Unwhitelist
 bancamarch.es&	Unwhitelist
 bancapueyo.es&	Unwhitelist
+bancoandalucia.es&	Unwhitelist
+bancocastilla.es&	Unwhitelist
 bancocetelem.es&	Unwhitelist
+bancodevalencia.es&	Unwhitelist
+bancogalicia.es&	Unwhitelist
+bancogallego.es&	Unwhitelist
 bancopopular.es&	Unwhitelist
+bancovasconia.es&	Unwhitelist
 banesto.es&	Unwhitelist
 bankia.es&	Unwhitelist
+bankinter.es&	Unwhitelist
+bankoa.es&	Unwhitelist
 barclays.es&	Unwhitelist
+bbk.es&	Unwhitelist
 bbva.es&	Unwhitelist
 bde.es&	Unwhitelist
 bef.es&	Unwhitelist
+bes.es&	Unwhitelist
 cai.es&	Unwhitelist
+caixacatalunya.es&	Unwhitelist
+caixagalicia.es&	Unwhitelist
+caixagirona.es&	Unwhitelist
+caixalaietana.es&	Unwhitelist
+caixamanlleu.es&	Unwhitelist
+caixamanresa.es&	Unwhitelist
+caixaontinyent.es&	Unwhitelist
+caixasabadell.es&	Unwhitelist
+caixatarragona.es&	Unwhitelist
+caja-granada.es&	Unwhitelist
+caja-ingenieros.es&	Unwhitelist
+cajabadajoz.es&	Unwhitelist
+cajacaminos.es&	Unwhitelist
+cajacampo.es&	Unwhitelist
+cajacanarias.es&	Unwhitelist
+cajacirculo.es&	Unwhitelist
+cajadeavila.es&	Unwhitelist
+cajadeburgos.es&	Unwhitelist
+cajaduero.es&	Unwhitelist
+cajaen.es&	Unwhitelist
+cajaespana.es&	Unwhitelist
+cajaextremadura.es&	Unwhitelist
+cajalaboral.es&	Unwhitelist
+cajalon.es&	Unwhitelist
+cajamadrid.es&	Unwhitelist
+cajamurcia.es&	Unwhitelist
+cajapamplona.es&	Unwhitelist
+cajarioja.es&	Unwhitelist
+cajasegovia.es&	Unwhitelist
+cajastur.es&	Unwhitelist
+cajasur.es&	Unwhitelist
+cajavital.es&	Unwhitelist
+cam.es&	Unwhitelist
+can.es&	Unwhitelist
+ccm.es&	Unwhitelist
 ceca.es&	Unwhitelist
+colonya.es&	Unwhitelist
 credit-suisse.es&	Unwhitelist
 deutsche-bank.es&	Unwhitelist
 ebankinter.es&	Unwhitelist
+fibanc.es&	Unwhitelist
 fibancmediolanum.es&	Unwhitelist
 fimestic.es&	Unwhitelist
 gruposantander.es&	Unwhitelist
 ibercaja.es&	Unwhitelist
 ing.es&	Unwhitelist
 ingdirect.es&	Unwhitelist
+kutxa.es&	Unwhitelist
 lacaixa.es&	Unwhitelist
+larural.es&	Unwhitelist
+lloydsbank.es&	Unwhitelist
+openbank.es&	Unwhitelist
 popularbancaprivada.es&	Unwhitelist
 santanderconsumer.es&	Unwhitelist
 santanderconsumeronline.es&	Unwhitelist
@@ -5180,7 +5299,11 @@ reservebank.gov.fj&	Unwhitelist
 landsbank.fo&	Unwhitelist
 aaadvisors.fr&	Unwhitelist
 afb.fr&	Unwhitelist
+allianzbanque.fr&	Unwhitelist
+bourse.aol.fr&	Unwhitelist
 acef-toulousepyrenees.asso.fr&	Unwhitelist
+banque.fr&	Unwhitelist
+banque-accord.fr&	Unwhitelist
 banque-courtois.fr&	Unwhitelist
 banque-france.fr&	Unwhitelist
 banque-kolb.fr&	Unwhitelist
@@ -5204,7 +5327,11 @@ evry91.bnp.fr&	Unwhitelist
 melun.bnp.fr&	Unwhitelist
 reims.bnp.fr&	Unwhitelist
 bnpparibas.fr&	Unwhitelist
+bourse.fr&	Unwhitelist
+boursedirect.fr&	Unwhitelist
+boursica.fr&	Unwhitelist
 bpam.fr&	Unwhitelist
+bplc.fr&	Unwhitelist
 bred.fr&	Unwhitelist
 ca-alpesprovence.fr&	Unwhitelist
 ca-anjou-maine.fr&	Unwhitelist
@@ -5217,6 +5344,7 @@ ca-centreloire.fr&	Unwhitelist
 ca-centreouest.fr&	Unwhitelist
 ca-centrest.fr&	Unwhitelist
 ca-charente-perigord.fr&	Unwhitelist
+ca-cib.fr&	Unwhitelist
 ca-cmds.fr&	Unwhitelist
 ca-corse.fr&	Unwhitelist
 ca-cotesdarmor.fr&	Unwhitelist
@@ -5225,6 +5353,7 @@ ca-finistere.fr&	Unwhitelist
 ca-gard.fr&	Unwhitelist
 ca-guadeloupe.fr&	Unwhitelist
 ca-illeetvilaine.fr&	Unwhitelist
+ca-languedoc.fr&	Unwhitelist
 ca-loirehauteloire.fr&	Unwhitelist
 ca-martinique.fr&	Unwhitelist
 ca-midi.fr&	Unwhitelist
@@ -5246,9 +5375,11 @@ ccf.fr&	Unwhitelist
 ccso.fr&	Unwhitelist
 cedicam.fr&	Unwhitelist
 cic.fr&	Unwhitelist
+cortalconsors.fr&	Unwhitelist
 credit-agricole.fr&	Unwhitelist
 credit-du-nord.fr&	Unwhitelist
 credit-municipal-lyon.fr&	Unwhitelist
+credit-municipal-toulouse.fr&	Unwhitelist
 creditfoncier.fr&	Unwhitelist
 creditlyonnais.fr&	Unwhitelist
 creditmutuel.fr&	Unwhitelist
@@ -5258,14 +5389,24 @@ fortisbanque.fr&	Unwhitelist
 fortuneo.fr&	Unwhitelist
 garantiedesdepots.fr&	Unwhitelist
 hsbc.fr&	Unwhitelist
+iforex.fr&	Unwhitelist
 ingdirect.fr&	Unwhitelist
 interepargne.fr&	Unwhitelist
+investir.fr&	Unwhitelist
 iwbank.fr&	Unwhitelist
 jyskebank.fr&	Unwhitelist
 labanquepostale.fr&	Unwhitelist
+lacotebleue.fr&	Unwhitelist
+bourse.latribune.fr&	Unwhitelist
 lcf-rothschild.fr&	Unwhitelist
 lcl.fr&	Unwhitelist
+bourse.lefigaro.fr&	Unwhitelist
+lemoneymag.fr&	Unwhitelist
 lepoint.fr&	Unwhitelist
+bourse.lesechos.fr&	Unwhitelist
+bourse.lexpress.fr&	Unwhitelist
+bourse.m6.fr&	Unwhitelist
+monbanquierenligne.fr&	Unwhitelist
 montepaschi-banque.fr&	Unwhitelist
 nxbp.fr&	Unwhitelist
 orange.fr&	Unwhitelist
@@ -5273,8 +5414,11 @@ sanpaolo.fr&	Unwhitelist
 snvb.fr&	Unwhitelist
 societegenerale.fr&	Unwhitelist
 tarneaud.fr&	Unwhitelist
+bourse.tf1.fr&	Unwhitelist
+trader-forex.fr&	Unwhitelist
 ubaf.fr&	Unwhitelist
 ut-capitole.fr&	Unwhitelist
+bourse.votreargent.fr&	Unwhitelist
 bankonline.ge&	Unwhitelist
 businessonline.ge&	Unwhitelist
 e-commerce.cartubank.ge&	Unwhitelist
@@ -5800,6 +5944,8 @@ ebankas.danskebank.lt&	Unwhitelist
 ibank.lt&	Unwhitelist
 lbank.lt&	Unwhitelist
 margevicius.lt&	Unwhitelist
+medbank.lt&	Unwhitelist
+nordea.lt&	Unwhitelist
 seb.lt&	Unwhitelist
 ib.swedbank.lt&	Unwhitelist
 abbl.lu&	Unwhitelist
@@ -5952,7 +6098,7 @@ baycitiesbank.net&	Unwhitelist
 pay.best2pay.net&	Unwhitelist
 bipielle.net&	Unwhitelist
 arabbankers.bluestep.net&	Unwhitelist
-secure.bnpparibas.net&	Unwhitelist
+bnpparibas.net&	Unwhitelist
 brb-bi.net&	Unwhitelist
 brh.net&	Unwhitelist
 brickyardbank.net&	Unwhitelist
@@ -6018,6 +6164,7 @@ miba.net&	Unwhitelist
 midwestbank.net&	Unwhitelist
 mmla.net&	Unwhitelist
 morganbank.net&	Unwhitelist
+mortgage-rates-guide.net&	Unwhitelist
 netflix.net&	Unwhitelist
 nflximg.net&	Unwhitelist
 nflxvideo.net&	Unwhitelist
@@ -6033,6 +6180,7 @@ rurbanfinancial.net&	Unwhitelist
 scbt.net&	Unwhitelist
 securitybank.net&	Unwhitelist
 securityfederal.net&	Unwhitelist
+sma-trade.net&	Unwhitelist
 southportbank.net&	Unwhitelist
 speedtest.net&	Unwhitelist
 bankofamerica.com.srip.net&	Unwhitelist
@@ -6113,6 +6261,8 @@ fnh.no&	Unwhitelist
 nor.no&	Unwhitelist
 nettbanken.nordea.no&	Unwhitelist
 norges-bank.no&	Unwhitelist
+ose.no&	Unwhitelist
+oslobors.no&	Unwhitelist
 nrb.org.np&	Unwhitelist
 hostsfile.mine.nu&	Unwhitelist
 anz.co.nz&	Unwhitelist
@@ -6358,6 +6508,7 @@ bankcom.com.ph&	Unwhitelist
 bdo.com.ph&	Unwhitelist
 bpi.com.ph&	Unwhitelist
 cbs.com.ph&	Unwhitelist
+chinabank.com.ph&	Unwhitelist
 chinatrust.com.ph&	Unwhitelist
 citibank.com.ph&	Unwhitelist
 devbankphil.com.ph&	Unwhitelist
@@ -7062,6 +7213,7 @@ tetrapolis.spb.ru&	Unwhitelist
 ibank.viking.spb.ru&	Unwhitelist
 ic.vitabank.spb.ru&	Unwhitelist
 spbrd.ru&	Unwhitelist
+speculator-fin.ru&	Unwhitelist
 ibank.spiritbank.ru&	Unwhitelist
 ibs.spurtbank.ru&	Unwhitelist
 srbank.ru&	Unwhitelist
@@ -7077,6 +7229,7 @@ system-bank.ru&	Unwhitelist
 bank.taatta.ru&	Unwhitelist
 old.taatta.ru&	Unwhitelist
 tagilbank.ru&	Unwhitelist
+tak.ru&	Unwhitelist
 tarkhanybank.ru&	Unwhitelist
 ibank.tatsotsbank.ru&	Unwhitelist
 telebank.tatsotsbank.ru&	Unwhitelist
@@ -7566,12 +7719,15 @@ rbz.co.zw&	Unwhitelist
 ### WHITELIST DOMAINS ###
 1.168.192.in-addr.arpa	Chris-White
 partner-bank.at	Shalla-Banking
-02bancorp.com	Shalla-Banking
+vluggeld.140provision.be	UT1-Financial
+02bancorp.com	Shalla-Banking, UT1-Banking
 356bank.com	Shalla-Banking
 netlab.360.com	Chris-White
-53.com	Shalla-Banking, Adguard-Banks
+53.com	Shalla-Banking, UT1-Banking, Adguard-Banks
 bannerbank.com	Shalla-Banking
 adserver.bworldonline.com	EasyList-White
+casino-astucess.com	UT1-Financial
+casinoo-astuces.com	UT1-Financial
 mbz19n.accounts.clickbank.com	Adguard-Banks
 track2.royalmail.com	EasyPrivacy-White
 oas.theguardian.com	EasyList-White
