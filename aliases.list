@@ -95,6 +95,7 @@ workgroup*
 #test.company.com=www.googleapis.com
 #.!99999999
 test.chrisbuijs.com=RANDOM
+test.chrisbuijs.com!5
 #/^(.*\.)((?!(in-addr|ip6)).)*\.arpa$/=blackhole.invalid
 #/^(.*)\.(in-addr|ip6)\.arpa$/=\1.blackhole.invalid
 
