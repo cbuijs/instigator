@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v7.16-20181227 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v7.17-20190101 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -507,8 +507,8 @@ def match_blacklist(rid, rtype, rrtype, value):
         tag = 'MATCH-NO-CACHE'
         result = None
 
-    #if debug:
-    log_info('{0} [{1}]: {2} {3}/{4} = {5}'.format(tag, id_str(rid), rtype, value, rrtype, list_status.get(result, 'NOTLISTED')))
+    if debug:
+        log_info('{0} [{1}]: {2} {3}/{4} = {5}'.format(tag, id_str(rid), rtype, value, rrtype, list_status.get(result, 'NOTLISTED')))
 
     return result
 
@@ -908,10 +908,15 @@ def dns_query(request, qname, qtype, use_tcp, tid, cip, checkbl, force):
     while uid in pending:
         count += 1
         if count > 4: # Disembark after 5 seconds
-            log_info('DNS-QUERY [{0}]: Skipping query for {1} - ID \"{2}\" already processing, takes more then 5 seconds{3}'.format(hid, queryname, hid, tag))
-            return rc_reply(request, 'SERVFAIL')
+            _ = pending.pop(uid, None)
+            reply = from_cache(qname, 'IN', qtype, tid)
+            if reply is None:
+                log_info('DNS-QUERY [{0}]: Skipping query for {1} - ID \"{2}\" already processing, takes more then 5 seconds{3}'.format(hid, queryname, hid, tag))
+                return rc_reply(request, 'SERVFAIL')
+            else:
+                return Reply
 
-        log_info('DNS-QUERY [{0}]: Delaying ({1}) query for {2} - ID \"{3}\" already in progress, waiting to finish{4}'.format(hid, count, queryname, hid, tag))
+        log_info('DNS-QUERY [{0}]: Delaying (Try #{1}) query for {2} - ID \"{3}\" already in progress, waiting to finish{4}'.format(hid, count, queryname, hid, tag))
         time.sleep(1) # Seconds
 
     # Get from cache if any, only hit when doing internal/alias queries
@@ -1817,12 +1822,12 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                 for addr in regex.split('\s*,\s*', ips):
                                     if ipportregex.search(addr):
                                         addrs.append(addr)
-                                        log_info('{0} ALIAS-FORWARDER [{1}]: \"{2}\" to {3}'.format(listname, count, domain, addr))
                                     else:
                                         log_err('{0} INVALID FORWARD-ADDRESS [{1}]: {2}'.format(listname, count, addr))
 
                                 if addrs:
                                     fetched += 1
+                                    log_info('{0} ALIAS-FORWARDER [{1}]: \"{2}\" to {3}'.format(listname, count, domain, ', '.join(addrs)))
                                     flist[domain] = addrs
                             else:
                                 log_err('{0} INVALID FORWARD [{1}]: {2}'.format(listname, count, entry))
@@ -2222,7 +2227,7 @@ def log_replies(reply, title):
     if replynum > 0:
         for record in reply.rr:
             replycount += 1
-            log_info('{0} [{1}:{2}-{3}]: {4}/IN/{5} = {6} {7}'.format(title, hid, replycount, replynum, str(record.rname).rstrip('.') or '.', QTYPE[record.rtype], str(record.rdata).rstrip('.') or '.', rcode))
+            log_info('{0} [{1}:{2}-{3}]: {4}/IN/{5} = {6} {7} (TTL:{8})'.format(title, hid, replycount, replynum, str(record.rname).rstrip('.') or '.', QTYPE[record.rtype], str(record.rdata).rstrip('.') or '.', rcode, record.ttl))
     else:
         if rcode == 'NOERROR':
             rcode = 'NODATA'
@@ -2536,7 +2541,7 @@ def collapse_cname(request, reply, rid):
                         answer = RR(qname, QTYPE.A, ttl=ttl, rdata=A(ip))
 
                     if logreplies:
-                        log_info('REPLY [{0}:{1}-{2}]: COLLAPSE {3}/IN/CNAME -> {4}/{5}'.format(zid, count, total, qname, ip, rrtype))
+                        log_info('REPLY [{0}:{1}-{2}]: COLLAPSE {3}/IN/CNAME -> {4}/{5} (TTL:{6})'.format(zid, count, total, qname, ip, rrtype, ttl))
 
                     reply.add_answer(answer)
 
