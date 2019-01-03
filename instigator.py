@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v7.17-20190101 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v7.20-20190102 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -340,6 +340,7 @@ bl_asn = dict() # ASN Blacklist
 aliases = OrderedDict() # Aliases
 aliases_rx = OrderedDict() # Alias generators/regexes
 ttls = OrderedDict() # TTL aliases
+defaults = OrderedDict() # NXDomain response replacements
 
 # Work caches
 #indom_cache = dict() # Cache results of domain hits
@@ -784,10 +785,10 @@ def in_regex(name, rxlist, isalias, rxid):
                 if isalias:
                     rx3 = regex.split('\s+', rx2)[0]
                     result = regex.sub(rx, rx3, name)
-                    log_info('GENERATOR-MATCH [{0}]: {1} matches \"{2}\" = \"{3}\" -> \"{4}\"'.format(lst, name, rx.pattern, rx3, result))
+                    log_info('GENERATOR-MATCH [{0}]: \"{1}\" matches \"{2}\" = \"{3}\" -> \"{4}\"'.format(lst, name, rx.pattern, rx3, result))
                 else:
                     result = '\"' + rx2 + '\" (' + lst + ')'
-                    if debug: log_info('REGEX-MATCH [{0}]: {1} matches {2}'.format(lst, name, result))
+                    if debug: log_info('REGEX-MATCH [{0}]: \"{1}\" matches \"{2}\"'.format(lst, name, result))
 
                 inrx_cache[rxidname] = result
 
@@ -1494,6 +1495,7 @@ def save_lists(file):
         s['aliases_rx'] = aliases_rx
         s['forward_servers'] = forward_servers
         s['ttls'] = ttls
+        s['defaults'] = defaults
 
         s['ipasn4'] = to_dict(ipasn4)
         s['ipasn6'] = to_dict(ipasn6)
@@ -1568,6 +1570,7 @@ def load_lists(file):
     global aliases_rx
     global forward_servers
     global ttls
+    global defaults
 
     global ipasn4
     global ipasn6
@@ -1597,6 +1600,7 @@ def load_lists(file):
             aliases_rx = s['aliases_rx']
             forward_servers = s['forward_servers']
             ttls = s['ttls']
+            defaults = s['defaults']
 
             from_dict(s['ipasn4'], ipasn4)
             from_dict(s['ipasn6'], ipasn6)
@@ -1863,6 +1867,21 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
                                 log_info('{0} ALIAS-SEARCH-DOMAIN [{1}]: \"{2}\"'.format(listname, count, sdom))
                         else:
                             log_err('{0} INVALID SEARCH-DOMAIN [{1}]: {2}'.format(listname, count, entry))
+
+                    # NXDOMAIN default response
+                    elif entry.find('<') > 0:
+                        elements = regex.split('\s*<\s*', entry)
+                        if elements[1:]:
+                            domain = normalize_dom(elements[0])
+                            default = elements[1].strip()
+                            if isdomain.search(domain) and (isdomain.search(default) or ipregex.search(default)):
+                                fetched += 1
+                                defaults[domain] = default # DO NOT WHITELIST!
+                                log_info('{0} ALIAS-DEFAULT [{1}]: \"{2}\" = \"{3}\"'.format(listname, count, domain, default))
+                            else:
+                                log_err('{0} INVALID DOMAIN/IP [{1}]: {2}'.format(listname, count, entry))
+                        else:
+                            log_err('{0} INVALID DOMAIN/IP [{1}]: {2}'.format(listname, count, entry))
 
                 # Invalid/Unknown Syntax or BOGUS entry
                 else:
@@ -2850,6 +2869,7 @@ def do_query(request, handler, force):
                 if checkrequest is False:
                     log_info('UNFILTERED-QUERY [{0}]: {1}'.format(tid, queryname))
                     reply = dns_query(request, qname, qtype, use_tcp, rid, cip, True, force)
+                    
                 else:
                     # Check against lists
                     ismatch = match_blacklist(rid, 'REQUEST', qtype, qname)
@@ -2870,6 +2890,14 @@ def do_query(request, handler, force):
     if reply:
         # Strip any v4/v6 records when needed
         reply = strip_reply(request, reply, cip)
+
+        # Replace NXDOMAIN if match
+        rcode = str(RCODE[reply.header.rcode])
+        if defaults and (rcode == 'NXDOMAIN' or (rcode == 'NOERROR' and len(reply.rr) == 0)):
+            generated = defaults.get(in_domain(qname, defaults, 'Defaults', False), False)
+            if generated:
+                log_info('REPLY-DEFAULT [{0}]: \"{1}\" = \"{2}\" ({3}) -> \"{4}\"'.format(tid, queryname, rcode, len(reply.rr), generated))
+                reply = generate_alias(request, qname, qtype, cip, use_tcp, force, generated)
 
         if queryfiltered:
             #ttl = normalize_ttl(qname, reply.rr)
