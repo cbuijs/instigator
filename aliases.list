@@ -32,9 +32,9 @@
 #www.youtube-nocookie.com=restrictmoderate.youtube.com
 
 # Lockdown NTP
-pool.ntp.org=0.europe.pool.ntp.org
-time.google.com=0.europe.pool.ntp.org
-time.apple.com=0.europe.pool.ntp.org
+pool.ntp.org=europe.pool.ntp.org
+time.google.com=europe.pool.ntp.org
+time.apple.com=europe.pool.ntp.org
 
 # Forwarding example
 #local>192.168.1.1
