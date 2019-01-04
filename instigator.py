@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v7.20-20190102 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v7.21-20190103 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -14,7 +14,7 @@ This is a little study to build a DNS server in Python including some features:
 - Blacklist/Whitelist DNS queries and responses based on domain, ip or regex
 - Blacklisted DNS queries never leave the building
 
-... to be elaborated.
+... to be elaborated. Maybe never ...
 
 ToDo/Ideas:
 - Loads ...
@@ -24,17 +24,16 @@ ToDo/Ideas:
 - Optimize code for better cache/resolution performance. Status: Ongoing.
 - Cleanup code and optimize. Some of it is hacky-quick-code. Status: Ongoing.
 - Switch to dnspython or more modern lib as DNS 'engine'. Status: Backburner.
-- DNSSEC support (validation only), like DNSMasq. Status: Backburner, see dnspython.
+- DNSSEC support (validation only), like DNSMasq (Needs DNSPython). Status: Backburner.
 - Itterative resolution besides only forwarding (as is today). Status: Backburner.
 - Add more security-features against hammering, dns-drip, ddos, etc. Status: Backburner.
 - Fix SYSLOG on MacOS. Status: To-be-done.
-- Redo randomness blocking, Status: Backburner.
-- Options per entry to have more precise blocking, Status: Ongoing/WIP.
+- Redo randomness blocking, Status: Backburner/Disabled.
+- Options per entry to have more precise blocking, Status: Backburner.
 - TTL with value -1 will be statically cached. Status: Done/Finetuning.
 - Load BIND style DB zones into static cache. Status: Partially-Done/Finetuning.
-- Use dotty_dict for cache storage (https://github.com/pawelzny/dotty_dict): Investigating
-- Unduplicate some calls (like Cache-Maintence). Status: Maybe-Fixed.
-- Support URL's for lists. Status: Almost-Done
+- Unduplicate some calls (like Cache-Maintence). Status: Maybe-Fixed/Done.
+- Use regex for defaults and other domain-based aliases. Status: To-be-done.
 
 =========================================================================================
 '''
@@ -1324,6 +1323,9 @@ def generate_alias(request, qname, qtype, cip, use_tcp, force, newalias):
     else:
         tag = 'GENERATED-ALIAS-HIT'
         alias = newalias
+
+    if qname == alias:
+        return None
 
     israndom = False
 
@@ -2897,7 +2899,7 @@ def do_query(request, handler, force):
             generated = defaults.get(in_domain(qname, defaults, 'Defaults', False), False)
             if generated:
                 log_info('REPLY-DEFAULT [{0}]: \"{1}\" = \"{2}\" ({3}) -> \"{4}\"'.format(tid, queryname, rcode, len(reply.rr), generated))
-                reply = generate_alias(request, qname, qtype, cip, use_tcp, force, generated)
+                reply = generate_alias(request, qname, qtype, cip, use_tcp, force, generated) or rc_reply(request, 'SERVFAIL')
 
         if queryfiltered:
             #ttl = normalize_ttl(qname, reply.rr)
