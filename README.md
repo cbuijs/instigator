@@ -53,7 +53,7 @@ TTL overrides can be done by using an exclamation (!), example (TTL in seconds):
 	google.com!666		# Use TTL of 666 for domain google.com and all sub-domains ending in .google.com
 	chrisbuijs.com!120	# Use a TTL of 120 for domain chrisbuijs.com and all sub-domains ending in .chrisbuijs.com
 
-Default override/syntesize answer when response is NXDOMAIN or NOERROR with zero answers:
+Default override/syntesize answer when response is NXDOMAIN or NOERROR with zero answers (NODATA):
 
 	domain.com<11.22.33.44	        # Synthesize 11.22.33.44
 	bad.company.com<::1		# Synthesize ::1
