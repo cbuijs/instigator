@@ -3,8 +3,6 @@ Testbed to build a filtering DNS server based on dnslib.
 
 <b>Note/Disclaimer:</b> This code is as-is, changes frequently, sometimes well tested, sometimes not and is <b>severly bad documented</b>. Use at own risk!
 
-<a href="https://www.dwheeler.com/sloccount/">SLOC-Count:</a> $ 952,364.-
-
 Use the <a href="https://github.com/cbuijs/instigator/issues">Issues</a> tab to report anything I could/should help on or should include as feature/fix, and I will try my best.
 
 See <a href="https://github.com/cbuijs/instigator/blob/master/instigator.py">instigator.py</a> for variables and settings.
