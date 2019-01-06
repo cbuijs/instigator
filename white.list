@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1546659979                  ###
+### Version: 1546746394                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -7700,10 +7700,7 @@ boz.zm&	Unwhitelist
 cavmont.com.zm&	Unwhitelist
 rbz.co.zw&	Unwhitelist
 ### WHITELIST REGEXES ###
-/^(.*\.)*((?!(ad|adservice|adword|analytic|gg|googleadapi|google[-]*analytics|gstaticadssl|id|marketing([-]*platform)*|pagead|pagead[-]*googlehosted|partnerad|tagmanager|video[-]*stat|www[-]*google[-]*analytic|www[-]*googletagmanager)[s]*).)*\.google\.([a-z]{2,3}\.)*[a-z]{2,3}$/	Chris-Regex-White
 /^(imap|pop|smtp)\.g(oogle)*mail\.com$/	Chris-Regex-White
-/^(.*\.)*((?!font[s]*).)*\.googleapis\.com$/	Chris-Regex-White
-/^(.*\.)*((?!metric[s]*).)*\.gstatic\.com$/	Chris-Regex-White
 /^(.*\.)*gvt[0-9]\.com$/	Chris-Regex-White
 /^(.*\.)*googleusercontent\.com$/	Chris-Regex-White
 /^(.*\.)*(apple|icloud|itunes)\.com$/	Chris-Regex-White
