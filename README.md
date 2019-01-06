@@ -56,7 +56,7 @@ TTL overrides can be done by using an exclamation (!), example (TTL in seconds):
 Default override/syntesize answer when response is NXDOMAIN or NOERROR with zero answers:
 
 	domain.com<11.22.33.44	        # Synthesize 11.22.33.44
-        bad.company.com<::1		# Synthesize ::1
+	bad.company.com<::1		# Synthesize ::1
 	televaag.nl<www.google.com	# Redirect to www.google.com, includes resolution
 
 Defining search-domains can be doe using an asterix (*) and the end of the domain-name, example:
