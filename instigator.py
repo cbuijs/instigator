@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v7.21-20190103 Copyright (C) 2018 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v7.25-20190106 Copyright (C) 2018-19 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
@@ -214,7 +214,7 @@ persistentcache = True
 alwaysfresh = False
 
 # TTL Settings
-ttlstrategy = 'average' # average/lowest/highest/random/first/last - Egalize TTL on all RRs in RRSET
+ttlstrategy = 'last' # average/lowest/highest/random/first/last - Egalize TTL on all RRs in RRSET
 filterttl = 900 # Seconds - For filtered/blacklisted/alias entry caching
 minttl = 60 # Seconds
 maxttl = 86400 # Seconds - 3600 = 1 Hour, 86400 = 1 Day, 604800 = 1 Week
@@ -252,7 +252,7 @@ forwardroundrobin = True
 # Collapse/Flatten CNAME Chains
 collapse = True
 
-# Block IPV4 or IPv6 based queries, True = Block, False = NotBlock and None = Based on transport
+# Block IPV4 or IPv6 based queries, True = Block, False = NotBlock and None = Based on transport/client-ip
 blockv4 = False
 blockv6 = None
 blockrcode = 'NODATA'
@@ -277,7 +277,7 @@ blocksearchdom = True
 # Allow "Forced" entries (entries ending in exclaimation mark)
 allowforced = True
 
-# Optimize lists, makes startup longer but memory usage smaller
+# Optimize lists, makes startup longer but memory usage and DNS resolution smaller and more efficient
 optimizelists = True
 
 # SafeDNS
@@ -1684,57 +1684,61 @@ def read_list(file, listname, bw, domlist, iplist4, iplist6, rxlist, arxlist, al
         for line in lines:
             count += 1
 
-            entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', '')) # Strip comments and line-feeds
-
-            if entry.startswith('/'):
-                name = ' '.join(regex.split('\t+', entry)[1:]).strip() or listname
-                entry = regex.sub('/\t+[^/]+$', '/', entry).strip()
-            else:
-                name = ' '.join(regex.split('\s+', entry)[1:]).strip() or listname
-                entry = regex.split('\s+', entry)[0].strip()
-
-            # Accomplist specific clean-up
-
-            # If entry ends in exclaimation, it is a "forced" entry, blacklisted will overrule whitelisted.
-            # !!! Note: Accomplist already did the logic and clean whitelist. If using other cleanup yourself, no code for that here.
-            forced = False
-            if entry.endswith('!'):
-                if allowforced:
-                    if isdomain.search(entry.rstrip('!')):
-                        entry = entry.rstrip('!')
-                        forced = True
-                    else:
-                        entry = None
-                else:
-                    entry = None
+            #entry = regex.sub('\s*#[^#]*$', '', line.replace('\r', '').replace('\n', '')) # Strip comments and line-feeds
+            entry = regex.split('\s*#\s*', line.replace('\r', '').replace('\n', ''))[0].strip() # Strip comments and line-feeds
 
             # If entry ends in ampersand, it is a "safelisted" entry. Not supported.
-            if entry and entry.endswith('&'):
+            if entry.endswith('&'):
                 entry = False
 
-            # If line start with an option. !!!!!!!!!!! WIP !!!!!!!!!!!
-            #
-            # Syntax: [(+|-)]<option>[,[(+|-)]<option>, ...]<~><entry>
-            # Entry as any other entry, just prepended with option and tilde
-            # Options: 4 - IPv4 family only
-            #          6 - IPv6 family only
-            #          <RR-Type> (A, AAAA, CNAME, etc) - This RR-type only
-            #          Prepend options with a '+' sign (default) to use option as matching, '-' sign to negate
-            #          
-            # Exampleis: 4,A,CNAME~domain.com - Filter/Hit domain.com only for IPv4 when A or CNAME records
-            #            6~/^.*$/=REFUSED - Filter/Hit all IPv6 related records and respond with REFUSED
-            #            -A~domain.com - Filter/Hit when record-types are NOT A-Records for domain.com domains and subdomains
-            #
-            #options = False
-            #if hasoption.search(entry):
-            #    elements = regex.split('\s*~\s*', entry)
-            #    options = ','.join(regex.split('\s*,\s*', elements[0]))
-            #    name = options + '~' + name
-            #    entry = '~'.join(elements[1:]) 
-            #    if debug: log_info('{0} OPTIONS [{1}]: \"{2}\" for \"{3}\"'.format(listname, count, options, entry))
+            if entry:
+                if entry.startswith('/'):
+                    name = ' '.join(regex.split('\t+', entry)[1:]).strip() or listname
+                    entry = regex.sub('/\t+[^/]+$', '/', entry).strip()
+                else:
+                    name = ' '.join(regex.split('\s+', entry)[1:]).strip() or listname
+                    entry = regex.split('\s+', entry)[0].strip()
 
-            # Process entry
-            if entry and (not entry.startswith('#')):
+                # Accomplist specific clean-up
+
+                # If entry ends in exclaimation, it is a "forced" entry, blacklisted will overrule whitelisted.
+                # !!! Note: Accomplist already did the logic and clean whitelist. If using other cleanup yourself, no code for that here.
+                forced = False
+                if entry.endswith('!'):
+                    if allowforced:
+                        if isdomain.search(entry.rstrip('!')):
+                            entry = entry.rstrip('!')
+                            forced = True
+                        else:
+                            entry = None
+                    else:
+                        entry = None
+
+
+                # If line start with an option. !!!!!!!!!!! WIP !!!!!!!!!!!
+                #
+                # Syntax: [(+|-)]<option>[,[(+|-)]<option>, ...]<~><entry>
+                # Entry as any other entry, just prepended with option and tilde
+                # Options: 4 - IPv4 family only
+                #          6 - IPv6 family only
+                #          <RR-Type> (A, AAAA, CNAME, etc) - This RR-type only
+                #          Prepend options with a '+' sign (default) to use option as matching, '-' sign to negate
+                #          
+                # Exampleis: 4,A,CNAME~domain.com - Filter/Hit domain.com only for IPv4 when A or CNAME records
+                #            6~/^.*$/=REFUSED - Filter/Hit all IPv6 related records and respond with REFUSED
+                #            -A~domain.com - Filter/Hit when record-types are NOT A-Records for domain.com domains and subdomains
+                #
+                #options = False
+                #if hasoption.search(entry):
+                #    elements = regex.split('\s*~\s*', entry)
+                #    options = ','.join(regex.split('\s*,\s*', elements[0]))
+                #    name = options + '~' + name
+                #    entry = '~'.join(elements[1:]) 
+                #    if debug: log_info('{0} OPTIONS [{1}]: \"{2}\" for \"{3}\"'.format(listname, count, options, entry))
+
+
+                # Process entries
+
                 # REGEX
                 if isregex.search(entry):
                     rx = entry.strip('/')
