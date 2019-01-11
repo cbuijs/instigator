@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1547092067                  ###
+### Version: 1547178289                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -14,6 +14,7 @@ dnsdb.info!	Safelist-Chris-Special-White
 funda.info!	Safelist-Chris-Special-White
 public-dns.info!	Safelist-Chris-Special-White
 insurance!	Safelist-Chris-White-TLDS
+ad.nl!	Safelist-Chris-Special-White
 ntp.org!	Chris-Exclude
 brew.sh!	Safelist-Chris-Special-White
 ### SAFEUNWHITELIST DOMAINS ###
