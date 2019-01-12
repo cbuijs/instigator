@@ -2,7 +2,7 @@
 # Needs Python 3.5 or newer!
 '''
 =========================================================================================
- instigator.py: v7.25-20190106 Copyright (C) 2018-19 Chris Buijs <cbuijs@chrisbuijs.com>
+ instigator.py: v7.30-20190111 Copyright (C) 2018-19 Chris Buijs <cbuijs@chrisbuijs.com>
 =========================================================================================
 
 Python DNS Forwarder/Proxy with security and filtering features
