@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1547264860                  ###
+### Version: 1547352073                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -793,6 +793,7 @@ ausbanca.com&	Unwhitelist
 austinbank.com&	Unwhitelist
 australiancu.com&	Unwhitelist
 cdn.auth0.com&	Unwhitelist
+autoscout24.com&	Unwhitelist
 auxmoney.com&	Unwhitelist
 av.com&	Unwhitelist
 avalcard.com&	Unwhitelist
@@ -2128,7 +2129,6 @@ webid2.gs.com&	Unwhitelist
 gsbfin.com&	Unwhitelist
 gsha.com&	Unwhitelist
 connectivitycheck.gstatic.com&	Unwhitelist
-fonts.gstatic.com&	Unwhitelist
 play-music.gstatic.com&	Unwhitelist
 guarantybankonline.com&	Unwhitelist
 guarantystate.com&	Unwhitelist
