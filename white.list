@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1548128614                  ###
+### Version: 1548214856                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -15,6 +15,7 @@ funda.info!	Safelist-Chris-Special-White
 public-dns.info!	Safelist-Chris-Special-White
 insurance!	Safelist-Chris-White-TLDS
 ad.nl!	Safelist-Chris-Special-White
+buienradar.nl!	Safelist-Chris-Special-White
 ntp.org!	Chris-Exclude
 brew.sh!	Safelist-Chris-Special-White
 ### SAFEUNWHITELIST DOMAINS ###
@@ -6725,6 +6726,7 @@ asnbank.nl&	Unwhitelist
 asrbank.nl&	Unwhitelist
 bankofscotland.nl&	Unwhitelist
 bng.nl&	Unwhitelist
+buienradar.nl&	Unwhitelist
 cene.nl&	Unwhitelist
 crediteurope.nl&	Unwhitelist
 deutschebank.nl&	Unwhitelist
