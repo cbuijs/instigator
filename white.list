@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1548214856                  ###
+### Version: 1548301269                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -16,6 +16,8 @@ public-dns.info!	Safelist-Chris-Special-White
 insurance!	Safelist-Chris-White-TLDS
 ad.nl!	Safelist-Chris-Special-White
 buienradar.nl!	Safelist-Chris-Special-White
+nuon.nl!	Safelist-Chris-Special-White
+waternet.nl!	Safelist-Chris-Special-White
 ntp.org!	Chris-Exclude
 brew.sh!	Safelist-Chris-Special-White
 ### SAFEUNWHITELIST DOMAINS ###
@@ -6762,6 +6764,7 @@ mijndomein.nl&	Unwhitelist
 monsterboard.nl&	Unwhitelist
 nationalevacaturebank.nl&	Unwhitelist
 ntco.nl&	Unwhitelist
+nuon.nl&	Unwhitelist
 nvb.nl&	Unwhitelist
 nwb.nl&	Unwhitelist
 omroep.nl&	Unwhitelist
@@ -6782,6 +6785,7 @@ vnumediaonline.nl&	Unwhitelist
 vpro.nl&	Unwhitelist
 vpv.nl&	Unwhitelist
 home.wanadoo.nl&	Unwhitelist
+waternet.nl&	Unwhitelist
 westlandutrecht.nl&	Unwhitelist
 ykb.nl&	Unwhitelist
 nettbank2.danskebank.no&	Unwhitelist
