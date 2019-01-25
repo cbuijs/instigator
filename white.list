@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1548301269                  ###
+### Version: 1548387822                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -8,6 +8,8 @@
 ### SAFELIST DOMAINS ###
 bank!	Safelist-Chris-White-TLDS
 homebrew.bintray.com!	Safelist-Chris-Special-White
+intuit.com!	Safelist-Chris-Special-White
+turbotax.com!	Safelist-Chris-Special-White
 goog!	Safelist-Chris-Special-White
 dnscrypt.info!	Safelist-Chris-Special-White
 dnsdb.info!	Safelist-Chris-Special-White
@@ -3445,6 +3447,7 @@ tucows.com&	Unwhitelist
 tucowsdomains.com&	Unwhitelist
 tumblr.com&	Unwhitelist
 tunein.com&	Unwhitelist
+turbotax.com&	Unwhitelist
 esube.turkishbank.com&	Unwhitelist
 turkishbanks.com&	Unwhitelist
 esube.turkishcards.com&	Unwhitelist
