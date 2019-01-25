@@ -2690,13 +2690,13 @@ def is_weird(rtype, value, qtype):
                 return True
 
             # Non-SRV records with underscores in qname
-            #elif qtype != 'SRV' and value.count('_') > 0:
-            #    log_info('WEIRD-{0}: {1}/{2} - Non-SRV Underscore'.format(rtype, value, qtype))
-            #    return True
+            elif qtype != 'SRV' and value.count('_') > 0:
+                log_info('WEIRD-{0}: {1}/{2} - Non-SRV Underscore'.format(rtype, value, qtype))
+                return True
 
         # Response Data
         elif rtype == 'REPLY':
-            # PTR record pointing to an IP or Arpa
+            # PTR record pointing to an IP
             if qtype == 'PTR' and ipregex.search(value):
                 log_info('WEIRD-{0}: {1}/{2} - PTR data not a domain-name'.format(rtype, value, qtype))
                 return True
@@ -2707,9 +2707,9 @@ def is_weird(rtype, value, qtype):
                 return True
 
             # Underscores
-            #elif value.count('_') > 0:
-            #    log_info('WEIRD-{0}: {1}/{2} - Underscore'.format(rtype, value, qtype))
-            #    return True
+            elif value.count('_') > 0:
+                log_info('WEIRD-{0}: {1}/{2} - Data contains Underscore(s)'.format(rtype, value, qtype))
+                return True
 
     return False
 
