@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1548387822                  ###
+### Version: 1548474415                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -9,6 +9,7 @@
 bank!	Safelist-Chris-White-TLDS
 homebrew.bintray.com!	Safelist-Chris-Special-White
 intuit.com!	Safelist-Chris-Special-White
+thalys.com!	Safelist-Chris-Special-White
 turbotax.com!	Safelist-Chris-Special-White
 goog!	Safelist-Chris-Special-White
 dnscrypt.info!	Safelist-Chris-Special-White
@@ -3359,6 +3360,7 @@ texaslandbank.com&	Unwhitelist
 texasstatebank.com&	Unwhitelist
 texnational.com&	Unwhitelist
 tfp.com&	Unwhitelist
+thalys.com&	Unwhitelist
 thatsmybank.com&	Unwhitelist
 the-bank.com&	Unwhitelist
 the-exchange-bank.com&	Unwhitelist
