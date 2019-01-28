@@ -1,6 +1,6 @@
 ############################################
 ### ACCOMPLIST GENERATED WHITELIST       ###
-### Version: 1548560624                  ###
+### Version: 1548647024                  ###
 ### Chris Buijs                          ###
 ### https://github.com/cbuijs/accomplist ###
 ############################################
@@ -2055,7 +2055,6 @@ generalbank.com&	Unwhitelist
 geneseeregionalbank.com&	Unwhitelist
 genevaprivatebankers.com&	Unwhitelist
 geobank.com&	Unwhitelist
-geocities.com&	Unwhitelist
 georgetownsb.com&	Unwhitelist
 german-banks.com&	Unwhitelist
 gfed.com&	Unwhitelist
@@ -2960,7 +2959,10 @@ bank.postil.com&	Unwhitelist
 potomacbank.com&	Unwhitelist
 powercorp.com&	Unwhitelist
 ppbank.com&	Unwhitelist
-pr0gramm.com&	Unwhitelist
+img.pr0gramm.com&	Unwhitelist
+m.pr0gramm.com&	Unwhitelist
+thumb.pr0gramm.com&	Unwhitelist
+vid.pr0gramm.com&	Unwhitelist
 prattsletter.com&	Unwhitelist
 premierbank.com&	Unwhitelist
 premierbanker.com&	Unwhitelist
@@ -3613,7 +3615,6 @@ webcityfed.com&	Unwhitelist
 schneider-electric.webex.com&	Unwhitelist
 webmd.com&	Unwhitelist
 websterbank.com&	Unwhitelist
-weebly.com&	Unwhitelist
 weibo.com&	Unwhitelist
 wellsfargo.com&	Unwhitelist
 wellsfargoadvisors.com&	Unwhitelist
@@ -6052,7 +6053,6 @@ beac.int&	Unwhitelist
 ecb.int&	Unwhitelist
 who.int&	Unwhitelist
 domraider.io&	Unwhitelist
-zerodot1.gitlab.io&	Unwhitelist
 boards.greenhouse.io&	Unwhitelist
 ipinfo.io&	Unwhitelist
 sbc.io&	Unwhitelist
